@@ -323,3 +323,73 @@ pub struct CreateImageVariationRequest {
     /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](/docs/usage-policies/end-user-ids).
     pub user: Option<String>,
 }
+
+#[derive(Debug, Serialize)]
+#[serde(untagged)]
+pub enum Input {
+    Single(String),
+    Array(Vec<String>),
+}
+
+#[derive(Debug, Serialize)]
+pub enum TextModerationModel {
+    #[serde(rename = "text-moderation-latest")]
+    Latest,
+    #[serde(rename = "text-moderation-stable")]
+    Stable,
+}
+
+#[derive(Debug, Serialize)]
+pub struct CreateModerationRequest {
+    /// The input text to classify
+    input: Input,
+
+    /// Two content moderations models are available: `text-moderation-stable` and `text-moderation-latest`.
+    ///
+    /// The default is `text-moderation-latest` which will be automatically upgraded over time. This ensures you are always using our most accurate model. If you use `text-moderation-stable`, we will provide advanced notice before updating the model. Accuracy of `text-moderation-stable` may be slightly lower than for `text-moderation-latest`.
+    model: Option<TextModerationModel>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Category {
+    pub hate: bool,
+    #[serde(rename = "hate/threatening")]
+    pub hate_threatening: bool,
+    #[serde(rename = "self-harm")]
+    pub self_harm: bool,
+    pub sexual: bool,
+    #[serde(rename = "sexual/minors")]
+    pub sexual_minors: bool,
+    pub violence: bool,
+    #[serde(rename = "violence/graphic")]
+    pub violence_graphic: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CategoryScore {
+    pub hate: f32,
+    #[serde(rename = "hate/threatening")]
+    pub hate_threatening: f32,
+    #[serde(rename = "self-harm")]
+    pub self_harm: f32,
+    pub sexual: f32,
+    #[serde(rename = "sexual/minors")]
+    pub sexual_minors: f32,
+    pub violence: f32,
+    #[serde(rename = "violence/graphic")]
+    pub violence_graphic: f32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ContentModerationResult {
+    pub flagged: bool,
+    pub catagories: Category,
+    pub category_scores: CategoryScore,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateModerationResponse {
+    pub id: String,
+    pub model: String,
+    pub results: Vec<ContentModerationResult>,
+}
