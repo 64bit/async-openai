@@ -22,6 +22,6 @@ pub struct ApiError {
 }
 
 #[derive(Deserialize)]
-pub(crate) struct ErrorWrapper {
+pub(crate) struct WrappedError {
     pub(crate) error: ApiError,
 }

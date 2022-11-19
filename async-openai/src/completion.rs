@@ -1,8 +1,6 @@
-use serde::Deserialize;
-
 use crate::{
     client::Client,
-    error::{ApiError, ErrorWrapper, OpenAIError},
+    error::{OpenAIError, WrappedError},
     types::{CreateCompletionRequest, CreateCompletionResponse},
 };
 
@@ -21,14 +19,13 @@ impl Completion {
             .await?;
 
         let status = response.status();
-        let reqwest_error = response.error_for_status_ref().err();
         let bytes = response.bytes().await?;
 
         if !status.is_success() {
-            let nested_error: ErrorWrapper =
+            let wrapped_error: WrappedError =
                 serde_json::from_slice(bytes.as_ref()).map_err(OpenAIError::JSONDeserialize)?;
 
-            return Err(OpenAIError::ApiError(nested_error.error));
+            return Err(OpenAIError::ApiError(wrapped_error.error));
         }
 
         let response: CreateCompletionResponse =
