@@ -4,7 +4,7 @@ use serde::Deserialize;
 pub enum OpenAIError {
     #[error("http error: {0}")]
     Reqwest(#[from] reqwest::Error),
-    #[error("{}: {}", .0.error.r#type, .0.error.message)]
+    #[error("{}: {}", .0.r#type, .0.message)]
     ApiError(ApiError),
     #[error("failed to deserialize api response: {0}")]
     JSONDeserialize(serde_json::Error),
@@ -15,13 +15,13 @@ pub enum OpenAIError {
      \"type\": \"insufficient_quota\",\n        \"param\": null,\n        \"code\": null\n    }\n}\n", */
 #[derive(Debug, Deserialize)]
 pub struct ApiError {
-    error: ErrorResponse,
+    pub message: String,
+    pub r#type: String,
+    pub param: Option<serde_json::Value>,
+    pub code: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct ErrorResponse {
-    message: String,
-    r#type: String,
-    param: Option<serde_json::Value>,
-    code: Option<serde_json::Value>,
+#[derive(Deserialize)]
+pub(crate) struct ErrorWrapper {
+    pub(crate) error: ApiError,
 }
