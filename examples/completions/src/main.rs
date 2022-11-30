@@ -5,8 +5,8 @@ async fn main() {
     let client = openai::Client::new();
 
     let completion_request = openai::types::CreateCompletionRequest {
-        model: "text-davinci-002".to_string(),
-        prompt: Some("What year is this?".to_string()),
+        model: "text-davinci-003".to_string(),
+        prompt: Some("Tell me a joke about universe".to_string()),
         ..Default::default()
     };
 
