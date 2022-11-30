@@ -1,5 +1,3 @@
-use reqwest::header::HeaderMap;
-
 #[derive(Debug, Default)]
 pub struct Client {
     api_key: String,
