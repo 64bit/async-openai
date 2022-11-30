@@ -3,4 +3,4 @@ members = [
     "completions",
     "image"
 ]
-edition = "2021"
+resolver = "2"
