@@ -44,7 +44,7 @@ impl Client {
         &self.api_key
     }
 
-    pub(crate) async fn execute<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
+    pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
     where
         I: Serialize,
         O: DeserializeOwned,

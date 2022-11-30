@@ -11,6 +11,6 @@ impl Image {
         client: &Client,
         request: CreateImageRequest,
     ) -> Result<ImageResponse, OpenAIError> {
-        client.execute("/images/generations", request).await
+        client.post("/images/generations", request).await
     }
 }

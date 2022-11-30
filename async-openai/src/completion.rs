@@ -11,6 +11,6 @@ impl Completion {
         client: &Client,
         request: CreateCompletionRequest,
     ) -> Result<CreateCompletionResponse, OpenAIError> {
-        client.execute("/completions", request).await
+        client.post("/completions", request).await
     }
 }
