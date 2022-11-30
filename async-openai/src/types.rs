@@ -1,6 +1,11 @@
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 use serde::{Deserialize, Serialize};
+
+use crate::{download::download_url, error::OpenAIError};
 
 pub struct Engine {
     pub id: String,
@@ -279,17 +284,51 @@ pub struct ImageResponse {
     pub data: Vec<ImageData>,
 }
 
-pub struct Image {
-    pub name: String,
-    pub data: Vec<u8>, // todo: stream?
+pub enum ImageInput {
+    Path(PathBuf),
+}
+
+impl ImageInput {
+    pub fn new<P: AsRef<Path>>(dir: P) -> Self {
+        ImageInput::Path(PathBuf::from(dir.as_ref()))
+    }
+}
+
+impl ImageResponse {
+    pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<(), OpenAIError> {
+        let exists = match Path::try_exists(dir.as_ref()) {
+            Ok(exists) => exists,
+            Err(e) => return Err(OpenAIError::ImageSaveError(e.to_string())),
+        };
+
+        if !exists {
+            std::fs::create_dir_all(dir.as_ref())
+                .map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?;
+        }
+
+        for id in &self.data {
+            id.save(dir.as_ref()).await?;
+        }
+        Ok(())
+    }
+}
+
+impl ImageData {
+    async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<(), OpenAIError> {
+        match self {
+            ImageData::Url(url) => download_url(url, dir).await?,
+            ImageData::B64Json(b64_json) => println!("{b64_json}"),
+        }
+        Ok(())
+    }
 }
 
 pub struct CreateImageEditRequest {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square.
-    pub image: Image,
+    pub image: ImageInput,
 
     /// An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where `image` should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as `image`.
-    pub mask: Image,
+    pub mask: ImageInput,
 
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     pub prompt: String,
@@ -309,7 +348,7 @@ pub struct CreateImageEditRequest {
 
 pub struct CreateImageVariationRequest {
     /// The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and square.
-    pub image: Image,
+    pub image: ImageInput,
 
     /// The number of images to generate. Must be between 1 and 10.
     pub n: Option<u8>, // min:1 max:10 default:1

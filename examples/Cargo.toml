@@ -1,2 +1,6 @@
 [workspace]
-members = ["completions"]
+members = [
+    "completions",
+    "image"
+]
+resolver = "2"

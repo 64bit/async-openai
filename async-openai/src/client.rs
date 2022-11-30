@@ -1,4 +1,6 @@
-use reqwest::header::HeaderMap;
+use serde::{de::DeserializeOwned, Serialize};
+
+use crate::error::{OpenAIError, WrappedError};
 
 #[derive(Debug, Default)]
 pub struct Client {
@@ -14,7 +16,7 @@ impl Client {
     pub fn new() -> Self {
         Self {
             api_base: API_BASE.to_string(),
-            api_key: std::env::var("OPENAI_API_KEY").unwrap_or("".to_string()),
+            api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()),
             ..Default::default()
         }
     }
@@ -40,5 +42,32 @@ impl Client {
 
     pub fn api_key(&self) -> &str {
         &self.api_key
+    }
+
+    pub(crate) async fn execute<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
+    where
+        I: Serialize,
+        O: DeserializeOwned,
+    {
+        let response = reqwest::Client::new()
+            .post(format!("{}{path}", self.api_base()))
+            .bearer_auth(self.api_key())
+            .json(&request)
+            .send()
+            .await?;
+
+        let status = response.status();
+        let bytes = response.bytes().await?;
+
+        if !status.is_success() {
+            let wrapped_error: WrappedError =
+                serde_json::from_slice(bytes.as_ref()).map_err(OpenAIError::JSONDeserialize)?;
+
+            return Err(OpenAIError::ApiError(wrapped_error.error));
+        }
+
+        let response: O =
+            serde_json::from_slice(bytes.as_ref()).map_err(OpenAIError::JSONDeserialize)?;
+        Ok(response)
     }
 }
