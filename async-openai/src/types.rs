@@ -176,7 +176,7 @@ pub struct Choice {
     pub text: String,
     pub index: u32,
     pub logprobs: Option<Logprobs>,
-    pub finish_reason: String,
+    pub finish_reason: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -227,10 +227,10 @@ pub struct CreateEditRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct CreateEditResponse {
-    pub id: String,
+    pub id: Option<String>,
     pub object: String,
     pub created: u32,
-    pub model: String,
+    pub model: Option<String>,
     pub choices: Vec<Choice>,
     pub usage: Usage,
 }
