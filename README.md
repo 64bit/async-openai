@@ -18,13 +18,14 @@
 
 ## Usage
 
-The library reads API key from the environment variable `OPENAI_API_KEY`. API key is available on [OpenAI account page](https://beta.openai.com/account/api-keys)
+The library reads [API key](https://beta.openai.com/account/api-keys) from the environment variable `OPENAI_API_KEY`.
 
 ```bash
 export OPENAI_API_KEY='sk-...'
 ```
 
-The [examples](./examples/) directory contains various examples on how to use `async-openai`. For library documentation visit [docs.rs/async-openai](https://docs.rs/async-openai)
+- Visit [examples](./examples/) directory on how to use `async-openai`.
+- Visit [docs.rs/async-openai](https://docs.rs/async-openai) for docs.
 
 ## Image Generation Example
 
