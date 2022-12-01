@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    fmt::Display,
     path::{Path, PathBuf},
 };
 
@@ -245,11 +246,38 @@ pub enum ImageSize {
     S1024x1024,
 }
 
+impl Display for ImageSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                ImageSize::S256x256 => "256x256",
+                ImageSize::S512x512 => "512x512",
+                ImageSize::S1024x1024 => "1024x1024",
+            }
+        )
+    }
+}
+
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ResponseFormat {
     Url,
     B64Json,
+}
+
+impl Display for ResponseFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                ResponseFormat::Url => "url",
+                ResponseFormat::B64Json => "b64_json",
+            }
+        )
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -284,13 +312,15 @@ pub struct ImageResponse {
     pub data: Vec<ImageData>,
 }
 
-pub enum ImageInput {
-    Path(PathBuf),
+pub struct ImageInput {
+    pub path: PathBuf,
 }
 
 impl ImageInput {
-    pub fn new<P: AsRef<Path>>(dir: P) -> Self {
-        ImageInput::Path(PathBuf::from(dir.as_ref()))
+    pub fn new<P: AsRef<Path>>(path: P) -> Self {
+        ImageInput {
+            path: PathBuf::from(path.as_ref()),
+        }
     }
 }
 
