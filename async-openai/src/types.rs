@@ -15,6 +15,7 @@ pub struct Engine {
     pub ready: bool,
 }
 
+#[derive(Debug, Deserialize)]
 pub struct Model {
     pub id: String,
     pub object: String,
@@ -61,6 +62,7 @@ pub struct ListEnginesResponse {
     pub data: Vec<Engine>,
 }
 
+#[derive(Debug, Deserialize)]
 pub struct ListModelResponse {
     pub object: String,
     pub data: Vec<Model>,
