@@ -10,6 +10,8 @@ pub enum OpenAIError {
     JSONDeserialize(serde_json::Error),
     #[error("failed to save image: {0}")]
     ImageSaveError(String),
+    #[error("failed to read image: {0}")]
+    ImageReadError(String),
 }
 
 /*b"{\n    \"error\": {\n

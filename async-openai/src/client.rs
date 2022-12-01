@@ -44,18 +44,10 @@ impl Client {
         &self.api_key
     }
 
-    pub(crate) async fn execute<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
+    async fn process_response<O>(&self, response: reqwest::Response) -> Result<O, OpenAIError>
     where
-        I: Serialize,
         O: DeserializeOwned,
     {
-        let response = reqwest::Client::new()
-            .post(format!("{}{path}", self.api_base()))
-            .bearer_auth(self.api_key())
-            .json(&request)
-            .send()
-            .await?;
-
         let status = response.status();
         let bytes = response.bytes().await?;
 
@@ -69,5 +61,38 @@ impl Client {
         let response: O =
             serde_json::from_slice(bytes.as_ref()).map_err(OpenAIError::JSONDeserialize)?;
         Ok(response)
+    }
+
+    pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
+    where
+        I: Serialize,
+        O: DeserializeOwned,
+    {
+        let response = reqwest::Client::new()
+            .post(format!("{}{path}", self.api_base()))
+            .bearer_auth(self.api_key())
+            .json(&request)
+            .send()
+            .await?;
+
+        self.process_response(response).await
+    }
+
+    pub(crate) async fn post_form<O>(
+        &self,
+        path: &str,
+        form: reqwest::multipart::Form,
+    ) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+    {
+        let response = reqwest::Client::new()
+            .post(format!("{}{path}", self.api_base()))
+            .bearer_auth(self.api_key())
+            .multipart(form)
+            .send()
+            .await?;
+
+        self.process_response(response).await
     }
 }
