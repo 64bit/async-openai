@@ -7,14 +7,14 @@
 </div>
 
 <div align="center">
-    <img src="../../.github/assets/create-image-edit/sunlit_lounge.png" />
+    <img width="300" src="../../.github/assets/create-image-edit/sunlit_lounge.png" />
     <p>Image</p>
-    <img src="../../.github/assets/create-image-edit/mask.png" />
+    <img width="300" src="../../.github/assets/create-image-edit/mask.png" />
     <p>Mask</p>
 </div>
 
 ## Output
 
 <div align="center">
-    <img src="../../.github/assets/create-image-edit/img-1.png" />
+    <img width="300" src="../../.github/assets/create-image-edit/img-1.png" />
 </div>
