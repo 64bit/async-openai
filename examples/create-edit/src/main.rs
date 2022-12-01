@@ -15,9 +15,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
             but for all life on Earth."
                 .into(),
         ),
-        instruction: "Make this in the voice of Sir David Attenborough".to_string(),
+        instruction: "Add a new paragraph in Sir David Attenborough voice".to_string(),
         n: Some(2),
-        temperature: Some(0.9), // We generally recommend altering this or top_p but not both.
+        temperature: Some(0.9), // recommended altering this or top_p but not both.
         top_p: None,
     };
 
