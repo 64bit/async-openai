@@ -3,7 +3,10 @@ use tokio_util::codec::{BytesCodec, FramedRead};
 
 use crate::{
     error::OpenAIError,
-    types::{CreateImageEditRequest, CreateImageRequest, ImageInput, ImageResponse},
+    types::{
+        CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImageInput,
+        ImageResponse,
+    },
     Client,
 };
 
@@ -33,10 +36,12 @@ impl Image {
             .path
             .as_path()
             .file_name()
-            .ok_or(OpenAIError::ImageReadError(format!(
-                "cannot extract file name from {:#?}",
-                image_input.path
-            )))?
+            .ok_or_else(|| {
+                OpenAIError::ImageReadError(format!(
+                    "cannot extract file name from {:#?}",
+                    image_input.path
+                ))
+            })?
             .to_str()
             .unwrap()
             .to_string();
@@ -82,5 +87,35 @@ impl Image {
         }
 
         client.post_form("/images/edits", form).await
+    }
+
+    pub async fn create_variation(
+        client: &Client,
+        request: CreateImageVariationRequest,
+    ) -> Result<ImageResponse, OpenAIError> {
+        let image_part = Image::create_part(&request.image).await?;
+
+        let mut form = reqwest::multipart::Form::new().part("image", image_part);
+
+        if request.n.is_some() {
+            form = form.text("n", request.n.unwrap().to_string())
+        }
+
+        if request.size.is_some() {
+            form = form.text("size", request.size.unwrap().to_string())
+        }
+
+        if request.response_format.is_some() {
+            form = form.text(
+                "response_format",
+                request.response_format.unwrap().to_string(),
+            )
+        }
+
+        if request.user.is_some() {
+            form = form.text("user", request.user.unwrap())
+        }
+
+        client.post_form("/images/variations", form).await
     }
 }
