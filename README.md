@@ -6,7 +6,8 @@
 `async-openai` is an unofficial Rust library for OpenAI REST API.
 
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
-- Currently supported APIs:
+- Current features:
+  - [ ] Microsoft Azure Endpoints / AD Authentication
   - [x] Completions
   - [x] Edit
   - [ ] Embeddings
@@ -17,7 +18,7 @@
 
 ## Usage
 
-The library reads API key from the environment variable `OPENAI_API_KEY`. API key is available from [API Keys page on OpenAI account](https://beta.openai.com/account/api-keys)
+The library reads API key from the environment variable `OPENAI_API_KEY`. API key is available on [OpenAI account page](https://beta.openai.com/account/api-keys)
 
 ```bash
 export OPENAI_API_KEY='sk-...'
@@ -61,3 +62,4 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 ## License
 
+This project is licensed under [MIT license](./LICENSE).
