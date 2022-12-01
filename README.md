@@ -1,5 +1,13 @@
 <h1 align="center"> async-openai </h1>
 <p align="center"> Async Rust library for OpenAI </p>
+<div align="center">
+    <a href="https://crates.io/crates/async-openai">
+    <img src="https://img.shields.io/crates/v/async-openai.svg" />
+    </a>
+    <a href="https://docs.rs/async-openai">
+    <img src="https://docs.rs/async-openai/badge.svg" />
+    </a>
+</div>
 
 ## Overview
 
