@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "completions",
-    "image"
+    "create-image",
+    "create-image-edit",
 ]
 resolver = "2"
