@@ -3,5 +3,6 @@ members = [
     "completions",
     "create-image",
     "create-image-edit",
+    "create-image-variation",
 ]
 resolver = "2"
