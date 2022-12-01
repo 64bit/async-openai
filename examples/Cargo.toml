@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "create-edit",
     "completions",
     "create-image",
     "create-image-edit",
