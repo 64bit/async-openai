@@ -63,6 +63,19 @@ impl Client {
         Ok(response)
     }
 
+    pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+    {
+        let response = reqwest::Client::new()
+            .get(format!("{}{path}", self.api_base()))
+            .bearer_auth(self.api_key())
+            .send()
+            .await?;
+
+        self.process_response(response).await
+    }
+
     pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
     where
         I: Serialize,
