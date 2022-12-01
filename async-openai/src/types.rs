@@ -8,13 +8,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::{download::download_url, error::OpenAIError};
 
-pub struct Engine {
-    pub id: String,
-    pub object: String,
-    pub created: u32, // nullable: true
-    pub ready: bool,
-}
-
 #[derive(Debug, Deserialize)]
 pub struct Model {
     pub id: String,
@@ -55,11 +48,6 @@ pub struct FineTuneEvent {
     pub created_at: u32,
     pub level: String,
     pub message: String,
-}
-
-pub struct ListEnginesResponse {
-    pub object: String,
-    pub data: Vec<Engine>,
 }
 
 #[derive(Debug, Deserialize)]
