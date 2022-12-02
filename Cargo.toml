@@ -1,2 +1,4 @@
 [workspace]
-members = ["async-openai"]
+members = [
+    "async-openai",
+]
