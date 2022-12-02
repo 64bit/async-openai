@@ -1,4 +1,8 @@
-<div align="center"><img width="50px" src="https://raw.githubusercontent.com/64bit/async-openai/assets/create-image-b64-json/img-1.png" /></div>
+<div align="center">
+  <a href="https://docs.rs/async-openai">
+  <img width="50px" src="https://raw.githubusercontent.com/64bit/async-openai/assets/create-image-b64-json/img-1.png" />
+  </a>
+</div>
 <h1 align="center"> async-openai </h1>
 <p align="center"> Async Rust library for OpenAI </p>
 <div align="center">
@@ -33,7 +37,7 @@ The library reads [API key](https://beta.openai.com/account/api-keys) from the e
 export OPENAI_API_KEY='sk-...'
 ```
 
-- Visit [examples](./examples/) directory on how to use `async-openai`.
+- Visit [examples](https://github.com/64bit/async-openai/tree/main/examples) directory on how to use `async-openai`.
 - Visit [docs.rs/async-openai](https://docs.rs/async-openai) for docs.
 
 ## Image Generation Example
@@ -80,4 +84,4 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 ## License
 
-This project is licensed under [MIT license](./LICENSE).
+This project is licensed under [MIT license](https://github.com/64bit/async-openai/blob/main/LICENSE).
