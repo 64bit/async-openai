@@ -243,15 +243,19 @@ pub struct CreateImageRequest {
     pub prompt: String,
 
     /// The number of images to generate. Must be between 1 and 10.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub n: Option<u8>, // min:1 max:10 default:1
 
     /// The size of the generated images. Must be one of `256x256`, `512x512`, or `1024x1024`.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub size: Option<ImageSize>,
 
     /// The format in which the generated images are returned. Must be one of `url` or `b64_json`.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<ResponseFormat>,
 
     /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](/docs/usage-policies/end-user-ids).
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 }
 
@@ -383,6 +387,7 @@ pub struct CreateModerationRequest {
     /// Two content moderations models are available: `text-moderation-stable` and `text-moderation-latest`.
     ///
     /// The default is `text-moderation-latest` which will be automatically upgraded over time. This ensures you are always using our most accurate model. If you use `text-moderation-stable`, we will provide advanced notice before updating the model. Accuracy of `text-moderation-stable` may be slightly lower than for `text-moderation-latest`.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<TextModerationModel>,
 }
 
