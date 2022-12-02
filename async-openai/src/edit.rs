@@ -4,9 +4,12 @@ use crate::{
     Client,
 };
 
+/// Given a prompt and an instruction, the model will return
+/// an edited version of the prompt.
 pub struct Edit;
 
 impl Edit {
+    /// Creates a new edit for the provided input, instruction, and parameters
     pub async fn create(
         client: &Client,
         request: CreateEditRequest,

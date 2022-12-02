@@ -12,6 +12,7 @@ mod moderation;
 pub mod types;
 
 pub use client::Client;
+pub use client::API_BASE;
 pub use completion::Completion;
 pub use edit::Edit;
 pub use image::Image;
