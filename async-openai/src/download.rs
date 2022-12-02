@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 
+use rand::{distributions::Alphanumeric, Rng};
 use reqwest::Url;
 
 use crate::error::OpenAIError;
@@ -45,6 +46,27 @@ pub(crate) async fn download_url<P: AsRef<Path>>(url: &str, dir: P) -> Result<()
             .bytes()
             .await
             .map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?,
+    )
+    .await
+    .map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?;
+
+    Ok(())
+}
+
+pub(crate) async fn save_b64<P: AsRef<Path>>(b64: &str, dir: P) -> Result<(), OpenAIError> {
+    let filename: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(10)
+        .map(char::from)
+        .collect();
+
+    let filename = format!("{filename}.png");
+
+    let path = PathBuf::from(dir.as_ref()).join(filename);
+
+    tokio::fs::write(
+        path,
+        base64::decode(b64).map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?,
     )
     .await
     .map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?;
