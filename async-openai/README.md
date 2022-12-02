@@ -1,3 +1,4 @@
+<div align="center"><img width="50px" src="https://raw.githubusercontent.com/64bit/async-openai/assets/create-image-b64-json/img-1.png" /></div>
 <h1 align="center"> async-openai </h1>
 <p align="center"> Async Rust library for OpenAI </p>
 <div align="center">
