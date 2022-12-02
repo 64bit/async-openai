@@ -1,13 +1,28 @@
 [package]
 name = "async-openai"
 version = "0.1.0"
+authors = [
+    "Himanshu Neema"
+]
+categories = ["api-bindings", "web-programming", "asynchronous"]
+keywords = ["openai", "async", "openapi", "ai"]
+description = "Async bindings for OpenAI REST API based on OpenAPI spec"
 edition = "2021"
+rust-version = "1.65"
 publish = false
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/64bit/async-openai"
+repository = "https://github.com/64bit/async-openai"
+
 
 [dependencies]
 reqwest = { version = "0.11.13", features = ["json", "stream", "multipart"] }
-serde = { version = "1.0.147", features = ["derive"] }
+serde = { version = "1.0.148", features = ["derive"] }
 serde_json = "1.0.87"
 thiserror = "1.0.37"
 tokio = { version = "1.22.0", features = ["fs"] }
 tokio-util = { version = "0.7.4", features = ["codec", "io-util"] }
+
+[dev-dependencies]
+tokio-test = "0.4.2"

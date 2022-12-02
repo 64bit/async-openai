@@ -1,3 +1,5 @@
+//! Types used in OpenAI API requests and responses.
+//! These types are created from component schemas in the [OpenAPI spec](https://github.com/openai/openai-openapi)
 use std::{
     collections::HashMap,
     fmt::Display,
@@ -16,50 +18,10 @@ pub struct Model {
     pub owned_by: String,
 }
 
-pub struct OpenAIFile {
-    pub id: String,
-    pub object: String,
-    pub bytes: u32,
-    pub created_at: u32,
-    pub filename: String,
-    pub purpose: String,
-    pub status: Option<String>,
-    pub status_details: Option<serde_json::Value>, // nullable: true
-}
-
-pub struct FineTune {
-    pub id: String,
-    pub object: String,
-    pub created_at: u32,
-    pub updated_at: u32,
-    pub model: String,
-    pub fine_tuned_model: String, // nullable: true
-    pub organization_id: String,
-    pub status: String,
-    pub hyperparams: serde_json::Value,
-    pub training_files: Vec<OpenAIFile>,
-    pub validation_files: Vec<OpenAIFile>,
-    pub result_files: Vec<OpenAIFile>,
-    pub events: Option<FineTuneEvent>,
-}
-
-pub struct FineTuneEvent {
-    pub object: String,
-    pub created_at: u32,
-    pub level: String,
-    pub message: String,
-}
-
 #[derive(Debug, Deserialize)]
 pub struct ListModelResponse {
     pub object: String,
     pub data: Vec<Model>,
-}
-
-pub struct DeleteModelResponse {
-    pub id: String,
-    pub object: String,
-    pub deleted: bool,
 }
 
 #[derive(Serialize, Default, Debug)]
@@ -186,7 +148,7 @@ pub struct CreateCompletionResponse {
     pub usage: Option<Usage>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Default)]
 pub struct CreateEditRequest {
     /// ID of the model to use. You can use the [List models](/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](/docs/models/overview) for descriptions of them.
     pub model: String,
@@ -250,9 +212,10 @@ impl Display for ImageSize {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum ResponseFormat {
+    #[default]
     Url,
     B64Json,
 }
@@ -270,7 +233,7 @@ impl Display for ResponseFormat {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Default)]
 pub struct CreateImageRequest {
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     pub prompt: String,
@@ -302,6 +265,7 @@ pub struct ImageResponse {
     pub data: Vec<ImageData>,
 }
 
+#[derive(Debug, Default)]
 pub struct ImageInput {
     pub path: PathBuf,
 }
@@ -343,6 +307,7 @@ impl ImageData {
     }
 }
 
+#[derive(Debug, Default)]
 pub struct CreateImageEditRequest {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square.
     pub image: ImageInput,
@@ -366,6 +331,7 @@ pub struct CreateImageEditRequest {
     pub user: Option<String>,
 }
 
+#[derive(Debug, Default)]
 pub struct CreateImageVariationRequest {
     /// The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and square.
     pub image: ImageInput,
@@ -390,15 +356,22 @@ pub enum Input {
     Array(Vec<String>),
 }
 
-#[derive(Debug, Serialize)]
+impl Default for Input {
+    fn default() -> Self {
+        Input::Single("".to_owned())
+    }
+}
+
+#[derive(Debug, Serialize, Default)]
 pub enum TextModerationModel {
+    #[default]
     #[serde(rename = "text-moderation-latest")]
     Latest,
     #[serde(rename = "text-moderation-stable")]
     Stable,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Default)]
 pub struct CreateModerationRequest {
     /// The input text to classify
     pub input: Input,
@@ -452,3 +425,45 @@ pub struct CreateModerationResponse {
     pub model: String,
     pub results: Vec<ContentModerationResult>,
 }
+
+/* Not used yet
+pub struct OpenAIFile {
+    pub id: String,
+    pub object: String,
+    pub bytes: u32,
+    pub created_at: u32,
+    pub filename: String,
+    pub purpose: String,
+    pub status: Option<String>,
+    pub status_details: Option<serde_json::Value>, // nullable: true
+}
+
+pub struct FineTune {
+    pub id: String,
+    pub object: String,
+    pub created_at: u32,
+    pub updated_at: u32,
+    pub model: String,
+    pub fine_tuned_model: String, // nullable: true
+    pub organization_id: String,
+    pub status: String,
+    pub hyperparams: serde_json::Value,
+    pub training_files: Vec<OpenAIFile>,
+    pub validation_files: Vec<OpenAIFile>,
+    pub result_files: Vec<OpenAIFile>,
+    pub events: Option<FineTuneEvent>,
+}
+
+pub struct FineTuneEvent {
+    pub object: String,
+    pub created_at: u32,
+    pub level: String,
+    pub message: String,
+}
+
+pub struct DeleteModelResponse {
+    pub id: String,
+    pub object: String,
+    pub deleted: bool,
+}
+*/

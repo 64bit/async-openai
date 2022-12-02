@@ -3,6 +3,8 @@ use serde::{de::DeserializeOwned, Serialize};
 use crate::error::{OpenAIError, WrappedError};
 
 #[derive(Debug, Default)]
+/// Client container for api key, base url and other metadata
+/// required to make API calls.
 pub struct Client {
     api_key: String,
     api_base: String,
@@ -10,9 +12,11 @@ pub struct Client {
     //headers: reqwest::header::HeaderMap,
 }
 
-const API_BASE: &str = "https://api.openai.com/v1";
+/// Default v1 API base url
+pub const API_BASE: &str = "https://api.openai.com/v1";
 
 impl Client {
+    /// Create client with default [API_BASE] url and default API key from OPENAI_API_KEY env var
     pub fn new() -> Self {
         Self {
             api_base: API_BASE.to_string(),
@@ -21,18 +25,20 @@ impl Client {
         }
     }
 
-    pub fn with_api_key(mut self, api_key: String) -> Self {
-        self.api_key = api_key;
+    /// To use a different API key different from default OPENAI_API_KEY env var
+    pub fn with_api_key<S: Into<String>>(mut self, api_key: S) -> Self {
+        self.api_key = api_key.into();
         self
     }
 
-    pub fn with_org_id(mut self, org_id: String) -> Self {
-        self.org_id = org_id;
+    pub fn with_org_id<S: Into<String>>(mut self, org_id: S) -> Self {
+        self.org_id = org_id.into();
         self
     }
 
-    pub fn with_api_base(mut self, api_base: String) -> Self {
-        self.api_base = api_base;
+    /// To use a API base url different from default [API_BASE]
+    pub fn with_api_base<S: Into<String>>(mut self, api_base: S) -> Self {
+        self.api_base = api_base.into();
         self
     }
 
@@ -44,6 +50,7 @@ impl Client {
         &self.api_key
     }
 
+    /// Deserialize response body from either error object or actual response object
     async fn process_response<O>(&self, response: reqwest::Response) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
@@ -63,6 +70,7 @@ impl Client {
         Ok(response)
     }
 
+    /// Make a GET request to {path} and deserialize the response body
     pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
@@ -76,6 +84,7 @@ impl Client {
         self.process_response(response).await
     }
 
+    /// Make a POST request to {path} and deserialize the response body
     pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
     where
         I: Serialize,
@@ -91,6 +100,7 @@ impl Client {
         self.process_response(response).await
     }
 
+    /// POST a form at {path} and deserialize the response body
     pub(crate) async fn post_form<O>(
         &self,
         path: &str,

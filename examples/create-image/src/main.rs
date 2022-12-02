@@ -1,29 +1,29 @@
 use std::error::Error;
 
 use async_openai as openai;
+use openai::{
+    types::{CreateImageRequest, ImageSize, ResponseFormat},
+    Client, Image,
+};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let client = openai::Client::new();
+    // create client, reads OPENAI_API_KEY environment variable for API key.
+    let client = Client::new();
 
-    let create_image_request = openai::types::CreateImageRequest {
-        prompt: "cats on sofa and carpet in living room".to_string(),
+    let request = CreateImageRequest {
+        prompt: "cats on sofa and carpet in living room".to_owned(),
         n: Some(2),
-        response_format: Some(openai::types::ResponseFormat::Url),
-        size: Some(openai::types::ImageSize::S256x256),
-        user: Some("async-openai".to_string()),
+        response_format: Some(ResponseFormat::Url),
+        size: Some(ImageSize::S256x256),
+        user: Some("async-openai".to_owned()),
     };
 
-    println!(
-        "Sending request for prompt: {}",
-        create_image_request.prompt
-    );
-    let create_image_response = openai::Image::create(&client, create_image_request).await?;
+    let response = Image::create(&client, request).await?;
 
-    println!("Response: {:#?}", create_image_response);
-
-    println!("Saving images ...");
-    create_image_response.save("./data").await?;
+    // download and save images to ./data directory
+    // (creates directory when it doesn't exist)
+    response.save("./data").await?;
 
     Ok(())
 }

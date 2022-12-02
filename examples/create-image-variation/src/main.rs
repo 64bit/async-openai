@@ -13,7 +13,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let request = CreateImageVariationRequest {
         image: ImageInput::new("./images/cake.png"),
         n: Some(1),
-        size: Some(ImageSize::S256x256),
+        size: Some(ImageSize::S512x512),
         response_format: Some(ResponseFormat::Url),
         user: Some("async-openai".to_string()),
     };

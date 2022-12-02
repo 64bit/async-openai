@@ -10,9 +10,13 @@ use crate::{
     Client,
 };
 
+/// Given a prompt and/or an input image, the model will generate a new image.
+///
+/// Related guide: [Image generation](https://beta.openai.com/docs/guides/images/introduction)
 pub struct Image;
 
 impl Image {
+    /// Creates an image given a prompt.
     pub async fn create(
         client: &Client,
         request: CreateImageRequest,
@@ -29,6 +33,7 @@ impl Image {
         Ok(body)
     }
 
+    /// Creates the part for the given image file for multipart upload.
     pub(crate) async fn create_part(
         image_input: &ImageInput,
     ) -> Result<reqwest::multipart::Part, OpenAIError> {
@@ -55,6 +60,7 @@ impl Image {
         Ok(image_part)
     }
 
+    /// Creates an edited or extended image given an original image and a prompt.
     pub async fn create_edit(
         client: &Client,
         request: CreateImageEditRequest,
@@ -89,6 +95,7 @@ impl Image {
         client.post_form("/images/edits", form).await
     }
 
+    /// Creates a variation of a given image.
     pub async fn create_variation(
         client: &Client,
         request: CreateImageVariationRequest,

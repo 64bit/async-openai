@@ -1,2 +1,1 @@
-# async-openai
-Async Rust library for OpenAI 
+async-openai/README.md
