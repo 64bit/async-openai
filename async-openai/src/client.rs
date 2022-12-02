@@ -26,19 +26,19 @@ impl Client {
     }
 
     /// To use a different API key different from default OPENAI_API_KEY env var
-    pub fn with_api_key(mut self, api_key: String) -> Self {
-        self.api_key = api_key;
+    pub fn with_api_key<S: Into<String>>(mut self, api_key: S) -> Self {
+        self.api_key = api_key.into();
         self
     }
 
-    pub fn with_org_id(mut self, org_id: String) -> Self {
-        self.org_id = org_id;
+    pub fn with_org_id<S: Into<String>>(mut self, org_id: S) -> Self {
+        self.org_id = org_id.into();
         self
     }
 
     /// To use a API base url different from default [API_BASE]
-    pub fn with_api_base(mut self, api_base: String) -> Self {
-        self.api_base = api_base;
+    pub fn with_api_base<S: Into<String>>(mut self, api_base: S) -> Self {
+        self.api_base = api_base.into();
         self
     }
 
