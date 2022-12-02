@@ -3,6 +3,7 @@ members = [
     "create-edit",
     "completions",
     "create-image",
+    "create-image-b64-json",
     "create-image-edit",
     "create-image-variation",
     "models",

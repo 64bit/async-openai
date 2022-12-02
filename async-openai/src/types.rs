@@ -8,7 +8,10 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
-use crate::{download::download_url, error::OpenAIError};
+use crate::{
+    download::{download_url, save_b64},
+    error::OpenAIError,
+};
 
 #[derive(Debug, Deserialize)]
 pub struct Model {
@@ -217,6 +220,7 @@ impl Display for ImageSize {
 pub enum ResponseFormat {
     #[default]
     Url,
+    #[serde(rename = "b64_json")]
     B64Json,
 }
 
@@ -301,7 +305,7 @@ impl ImageData {
     async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<(), OpenAIError> {
         match self {
             ImageData::Url(url) => download_url(url, dir).await?,
-            ImageData::B64Json(b64_json) => println!("{b64_json}"),
+            ImageData::B64Json(b64_json) => save_b64(b64_json, dir).await?,
         }
         Ok(())
     }
