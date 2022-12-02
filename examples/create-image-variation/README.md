@@ -9,5 +9,5 @@
 ### Output
 
 <div align="center">
-  <img src="https://github.com/64bit/async-openai/tree/assets/create-image-variation/img-512x512.png" />
+  <img src="https://raw.githubusercontent.com/64bit/async-openai/assets/create-image-variation/img-512x512.png" />
 </div>
