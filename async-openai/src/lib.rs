@@ -1,3 +1,6 @@
+//!
+#![doc = include_str!("../README.md")]
+//!
 mod client;
 mod completion;
 mod download;

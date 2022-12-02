@@ -70,8 +70,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 ```
 
 <div align="center">
-  <img width="315" src=".github/assets/create-image/img-1.png" />
-  <img width="315" src=".github/assets/create-image/img-2.png" />
+  <img width="315" src="../.github/assets/create-image/img-1.png" />
+  <img width="315" src="../.github/assets/create-image/img-2.png" />
   <br/>
   <sub>Scaled up for README, actual size 256x256</sub>
 </div>
