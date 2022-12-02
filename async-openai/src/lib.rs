@@ -36,7 +36,7 @@
 //!```
 //!
 //! ## Examples
-//! For full working examples for all supported features see [examples](https://raw.githubusercontent.com/64bit/async-openai/main/examples) directory in the repository.
+//! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //!
 mod client;
 mod completion;
