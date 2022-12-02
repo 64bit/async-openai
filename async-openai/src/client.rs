@@ -3,7 +3,8 @@ use serde::{de::DeserializeOwned, Serialize};
 use crate::error::{OpenAIError, WrappedError};
 
 #[derive(Debug, Default)]
-/// Client to make API requests
+/// Client container for api key, base url and other metadata
+/// required to make API calls.
 pub struct Client {
     api_key: String,
     api_base: String,
