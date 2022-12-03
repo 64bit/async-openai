@@ -24,7 +24,7 @@
   - [x] Completions
   - [x] Edit
   - [ ] Embeddings
-  - [ ] Fine-Tunning
+  - [ ] Fine-Tuning
   - [x] Image (Generation/Edit/Variation)
   - [x] Moderation
 
