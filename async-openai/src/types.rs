@@ -122,8 +122,9 @@ pub struct CreateCompletionRequest {
 #[derive(Debug, Deserialize)]
 pub struct Logprobs {
     pub tokens: Vec<String>,
-    pub token_logprobs: Vec<f32>,
-    pub token_offset: Vec<u32>,
+    pub token_logprobs: Vec<Option<f32>>, // Option is to account for null value in the list
+    pub top_logprobs: Vec<serde_json::Value>,
+    pub text_offset: Vec<u32>,
 }
 
 #[derive(Debug, Deserialize)]
