@@ -322,7 +322,7 @@ impl ImageResponse {
                     .into_iter()
                     .map(|e| e.to_string())
                     .collect::<Vec<String>>()
-                    .join(";"),
+                    .join("; "),
             ))
         } else {
             Ok(())
