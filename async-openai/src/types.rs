@@ -263,15 +263,15 @@ pub struct CreateImageRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ImageData {
-    Url(String),
+    Url(std::sync::Arc<String>),
     #[serde(rename = "b64_json")]
-    B64Json(String),
+    B64Json(std::sync::Arc<String>),
 }
 
 #[derive(Debug, Deserialize)]
 pub struct ImageResponse {
     pub created: u32,
-    pub data: Vec<ImageData>,
+    pub data: Vec<std::sync::Arc<ImageData>>,
 }
 
 #[derive(Debug, Default)]
@@ -299,10 +299,34 @@ impl ImageResponse {
                 .map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?;
         }
 
-        for id in &self.data {
-            id.save(dir.as_ref()).await?;
+        let mut handles = vec![];
+        for id in self.data.clone() {
+            let dir_buf = PathBuf::from(dir.as_ref());
+            handles.push(tokio::spawn(async move { id.save(dir_buf).await }));
         }
-        Ok(())
+
+        let result = futures::future::join_all(handles).await;
+
+        let errors: Vec<OpenAIError> = result
+            .into_iter()
+            .filter(|r| r.is_err() || r.as_ref().ok().unwrap().is_err())
+            .map(|r| match r {
+                Err(e) => OpenAIError::ImageSaveError(e.to_string()),
+                Ok(inner) => inner.err().unwrap(),
+            })
+            .collect();
+
+        if errors.len() > 0 {
+            Err(OpenAIError::ImageSaveError(
+                errors
+                    .into_iter()
+                    .map(|e| e.to_string())
+                    .collect::<Vec<String>>()
+                    .join("; "),
+            ))
+        } else {
+            Ok(())
+        }
     }
 }
 

@@ -22,6 +22,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let response = Image::create(&client, request).await?;
 
     // download and save images to ./data directory
+    // Each url download and save happens in dedicated Tokio task
     // (creates directory when it doesn't exist)
     response.save("./data").await?;
 
