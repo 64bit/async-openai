@@ -6,7 +6,7 @@ use openai::{types::CreateCompletionRequest, Client, Completion};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let prompt = "/// Rust language
-/// Function to download a url and save it disk.";
+/// Function to download a url and save it to disk.";
 
     let client = Client::new();
 
