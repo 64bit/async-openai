@@ -58,6 +58,8 @@ impl Client {
         let status = response.status();
         let bytes = response.bytes().await?;
 
+        println!("{}", String::from_utf8_lossy(bytes.as_ref()));
+
         if !status.is_success() {
             let wrapped_error: WrappedError =
                 serde_json::from_slice(bytes.as_ref()).map_err(OpenAIError::JSONDeserialize)?;
