@@ -28,6 +28,7 @@
   - [x] Image (Generation/Edit/Variation)
   - [x] Moderation
 
+*Being a young project there are rough edges*
 
 ## Usage
 
@@ -81,7 +82,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
   <sub>Scaled up for README, actual size 256x256</sub>
 </div>
 
+## Contributing
+
+Thank you for your time to contribute and improve the project, I'd be happy to have you!
 
 ## License
 
 This project is licensed under [MIT license](https://github.com/64bit/async-openai/blob/main/LICENSE).
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in async-openai by you, shall be licensed as MIT, without any additional terms or conditions.
