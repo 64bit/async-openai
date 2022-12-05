@@ -35,7 +35,13 @@
 The library reads [API key](https://beta.openai.com/account/api-keys) from the environment variable `OPENAI_API_KEY`.
 
 ```bash
+# On macOS/Linux
 export OPENAI_API_KEY='sk-...'
+```
+
+```powershell
+# On Windows Powershell
+$Env:OPENAI_API_KEY='sk-...'
 ```
 
 - Visit [examples](https://github.com/64bit/async-openai/tree/main/examples) directory on how to use `async-openai`.
