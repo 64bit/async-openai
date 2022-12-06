@@ -21,7 +21,7 @@
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
   - [ ] Microsoft Azure Endpoints / AD Authentication
-  - [x] Completions
+  - [x] Completions (including SSE streaming)
   - [x] Edit
   - [ ] Embeddings
   - [ ] Fine-Tuning
