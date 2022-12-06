@@ -1,0 +1,10 @@
+[package]
+name = "completions-stream"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+async-openai = {path = "../../async-openai"}
+futures = "0.3.25"
+tokio = { version = "1.22.0", features = ["full"] }

@@ -3,6 +3,7 @@ members = [
     "codex",
     "create-edit",
     "completions",
+    "completions-stream",
     "create-image",
     "create-image-b64-json",
     "create-image-edit",
