@@ -4,8 +4,10 @@ use std::{
     collections::HashMap,
     fmt::Display,
     path::{Path, PathBuf},
+    pin::Pin,
 };
 
+use futures::Stream;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -151,6 +153,10 @@ pub struct CreateCompletionResponse {
     pub choices: Vec<Choice>,
     pub usage: Option<Usage>,
 }
+
+/// Parsed server side events stream until an [DONE] is received from server.
+pub type CompletionResponseStream =
+    Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>>>>;
 
 #[derive(Debug, Serialize, Default)]
 pub struct CreateEditRequest {

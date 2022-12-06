@@ -1,22 +1,16 @@
-use std::pin::Pin;
-
-use futures::{stream::StreamExt, Stream};
+use futures::stream::StreamExt;
 use reqwest_eventsource::{Event, RequestBuilderExt};
 
 use crate::{
     client::Client,
     error::OpenAIError,
-    types::{CreateCompletionRequest, CreateCompletionResponse},
+    types::{CompletionResponseStream, CreateCompletionRequest, CreateCompletionResponse},
 };
 
 /// Given a prompt, the model will return one or more predicted
 /// completions, and can also return the probabilities of alternative
 /// tokens at each position.
 pub struct Completion;
-
-/// Parsed server side events stream until an [DONE] is received from server.
-pub type CompletionResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>>>>;
 
 impl Completion {
     /// Creates a completion for the provided prompt and parameters
