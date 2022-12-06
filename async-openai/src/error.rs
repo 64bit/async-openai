@@ -18,6 +18,12 @@ pub enum OpenAIError {
     /// Error on the client side when reading image from file system
     #[error("failed to read image: {0}")]
     ImageReadError(String),
+    /// Error when trying to stream completions SSE
+    #[error("stream failed: {0}")]
+    StreamError(String),
+    /// Error from client side validation before making API call
+    #[error("invalid args: {0}")]
+    InvalidArgument(String),
 }
 
 /// OpenAI API returns error object on failure
