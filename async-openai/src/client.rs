@@ -136,7 +136,7 @@ impl Client {
         Ok(response)
     }
 
-    /// Execute any HTTP requests except the streaming ones as they cannot be cloned for retrying.
+    /// Execute any HTTP requests and retry on rate limit, except streaming ones as they cannot be cloned for retrying.
     async fn execute<O>(&self, request: reqwest::Request) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
