@@ -43,15 +43,18 @@ mod completion;
 mod download;
 mod edit;
 pub mod error;
+mod file;
 mod image;
 mod model;
 mod moderation;
 pub mod types;
+mod util;
 
 pub use client::Client;
 pub use client::API_BASE;
 pub use completion::Completion;
 pub use edit::Edit;
+pub use file::File;
 pub use image::Image;
 pub use model::Models;
 pub use moderation::Moderation;

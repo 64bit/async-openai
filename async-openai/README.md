@@ -25,7 +25,8 @@
   - [x] Edit
   - [ ] Embeddings
   - [ ] Fine-Tuning
-  - [x] Image (Generation/Edit/Variation)
+  - [x] Files (List, Upload, Delete, Retrieve, Retrieve Content)
+  - [x] Image (Generation, Edit, Variation)
   - [x] Moderation
 
 *Being a young project there are rough edges*

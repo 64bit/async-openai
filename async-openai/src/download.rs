@@ -22,13 +22,13 @@ fn create_paths<P: AsRef<Path>>(url: &Url, base_dir: P) -> (PathBuf, PathBuf) {
 }
 
 pub(crate) async fn download_url<P: AsRef<Path>>(url: &str, dir: P) -> Result<(), OpenAIError> {
-    let parsed_url = Url::parse(url).map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?;
+    let parsed_url = Url::parse(url).map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
     let response = reqwest::get(url)
         .await
-        .map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?;
+        .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
 
     if !response.status().is_success() {
-        return Err(OpenAIError::ImageSaveError(format!(
+        return Err(OpenAIError::FileSaveError(format!(
             "couldn't download file (status: {})",
             response.status()
         )));
@@ -38,17 +38,17 @@ pub(crate) async fn download_url<P: AsRef<Path>>(url: &str, dir: P) -> Result<()
 
     tokio::fs::create_dir_all(dir)
         .await
-        .map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?;
+        .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
 
     tokio::fs::write(
         file_path,
         response
             .bytes()
             .await
-            .map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?,
+            .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?,
     )
     .await
-    .map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?;
+    .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
 
     Ok(())
 }
@@ -66,10 +66,10 @@ pub(crate) async fn save_b64<P: AsRef<Path>>(b64: &str, dir: P) -> Result<(), Op
 
     tokio::fs::write(
         path,
-        base64::decode(b64).map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?,
+        base64::decode(b64).map_err(|e| OpenAIError::FileSaveError(e.to_string()))?,
     )
     .await
-    .map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?;
+    .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
 
     Ok(())
 }
