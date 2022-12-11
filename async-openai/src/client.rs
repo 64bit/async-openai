@@ -84,6 +84,20 @@ impl Client {
         self.process_response(response).await
     }
 
+    /// Make a DELETE request to {path} and deserialize the response body
+    pub(crate) async fn delete<O>(&self, path: &str) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+    {
+        let response = reqwest::Client::new()
+            .delete(format!("{}{path}", self.api_base()))
+            .bearer_auth(self.api_key())
+            .send()
+            .await?;
+
+        self.process_response(response).await
+    }
+
     /// Make a POST request to {path} and deserialize the response body
     pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
     where

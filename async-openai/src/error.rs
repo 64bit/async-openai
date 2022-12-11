@@ -12,12 +12,12 @@ pub enum OpenAIError {
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: {0}")]
     JSONDeserialize(serde_json::Error),
-    /// Error on the client side when saving image to file system
-    #[error("failed to save image: {0}")]
-    ImageSaveError(String),
-    /// Error on the client side when reading image from file system
-    #[error("failed to read image: {0}")]
-    ImageReadError(String),
+    /// Error on the client side when saving file to file system
+    #[error("failed to save file: {0}")]
+    FileSaveError(String),
+    /// Error on the client side when reading file from file system
+    #[error("failed to read file: {0}")]
+    FileReadError(String),
     /// Error when trying to stream completions SSE
     #[error("stream failed: {0}")]
     StreamError(String),

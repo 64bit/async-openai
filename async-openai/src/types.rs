@@ -297,12 +297,12 @@ impl ImageResponse {
     pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<(), OpenAIError> {
         let exists = match Path::try_exists(dir.as_ref()) {
             Ok(exists) => exists,
-            Err(e) => return Err(OpenAIError::ImageSaveError(e.to_string())),
+            Err(e) => return Err(OpenAIError::FileSaveError(e.to_string())),
         };
 
         if !exists {
             std::fs::create_dir_all(dir.as_ref())
-                .map_err(|e| OpenAIError::ImageSaveError(e.to_string()))?;
+                .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
         }
 
         let mut handles = vec![];
@@ -317,13 +317,13 @@ impl ImageResponse {
             .into_iter()
             .filter(|r| r.is_err() || r.as_ref().ok().unwrap().is_err())
             .map(|r| match r {
-                Err(e) => OpenAIError::ImageSaveError(e.to_string()),
+                Err(e) => OpenAIError::FileSaveError(e.to_string()),
                 Ok(inner) => inner.err().unwrap(),
             })
             .collect();
 
         if errors.len() > 0 {
-            Err(OpenAIError::ImageSaveError(
+            Err(OpenAIError::FileSaveError(
                 errors
                     .into_iter()
                     .map(|e| e.to_string())
@@ -466,7 +466,44 @@ pub struct CreateModerationResponse {
     pub results: Vec<ContentModerationResult>,
 }
 
-/* Not used yet
+pub struct FileInput {
+    pub path: PathBuf,
+}
+
+impl FileInput {
+    pub fn new<P: AsRef<Path>>(path: P) -> Self {
+        Self {
+            path: PathBuf::from(path.as_ref()),
+        }
+    }
+}
+
+pub struct CreateFileRequest {
+    /// Name of the [JSON Lines](https://jsonlines.readthedocs.io/en/latest/) file to be uploaded.
+    ///
+    /// If the `purpose` is set to "fine-tune", each line is a JSON record with "prompt" and "completion" fields representing your [training examples](/docs/guides/fine-tuning/prepare-training-data).
+    pub file: FileInput,
+
+    /// The intended purpose of the uploaded documents.
+    ///
+    /// Use "fine-tune" for [Fine-tuning](/docs/api-reference/fine-tunes). This allows us to validate the format of the uploaded file.
+    pub purpose: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ListFilesResponse {
+    pub object: String,
+    pub data: Vec<OpenAIFile>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DeleteFileResponse {
+    pub id: String,
+    pub object: String,
+    pub deleted: bool,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
 pub struct OpenAIFile {
     pub id: String,
     pub object: String,
@@ -478,6 +515,7 @@ pub struct OpenAIFile {
     pub status_details: Option<serde_json::Value>, // nullable: true
 }
 
+/* Not used yet
 pub struct FineTune {
     pub id: String,
     pub object: String,
