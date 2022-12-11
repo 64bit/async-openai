@@ -20,14 +20,15 @@
 
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
-  - [ ] Microsoft Azure Endpoints / AD Authentication
   - [x] Completions (including SSE streaming)
-  - [x] Edit
+  - [x] Edits
   - [ ] Embeddings
-  - [ ] Fine-Tuning
   - [x] Files (List, Upload, Delete, Retrieve, Retrieve Content)
-  - [x] Image (Generation, Edit, Variation)
-  - [x] Moderation
+  - [ ] Fine-tunes
+  - [x] Images (Generation, Edit, Variation)
+  - [ ] Microsoft Azure Endpoints / AD Authentication
+  - [x] Models
+  - [x] Moderations
 
 *Being a young project there are rough edges*
 
