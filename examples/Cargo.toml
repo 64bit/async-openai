@@ -9,6 +9,7 @@ members = [
     "create-image-edit",
     "create-image-variation",
     "models",
-    "moderations"
+    "moderations",
+    "rate-limit-completions",
 ]
 resolver = "2"

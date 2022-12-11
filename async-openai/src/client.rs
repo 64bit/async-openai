@@ -9,6 +9,7 @@ pub struct Client {
     api_key: String,
     api_base: String,
     org_id: String,
+    backoff: backoff::ExponentialBackoff,
     //headers: reqwest::header::HeaderMap,
 }
 
@@ -42,12 +43,77 @@ impl Client {
         self
     }
 
+    /// Exponential backoff for retrying [rate limited](https://help.openai.com/en/articles/5955598-is-api-usage-subject-to-any-rate-limits) requests. Form submissions are not retried.
+    pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
+        self.backoff = backoff;
+        self
+    }
+
     pub fn api_base(&self) -> &str {
         &self.api_base
     }
 
     pub fn api_key(&self) -> &str {
         &self.api_key
+    }
+
+    /// Make a GET request to {path} and deserialize the response body
+    pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+    {
+        let request = reqwest::Client::new()
+            .get(format!("{}{path}", self.api_base()))
+            .bearer_auth(self.api_key())
+            .build()?;
+
+        self.execute(request).await
+    }
+
+    /// Make a DELETE request to {path} and deserialize the response body
+    pub(crate) async fn delete<O>(&self, path: &str) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+    {
+        let request = reqwest::Client::new()
+            .delete(format!("{}{path}", self.api_base()))
+            .bearer_auth(self.api_key())
+            .build()?;
+
+        self.execute(request).await
+    }
+
+    /// Make a POST request to {path} and deserialize the response body
+    pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
+    where
+        I: Serialize,
+        O: DeserializeOwned,
+    {
+        let request = reqwest::Client::new()
+            .post(format!("{}{path}", self.api_base()))
+            .bearer_auth(self.api_key())
+            .json(&request)
+            .build()?;
+
+        self.execute(request).await
+    }
+
+    /// POST a form at {path} and deserialize the response body
+    pub(crate) async fn post_form<O>(
+        &self,
+        path: &str,
+        form: reqwest::multipart::Form,
+    ) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+    {
+        let request = reqwest::Client::new()
+            .post(format!("{}{path}", self.api_base()))
+            .bearer_auth(self.api_key())
+            .multipart(form)
+            .build()?;
+
+        self.execute(request).await
     }
 
     /// Deserialize response body from either error object or actual response object
@@ -70,66 +136,60 @@ impl Client {
         Ok(response)
     }
 
-    /// Make a GET request to {path} and deserialize the response body
-    pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
+    /// Execute any HTTP requests and retry on rate limit, except streaming ones as they cannot be cloned for retrying.
+    async fn execute<O>(&self, request: reqwest::Request) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
     {
-        let response = reqwest::Client::new()
-            .get(format!("{}{path}", self.api_base()))
-            .bearer_auth(self.api_key())
-            .send()
-            .await?;
+        let client = reqwest::Client::new();
 
-        self.process_response(response).await
-    }
+        match request.try_clone() {
+            // Only clone-able requests can be retried
+            Some(request) => {
+                backoff::future::retry(self.backoff.clone(), || async {
+                    let response = client
+                        .execute(request.try_clone().unwrap())
+                        .await
+                        .map_err(OpenAIError::Reqwest)
+                        .map_err(backoff::Error::Permanent)?;
 
-    /// Make a DELETE request to {path} and deserialize the response body
-    pub(crate) async fn delete<O>(&self, path: &str) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
-    {
-        let response = reqwest::Client::new()
-            .delete(format!("{}{path}", self.api_base()))
-            .bearer_auth(self.api_key())
-            .send()
-            .await?;
+                    let status = response.status();
+                    let bytes = response
+                        .bytes()
+                        .await
+                        .map_err(OpenAIError::Reqwest)
+                        .map_err(backoff::Error::Permanent)?;
 
-        self.process_response(response).await
-    }
+                    // Deserialize response body from either error object or actual response object
+                    if !status.is_success() {
+                        let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
+                            .map_err(OpenAIError::JSONDeserialize)
+                            .map_err(backoff::Error::Permanent)?;
 
-    /// Make a POST request to {path} and deserialize the response body
-    pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
-    where
-        I: Serialize,
-        O: DeserializeOwned,
-    {
-        let response = reqwest::Client::new()
-            .post(format!("{}{path}", self.api_base()))
-            .bearer_auth(self.api_key())
-            .json(&request)
-            .send()
-            .await?;
+                        if status.as_u16() == 429 {
+                            // Rate limited retry...
+                            return Err(backoff::Error::Transient {
+                                err: OpenAIError::ApiError(wrapped_error.error),
+                                retry_after: None,
+                            });
+                        } else {
+                            return Err(backoff::Error::Permanent(OpenAIError::ApiError(
+                                wrapped_error.error,
+                            )));
+                        }
+                    }
 
-        self.process_response(response).await
-    }
-
-    /// POST a form at {path} and deserialize the response body
-    pub(crate) async fn post_form<O>(
-        &self,
-        path: &str,
-        form: reqwest::multipart::Form,
-    ) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
-    {
-        let response = reqwest::Client::new()
-            .post(format!("{}{path}", self.api_base()))
-            .bearer_auth(self.api_key())
-            .multipart(form)
-            .send()
-            .await?;
-
-        self.process_response(response).await
+                    let response: O = serde_json::from_slice(bytes.as_ref())
+                        .map_err(OpenAIError::JSONDeserialize)
+                        .map_err(backoff::Error::Permanent)?;
+                    Ok(response)
+                })
+                .await
+            }
+            None => {
+                let response = client.execute(request).await?;
+                self.process_response(response).await
+            }
+        }
     }
 }
