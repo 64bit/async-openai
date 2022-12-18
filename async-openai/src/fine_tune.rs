@@ -1,6 +1,6 @@
 use crate::{
     error::OpenAIError,
-    types::{FineTune, ListFineTuneEventsResponse, ListFineTuneResponse},
+    types::{CreateFineTuneRequest, FineTune, ListFineTuneEventsResponse, ListFineTuneResponse},
     Client,
 };
 
@@ -10,6 +10,18 @@ use crate::{
 pub struct FineTunes;
 
 impl FineTunes {
+    /// Creates a job that fine-tunes a specified model from a given dataset.
+    ///
+    /// Response includes details of the enqueued job including job status and the name of the fine-tuned models once complete.
+    ///
+    /// [Learn more about Fine-tuning](https://beta.openai.com/docs/guides/fine-tuning)
+    pub async fn create(
+        client: &Client,
+        request: CreateFineTuneRequest,
+    ) -> Result<FineTune, OpenAIError> {
+        client.post("/fine-tunes", request).await
+    }
+
     /// List your organization's fine-tuning jobs
     pub async fn list(client: &Client) -> Result<ListFineTuneResponse, OpenAIError> {
         client.get("/fine-tunes").await

@@ -25,7 +25,7 @@
   - [x] Edits
   - [ ] Embeddings
   - [x] Files (List, Upload, Delete, Retrieve, Retrieve Content)
-  - [ ] Fine-tunes
+  - [x] Fine-tunes
   - [x] Images (Generation, Edit, Variation)
   - [ ] Microsoft Azure Endpoints / AD Authentication
   - [x] Models
