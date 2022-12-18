@@ -515,23 +515,30 @@ pub struct OpenAIFile {
     pub status_details: Option<serde_json::Value>, // nullable: true
 }
 
-/* Not used yet
+#[derive(Debug, Deserialize)]
+pub struct ListFineTuneResponse {
+    pub object: String,
+    pub data: Vec<FineTune>,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct FineTune {
     pub id: String,
     pub object: String,
     pub created_at: u32,
     pub updated_at: u32,
     pub model: String,
-    pub fine_tuned_model: String, // nullable: true
+    pub fine_tuned_model: Option<String>, // nullable: true
     pub organization_id: String,
     pub status: String,
     pub hyperparams: serde_json::Value,
     pub training_files: Vec<OpenAIFile>,
     pub validation_files: Vec<OpenAIFile>,
     pub result_files: Vec<OpenAIFile>,
-    pub events: Option<FineTuneEvent>,
+    pub events: Option<Vec<FineTuneEvent>>,
 }
 
+#[derive(Debug, Deserialize)]
 pub struct FineTuneEvent {
     pub object: String,
     pub created_at: u32,
@@ -539,9 +546,15 @@ pub struct FineTuneEvent {
     pub message: String,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct ListFineTuneEventsResponse {
+    pub object: String,
+    pub data: Vec<FineTuneEvent>,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct DeleteModelResponse {
     pub id: String,
     pub object: String,
     pub deleted: bool,
 }
-*/

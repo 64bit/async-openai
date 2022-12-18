@@ -1,6 +1,6 @@
 use crate::{
     error::OpenAIError,
-    types::{ListModelResponse, Model},
+    types::{DeleteModelResponse, ListModelResponse, Model},
     Client,
 };
 
@@ -20,5 +20,10 @@ impl Models {
     /// such as the owner and permissioning.
     pub async fn retrieve(client: &Client, id: &str) -> Result<Model, OpenAIError> {
         client.get(format!("/models/{id}").as_str()).await
+    }
+
+    /// Delete a fine-tuned model. You must have the Owner role in your organization.
+    pub async fn delete(client: &Client, model: &str) -> Result<DeleteModelResponse, OpenAIError> {
+        client.delete(format!("/models/{model}").as_str()).await
     }
 }
