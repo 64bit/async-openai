@@ -22,7 +22,7 @@ impl Embeddings {
 
 #[cfg(test)]
 mod tests {
-    use crate::{types::CreateEmbeddingRequest, Client, Embedding};
+    use crate::{types::CreateEmbeddingRequest, Client, Embeddings};
 
     #[tokio::test]
     async fn test_embedding_string() {
@@ -35,7 +35,7 @@ mod tests {
             ..Default::default()
         };
 
-        let response = Embedding::create(&client, request).await;
+        let response = Embeddings::create(&client, request).await;
 
         println!("{:#?}", response);
     }
@@ -52,7 +52,7 @@ mod tests {
             ..Default::default()
         };
 
-        let response = Embedding::create(&client, request).await;
+        let response = Embeddings::create(&client, request).await;
 
         println!("{:#?}", response);
     }
@@ -66,7 +66,7 @@ mod tests {
             ..Default::default()
         };
 
-        let response = Embedding::create(&client, request).await;
+        let response = Embeddings::create(&client, request).await;
 
         println!("{:#?}", response);
     }
@@ -84,7 +84,7 @@ mod tests {
             ..Default::default()
         };
 
-        let response = Embedding::create(&client, request).await;
+        let response = Embeddings::create(&client, request).await;
 
         println!("{:#?}", response);
     }
