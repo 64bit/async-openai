@@ -19,17 +19,17 @@
 `async-openai` is an unofficial Rust library for OpenAI REST API.
 
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
-- Non-streaming requests are retried with exponential backoff when [rate limited](https://help.openai.com/en/articles/5955598-is-api-usage-subject-to-any-rate-limits) by the API server.
 - Current features:
   - [x] Completions (including SSE streaming)
   - [x] Edits
-  - [ ] Embeddings
+  - [x] Embeddings
   - [x] Files (List, Upload, Delete, Retrieve, Retrieve Content)
   - [x] Fine-tunes
   - [x] Images (Generation, Edit, Variation)
   - [ ] Microsoft Azure Endpoints / AD Authentication
   - [x] Models
   - [x] Moderations
+- Non-streaming requests are retried with exponential backoff when [rate limited](https://help.openai.com/en/articles/5955598-is-api-usage-subject-to-any-rate-limits) by the API server.
 
 *Being a young project there are rough edges*
 
