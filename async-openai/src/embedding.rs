@@ -8,9 +8,9 @@ use crate::{
 /// consumed by machine learning models and algorithms.
 ///
 /// Related guide: [Embeddings](https://beta.openai.com/docs/guides/embeddings/what-are-embeddings)
-pub struct Embedding;
+pub struct Embeddings;
 
-impl Embedding {
+impl Embeddings {
     /// Creates an embedding vector representing the input text.
     pub async fn create(
         client: &Client,
