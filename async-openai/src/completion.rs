@@ -30,9 +30,9 @@ impl Completion {
     ///
     /// Stream back partial progress. Tokens will be sent as data-only
     /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-    /// as they become available, with the stream terminated by a data: [DONE] message.
+    /// as they become available, with the stream terminated by a data: \[DONE\] message.
     ///
-    /// [CompletionResponseStream] is a parsed SSE stream until a [DONE] is received from server.
+    /// [CompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
     pub async fn create_stream(
         client: &Client,
         mut request: CreateCompletionRequest,

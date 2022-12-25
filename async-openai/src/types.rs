@@ -154,7 +154,7 @@ pub struct CreateCompletionResponse {
     pub usage: Option<Usage>,
 }
 
-/// Parsed server side events stream until an [DONE] is received from server.
+/// Parsed server side events stream until an \[DONE\] is received from server.
 pub type CompletionResponseStream =
     Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>>>>;
 
