@@ -664,16 +664,16 @@ pub struct DeleteModelResponse {
 
 #[derive(Debug, Serialize)]
 #[serde(untagged)]
-pub enum EmbeddingsInput {
+pub enum EmbeddingInput {
     String(String),
     StringArray(Vec<String>),
     IntegerArray(Vec<u32>),
     ArrayOfIntegerArray(Vec<Vec<u32>>),
 }
 
-impl Default for EmbeddingsInput {
+impl Default for EmbeddingInput {
     fn default() -> Self {
-        EmbeddingsInput::String("".to_owned())
+        EmbeddingInput::String("".to_owned())
     }
 }
 
@@ -690,7 +690,7 @@ pub struct CreateEmbeddingRequest {
     /// To get embeddings for multiple inputs in a single request, pass an array
     /// of strings or array of token arrays. Each input must not exceed 8192
     /// tokens in length.
-    pub input: EmbeddingsInput,
+    pub input: EmbeddingInput,
 
     /// A unique identifier representing your end-user, which will help OpenAI
     ///  to monitor and detect abuse. [Learn more](https://beta.openai.com/docs/usage-policies/end-user-ids).

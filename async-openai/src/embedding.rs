@@ -29,7 +29,7 @@ mod tests {
         let client = Client::new();
         let request = CreateEmbeddingRequest {
             model: "text-embedding-ada-002".to_owned(),
-            input: crate::types::EmbeddingsInput::String(
+            input: crate::types::EmbeddingInput::String(
                 "The food was delicious and the waiter...".to_owned(),
             ),
             ..Default::default()
@@ -45,7 +45,7 @@ mod tests {
         let client = Client::new();
         let request = CreateEmbeddingRequest {
             model: "text-embedding-ada-002".to_owned(),
-            input: crate::types::EmbeddingsInput::StringArray(vec![
+            input: crate::types::EmbeddingInput::StringArray(vec![
                 "The food was delicious".to_owned(),
                 "The waiter was good".to_owned(),
             ]),
@@ -62,7 +62,7 @@ mod tests {
         let client = Client::new();
         let request = CreateEmbeddingRequest {
             model: "text-embedding-ada-002".to_owned(),
-            input: crate::types::EmbeddingsInput::IntegerArray(vec![1, 2, 3]),
+            input: crate::types::EmbeddingInput::IntegerArray(vec![1, 2, 3]),
             ..Default::default()
         };
 
@@ -76,7 +76,7 @@ mod tests {
         let client = Client::new();
         let request = CreateEmbeddingRequest {
             model: "text-embedding-ada-002".to_owned(),
-            input: crate::types::EmbeddingsInput::ArrayOfIntegerArray(vec![
+            input: crate::types::EmbeddingInput::ArrayOfIntegerArray(vec![
                 vec![1, 2, 3],
                 vec![4, 5, 6],
                 vec![7, 8, 9],
