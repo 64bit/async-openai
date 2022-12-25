@@ -99,5 +99,3 @@ Thank you for your time to contribute and improve the project, I'd be happy to h
 ## License
 
 This project is licensed under [MIT license](https://github.com/64bit/async-openai/blob/main/LICENSE).
-
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in async-openai by you, shall be licensed as MIT, without any additional terms or conditions.
