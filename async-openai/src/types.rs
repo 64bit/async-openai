@@ -31,7 +31,7 @@ pub struct ListModelResponse {
 
 #[derive(Serialize, Default, Debug)]
 pub struct CreateCompletionRequest {
-    /// ID of the model to use. You can use the [List models](/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](/docs/models/overview) for descriptions of them.
+    /// ID of the model to use. You can use the [List models](https://beta.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://beta.openai.com/docs/models/overview) for descriptions of them.
     pub model: String,
 
     /// The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.
@@ -90,13 +90,13 @@ pub struct CreateCompletionRequest {
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
     ///
-    /// [See more information about frequency and presence penalties.](/docs/api-reference/parameter-details)
+    /// [See more information about frequency and presence penalties.](https://beta.openai.com/docs/api-reference/parameter-details)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub presence_penalty: Option<f32>, // min: -2.0, max: 2.0, default 0
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
     ///
-    /// [See more information about frequency and presence penalties.](/docs/api-reference/parameter-details)
+    /// [See more information about frequency and presence penalties.](https://beta.openai.com/docs/api-reference/parameter-details)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub frequency_penalty: Option<f32>, // min: -2.0, max: 2.0, default: 0
 
@@ -116,7 +116,7 @@ pub struct CreateCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logit_bias: Option<HashMap<String, serde_json::Value>>, // default: null
 
-    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](/docs/usage-policies/end-user-ids).
+    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://beta.openai.com/docs/usage-policies/end-user-ids).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 }
@@ -154,13 +154,13 @@ pub struct CreateCompletionResponse {
     pub usage: Option<Usage>,
 }
 
-/// Parsed server side events stream until an [DONE] is received from server.
+/// Parsed server side events stream until an \[DONE\] is received from server.
 pub type CompletionResponseStream =
     Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>>>>;
 
 #[derive(Debug, Serialize, Default)]
 pub struct CreateEditRequest {
-    /// ID of the model to use. You can use the [List models](/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](/docs/models/overview) for descriptions of them.
+    /// ID of the model to use. You can use the [List models](https://beta.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://beta.openai.com/docs/models/overview) for descriptions of them.
     pub model: String,
 
     /// The input text to use as a starting point for the edit.
@@ -261,7 +261,7 @@ pub struct CreateImageRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<ResponseFormat>,
 
-    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](/docs/usage-policies/end-user-ids).
+    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://beta.openai.com/docs/usage-policies/end-user-ids).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 }
@@ -366,7 +366,7 @@ pub struct CreateImageEditRequest {
     /// The format in which the generated images are returned. Must be one of `url` or `b64_json`.
     pub response_format: Option<ResponseFormat>,
 
-    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](/docs/usage-policies/end-user-ids).
+    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://beta.openai.com/docs/usage-policies/end-user-ids).
     pub user: Option<String>,
 }
 
@@ -384,7 +384,7 @@ pub struct CreateImageVariationRequest {
     /// The format in which the generated images are returned. Must be one of `url` or `b64_json`.
     pub response_format: Option<ResponseFormat>,
 
-    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](/docs/usage-policies/end-user-ids).
+    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://beta.openai.com/docs/usage-policies/end-user-ids).
     pub user: Option<String>,
 }
 
@@ -481,12 +481,12 @@ impl FileInput {
 pub struct CreateFileRequest {
     /// Name of the [JSON Lines](https://jsonlines.readthedocs.io/en/latest/) file to be uploaded.
     ///
-    /// If the `purpose` is set to "fine-tune", each line is a JSON record with "prompt" and "completion" fields representing your [training examples](/docs/guides/fine-tuning/prepare-training-data).
+    /// If the `purpose` is set to "fine-tune", each line is a JSON record with "prompt" and "completion" fields representing your [training examples](https://beta.openai.com/docs/guides/fine-tuning/prepare-training-data).
     pub file: FileInput,
 
     /// The intended purpose of the uploaded documents.
     ///
-    /// Use "fine-tune" for [Fine-tuning](/docs/api-reference/fine-tunes). This allows us to validate the format of the uploaded file.
+    /// Use "fine-tune" for [Fine-tuning](https://beta.openai.com/docs/api-reference/fine-tunes). This allows us to validate the format of the uploaded file.
     pub purpose: String,
 }
 
@@ -660,4 +660,61 @@ pub struct DeleteModelResponse {
     pub id: String,
     pub object: String,
     pub deleted: bool,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(untagged)]
+pub enum EmbeddingInput {
+    String(String),
+    StringArray(Vec<String>),
+    IntegerArray(Vec<u32>),
+    ArrayOfIntegerArray(Vec<Vec<u32>>),
+}
+
+impl Default for EmbeddingInput {
+    fn default() -> Self {
+        EmbeddingInput::String("".to_owned())
+    }
+}
+
+#[derive(Debug, Serialize, Default)]
+pub struct CreateEmbeddingRequest {
+    /// ID of the model to use. You can use the
+    /// [List models](https://beta.openai.com/docs/api-reference/models/list)
+    /// API to see all of your available models, or see our
+    /// [Model overview](https://beta.openai.com/docs/models/overview)
+    /// for descriptions of them.
+    pub model: String,
+
+    /// Input text to get embeddings for, encoded as a string or array of tokens.
+    /// To get embeddings for multiple inputs in a single request, pass an array
+    /// of strings or array of token arrays. Each input must not exceed 8192
+    /// tokens in length.
+    pub input: EmbeddingInput,
+
+    /// A unique identifier representing your end-user, which will help OpenAI
+    ///  to monitor and detect abuse. [Learn more](https://beta.openai.com/docs/usage-policies/end-user-ids).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Embedding {
+    pub index: u32,
+    pub object: String,
+    pub embedding: Vec<f32>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct EmbeddingUsage {
+    pub prompt_tokens: u32,
+    pub total_tokens: u32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateEmbeddingResponse {
+    pub object: String,
+    pub model: String,
+    pub data: Vec<Embedding>,
+    pub usage: EmbeddingUsage,
 }
