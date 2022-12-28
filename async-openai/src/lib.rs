@@ -57,6 +57,7 @@ mod util;
 
 pub use client::Client;
 pub use client::API_BASE;
+pub use client::ORGANIZATION_HEADER;
 pub use completion::Completion;
 pub use edit::Edit;
 pub use embedding::Embeddings;
