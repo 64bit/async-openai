@@ -36,7 +36,7 @@ pub struct ApiError {
 }
 
 /// Wrapper to deserialize the error object nested in "error" JSON key
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub(crate) struct WrappedError {
     pub(crate) error: ApiError,
 }

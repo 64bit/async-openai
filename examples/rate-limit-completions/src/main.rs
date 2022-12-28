@@ -1,9 +1,11 @@
 use async_openai as openai;
 use openai::{error::OpenAIError, types::CreateCompletionRequest, Client, Completion};
 
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
+
 async fn joke(client: &Client) -> Result<String, OpenAIError> {
     let request = CreateCompletionRequest {
-        model: "text-davinci-003".to_owned(),
+        model: "text-ada-001".to_owned(),
         prompt: Some("Tell me a joke".to_owned()),
         max_tokens: Some(30),
         ..Default::default()
@@ -16,6 +18,15 @@ async fn joke(client: &Client) -> Result<String, OpenAIError> {
 
 #[tokio::main]
 async fn main() {
+    // This should come from env var outside the program
+    std::env::set_var("RUST_LOG", "warn");
+
+    // Setup tracing subscriber so that library can log the rate limited message
+    tracing_subscriber::registry()
+        .with(fmt::layer())
+        .with(EnvFilter::from_default_env())
+        .init();
+
     let backoff = backoff::ExponentialBackoffBuilder::new()
         .with_max_elapsed_time(Some(std::time::Duration::from_secs(60)))
         .build();

@@ -9,8 +9,11 @@
 //! let client = openai::Client::new();
 //!
 //! // OR use API key from different source
-//! let api_key = "sk-..."; // This could be from a file, hard coding secret is not a best practice.
+//! let api_key = "sk-..."; // This secret could be from a file, or environment variable.
 //! let client = openai::Client::new().with_api_key(api_key);
+//!
+//! // Use organization different then default when making requests
+//! let client = openai::Client::new().with_org_id("the-org");
 //! ```
 //!
 //! ## Making requests
@@ -54,6 +57,7 @@ mod util;
 
 pub use client::Client;
 pub use client::API_BASE;
+pub use client::ORGANIZATION_HEADER;
 pub use completion::Completion;
 pub use edit::Edit;
 pub use embedding::Embeddings;

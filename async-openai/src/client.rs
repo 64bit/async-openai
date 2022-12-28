@@ -1,20 +1,22 @@
+use reqwest::header::HeaderMap;
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::error::{OpenAIError, WrappedError};
 
 #[derive(Debug, Default)]
-/// Client container for api key, base url and other metadata
-/// required to make API calls.
+/// Client is a container for api key, base url, organization id, and backoff
+/// configuration used to make API calls.
 pub struct Client {
     api_key: String,
     api_base: String,
     org_id: String,
     backoff: backoff::ExponentialBackoff,
-    //headers: reqwest::header::HeaderMap,
 }
 
 /// Default v1 API base url
 pub const API_BASE: &str = "https://api.openai.com/v1";
+/// Name for organization header
+pub const ORGANIZATION_HEADER: &str = "OpenAI-Organization";
 
 impl Client {
     /// Create client with default [API_BASE] url and default API key from OPENAI_API_KEY env var
@@ -32,6 +34,7 @@ impl Client {
         self
     }
 
+    /// To use a different organization id other than default
     pub fn with_org_id<S: Into<String>>(mut self, org_id: S) -> Self {
         self.org_id = org_id.into();
         self
@@ -57,6 +60,14 @@ impl Client {
         &self.api_key
     }
 
+    fn headers(&self) -> HeaderMap {
+        let mut headers = HeaderMap::new();
+        if !self.org_id.is_empty() {
+            headers.insert(ORGANIZATION_HEADER, self.org_id.as_str().parse().unwrap());
+        }
+        headers
+    }
+
     /// Make a GET request to {path} and deserialize the response body
     pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
     where
@@ -65,6 +76,7 @@ impl Client {
         let request = reqwest::Client::new()
             .get(format!("{}{path}", self.api_base()))
             .bearer_auth(self.api_key())
+            .headers(self.headers())
             .build()?;
 
         self.execute(request).await
@@ -78,6 +90,7 @@ impl Client {
         let request = reqwest::Client::new()
             .delete(format!("{}{path}", self.api_base()))
             .bearer_auth(self.api_key())
+            .headers(self.headers())
             .build()?;
 
         self.execute(request).await
@@ -92,6 +105,7 @@ impl Client {
         let request = reqwest::Client::new()
             .post(format!("{}{path}", self.api_base()))
             .bearer_auth(self.api_key())
+            .headers(self.headers())
             .json(&request)
             .build()?;
 
@@ -110,6 +124,7 @@ impl Client {
         let request = reqwest::Client::new()
             .post(format!("{}{path}", self.api_base()))
             .bearer_auth(self.api_key())
+            .headers(self.headers())
             .multipart(form)
             .build()?;
 
@@ -166,8 +181,13 @@ impl Client {
                             .map_err(OpenAIError::JSONDeserialize)
                             .map_err(backoff::Error::Permanent)?;
 
-                        if status.as_u16() == 429 {
+                        if status.as_u16() == 429
+                            // API returns 429 also when:
+                            // "You exceeded your current quota, please check your plan and billing details."
+                            && wrapped_error.error.r#type != "insufficient_quota"
+                        {
                             // Rate limited retry...
+                            tracing::warn!("Rate limited: {}", wrapped_error.error.message);
                             return Err(backoff::Error::Transient {
                                 err: OpenAIError::ApiError(wrapped_error.error),
                                 retry_after: None,
