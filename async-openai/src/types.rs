@@ -667,8 +667,8 @@ pub struct DeleteModelResponse {
 pub enum EmbeddingInput {
     String(String),
     StringArray(Vec<String>),
-    IntegerArray(Vec<u32>),
-    ArrayOfIntegerArray(Vec<Vec<u32>>),
+    IntegerArray(Vec<i32>),
+    ArrayOfIntegerArray(Vec<Vec<i32>>),
 }
 
 impl Default for EmbeddingInput {
