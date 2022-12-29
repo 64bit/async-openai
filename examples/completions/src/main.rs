@@ -1,17 +1,39 @@
 use async_openai as openai;
-use openai::{types::CreateCompletionRequest, Client, Completion};
+use openai::{
+    types::{CreateCompletionRequest, Prompt},
+    Client, Completion,
+};
 
 #[tokio::main]
 async fn main() {
     let client = Client::new();
 
-    let completion_request = CreateCompletionRequest {
-        model: "text-davinci-003".to_owned(),
-        prompt: Some("Tell me a joke about universe".to_owned()),
+    // single
+    let request = CreateCompletionRequest {
+        model: "text-ada-001".to_owned(),
+        prompt: Some(Prompt::String(
+            "Tell me a joke about the universe".to_owned(),
+        )),
+        max_tokens: Some(40),
         ..Default::default()
     };
 
-    let completion_response = Completion::create(&client, completion_request).await;
+    let response = Completion::create(&client, request).await;
 
-    println!("{:#?}", completion_response);
+    println!("Response (single)\n {:#?}", response);
+
+    // multiple
+    let request = CreateCompletionRequest {
+        model: "text-ada-001".to_owned(),
+        prompt: Some(Prompt::StringArray(vec![
+            "How old the human civilization?".to_owned(),
+            "How old is the Earth?".to_owned(),
+        ])),
+        max_tokens: Some(40),
+        ..Default::default()
+    };
+
+    let response = Completion::create(&client, request).await;
+
+    println!("Response (multiple)\n {:#?}", response);
 }

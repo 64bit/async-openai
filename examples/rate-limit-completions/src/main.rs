@@ -1,12 +1,16 @@
 use async_openai as openai;
-use openai::{error::OpenAIError, types::CreateCompletionRequest, Client, Completion};
+use openai::{
+    error::OpenAIError,
+    types::{CreateCompletionRequest, Prompt},
+    Client, Completion,
+};
 
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 async fn joke(client: &Client) -> Result<String, OpenAIError> {
     let request = CreateCompletionRequest {
         model: "text-ada-001".to_owned(),
-        prompt: Some("Tell me a joke".to_owned()),
+        prompt: Some(Prompt::String("Tell me a joke".to_owned())),
         max_tokens: Some(30),
         ..Default::default()
     };
