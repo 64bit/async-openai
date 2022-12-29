@@ -12,7 +12,7 @@
 //! let api_key = "sk-..."; // This secret could be from a file, or environment variable.
 //! let client = openai::Client::new().with_api_key(api_key);
 //!
-//! // Use organization different then default when making requests
+//! // Use organization other than default when making requests
 //! let client = openai::Client::new().with_org_id("the-org");
 //! ```
 //!
