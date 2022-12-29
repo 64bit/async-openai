@@ -21,14 +21,14 @@
 //!```
 //!# tokio_test::block_on(async {
 //! use async_openai as openai;
-//! use openai::{Client, Completion, types::{CreateCompletionRequest}};
+//! use openai::{Client, Completion, types::{CreateCompletionRequest, Prompt}};
 //!
 //! // Create client
 //! let client = Client::new();
 //! // Create request
 //! let request = CreateCompletionRequest {
 //!     model: "text-davinci-003".to_owned(),
-//!     prompt: Some("Tell me a joke about the universe".to_owned()),
+//!     prompt: Some(Prompt::String("Tell me the recipe of alfredo pasta".to_owned())),
 //!     ..Default::default()
 //! };
 //! // Call API
