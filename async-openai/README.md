@@ -24,7 +24,7 @@
   - [x] Edits
   - [x] Embeddings
   - [x] Files (List, Upload, Delete, Retrieve, Retrieve Content)
-  - [x] Fine-Tuning
+  - [x] Fine-Tuning (including Fine tune events SSE streaming)
   - [x] Images (Generation, Edit, Variation)
   - [ ] Microsoft Azure Endpoints / AD Authentication
   - [x] Models
