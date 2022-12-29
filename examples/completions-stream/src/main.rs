@@ -1,6 +1,8 @@
-use async_openai as openai;
+use async_openai::{
+    types::{CreateCompletionRequest, Prompt},
+    Client, Completion,
+};
 use futures::StreamExt;
-use openai::{types::CreateCompletionRequest, Client, Completion};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -9,7 +11,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let completion_request = CreateCompletionRequest {
         model: "text-davinci-003".to_owned(),
         n: Some(1),
-        prompt: Some("Tell me a bedtime story about Optimus Prime and Bumblebee".to_owned()),
+        prompt: Some(Prompt::String(
+            "Tell me a bedtime story about Optimus Prime and Bumblebee".to_owned(),
+        )),
         max_tokens: Some(1024),
         stream: Some(true),
         ..Default::default()

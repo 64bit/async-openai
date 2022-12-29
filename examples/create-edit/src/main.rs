@@ -1,7 +1,5 @@
+use async_openai::{types::CreateEditRequest, Client, Edit};
 use std::error::Error;
-
-use async_openai as openai;
-use openai::{types::CreateEditRequest, Client, Edit};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {

@@ -13,6 +13,9 @@
     <img src="https://docs.rs/async-openai/badge.svg" />
     </a>
 </div>
+<div align="center">
+<sub>Logo created by this <a href="https://github.com/64bit/async-openai/tree/main/examples/create-image-b64-json">repo itself</a></sub>
+</div>
 
 ## Overview
 
@@ -24,7 +27,7 @@
   - [x] Edits
   - [x] Embeddings
   - [x] Files (List, Upload, Delete, Retrieve, Retrieve Content)
-  - [x] Fine-Tuning
+  - [x] Fine-Tuning (including SSE streaming Fine-tuning events)
   - [x] Images (Generation, Edit, Variation)
   - [ ] Microsoft Azure Endpoints / AD Authentication
   - [x] Models
@@ -55,8 +58,7 @@ $Env:OPENAI_API_KEY='sk-...'
 ```rust
 use std::error::Error;
 
-use async_openai as openai;
-use openai::{
+use async_openai::{
     types::{CreateImageRequest, ImageSize, ResponseFormat},
     Client, Image,
 };

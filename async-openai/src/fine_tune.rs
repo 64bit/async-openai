@@ -1,6 +1,9 @@
 use crate::{
     error::OpenAIError,
-    types::{CreateFineTuneRequest, FineTune, ListFineTuneEventsResponse, ListFineTuneResponse},
+    types::{
+        CreateFineTuneRequest, FineTune, FineTuneEventsResponseStream, ListFineTuneEventsResponse,
+        ListFineTuneResponse,
+    },
     Client,
 };
 
@@ -51,5 +54,21 @@ impl FineTunes {
         client
             .get(format!("/fine-tunes/{fine_tune_id}/events").as_str())
             .await
+    }
+
+    /// Get fine-grained status updates for a fine-tune job.
+    ///
+    /// Stream fine tuning events. [FineTuneEventsResponseStream] is a parsed SSE
+    /// stream until a \[DONE\] is received from server.
+    pub async fn list_events_stream(
+        client: &Client,
+        fine_tune_id: &str,
+    ) -> Result<FineTuneEventsResponseStream, OpenAIError> {
+        Ok(client
+            .get_stream(
+                format!("/fine-tunes/{fine_tune_id}/events").as_str(),
+                &[("stream", true)],
+            )
+            .await)
     }
 }

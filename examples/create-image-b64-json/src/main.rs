@@ -1,10 +1,8 @@
-use std::error::Error;
-
-use async_openai as openai;
-use openai::{
+use async_openai::{
     types::{CreateImageRequest, ImageSize, ResponseFormat},
     Client, Image,
 };
+use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {

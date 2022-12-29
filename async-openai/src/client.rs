@@ -1,4 +1,8 @@
+use std::pin::Pin;
+
+use futures::{stream::StreamExt, Stream};
 use reqwest::header::HeaderMap;
+use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::error::{OpenAIError, WrappedError};
@@ -211,5 +215,93 @@ impl Client {
                 self.process_response(response).await
             }
         }
+    }
+
+    /// Make HTTP POST request to receive SSE
+    pub(crate) async fn post_stream<I, O>(
+        &self,
+        path: &str,
+        request: I,
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>>>>
+    where
+        I: Serialize,
+        O: DeserializeOwned + std::marker::Send + 'static,
+    {
+        let event_source = reqwest::Client::new()
+            .post(format!("{}{path}", self.api_base()))
+            .headers(self.headers())
+            .bearer_auth(self.api_key())
+            .json(&request)
+            .eventsource()
+            .unwrap();
+
+        Client::stream(event_source).await
+    }
+
+    /// Make HTTP GET request to receive SSE
+    pub(crate) async fn get_stream<Q, O>(
+        &self,
+        path: &str,
+        query: &Q,
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>>>>
+    where
+        Q: Serialize + ?Sized,
+        O: DeserializeOwned + std::marker::Send + 'static,
+    {
+        let event_source = reqwest::Client::new()
+            .get(format!("{}{path}", self.api_base()))
+            .query(query)
+            .headers(self.headers())
+            .bearer_auth(self.api_key())
+            .eventsource()
+            .unwrap();
+
+        Client::stream(event_source).await
+    }
+
+    /// Request which responds with SSE.
+    /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
+    pub(crate) async fn stream<O>(
+        mut event_source: EventSource,
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>>>>
+    where
+        O: DeserializeOwned + std::marker::Send + 'static,
+    {
+        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+
+        tokio::spawn(async move {
+            while let Some(ev) = event_source.next().await {
+                match ev {
+                    Err(e) => {
+                        if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
+                            // rx dropped
+                            break;
+                        }
+                    }
+                    Ok(event) => match event {
+                        Event::Message(message) => {
+                            if message.data == "[DONE]" {
+                                break;
+                            }
+
+                            let response = match serde_json::from_str::<O>(&message.data) {
+                                Err(e) => Err(OpenAIError::JSONDeserialize(e)),
+                                Ok(output) => Ok(output),
+                            };
+
+                            if let Err(_e) = tx.send(response) {
+                                // rx dropped
+                                break;
+                            }
+                        }
+                        Event::Open => continue,
+                    },
+                }
+            }
+
+            event_source.close();
+        });
+
+        Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
     }
 }

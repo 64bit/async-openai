@@ -1,5 +1,4 @@
-use async_openai as openai;
-use openai::{Client, Models};
+use async_openai::{Client, Models};
 
 #[tokio::main]
 async fn main() {

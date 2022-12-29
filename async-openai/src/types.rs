@@ -29,6 +29,23 @@ pub struct ListModelResponse {
     pub data: Vec<Model>,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(untagged)]
+pub enum Prompt {
+    String(String),
+    StringArray(Vec<String>),
+    // Minimum value is 0, maximum value is 50256 (inclusive).
+    IntegerArray(Vec<u16>),
+    ArrayOfIntegerArray(Vec<Vec<u16>>),
+}
+
+#[derive(Debug, Serialize)]
+#[serde(untagged)]
+pub enum Stop {
+    String(String),           // nullable: true
+    StringArray(Vec<String>), // minItems: 1; maxItems: 4
+}
+
 #[derive(Serialize, Default, Debug)]
 pub struct CreateCompletionRequest {
     /// ID of the model to use. You can use the [List models](https://beta.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://beta.openai.com/docs/models/overview) for descriptions of them.
@@ -38,11 +55,11 @@ pub struct CreateCompletionRequest {
     ///
     /// Note that <|endoftext|> is the document separator that the model sees during training, so if a prompt is not specified the model will generate as if from the beginning of a new document.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub prompt: Option<String>, // todo check type
+    pub prompt: Option<Prompt>,
 
     /// The suffix that comes after a completion of inserted text.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub suffix: Option<String>, // todo: default null
+    pub suffix: Option<String>, // default: null
 
     /// The maximum number of [tokens](/tokenizer) to generate in the completion.
     ///
@@ -54,13 +71,13 @@ pub struct CreateCompletionRequest {
     ///
     /// We generally recommend altering this or `top_p` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub temperature: Option<f32>, // todo: min:0 ,max: 2, default: 1,
+    pub temperature: Option<f32>, // min: 0, max: 2, default: 1,
 
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
     ///
     ///  We generally recommend altering this or `temperature` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub top_p: Option<f32>, //  todo: min: 0, max: 1, default: 1
+    pub top_p: Option<f32>, // min: 0, max: 1, default: 1
 
     /// How many completions to generate for each prompt.
 
@@ -72,13 +89,13 @@ pub struct CreateCompletionRequest {
     /// Whether to stream back partial progress. If set, tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format)
     /// as they become available, with the stream terminated by a `data: [DONE]` message.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub stream: Option<bool>,
+    pub stream: Option<bool>, // nullable: true
 
     /// Include the log probabilities on the `logprobs` most likely tokens, as well the chosen tokens. For example, if `logprobs` is 5, the API will return a list of the 5 most likely tokens. The API will always return the `logprob` of the sampled token, so there may be up to `logprobs+1` elements in the response.
 
     /// The maximum value for `logprobs` is 5. If you need more than this, please contact us through our [Help center](https://help.openai.com) and describe your use case.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub logprobs: Option<u8>, // min:0 , max: 5, default: null
+    pub logprobs: Option<u8>, // min:0 , max: 5, default: null, nullable: true
 
     /// Echo back the prompt in addition to the completion
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -86,7 +103,7 @@ pub struct CreateCompletionRequest {
 
     ///  Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub stop: Option<String>, //todo: type?
+    pub stop: Option<Stop>,
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
     ///
@@ -178,13 +195,13 @@ pub struct CreateEditRequest {
     ///
     /// We generally recommend altering this or `top_p` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub temperature: Option<f32>, // todo: min:0 ,max: 2, default: 1,
+    pub temperature: Option<f32>, // min:0 ,max: 2, default: 1,
 
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
     ///
     ///  We generally recommend altering this or `temperature` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub top_p: Option<f32>, //  todo: min: 0, max: 1, default: 1
+    pub top_p: Option<f32>, // min: 0, max: 1, default: 1
 }
 
 #[derive(Debug, Deserialize)]
@@ -390,14 +407,14 @@ pub struct CreateImageVariationRequest {
 
 #[derive(Debug, Serialize)]
 #[serde(untagged)]
-pub enum Input {
-    Single(String),
-    Array(Vec<String>),
+pub enum ModerationInput {
+    String(String),
+    StringArray(Vec<String>),
 }
 
-impl Default for Input {
+impl Default for ModerationInput {
     fn default() -> Self {
-        Input::Single("".to_owned())
+        ModerationInput::String("".to_owned())
     }
 }
 
@@ -413,7 +430,7 @@ pub enum TextModerationModel {
 #[derive(Debug, Serialize, Default)]
 pub struct CreateModerationRequest {
     /// The input text to classify
-    pub input: Input,
+    pub input: ModerationInput,
 
     /// Two content moderations models are available: `text-moderation-stable` and `text-moderation-latest`.
     ///
@@ -540,15 +557,18 @@ pub struct CreateFineTuneRequest {
     /// Additionally, you must upload your file with the purpose `fine-tune`.
     ///
     /// See the [fine-tuning guide](https://beta.openai.com/docs/guides/fine-tuning/creating-training-data) for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub validation_file: Option<String>,
 
     /// The name of the base model to fine-tune. You can select one of "ada",
     /// "babbage", "curie", "davinci", or a fine-tuned model created after 2022-04-21.
     /// To learn more about these models, see the [Models](https://beta.openai.com/docs/models) documentation.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
 
     /// The number of epochs to train the model for. An epoch refers to one
     /// full cycle through the training dataset.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub n_epochs: Option<u32>, // default: 4
 
     /// The batch size to use for training. The batch size is the number of
@@ -558,6 +578,7 @@ pub struct CreateFineTuneRequest {
     /// ~0.2% of the number of examples in the training set, capped at 256 -
     /// in general, we've found that larger batch sizes tend to work better
     /// for larger datasets.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub batch_size: Option<u32>, // default: null
 
     /// The learning rate multiplier to use for training.
@@ -569,6 +590,7 @@ pub struct CreateFineTuneRequest {
     /// perform better with larger batch sizes). We recommend experimenting
     /// with values in the range 0.02 to 0.2 to see what produces the best
     /// results.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub learning_rate_multiplier: Option<f32>, // default: null
 
     /// The weight to use for loss on the prompt tokens. This controls how
@@ -579,6 +601,7 @@ pub struct CreateFineTuneRequest {
     /// If prompts are extremely long (relative to completions), it may make
     /// sense to reduce this weight so as to avoid over-prioritizing
     /// learning the prompt.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt_loss_weight: Option<f32>, // default: 0.01
 
     /// If set, we calculate classification-specific metrics such as accuracy
@@ -589,17 +612,20 @@ pub struct CreateFineTuneRequest {
     /// `validation_file`. Additionally, you must
     /// specify `classification_n_classes` for multiclass classification or
     /// `classification_positive_class` for binary classification.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub compute_classification_metrics: Option<bool>, // default: false
 
     /// The number of classes in a classification task.
     ///
     /// This parameter is required for multiclass classification.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub classification_n_classes: Option<u32>, // default: null
 
     /// The positive class in binary classification.
     ///
     /// This parameter is needed to generate precision, recall, and F1
     /// metrics when doing binary classification.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub classification_positive_class: Option<String>, // default: null
 
     /// If this is provided, we calculate F-beta scores at the specified
@@ -610,11 +636,13 @@ pub struct CreateFineTuneRequest {
     /// given the same weight. A larger beta score puts more weight on
     /// recall and less on precision. A smaller beta score puts more weight
     /// on precision and less on recall.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub classification_betas: Option<Vec<f32>>, // default: null
 
     /// A string of up to 40 characters that will be added to your fine-tuned model name.
     ///
     /// For example, a `suffix` of "custom-model-name" would produce a model name like `ada:ft-your-org:custom-model-name-2022-02-15-04-21-04`.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub suffix: Option<String>, // default: null, minLength:1, maxLength:40
 }
 
@@ -655,6 +683,10 @@ pub struct ListFineTuneEventsResponse {
     pub data: Vec<FineTuneEvent>,
 }
 
+/// Parsed server side events stream until an \[DONE\] is received from server.
+pub type FineTuneEventsResponseStream =
+    Pin<Box<dyn Stream<Item = Result<ListFineTuneEventsResponse, OpenAIError>>>>;
+
 #[derive(Debug, Deserialize)]
 pub struct DeleteModelResponse {
     pub id: String,
@@ -667,8 +699,9 @@ pub struct DeleteModelResponse {
 pub enum EmbeddingInput {
     String(String),
     StringArray(Vec<String>),
-    IntegerArray(Vec<i32>),
-    ArrayOfIntegerArray(Vec<Vec<i32>>),
+    // Minimum value is 0, maximum value is 100257 (inclusive).
+    IntegerArray(Vec<u32>),
+    ArrayOfIntegerArray(Vec<Vec<u32>>),
 }
 
 impl Default for EmbeddingInput {

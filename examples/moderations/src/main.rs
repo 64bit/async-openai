@@ -1,10 +1,8 @@
-use std::error::Error;
-
-use async_openai as openai;
-use openai::{
-    types::{CreateModerationRequest, Input, TextModerationModel},
+use async_openai::{
+    types::{CreateModerationRequest, ModerationInput, TextModerationModel},
     Client, Moderation,
 };
+use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -12,7 +10,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // single
     let request = CreateModerationRequest {
-        input: Input::Single("Lions want to kill".to_string()),
+        input: ModerationInput::String("Lions want to kill".to_owned()),
         model: Some(TextModerationModel::Latest),
     };
 
@@ -22,9 +20,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // multiple
     let request = CreateModerationRequest {
-        input: Input::Array(vec![
-            "Lions want to kill".to_string(),
-            "I hate them".to_string(),
+        input: ModerationInput::StringArray(vec![
+            "Lions want to kill".to_owned(),
+            "I hate them".to_owned(),
         ]),
         model: Some(TextModerationModel::Latest),
     };

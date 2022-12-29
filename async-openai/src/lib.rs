@@ -3,32 +3,32 @@
 //! ## Creating client
 //!
 //! ```
-//! use async_openai as openai;
+//! use async_openai::Client;
 //!
 //! // Create a client with api key from env var OPENAI_API_KEY and default base url.
-//! let client = openai::Client::new();
+//! let client = Client::new();
 //!
 //! // OR use API key from different source
 //! let api_key = "sk-..."; // This secret could be from a file, or environment variable.
-//! let client = openai::Client::new().with_api_key(api_key);
+//! let client = Client::new().with_api_key(api_key);
 //!
-//! // Use organization different then default when making requests
-//! let client = openai::Client::new().with_org_id("the-org");
+//! // Use organization other than default when making requests
+//! let client = Client::new().with_org_id("the-org");
 //! ```
 //!
 //! ## Making requests
 //!
 //!```
 //!# tokio_test::block_on(async {
-//! use async_openai as openai;
-//! use openai::{Client, Completion, types::{CreateCompletionRequest}};
+//!
+//! use async_openai::{Client, Completion, types::{CreateCompletionRequest, Prompt}};
 //!
 //! // Create client
 //! let client = Client::new();
 //! // Create request
 //! let request = CreateCompletionRequest {
 //!     model: "text-davinci-003".to_owned(),
-//!     prompt: Some("Tell me a joke about the universe".to_owned()),
+//!     prompt: Some(Prompt::String("Tell me the recipe of alfredo pasta".to_owned())),
 //!     ..Default::default()
 //! };
 //! // Call API

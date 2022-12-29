@@ -1,7 +1,9 @@
 use std::error::Error;
 
-use async_openai as openai;
-use openai::{types::CreateCompletionRequest, Client, Completion};
+use async_openai::{
+    types::{CreateCompletionRequest, Prompt},
+    Client, Completion,
+};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -12,7 +14,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let request = CreateCompletionRequest {
         model: "code-davinci-002".to_owned(),
-        prompt: Some(prompt.to_owned()),
+        prompt: Some(Prompt::String(prompt.to_owned())),
         max_tokens: Some(256),
         temperature: Some(0.0),
         top_p: Some(1.0),
