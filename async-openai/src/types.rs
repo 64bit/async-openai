@@ -655,6 +655,10 @@ pub struct ListFineTuneEventsResponse {
     pub data: Vec<FineTuneEvent>,
 }
 
+/// Parsed server side events stream until an \[DONE\] is received from server.
+pub type FineTuneEventsResponseStream =
+    Pin<Box<dyn Stream<Item = Result<ListFineTuneEventsResponse, OpenAIError>>>>;
+
 #[derive(Debug, Deserialize)]
 pub struct DeleteModelResponse {
     pub id: String,

@@ -1,6 +1,3 @@
-use futures::stream::StreamExt;
-use reqwest_eventsource::{Event, RequestBuilderExt};
-
 use crate::{
     client::Client,
     error::OpenAIError,
@@ -45,53 +42,6 @@ impl Completion {
 
         request.stream = Some(true);
 
-        let mut event_source = reqwest::Client::new()
-            .post(format!("{}/completions", client.api_base()))
-            .bearer_auth(client.api_key())
-            .json(&request)
-            .eventsource()
-            .unwrap();
-
-        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-
-        tokio::spawn(async move {
-            while let Some(ev) = event_source.next().await {
-                match ev {
-                    Err(e) => {
-                        if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
-                            // rx dropped
-                            break;
-                        }
-                    }
-                    Ok(event) => match event {
-                        Event::Message(message) => {
-                            if message.data == "[DONE]" {
-                                break;
-                            }
-
-                            let response = match serde_json::from_str::<CreateCompletionResponse>(
-                                &message.data,
-                            ) {
-                                Err(e) => Err(OpenAIError::JSONDeserialize(e)),
-                                Ok(ccr) => Ok(ccr),
-                            };
-
-                            if let Err(_e) = tx.send(response) {
-                                // rx dropped
-                                break;
-                            }
-                        }
-                        Event::Open => continue,
-                    },
-                }
-            }
-
-            event_source.close();
-        });
-
-        Ok(
-            Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
-                as CompletionResponseStream,
-        )
+        Ok(client.post_stream("/completions", request).await)
     }
 }
