@@ -1,10 +1,8 @@
-use std::error::Error;
-
-use async_openai as openai;
-use openai::{
+use async_openai::{
     types::{CreateModerationRequest, ModerationInput, TextModerationModel},
     Client, Moderation,
 };
+use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {

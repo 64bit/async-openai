@@ -1,5 +1,4 @@
-use async_openai as openai;
-use openai::{
+use async_openai::{
     error::OpenAIError,
     types::{CreateCompletionRequest, Prompt},
     Client, Completion,

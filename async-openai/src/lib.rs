@@ -3,25 +3,25 @@
 //! ## Creating client
 //!
 //! ```
-//! use async_openai as openai;
+//! use async_openai::Client;
 //!
 //! // Create a client with api key from env var OPENAI_API_KEY and default base url.
-//! let client = openai::Client::new();
+//! let client = Client::new();
 //!
 //! // OR use API key from different source
 //! let api_key = "sk-..."; // This secret could be from a file, or environment variable.
-//! let client = openai::Client::new().with_api_key(api_key);
+//! let client = Client::new().with_api_key(api_key);
 //!
 //! // Use organization other than default when making requests
-//! let client = openai::Client::new().with_org_id("the-org");
+//! let client = Client::new().with_org_id("the-org");
 //! ```
 //!
 //! ## Making requests
 //!
 //!```
 //!# tokio_test::block_on(async {
-//! use async_openai as openai;
-//! use openai::{Client, Completion, types::{CreateCompletionRequest, Prompt}};
+//!
+//! use async_openai::{Client, Completion, types::{CreateCompletionRequest, Prompt}};
 //!
 //! // Create client
 //! let client = Client::new();

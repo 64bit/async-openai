@@ -1,7 +1,6 @@
 use std::error::Error;
 
-use async_openai as openai;
-use openai::{
+use async_openai::{
     types::{CreateCompletionRequest, Prompt},
     Client, Completion,
 };

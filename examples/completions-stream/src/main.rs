@@ -1,9 +1,8 @@
-use async_openai as openai;
-use futures::StreamExt;
-use openai::{
+use async_openai::{
     types::{CreateCompletionRequest, Prompt},
     Client, Completion,
 };
+use futures::StreamExt;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
