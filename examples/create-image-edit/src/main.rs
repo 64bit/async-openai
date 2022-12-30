@@ -1,6 +1,6 @@
 use async_openai::{
-    types::{CreateImageEditRequest, ImageInput, ImageSize, ResponseFormat},
-    Client, Image,
+    types::{CreateImageEditRequestArgs, ImageSize, ResponseFormat},
+    Client,
 };
 use std::error::Error;
 
@@ -8,17 +8,17 @@ use std::error::Error;
 async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
-    let request = CreateImageEditRequest {
-        image: ImageInput::new("./images/sunlit_lounge.png"),
-        mask: ImageInput::new("./images/mask.png"),
-        prompt: "A sunlit indoor lounge area with a duck in the pool".to_string(),
-        n: Some(1),
-        size: Some(ImageSize::S1024x1024),
-        response_format: Some(ResponseFormat::Url),
-        user: Some("async-openai".to_string()),
-    };
+    let request = CreateImageEditRequestArgs::default()
+        .image("./images/sunlit_lounge.png")
+        .mask("./images/mask.png")
+        .prompt("A sunlit indoor lounge area with a duck in the pool")
+        .n(1)
+        .size(ImageSize::S1024x1024)
+        .response_format(ResponseFormat::Url)
+        .user("async-openai")
+        .build()?;
 
-    let response = Image::create_edit(&client, request).await?;
+    let response = client.images().create_edit(request).await?;
 
     response.save("./data").await?;
 

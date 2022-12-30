@@ -1,6 +1,6 @@
 use async_openai::{
-    types::{CreateImageVariationRequest, ImageInput, ImageSize, ResponseFormat},
-    Client, Image,
+    types::{CreateImageVariationRequestArgs, ImageSize, ResponseFormat},
+    Client,
 };
 use std::error::Error;
 
@@ -8,15 +8,15 @@ use std::error::Error;
 async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
-    let request = CreateImageVariationRequest {
-        image: ImageInput::new("./images/cake.png"),
-        n: Some(1),
-        size: Some(ImageSize::S512x512),
-        response_format: Some(ResponseFormat::Url),
-        user: Some("async-openai".to_string()),
-    };
+    let request = CreateImageVariationRequestArgs::default()
+        .image("./images/cake.png")
+        .n(1)
+        .size(ImageSize::S512x512)
+        .response_format(ResponseFormat::Url)
+        .user("async-openai")
+        .build()?;
 
-    let response = Image::create_variation(&client, request).await?;
+    let response = client.images().create_variation(request).await?;
 
     response.save("./data").await?;
 
