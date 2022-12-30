@@ -1,6 +1,6 @@
 use async_openai::{
-    types::{CreateModerationRequest, ModerationInput, TextModerationModel},
-    Client, Moderation,
+    types::{CreateModerationRequestArgs, TextModerationModel},
+    Client,
 };
 use std::error::Error;
 
@@ -9,25 +9,22 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     // single
-    let request = CreateModerationRequest {
-        input: ModerationInput::String("Lions want to kill".to_owned()),
-        model: Some(TextModerationModel::Latest),
-    };
+    let request = CreateModerationRequestArgs::default()
+        .input("Lions want to kill")
+        .model(TextModerationModel::Latest)
+        .build()?;
 
-    let response = Moderation::create(&client, request).await?;
+    let response = client.moderations().create(request).await?;
 
     println!("Response (single): {response:#?}");
 
     // multiple
-    let request = CreateModerationRequest {
-        input: ModerationInput::StringArray(vec![
-            "Lions want to kill".to_owned(),
-            "I hate them".to_owned(),
-        ]),
-        model: Some(TextModerationModel::Latest),
-    };
+    let request = CreateModerationRequestArgs::default()
+        .input(["Lions want to kill", "I hate them"])
+        .model(TextModerationModel::Latest)
+        .build()?;
 
-    let response = Moderation::create(&client, request).await?;
+    let response = client.moderations().create(request).await?;
 
     println!("Response (multiple): {response:#?}");
 
