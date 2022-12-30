@@ -83,9 +83,12 @@ mod tests {
 
         assert_eq!(list_files.data.into_iter().last().unwrap(), openai_file);
 
-        let retrieve_file = client.files().retrieve(&openai_file.id).await.unwrap();
+        let retrieved_file = client.files().retrieve(&openai_file.id).await.unwrap();
 
-        assert_eq!(retrieve_file, openai_file);
+        assert_eq!(openai_file.created_at, retrieved_file.created_at);
+        assert_eq!(openai_file.bytes, retrieved_file.bytes);
+        assert_eq!(openai_file.filename, retrieved_file.filename);
+        assert_eq!(openai_file.purpose, retrieved_file.purpose);
 
         /*
         // "To help mitigate abuse, downloading of fine-tune training files is disabled for free accounts."
