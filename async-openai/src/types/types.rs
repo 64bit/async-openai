@@ -1,6 +1,5 @@
 use std::{
     collections::HashMap,
-    fmt::Display,
     path::{Path, PathBuf},
     pin::Pin,
 };
@@ -9,10 +8,7 @@ use derive_builder::Builder;
 use futures::Stream;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    download::{download_url, save_b64},
-    error::OpenAIError,
-};
+use crate::error::OpenAIError;
 
 #[derive(Debug, Deserialize)]
 pub struct Model {
@@ -223,7 +219,7 @@ pub struct CreateEditResponse {
     pub usage: Usage,
 }
 
-#[derive(Default, Debug, Serialize)]
+#[derive(Default, Debug, Serialize, Clone)]
 pub enum ImageSize {
     #[serde(rename = "256x256")]
     S256x256,
@@ -234,21 +230,7 @@ pub enum ImageSize {
     S1024x1024,
 }
 
-impl Display for ImageSize {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                ImageSize::S256x256 => "256x256",
-                ImageSize::S512x512 => "512x512",
-                ImageSize::S1024x1024 => "1024x1024",
-            }
-        )
-    }
-}
-
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize, Default, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum ResponseFormat {
     #[default]
@@ -257,20 +239,12 @@ pub enum ResponseFormat {
     B64Json,
 }
 
-impl Display for ResponseFormat {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                ResponseFormat::Url => "url",
-                ResponseFormat::B64Json => "b64_json",
-            }
-        )
-    }
-}
-
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Clone, Serialize, Default, Builder)]
+#[builder(name = "CreateImageRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateImageRequest {
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     pub prompt: String,
@@ -306,73 +280,17 @@ pub struct ImageResponse {
     pub data: Vec<std::sync::Arc<ImageData>>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ImageInput {
     pub path: PathBuf,
 }
 
-impl ImageInput {
-    pub fn new<P: AsRef<Path>>(path: P) -> Self {
-        ImageInput {
-            path: PathBuf::from(path.as_ref()),
-        }
-    }
-}
-
-impl ImageResponse {
-    pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<(), OpenAIError> {
-        let exists = match Path::try_exists(dir.as_ref()) {
-            Ok(exists) => exists,
-            Err(e) => return Err(OpenAIError::FileSaveError(e.to_string())),
-        };
-
-        if !exists {
-            std::fs::create_dir_all(dir.as_ref())
-                .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
-        }
-
-        let mut handles = vec![];
-        for id in self.data.clone() {
-            let dir_buf = PathBuf::from(dir.as_ref());
-            handles.push(tokio::spawn(async move { id.save(dir_buf).await }));
-        }
-
-        let result = futures::future::join_all(handles).await;
-
-        let errors: Vec<OpenAIError> = result
-            .into_iter()
-            .filter(|r| r.is_err() || r.as_ref().ok().unwrap().is_err())
-            .map(|r| match r {
-                Err(e) => OpenAIError::FileSaveError(e.to_string()),
-                Ok(inner) => inner.err().unwrap(),
-            })
-            .collect();
-
-        if errors.len() > 0 {
-            Err(OpenAIError::FileSaveError(
-                errors
-                    .into_iter()
-                    .map(|e| e.to_string())
-                    .collect::<Vec<String>>()
-                    .join("; "),
-            ))
-        } else {
-            Ok(())
-        }
-    }
-}
-
-impl ImageData {
-    async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<(), OpenAIError> {
-        match self {
-            ImageData::Url(url) => download_url(url, dir).await?,
-            ImageData::B64Json(b64_json) => save_b64(b64_json, dir).await?,
-        }
-        Ok(())
-    }
-}
-
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default, Builder)]
+#[builder(name = "CreateImageEditRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateImageEditRequest {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square.
     pub image: ImageInput,
@@ -396,7 +314,12 @@ pub struct CreateImageEditRequest {
     pub user: Option<String>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Builder)]
+#[builder(name = "CreateImageVariationRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateImageVariationRequest {
     /// The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and square.
     pub image: ImageInput,
