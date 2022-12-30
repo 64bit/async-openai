@@ -7,7 +7,7 @@ use serde::{de::DeserializeOwned, Serialize};
 
 use crate::error::{OpenAIError, WrappedError};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 /// Client is a container for api key, base url, organization id, and backoff
 /// configuration used to make API calls.
 pub struct Client {
