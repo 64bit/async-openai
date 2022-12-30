@@ -179,7 +179,12 @@ pub struct CreateCompletionResponse {
 pub type CompletionResponseStream =
     Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>>>>;
 
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Clone, Serialize, Default, Builder)]
+#[builder(name = "CreateEditRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateEditRequest {
     /// ID of the model to use. You can use the [List models](https://beta.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://beta.openai.com/docs/models/overview) for descriptions of them.
     pub model: String,

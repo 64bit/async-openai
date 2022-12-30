@@ -6,6 +6,7 @@ use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
+    edit::Edits,
     error::{OpenAIError, WrappedError},
     Completions,
 };
@@ -72,6 +73,11 @@ impl Client {
     /// To call [Completions] group related APIs using this client.
     pub fn completions(&self) -> Completions {
         Completions::new(self)
+    }
+
+    /// To call [Edits] group related APIs using this client.
+    pub fn edits(&self) -> Edits {
+        Edits::new(self)
     }
 
     fn headers(&self) -> HeaderMap {

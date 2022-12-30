@@ -13,7 +13,7 @@ pub struct Completions<'c> {
 
 impl<'c> Completions<'c> {
     pub fn new(client: &'c Client) -> Self {
-        Completions { client }
+        Self { client }
     }
 
     /// Creates a completion for the provided prompt and parameters

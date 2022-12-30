@@ -66,7 +66,7 @@ pub use client::Client;
 pub use client::API_BASE;
 pub use client::ORGANIZATION_HEADER;
 pub use completion::Completions;
-pub use edit::Edit;
+pub use edit::Edits;
 pub use embedding::Embeddings;
 pub use file::File;
 pub use fine_tune::FineTunes;
