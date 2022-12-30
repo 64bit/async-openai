@@ -9,7 +9,8 @@ use crate::{
 };
 
 use super::{
-    EmbeddingInput, ImageData, ImageInput, ImageResponse, ImageSize, Prompt, ResponseFormat, Stop,
+    EmbeddingInput, ImageData, ImageInput, ImageResponse, ImageSize, ModerationInput, Prompt,
+    ResponseFormat, Stop,
 };
 
 macro_rules! impl_from {
@@ -55,6 +56,11 @@ impl_from!(&String, Prompt);
 impl_from!(&str, Stop);
 impl_from!(String, Stop);
 impl_from!(&String, Stop);
+
+// From String "family" to ModerationInput
+impl_from!(&str, ModerationInput);
+impl_from!(String, ModerationInput);
+impl_from!(&String, ModerationInput);
 
 // From String "family" to EmbeddingInput
 impl_from!(&str, EmbeddingInput);
@@ -154,5 +160,11 @@ impl ImageData {
             ImageData::B64Json(b64_json) => save_b64(b64_json, dir).await?,
         }
         Ok(())
+    }
+}
+
+impl Default for ModerationInput {
+    fn default() -> Self {
+        ModerationInput::String("".to_owned())
     }
 }

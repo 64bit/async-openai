@@ -337,20 +337,14 @@ pub struct CreateImageVariationRequest {
     pub user: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum ModerationInput {
     String(String),
     StringArray(Vec<String>),
 }
 
-impl Default for ModerationInput {
-    fn default() -> Self {
-        ModerationInput::String("".to_owned())
-    }
-}
-
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize, Default, Clone)]
 pub enum TextModerationModel {
     #[default]
     #[serde(rename = "text-moderation-latest")]
@@ -359,7 +353,12 @@ pub enum TextModerationModel {
     Stable,
 }
 
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Default, Clone, Serialize, Builder)]
+#[builder(name = "CreateModerationRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateModerationRequest {
     /// The input text to classify
     pub input: ModerationInput,

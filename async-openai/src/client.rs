@@ -9,6 +9,7 @@ use crate::{
     edit::Edits,
     error::{OpenAIError, WrappedError},
     image::Images,
+    moderation::Moderations,
     Completions,
 };
 
@@ -84,6 +85,11 @@ impl Client {
     /// To call [Images] group related APIs using this client.
     pub fn images(&self) -> Images {
         Images::new(self)
+    }
+
+    /// To call [Moderations] group related APIs using this client.
+    pub fn moderations(&self) -> Moderations {
+        Moderations::new(self)
     }
 
     fn headers(&self) -> HeaderMap {

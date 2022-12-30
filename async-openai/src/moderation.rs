@@ -7,14 +7,20 @@ use crate::{
 /// Given a input text, outputs if the model classifies it as violating OpenAI's content policy.
 ///
 /// Related guide: [Moderations](https://beta.openai.com/docs/guides/moderation/overview)
-pub struct Moderation;
+pub struct Moderations<'c> {
+    client: &'c Client,
+}
 
-impl Moderation {
+impl<'c> Moderations<'c> {
+    pub fn new(client: &'c Client) -> Self {
+        Self { client }
+    }
+
     /// Classifies if text violates OpenAI's Content Policy
     pub async fn create(
-        client: &Client,
+        &self,
         request: CreateModerationRequest,
     ) -> Result<CreateModerationResponse, OpenAIError> {
-        client.post("/moderations", request).await
+        self.client.post("/moderations", request).await
     }
 }

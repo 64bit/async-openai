@@ -72,4 +72,4 @@ pub use file::File;
 pub use fine_tune::FineTunes;
 pub use image::Images;
 pub use model::Models;
-pub use moderation::Moderation;
+pub use moderation::Moderations;
