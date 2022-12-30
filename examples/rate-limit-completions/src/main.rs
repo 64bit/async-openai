@@ -1,26 +1,11 @@
-use async_openai::{
-    error::OpenAIError,
-    types::{CreateCompletionRequest, Prompt},
-    Client, Completion,
-};
+use std::error::Error;
+
+use async_openai::{types::CreateCompletionRequestArgs, Client};
 
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
-async fn joke(client: &Client) -> Result<String, OpenAIError> {
-    let request = CreateCompletionRequest {
-        model: "text-ada-001".to_owned(),
-        prompt: Some(Prompt::String("Tell me a joke".to_owned())),
-        max_tokens: Some(30),
-        ..Default::default()
-    };
-
-    let response = Completion::create(&client, request).await?;
-
-    Ok(response.choices.first().unwrap().text.to_string())
-}
-
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn Error>> {
     // This should come from env var outside the program
     std::env::set_var("RUST_LOG", "warn");
 
@@ -35,18 +20,19 @@ async fn main() {
         .build();
 
     let client = Client::new().with_backoff(backoff);
-    let mut count = 100;
+
+    let request = CreateCompletionRequestArgs::default()
+        .model("text-ada-001")
+        .prompt("Tell me a joke")
+        .max_tokens(30_u16)
+        .build()?;
 
     // Make back to back requests in a loop to trigger rate limits
     // which will be retried by exponential backoff
-    while count > 0 {
-        match joke(&client).await {
-            Ok(joke) => println!("{joke}"),
-            Err(e) => {
-                eprintln!("{e}");
-                break;
-            }
-        }
-        count -= 1;
+    for _ in 0..100 {
+        let response = client.completions().create(request.clone()).await?;
+        println!("{}", response.choices[0].text);
     }
+
+    Ok(())
 }

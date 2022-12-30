@@ -10,20 +10,23 @@ use crate::{
 /// Given a prompt and/or an input image, the model will generate a new image.
 ///
 /// Related guide: [Image generation](https://beta.openai.com/docs/guides/images/introduction)
-pub struct Image;
+pub struct Images<'c> {
+    client: &'c Client,
+}
 
-impl Image {
+impl<'c> Images<'c> {
+    pub fn new(client: &'c Client) -> Self {
+        Self { client }
+    }
+
     /// Creates an image given a prompt.
-    pub async fn create(
-        client: &Client,
-        request: CreateImageRequest,
-    ) -> Result<ImageResponse, OpenAIError> {
-        client.post("/images/generations", request).await
+    pub async fn create(&self, request: CreateImageRequest) -> Result<ImageResponse, OpenAIError> {
+        self.client.post("/images/generations", request).await
     }
 
     /// Creates an edited or extended image given an original image and a prompt.
     pub async fn create_edit(
-        client: &Client,
+        &self,
         request: CreateImageEditRequest,
     ) -> Result<ImageResponse, OpenAIError> {
         let image_part = create_file_part(&request.image.path).await?;
@@ -53,12 +56,12 @@ impl Image {
             form = form.text("user", request.user.unwrap())
         }
 
-        client.post_form("/images/edits", form).await
+        self.client.post_form("/images/edits", form).await
     }
 
     /// Creates a variation of a given image.
     pub async fn create_variation(
-        client: &Client,
+        &self,
         request: CreateImageVariationRequest,
     ) -> Result<ImageResponse, OpenAIError> {
         let image_part = create_file_part(&request.image.path).await?;
@@ -84,6 +87,6 @@ impl Image {
             form = form.text("user", request.user.unwrap())
         }
 
-        client.post_form("/images/variations", form).await
+        self.client.post_form("/images/variations", form).await
     }
 }

@@ -1,6 +1,6 @@
 use async_openai::{
-    types::{CreateImageRequest, ImageSize, ResponseFormat},
-    Client, Image,
+    types::{CreateImageRequestArgs, ImageSize, ResponseFormat},
+    Client,
 };
 use std::error::Error;
 
@@ -9,19 +9,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // create client, reads OPENAI_API_KEY environment variable for API key.
     let client = Client::new();
 
-    let request = CreateImageRequest {
-        prompt: "cats on sofa and carpet in living room".to_owned(),
-        n: Some(2),
-        response_format: Some(ResponseFormat::Url),
-        size: Some(ImageSize::S256x256),
-        user: Some("async-openai".to_owned()),
-    };
+    let request = CreateImageRequestArgs::default()
+        .prompt("cats on sofa and carpet in living room")
+        .n(2)
+        .response_format(ResponseFormat::Url)
+        .size(ImageSize::S256x256)
+        .user("async-openai")
+        .build()?;
 
-    let response = Image::create(&client, request).await?;
+    let response = client.images().create(request).await?;
 
-    // download and save images to ./data directory
-    // Each url download and save happens in dedicated Tokio task
-    // (creates directory when it doesn't exist)
+    // Download and save images to ./data directory.
+    // Each url is downloaded and saved in dedicated Tokio task.
+    // Directory is created if it doesn't exist.
     response.save("./data").await?;
 
     Ok(())

@@ -17,18 +17,19 @@ repository = "https://github.com/64bit/async-openai"
 
 [dependencies]
 backoff = {version = "0.4.0", features = ["tokio"] }
-base64 = "0.13.1"
+base64 = "0.20.0"
 futures = "0.3.25"
 rand = "0.8.5"
 reqwest = { version = "0.11.13", features = ["json", "stream", "multipart"] }
 reqwest-eventsource = "0.4.0"
-serde = { version = "1.0.148", features = ["derive", "rc"] }
-serde_json = "1.0.87"
-thiserror = "1.0.37"
-tokio = { version = "1.22.0", features = ["fs", "macros"] }
+serde = { version = "1.0.152", features = ["derive", "rc"] }
+serde_json = "1.0.91"
+thiserror = "1.0.38"
+tokio = { version = "1.23.0", features = ["fs", "macros"] }
 tokio-stream = "0.1.11"
 tokio-util = { version = "0.7.4", features = ["codec", "io-util"] }
 tracing = "0.1.37"
+derive_builder = "0.12.0"
 
 [dev-dependencies]
 tokio-test = "0.4.2"

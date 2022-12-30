@@ -8,84 +8,100 @@ use crate::{
 /// consumed by machine learning models and algorithms.
 ///
 /// Related guide: [Embeddings](https://beta.openai.com/docs/guides/embeddings/what-are-embeddings)
-pub struct Embeddings;
+pub struct Embeddings<'c> {
+    client: &'c Client,
+}
 
-impl Embeddings {
+impl<'c> Embeddings<'c> {
+    pub fn new(client: &'c Client) -> Self {
+        Self { client }
+    }
+
     /// Creates an embedding vector representing the input text.
     pub async fn create(
-        client: &Client,
+        &self,
         request: CreateEmbeddingRequest,
     ) -> Result<CreateEmbeddingResponse, OpenAIError> {
-        client.post("/embeddings", request).await
+        self.client.post("/embeddings", request).await
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{types::CreateEmbeddingRequest, Client, Embeddings};
+    use crate::{types::CreateEmbeddingRequestArgs, Client};
 
     #[tokio::test]
     async fn test_embedding_string() {
         let client = Client::new();
-        let request = CreateEmbeddingRequest {
-            model: "text-embedding-ada-002".to_owned(),
-            input: crate::types::EmbeddingInput::String(
-                "The food was delicious and the waiter...".to_owned(),
-            ),
-            ..Default::default()
-        };
 
-        let response = Embeddings::create(&client, request).await;
+        let request = CreateEmbeddingRequestArgs::default()
+            .model("text-embedding-ada-002")
+            .input("The food was delicious and the waiter...")
+            .build()
+            .unwrap();
 
-        println!("{:#?}", response);
+        let response = client.embeddings().create(request).await;
+
+        assert!(response.is_ok());
     }
 
     #[tokio::test]
     async fn test_embedding_string_array() {
         let client = Client::new();
-        let request = CreateEmbeddingRequest {
-            model: "text-embedding-ada-002".to_owned(),
-            input: crate::types::EmbeddingInput::StringArray(vec![
-                "The food was delicious".to_owned(),
-                "The waiter was good".to_owned(),
-            ]),
-            ..Default::default()
-        };
 
-        let response = Embeddings::create(&client, request).await;
+        let request = CreateEmbeddingRequestArgs::default()
+            .model("text-embedding-ada-002")
+            .input(["The food was delicious", "The waiter was good"])
+            .build()
+            .unwrap();
 
-        println!("{:#?}", response);
+        let response = client.embeddings().create(request).await;
+
+        assert!(response.is_ok());
     }
 
     #[tokio::test]
     async fn test_embedding_integer_array() {
         let client = Client::new();
-        let request = CreateEmbeddingRequest {
-            model: "text-embedding-ada-002".to_owned(),
-            input: crate::types::EmbeddingInput::IntegerArray(vec![1, 2, 3]),
-            ..Default::default()
-        };
 
-        let response = Embeddings::create(&client, request).await;
+        let request = CreateEmbeddingRequestArgs::default()
+            .model("text-embedding-ada-002")
+            .input([1, 2, 3])
+            .build()
+            .unwrap();
 
-        println!("{:#?}", response);
+        let response = client.embeddings().create(request).await;
+
+        assert!(response.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_embedding_array_of_integer_array_matrix() {
+        let client = Client::new();
+
+        let request = CreateEmbeddingRequestArgs::default()
+            .model("text-embedding-ada-002")
+            .input([[1, 2, 3], [4, 5, 6], [7, 8, 10]])
+            .build()
+            .unwrap();
+
+        let response = client.embeddings().create(request).await;
+
+        assert!(response.is_ok());
     }
 
     #[tokio::test]
     async fn test_embedding_array_of_integer_array() {
         let client = Client::new();
-        let request = CreateEmbeddingRequest {
-            model: "text-embedding-ada-002".to_owned(),
-            input: crate::types::EmbeddingInput::ArrayOfIntegerArray(vec![
-                vec![1, 2, 3],
-                vec![4, 5, 6],
-                vec![7, 8, 100257],
-            ]),
-            ..Default::default()
-        };
 
-        let response = Embeddings::create(&client, request).await;
+        let request = CreateEmbeddingRequestArgs::default()
+            .model("text-embedding-ada-002")
+            .input([vec![1, 2, 3], vec![4, 5, 6, 7], vec![7, 8, 10, 11, 100257]])
+            .build()
+            .unwrap();
 
-        println!("{:#?}", response);
+        let response = client.embeddings().create(request).await;
+
+        assert!(response.is_ok());
     }
 }

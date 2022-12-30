@@ -7,12 +7,18 @@ use crate::{
 /// Given a prompt, the model will return one or more predicted
 /// completions, and can also return the probabilities of alternative
 /// tokens at each position.
-pub struct Completion;
+pub struct Completions<'c> {
+    client: &'c Client,
+}
 
-impl Completion {
+impl<'c> Completions<'c> {
+    pub fn new(client: &'c Client) -> Self {
+        Self { client }
+    }
+
     /// Creates a completion for the provided prompt and parameters
     pub async fn create(
-        client: &Client,
+        &self,
         request: CreateCompletionRequest,
     ) -> Result<CreateCompletionResponse, OpenAIError> {
         if request.stream.is_some() && request.stream.unwrap() {
@@ -20,7 +26,7 @@ impl Completion {
                 "When stream is true, use Completion::create_stream".into(),
             ));
         }
-        client.post("/completions", request).await
+        self.client.post("/completions", request).await
     }
 
     /// Creates a completion request for the provided prompt and parameters
@@ -31,7 +37,7 @@ impl Completion {
     ///
     /// [CompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
     pub async fn create_stream(
-        client: &Client,
+        &self,
         mut request: CreateCompletionRequest,
     ) -> Result<CompletionResponseStream, OpenAIError> {
         if request.stream.is_some() && !request.stream.unwrap() {
@@ -42,6 +48,6 @@ impl Completion {
 
         request.stream = Some(true);
 
-        Ok(client.post_stream("/completions", request).await)
+        Ok(self.client.post_stream("/completions", request).await)
     }
 }

@@ -1,19 +1,10 @@
-//! Types used in OpenAI API requests and responses.
-//! These types are created from component schemas in the [OpenAPI spec](https://github.com/openai/openai-openapi)
-use std::{
-    collections::HashMap,
-    fmt::Display,
-    path::{Path, PathBuf},
-    pin::Pin,
-};
+use std::{collections::HashMap, path::PathBuf, pin::Pin};
 
+use derive_builder::Builder;
 use futures::Stream;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    download::{download_url, save_b64},
-    error::OpenAIError,
-};
+use crate::error::OpenAIError;
 
 #[derive(Debug, Deserialize)]
 pub struct Model {
@@ -29,7 +20,7 @@ pub struct ListModelResponse {
     pub data: Vec<Model>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum Prompt {
     String(String),
@@ -39,14 +30,19 @@ pub enum Prompt {
     ArrayOfIntegerArray(Vec<Vec<u16>>),
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum Stop {
     String(String),           // nullable: true
     StringArray(Vec<String>), // minItems: 1; maxItems: 4
 }
 
-#[derive(Serialize, Default, Debug)]
+#[derive(Clone, Serialize, Default, Debug, Builder)]
+#[builder(name = "CreateCompletionRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateCompletionRequest {
     /// ID of the model to use. You can use the [List models](https://beta.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://beta.openai.com/docs/models/overview) for descriptions of them.
     pub model: String,
@@ -175,7 +171,12 @@ pub struct CreateCompletionResponse {
 pub type CompletionResponseStream =
     Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>>>>;
 
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Clone, Serialize, Default, Builder)]
+#[builder(name = "CreateEditRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateEditRequest {
     /// ID of the model to use. You can use the [List models](https://beta.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://beta.openai.com/docs/models/overview) for descriptions of them.
     pub model: String,
@@ -214,7 +215,7 @@ pub struct CreateEditResponse {
     pub usage: Usage,
 }
 
-#[derive(Default, Debug, Serialize)]
+#[derive(Default, Debug, Serialize, Clone)]
 pub enum ImageSize {
     #[serde(rename = "256x256")]
     S256x256,
@@ -225,21 +226,7 @@ pub enum ImageSize {
     S1024x1024,
 }
 
-impl Display for ImageSize {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                ImageSize::S256x256 => "256x256",
-                ImageSize::S512x512 => "512x512",
-                ImageSize::S1024x1024 => "1024x1024",
-            }
-        )
-    }
-}
-
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize, Default, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum ResponseFormat {
     #[default]
@@ -248,20 +235,12 @@ pub enum ResponseFormat {
     B64Json,
 }
 
-impl Display for ResponseFormat {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                ResponseFormat::Url => "url",
-                ResponseFormat::B64Json => "b64_json",
-            }
-        )
-    }
-}
-
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Clone, Serialize, Default, Builder)]
+#[builder(name = "CreateImageRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateImageRequest {
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     pub prompt: String,
@@ -297,73 +276,17 @@ pub struct ImageResponse {
     pub data: Vec<std::sync::Arc<ImageData>>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ImageInput {
     pub path: PathBuf,
 }
 
-impl ImageInput {
-    pub fn new<P: AsRef<Path>>(path: P) -> Self {
-        ImageInput {
-            path: PathBuf::from(path.as_ref()),
-        }
-    }
-}
-
-impl ImageResponse {
-    pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<(), OpenAIError> {
-        let exists = match Path::try_exists(dir.as_ref()) {
-            Ok(exists) => exists,
-            Err(e) => return Err(OpenAIError::FileSaveError(e.to_string())),
-        };
-
-        if !exists {
-            std::fs::create_dir_all(dir.as_ref())
-                .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
-        }
-
-        let mut handles = vec![];
-        for id in self.data.clone() {
-            let dir_buf = PathBuf::from(dir.as_ref());
-            handles.push(tokio::spawn(async move { id.save(dir_buf).await }));
-        }
-
-        let result = futures::future::join_all(handles).await;
-
-        let errors: Vec<OpenAIError> = result
-            .into_iter()
-            .filter(|r| r.is_err() || r.as_ref().ok().unwrap().is_err())
-            .map(|r| match r {
-                Err(e) => OpenAIError::FileSaveError(e.to_string()),
-                Ok(inner) => inner.err().unwrap(),
-            })
-            .collect();
-
-        if errors.len() > 0 {
-            Err(OpenAIError::FileSaveError(
-                errors
-                    .into_iter()
-                    .map(|e| e.to_string())
-                    .collect::<Vec<String>>()
-                    .join("; "),
-            ))
-        } else {
-            Ok(())
-        }
-    }
-}
-
-impl ImageData {
-    async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<(), OpenAIError> {
-        match self {
-            ImageData::Url(url) => download_url(url, dir).await?,
-            ImageData::B64Json(b64_json) => save_b64(b64_json, dir).await?,
-        }
-        Ok(())
-    }
-}
-
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default, Builder)]
+#[builder(name = "CreateImageEditRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateImageEditRequest {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square.
     pub image: ImageInput,
@@ -387,7 +310,12 @@ pub struct CreateImageEditRequest {
     pub user: Option<String>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Builder)]
+#[builder(name = "CreateImageVariationRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateImageVariationRequest {
     /// The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and square.
     pub image: ImageInput,
@@ -405,20 +333,14 @@ pub struct CreateImageVariationRequest {
     pub user: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum ModerationInput {
     String(String),
     StringArray(Vec<String>),
 }
 
-impl Default for ModerationInput {
-    fn default() -> Self {
-        ModerationInput::String("".to_owned())
-    }
-}
-
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize, Default, Clone)]
 pub enum TextModerationModel {
     #[default]
     #[serde(rename = "text-moderation-latest")]
@@ -427,7 +349,12 @@ pub enum TextModerationModel {
     Stable,
 }
 
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Default, Clone, Serialize, Builder)]
+#[builder(name = "CreateModerationRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateModerationRequest {
     /// The input text to classify
     pub input: ModerationInput,
@@ -483,18 +410,17 @@ pub struct CreateModerationResponse {
     pub results: Vec<ContentModerationResult>,
 }
 
+#[derive(Debug, Default, Clone)]
 pub struct FileInput {
     pub path: PathBuf,
 }
 
-impl FileInput {
-    pub fn new<P: AsRef<Path>>(path: P) -> Self {
-        Self {
-            path: PathBuf::from(path.as_ref()),
-        }
-    }
-}
-
+#[derive(Debug, Default, Clone, Builder)]
+#[builder(name = "CreateFileRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateFileRequest {
     /// Name of the [JSON Lines](https://jsonlines.readthedocs.io/en/latest/) file to be uploaded.
     ///
@@ -532,7 +458,12 @@ pub struct OpenAIFile {
     pub status_details: Option<serde_json::Value>, // nullable: true
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone, Default, Builder)]
+#[builder(name = "CreateFineTuneRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateFineTuneRequest {
     /// The ID of an uploaded file that contains training data.
     ///
@@ -694,7 +625,7 @@ pub struct DeleteModelResponse {
     pub deleted: bool,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum EmbeddingInput {
     String(String),
@@ -704,13 +635,12 @@ pub enum EmbeddingInput {
     ArrayOfIntegerArray(Vec<Vec<u32>>),
 }
 
-impl Default for EmbeddingInput {
-    fn default() -> Self {
-        EmbeddingInput::String("".to_owned())
-    }
-}
-
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize, Default, Clone, Builder)]
+#[builder(name = "CreateEmbeddingRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateEmbeddingRequest {
     /// ID of the model to use. You can use the
     /// [List models](https://beta.openai.com/docs/api-reference/models/list)

@@ -5,9 +5,16 @@ use reqwest::header::HeaderMap;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::error::{OpenAIError, WrappedError};
+use crate::{
+    edit::Edits,
+    error::{OpenAIError, WrappedError},
+    file::Files,
+    image::Images,
+    moderation::Moderations,
+    Completions, Embeddings, FineTunes, Models,
+};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 /// Client is a container for api key, base url, organization id, and backoff
 /// configuration used to make API calls.
 pub struct Client {
@@ -62,6 +69,48 @@ impl Client {
 
     pub fn api_key(&self) -> &str {
         &self.api_key
+    }
+
+    // API groups
+
+    /// To call [Models] group related APIs using this client.
+    pub fn models(&self) -> Models {
+        Models::new(self)
+    }
+
+    /// To call [Completions] group related APIs using this client.
+    pub fn completions(&self) -> Completions {
+        Completions::new(self)
+    }
+
+    /// To call [Edits] group related APIs using this client.
+    pub fn edits(&self) -> Edits {
+        Edits::new(self)
+    }
+
+    /// To call [Images] group related APIs using this client.
+    pub fn images(&self) -> Images {
+        Images::new(self)
+    }
+
+    /// To call [Moderations] group related APIs using this client.
+    pub fn moderations(&self) -> Moderations {
+        Moderations::new(self)
+    }
+
+    /// To call [Files] group related APIs using this client.
+    pub fn files(&self) -> Files {
+        Files::new(self)
+    }
+
+    /// To call [FineTunes] group related APIs using this client.
+    pub fn fine_tunes(&self) -> FineTunes {
+        FineTunes::new(self)
+    }
+
+    /// To call [Embeddings] group related APIs using this client.
+    pub fn embeddings(&self) -> Embeddings {
+        Embeddings::new(self)
     }
 
     fn headers(&self) -> HeaderMap {
