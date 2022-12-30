@@ -33,6 +33,7 @@
   - [x] Models
   - [x] Moderations
 - Non-streaming requests are retried with exponential backoff when [rate limited](https://help.openai.com/en/articles/5955598-is-api-usage-subject-to-any-rate-limits) by the API server.
+- Ergonomic Rust library with builder pattern for all request objects.
 
 *Being a young project there are rough edges*
 
