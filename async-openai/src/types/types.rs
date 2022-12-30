@@ -625,7 +625,7 @@ pub struct DeleteModelResponse {
     pub deleted: bool,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum EmbeddingInput {
     String(String),
@@ -635,13 +635,12 @@ pub enum EmbeddingInput {
     ArrayOfIntegerArray(Vec<Vec<u32>>),
 }
 
-impl Default for EmbeddingInput {
-    fn default() -> Self {
-        EmbeddingInput::String("".to_owned())
-    }
-}
-
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize, Default, Clone, Builder)]
+#[builder(name = "CreateEmbeddingRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateEmbeddingRequest {
     /// ID of the model to use. You can use the
     /// [List models](https://beta.openai.com/docs/api-reference/models/list)

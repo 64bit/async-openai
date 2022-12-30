@@ -175,3 +175,137 @@ impl Default for ModerationInput {
         ModerationInput::String("".to_owned())
     }
 }
+
+impl Default for EmbeddingInput {
+    fn default() -> Self {
+        EmbeddingInput::String("".to_owned())
+    }
+}
+
+macro_rules! impl_from_for_integer_array {
+    ($from_typ:ty, $to_typ:ty) => {
+        impl<const N: usize> From<[$from_typ; N]> for $to_typ {
+            fn from(value: [$from_typ; N]) -> Self {
+                Self::IntegerArray(value.to_vec())
+            }
+        }
+
+        impl<const N: usize> From<&[$from_typ; N]> for $to_typ {
+            fn from(value: &[$from_typ; N]) -> Self {
+                Self::IntegerArray(value.to_vec())
+            }
+        }
+
+        impl From<Vec<$from_typ>> for $to_typ {
+            fn from(value: Vec<$from_typ>) -> Self {
+                Self::IntegerArray(value)
+            }
+        }
+
+        impl From<&Vec<$from_typ>> for $to_typ {
+            fn from(value: &Vec<$from_typ>) -> Self {
+                Self::IntegerArray(value.clone())
+            }
+        }
+    };
+}
+
+impl_from_for_integer_array!(u32, EmbeddingInput);
+impl_from_for_integer_array!(u16, Prompt);
+
+macro_rules! impl_from_for_array_of_integer_array {
+    ($from_typ:ty, $to_typ:ty) => {
+        impl From<Vec<Vec<$from_typ>>> for $to_typ {
+            fn from(value: Vec<Vec<$from_typ>>) -> Self {
+                Self::ArrayOfIntegerArray(value)
+            }
+        }
+
+        impl From<&Vec<Vec<$from_typ>>> for $to_typ {
+            fn from(value: &Vec<Vec<$from_typ>>) -> Self {
+                Self::ArrayOfIntegerArray(value.clone())
+            }
+        }
+
+        impl<const M: usize, const N: usize> From<[[$from_typ; N]; M]> for $to_typ {
+            fn from(value: [[$from_typ; N]; M]) -> Self {
+                Self::ArrayOfIntegerArray(value.iter().map(|inner| inner.to_vec()).collect())
+            }
+        }
+
+        impl<const M: usize, const N: usize> From<[&[$from_typ; N]; M]> for $to_typ {
+            fn from(value: [&[$from_typ; N]; M]) -> Self {
+                Self::ArrayOfIntegerArray(value.iter().map(|inner| inner.to_vec()).collect())
+            }
+        }
+
+        impl<const M: usize, const N: usize> From<&[[$from_typ; N]; M]> for $to_typ {
+            fn from(value: &[[$from_typ; N]; M]) -> Self {
+                Self::ArrayOfIntegerArray(value.iter().map(|inner| inner.to_vec()).collect())
+            }
+        }
+
+        impl<const M: usize, const N: usize> From<&[&[$from_typ; N]; M]> for $to_typ {
+            fn from(value: &[&[$from_typ; N]; M]) -> Self {
+                Self::ArrayOfIntegerArray(value.iter().map(|inner| inner.to_vec()).collect())
+            }
+        }
+
+        impl<const N: usize> From<[Vec<$from_typ>; N]> for $to_typ {
+            fn from(value: [Vec<$from_typ>; N]) -> Self {
+                Self::ArrayOfIntegerArray(value.to_vec())
+            }
+        }
+
+        impl<const N: usize> From<&[Vec<$from_typ>; N]> for $to_typ {
+            fn from(value: &[Vec<$from_typ>; N]) -> Self {
+                Self::ArrayOfIntegerArray(value.to_vec())
+            }
+        }
+
+        impl<const N: usize> From<[&Vec<$from_typ>; N]> for $to_typ {
+            fn from(value: [&Vec<$from_typ>; N]) -> Self {
+                Self::ArrayOfIntegerArray(value.into_iter().map(|inner| inner.clone()).collect())
+            }
+        }
+
+        impl<const N: usize> From<&[&Vec<$from_typ>; N]> for $to_typ {
+            fn from(value: &[&Vec<$from_typ>; N]) -> Self {
+                Self::ArrayOfIntegerArray(
+                    value
+                        .to_vec()
+                        .into_iter()
+                        .map(|inner| inner.clone())
+                        .collect(),
+                )
+            }
+        }
+
+        impl<const N: usize> From<Vec<[$from_typ; N]>> for $to_typ {
+            fn from(value: Vec<[$from_typ; N]>) -> Self {
+                Self::ArrayOfIntegerArray(value.into_iter().map(|inner| inner.to_vec()).collect())
+            }
+        }
+
+        impl<const N: usize> From<&Vec<[$from_typ; N]>> for $to_typ {
+            fn from(value: &Vec<[$from_typ; N]>) -> Self {
+                Self::ArrayOfIntegerArray(value.into_iter().map(|inner| inner.to_vec()).collect())
+            }
+        }
+
+        impl<const N: usize> From<Vec<&[$from_typ; N]>> for $to_typ {
+            fn from(value: Vec<&[$from_typ; N]>) -> Self {
+                Self::ArrayOfIntegerArray(value.into_iter().map(|inner| inner.to_vec()).collect())
+            }
+        }
+
+        impl<const N: usize> From<&Vec<&[$from_typ; N]>> for $to_typ {
+            fn from(value: &Vec<&[$from_typ; N]>) -> Self {
+                Self::ArrayOfIntegerArray(value.into_iter().map(|inner| inner.to_vec()).collect())
+            }
+        }
+    };
+}
+
+impl_from_for_array_of_integer_array!(u32, EmbeddingInput);
+impl_from_for_array_of_integer_array!(u16, Prompt);
