@@ -5,7 +5,10 @@ use reqwest::header::HeaderMap;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::error::{OpenAIError, WrappedError};
+use crate::{
+    error::{OpenAIError, WrappedError},
+    Completions,
+};
 
 #[derive(Debug, Default, Clone)]
 /// Client is a container for api key, base url, organization id, and backoff
@@ -62,6 +65,13 @@ impl Client {
 
     pub fn api_key(&self) -> &str {
         &self.api_key
+    }
+
+    // API groups
+
+    /// To call [Completions] group related APIs using this client.
+    pub fn completions(&self) -> Completions {
+        Completions::new(self)
     }
 
     fn headers(&self) -> HeaderMap {

@@ -1,5 +1,3 @@
-//! Types used in OpenAI API requests and responses.
-//! These types are created from component schemas in the [OpenAPI spec](https://github.com/openai/openai-openapi)
 use std::{
     collections::HashMap,
     fmt::Display,
@@ -7,6 +5,7 @@ use std::{
     pin::Pin,
 };
 
+use derive_builder::Builder;
 use futures::Stream;
 use serde::{Deserialize, Serialize};
 
@@ -29,7 +28,7 @@ pub struct ListModelResponse {
     pub data: Vec<Model>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum Prompt {
     String(String),
@@ -39,14 +38,19 @@ pub enum Prompt {
     ArrayOfIntegerArray(Vec<Vec<u16>>),
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum Stop {
     String(String),           // nullable: true
     StringArray(Vec<String>), // minItems: 1; maxItems: 4
 }
 
-#[derive(Serialize, Default, Debug)]
+#[derive(Clone, Serialize, Default, Debug, Builder)]
+#[builder(name = "CreateCompletionRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateCompletionRequest {
     /// ID of the model to use. You can use the [List models](https://beta.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://beta.openai.com/docs/models/overview) for descriptions of them.
     pub model: String,

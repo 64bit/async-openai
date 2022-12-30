@@ -21,18 +21,25 @@
 //!```
 //!# tokio_test::block_on(async {
 //!
-//! use async_openai::{Client, Completion, types::{CreateCompletionRequest, Prompt}};
+//! use async_openai::{Client, types::{CreateCompletionRequestArgs}};
 //!
 //! // Create client
 //! let client = Client::new();
-//! // Create request
-//! let request = CreateCompletionRequest {
-//!     model: "text-davinci-003".to_owned(),
-//!     prompt: Some(Prompt::String("Tell me the recipe of alfredo pasta".to_owned())),
-//!     ..Default::default()
-//! };
+//!
+//! // Create request using builder pattern
+//! let request = CreateCompletionRequestArgs::default()
+//!     .model("text-davinci-003")
+//!     .prompt("Tell me the recipe of alfredo pasta")
+//!     .max_tokens(40_u16)
+//!     .build()
+//!     .unwrap();
+//!
 //! // Call API
-//! let response = Completion::create(&client, request).await.unwrap();
+//! let response = client
+//!     .completions()      // Get the API "group" (completions, images, etc.) from the client
+//!     .create(request)    // Make the API call in that "group"
+//!     .await
+//!     .unwrap();
 //!
 //! println!("{}", response.choices.first().unwrap().text);
 //! # });
@@ -58,7 +65,7 @@ mod util;
 pub use client::Client;
 pub use client::API_BASE;
 pub use client::ORGANIZATION_HEADER;
-pub use completion::Completion;
+pub use completion::Completions;
 pub use edit::Edit;
 pub use embedding::Embeddings;
 pub use file::File;
