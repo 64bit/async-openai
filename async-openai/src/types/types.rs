@@ -458,7 +458,12 @@ pub struct OpenAIFile {
     pub status_details: Option<serde_json::Value>, // nullable: true
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone, Default, Builder)]
+#[builder(name = "CreateFineTuneRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateFineTuneRequest {
     /// The ID of an uploaded file that contains training data.
     ///

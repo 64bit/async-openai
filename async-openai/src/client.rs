@@ -11,7 +11,7 @@ use crate::{
     file::Files,
     image::Images,
     moderation::Moderations,
-    Completions,
+    Completions, FineTunes,
 };
 
 #[derive(Debug, Default, Clone)]
@@ -96,6 +96,11 @@ impl Client {
     /// To call [Files] group related APIs using this client.
     pub fn files(&self) -> Files {
         Files::new(self)
+    }
+
+    /// To call [FineTunes] group related APIs using this client.
+    pub fn fine_tunes(&self) -> FineTunes {
+        FineTunes::new(self)
     }
 
     fn headers(&self) -> HeaderMap {
