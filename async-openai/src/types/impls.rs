@@ -9,8 +9,8 @@ use crate::{
 };
 
 use super::{
-    EmbeddingInput, ImageData, ImageInput, ImageResponse, ImageSize, ModerationInput, Prompt,
-    ResponseFormat, Stop,
+    EmbeddingInput, FileInput, ImageData, ImageInput, ImageResponse, ImageSize, ModerationInput,
+    Prompt, ResponseFormat, Stop,
 };
 
 macro_rules! impl_from {
@@ -67,6 +67,29 @@ impl_from!(&str, EmbeddingInput);
 impl_from!(String, EmbeddingInput);
 impl_from!(&String, EmbeddingInput);
 
+macro_rules! file_path_input {
+    ($for_typ:ty) => {
+        impl $for_typ {
+            pub fn new<P: AsRef<Path>>(path: P) -> Self {
+                Self {
+                    path: PathBuf::from(path.as_ref()),
+                }
+            }
+        }
+
+        impl<P: AsRef<Path>> From<P> for $for_typ {
+            fn from(path: P) -> Self {
+                Self {
+                    path: PathBuf::from(path.as_ref()),
+                }
+            }
+        }
+    };
+}
+
+file_path_input!(ImageInput);
+file_path_input!(FileInput);
+
 impl Display for ImageSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -91,22 +114,6 @@ impl Display for ResponseFormat {
                 ResponseFormat::B64Json => "b64_json",
             }
         )
-    }
-}
-
-impl ImageInput {
-    pub fn new<P: AsRef<Path>>(path: P) -> Self {
-        ImageInput {
-            path: PathBuf::from(path.as_ref()),
-        }
-    }
-}
-
-impl<P: AsRef<Path>> From<P> for ImageInput {
-    fn from(path: P) -> Self {
-        Self {
-            path: PathBuf::from(path.as_ref()),
-        }
     }
 }
 

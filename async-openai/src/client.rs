@@ -8,6 +8,7 @@ use serde::{de::DeserializeOwned, Serialize};
 use crate::{
     edit::Edits,
     error::{OpenAIError, WrappedError},
+    file::Files,
     image::Images,
     moderation::Moderations,
     Completions,
@@ -90,6 +91,11 @@ impl Client {
     /// To call [Moderations] group related APIs using this client.
     pub fn moderations(&self) -> Moderations {
         Moderations::new(self)
+    }
+
+    /// To call [Files] group related APIs using this client.
+    pub fn files(&self) -> Files {
+        Files::new(self)
     }
 
     fn headers(&self) -> HeaderMap {

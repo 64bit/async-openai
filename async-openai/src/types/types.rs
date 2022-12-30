@@ -1,8 +1,4 @@
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-    pin::Pin,
-};
+use std::{collections::HashMap, path::PathBuf, pin::Pin};
 
 use derive_builder::Builder;
 use futures::Stream;
@@ -414,18 +410,17 @@ pub struct CreateModerationResponse {
     pub results: Vec<ContentModerationResult>,
 }
 
+#[derive(Debug, Default, Clone)]
 pub struct FileInput {
     pub path: PathBuf,
 }
 
-impl FileInput {
-    pub fn new<P: AsRef<Path>>(path: P) -> Self {
-        Self {
-            path: PathBuf::from(path.as_ref()),
-        }
-    }
-}
-
+#[derive(Debug, Default, Clone, Builder)]
+#[builder(name = "CreateFileRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateFileRequest {
     /// Name of the [JSON Lines](https://jsonlines.readthedocs.io/en/latest/) file to be uploaded.
     ///
