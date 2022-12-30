@@ -11,7 +11,7 @@ use crate::{
     file::Files,
     image::Images,
     moderation::Moderations,
-    Completions, Embeddings, FineTunes,
+    Completions, Embeddings, FineTunes, Models,
 };
 
 #[derive(Debug, Default, Clone)]
@@ -72,6 +72,11 @@ impl Client {
     }
 
     // API groups
+
+    /// To call [Models] group related APIs using this client.
+    pub fn models(&self) -> Models {
+        Models::new(self)
+    }
 
     /// To call [Completions] group related APIs using this client.
     pub fn completions(&self) -> Completions {
