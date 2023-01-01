@@ -8,6 +8,7 @@ members = [
     "create-image-b64-json",
     "create-image-edit",
     "create-image-variation",
+    "embeddings",
     "models",
     "moderations",
     "rate-limit-completions",
