@@ -23,17 +23,15 @@
 
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
-
-  &check; Completions (including SSE streaming) <br/>
-  &check; Edits <br/>
-  &check; Embeddings <br/>
-  &check; Files <br/>
-  &check; Fine-Tuning (including SSE streaming) <br/>
-  &check; Images <br/>
-  &cross; Microsoft Azure Endpoints / AD Authentication (see [issue](https://github.com/64bit/async-openai/issues/32)) <br/>
-  &check; Models <br/>
-  &check; Moderations <br/>
-
+  - [x] Completions (including SSE streaming)
+  - [x] Edits
+  - [x] Embeddings
+  - [x] Files
+  - [x] Fine-Tuning (including SSE streaming)
+  - [x] Images
+  - [ ] Microsoft Azure Endpoints / AD Authentication (see [issue](https://github.com/64bit/async-openai/issues/32))
+  - [x] Models
+  - [x] Moderations
 - Non-streaming requests are retried with exponential backoff when [rate limited](https://help.openai.com/en/articles/5955598-is-api-usage-subject-to-any-rate-limits) by the API server.
 - Ergonomic Rust library with builder pattern for all request objects.
 
