@@ -26,16 +26,16 @@
   - [x] Completions (including SSE streaming)
   - [x] Edits
   - [x] Embeddings
-  - [x] Files (List, Upload, Delete, Retrieve, Retrieve Content)
-  - [x] Fine-Tuning (including SSE streaming Fine-tuning events)
-  - [x] Images (Generation, Edit, Variation)
-  - [ ] Microsoft Azure Endpoints / AD Authentication
+  - [x] Files
+  - [x] Fine-Tuning (including SSE streaming)
+  - [x] Images
+  - [ ] Microsoft Azure Endpoints / AD Authentication (see [issue](https://github.com/64bit/async-openai/issues/32))
   - [x] Models
   - [x] Moderations
 - Non-streaming requests are retried with exponential backoff when [rate limited](https://help.openai.com/en/articles/5955598-is-api-usage-subject-to-any-rate-limits) by the API server.
 - Ergonomic Rust library with builder pattern for all request objects.
 
-*Being a young project there are rough edges*
+*Being a young project there could be rough edges.*
 
 ## Usage
 
@@ -97,6 +97,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 ## Contributing
 
 Thank you for your time to contribute and improve the project, I'd be happy to have you!
+
+A good starting point would be an [open issue](https://github.com/64bit/async-openai/issues).
 
 ## License
 
