@@ -98,7 +98,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 Thank you for your time to contribute and improve the project, I'd be happy to have you!
 
-A good starting point would be [open issues](https://github.com/64bit/async-openai/issues).
+A good starting point would be an [open issue](https://github.com/64bit/async-openai/issues).
 
 ## License
 
