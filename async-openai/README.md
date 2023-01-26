@@ -81,7 +81,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Download and save images to ./data directory.
     // Each url is downloaded and saved in dedicated Tokio task.
     // Directory is created if it doesn't exist.
-    response.save("./data").await?;
+    let paths = response.save("./data").await?;
+
+    paths
+        .iter()
+        .for_each(|path| println!("Image file path: {}", path.display()));
 
     Ok(())
 }

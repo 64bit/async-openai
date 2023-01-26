@@ -118,7 +118,9 @@ impl Display for ResponseFormat {
 }
 
 impl ImageResponse {
-    pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<(), OpenAIError> {
+    /// Save each image in a dedicated Tokio task and return paths to saved files.
+    /// For [ResponseFormat::Url] each file is downloaded in dedicated Tokio task.
+    pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<Vec<PathBuf>, OpenAIError> {
         let exists = match Path::try_exists(dir.as_ref()) {
             Ok(exists) => exists,
             Err(e) => return Err(OpenAIError::FileSaveError(e.to_string())),
@@ -135,18 +137,23 @@ impl ImageResponse {
             handles.push(tokio::spawn(async move { id.save(dir_buf).await }));
         }
 
-        let result = futures::future::join_all(handles).await;
+        let results = futures::future::join_all(handles).await;
+        let mut errors = vec![];
+        let mut paths = vec![];
 
-        let errors: Vec<OpenAIError> = result
-            .into_iter()
-            .filter(|r| r.is_err() || r.as_ref().ok().unwrap().is_err())
-            .map(|r| match r {
-                Err(e) => OpenAIError::FileSaveError(e.to_string()),
-                Ok(inner) => inner.err().unwrap(),
-            })
-            .collect();
+        for result in results {
+            match result {
+                Ok(inner) => match inner {
+                    Ok(path) => paths.push(path),
+                    Err(e) => errors.push(e),
+                },
+                Err(e) => errors.push(OpenAIError::FileSaveError(e.to_string())),
+            }
+        }
 
-        if errors.len() > 0 {
+        if errors.is_empty() {
+            Ok(paths)
+        } else {
             Err(OpenAIError::FileSaveError(
                 errors
                     .into_iter()
@@ -154,19 +161,16 @@ impl ImageResponse {
                     .collect::<Vec<String>>()
                     .join("; "),
             ))
-        } else {
-            Ok(())
         }
     }
 }
 
 impl ImageData {
-    async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<(), OpenAIError> {
+    async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<PathBuf, OpenAIError> {
         match self {
-            ImageData::Url(url) => download_url(url, dir).await?,
-            ImageData::B64Json(b64_json) => save_b64(b64_json, dir).await?,
+            ImageData::Url(url) => download_url(url, dir).await,
+            ImageData::B64Json(b64_json) => save_b64(b64_json, dir).await,
         }
-        Ok(())
     }
 }
 

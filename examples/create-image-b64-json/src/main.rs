@@ -22,7 +22,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Response already contains image data in base64 format.
     // Save each image to ./data directory in dedicated Tokio task.
     // Directory is created if it doesn't exist.
-    response.save("./data").await?;
+    let paths = response.save("./data").await?;
+
+    paths
+        .iter()
+        .for_each(|path| println!("Image file path: {}", path.display()));
 
     Ok(())
 }
