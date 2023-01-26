@@ -21,7 +21,10 @@ fn create_paths<P: AsRef<Path>>(url: &Url, base_dir: P) -> (PathBuf, PathBuf) {
     (dir, path)
 }
 
-pub(crate) async fn download_url<P: AsRef<Path>>(url: &str, dir: P) -> Result<(), OpenAIError> {
+pub(crate) async fn download_url<P: AsRef<Path>>(
+    url: &str,
+    dir: P,
+) -> Result<PathBuf, OpenAIError> {
     let parsed_url = Url::parse(url).map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
     let response = reqwest::get(url)
         .await
@@ -41,7 +44,7 @@ pub(crate) async fn download_url<P: AsRef<Path>>(url: &str, dir: P) -> Result<()
         .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
 
     tokio::fs::write(
-        file_path,
+        file_path.as_path(),
         response
             .bytes()
             .await
@@ -50,10 +53,10 @@ pub(crate) async fn download_url<P: AsRef<Path>>(url: &str, dir: P) -> Result<()
     .await
     .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
 
-    Ok(())
+    Ok(file_path)
 }
 
-pub(crate) async fn save_b64<P: AsRef<Path>>(b64: &str, dir: P) -> Result<(), OpenAIError> {
+pub(crate) async fn save_b64<P: AsRef<Path>>(b64: &str, dir: P) -> Result<PathBuf, OpenAIError> {
     let filename: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(10)
@@ -65,11 +68,11 @@ pub(crate) async fn save_b64<P: AsRef<Path>>(b64: &str, dir: P) -> Result<(), Op
     let path = PathBuf::from(dir.as_ref()).join(filename);
 
     tokio::fs::write(
-        path,
+        path.as_path(),
         base64::decode(b64).map_err(|e| OpenAIError::FileSaveError(e.to_string()))?,
     )
     .await
     .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
 
-    Ok(())
+    Ok(path)
 }
