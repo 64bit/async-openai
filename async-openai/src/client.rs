@@ -14,7 +14,7 @@ use crate::{
     Completions, Embeddings, FineTunes, Models,
 };
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 /// Client is a container for api key, base url, organization id, and backoff
 /// configuration used to make API calls.
 pub struct Client {
@@ -29,14 +29,22 @@ pub const API_BASE: &str = "https://api.openai.com/v1";
 /// Name for organization header
 pub const ORGANIZATION_HEADER: &str = "OpenAI-Organization";
 
-impl Client {
+impl Default for Client {
     /// Create client with default [API_BASE] url and default API key from OPENAI_API_KEY env var
-    pub fn new() -> Self {
+    fn default() -> Self {
         Self {
             api_base: API_BASE.to_string(),
             api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()),
-            ..Default::default()
+            org_id: Default::default(),
+            backoff: Default::default(),
         }
+    }
+}
+
+impl Client {
+    /// Create client with default [API_BASE] url and default API key from OPENAI_API_KEY env var
+    pub fn new() -> Self {
+        Default::default()
     }
 
     /// To use a different API key different from default OPENAI_API_KEY env var
