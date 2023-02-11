@@ -30,7 +30,7 @@ pub const API_BASE: &str = "https://api.openai.com/v1";
 pub const ORGANIZATION_HEADER: &str = "OpenAI-Organization";
 
 impl Default for Client {
-    // Create client with default [API_BASE] url and default API key from OPENAI_API_KEY env var
+    /// Create client with default [API_BASE] url and default API key from OPENAI_API_KEY env var
     fn default() -> Self {
         Self {
             api_base: API_BASE.to_string(),
