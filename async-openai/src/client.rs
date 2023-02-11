@@ -42,7 +42,7 @@ impl Default for Client {
 }
 
 impl Client {
-    /// Create client with default parameters
+    /// Create client with default [API_BASE] url and default API key from OPENAI_API_KEY env var
     pub fn new() -> Self {
         Default::default()
     }
