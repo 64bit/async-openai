@@ -169,7 +169,7 @@ pub struct CreateCompletionResponse {
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
 pub type CompletionResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>>>>;
+    Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>> + Send>>;
 
 #[derive(Debug, Clone, Serialize, Default, Builder)]
 #[builder(name = "CreateEditRequestArgs")]
@@ -616,7 +616,7 @@ pub struct ListFineTuneEventsResponse {
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
 pub type FineTuneEventsResponseStream =
-    Pin<Box<dyn Stream<Item = Result<ListFineTuneEventsResponse, OpenAIError>>>>;
+    Pin<Box<dyn Stream<Item = Result<ListFineTuneEventsResponse, OpenAIError>> + Send>>;
 
 #[derive(Debug, Deserialize)]
 pub struct DeleteModelResponse {

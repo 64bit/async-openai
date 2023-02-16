@@ -279,7 +279,7 @@ impl Client {
         &self,
         path: &str,
         request: I,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>>>>
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
     where
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
@@ -300,7 +300,7 @@ impl Client {
         &self,
         path: &str,
         query: &Q,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>>>>
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
     where
         Q: Serialize + ?Sized,
         O: DeserializeOwned + std::marker::Send + 'static,
@@ -320,7 +320,7 @@ impl Client {
     /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
     pub(crate) async fn stream<O>(
         mut event_source: EventSource,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>>>>
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
     where
         O: DeserializeOwned + std::marker::Send + 'static,
     {
