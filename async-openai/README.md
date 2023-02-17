@@ -32,14 +32,14 @@
   - [ ] Microsoft Azure Endpoints / AD Authentication (see [issue](https://github.com/64bit/async-openai/issues/32))
   - [x] Models
   - [x] Moderations
-- Non-streaming requests are retried with exponential backoff when [rate limited](https://help.openai.com/en/articles/5955598-is-api-usage-subject-to-any-rate-limits) by the API server.
+- Non-streaming requests are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits) by the API server.
 - Ergonomic Rust library with builder pattern for all request objects.
 
 *Being a young project there could be rough edges.*
 
 ## Usage
 
-The library reads [API key](https://beta.openai.com/account/api-keys) from the environment variable `OPENAI_API_KEY`.
+The library reads [API key](https://platform.openai.com/account/api-keys) from the environment variable `OPENAI_API_KEY`.
 
 ```bash
 # On macOS/Linux

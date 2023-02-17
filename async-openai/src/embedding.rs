@@ -7,7 +7,7 @@ use crate::{
 /// Get a vector representation of a given input that can be easily
 /// consumed by machine learning models and algorithms.
 ///
-/// Related guide: [Embeddings](https://beta.openai.com/docs/guides/embeddings/what-are-embeddings)
+/// Related guide: [Embeddings](https://platform.openai.com/docs/guides/embeddings/what-are-embeddings)
 pub struct Embeddings<'c> {
     client: &'c Client,
 }

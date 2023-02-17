@@ -9,7 +9,7 @@ use crate::{
 
 /// Given a prompt and/or an input image, the model will generate a new image.
 ///
-/// Related guide: [Image generation](https://beta.openai.com/docs/guides/images/introduction)
+/// Related guide: [Image generation](https://platform.openai.com/docs/guides/images/introduction)
 pub struct Images<'c> {
     client: &'c Client,
 }

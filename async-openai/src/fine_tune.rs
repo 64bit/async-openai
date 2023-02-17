@@ -9,7 +9,7 @@ use crate::{
 
 /// Manage fine-tuning jobs to tailor a model to your specific training data.
 ///
-/// Related guide: [Fine-tune models](https://beta.openai.com/docs/guides/fine-tuning)
+/// Related guide: [Fine-tune models](https://platform.openai.com/docs/guides/fine-tuning)
 pub struct FineTunes<'c> {
     client: &'c Client,
 }
@@ -23,7 +23,7 @@ impl<'c> FineTunes<'c> {
     ///
     /// Response includes details of the enqueued job including job status and the name of the fine-tuned models once complete.
     ///
-    /// [Learn more about Fine-tuning](https://beta.openai.com/docs/guides/fine-tuning)
+    /// [Learn more about Fine-tuning](https://platform.openai.com/docs/guides/fine-tuning)
     pub async fn create(&self, request: CreateFineTuneRequest) -> Result<FineTune, OpenAIError> {
         self.client.post("/fine-tunes", request).await
     }
@@ -35,7 +35,7 @@ impl<'c> FineTunes<'c> {
 
     /// Gets info about the fine-tune job.
     ///
-    /// [Learn more about Fine-tuning](https://beta.openai.com/docs/guides/fine-tuning)
+    /// [Learn more about Fine-tuning](https://platform.openai.com/docs/guides/fine-tuning)
     pub async fn retrieve(&self, fine_tune_id: &str) -> Result<FineTune, OpenAIError> {
         self.client
             .get(format!("/fine-tunes/{fine_tune_id}").as_str())
