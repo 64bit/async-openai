@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 
+use base64::{engine::general_purpose, Engine as _};
 use rand::{distributions::Alphanumeric, Rng};
 use reqwest::Url;
 
@@ -69,7 +70,9 @@ pub(crate) async fn save_b64<P: AsRef<Path>>(b64: &str, dir: P) -> Result<PathBu
 
     tokio::fs::write(
         path.as_path(),
-        base64::decode(b64).map_err(|e| OpenAIError::FileSaveError(e.to_string()))?,
+        general_purpose::STANDARD
+            .decode(b64)
+            .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?,
     )
     .await
     .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;

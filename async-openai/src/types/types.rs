@@ -44,7 +44,7 @@ pub enum Stop {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateCompletionRequest {
-    /// ID of the model to use. You can use the [List models](https://beta.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://beta.openai.com/docs/models/overview) for descriptions of them.
+    /// ID of the model to use. You can use the [List models](https://platform.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://platform.openai.com/docs/models/overview) for descriptions of them.
     pub model: String,
 
     /// The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.
@@ -103,13 +103,13 @@ pub struct CreateCompletionRequest {
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
     ///
-    /// [See more information about frequency and presence penalties.](https://beta.openai.com/docs/api-reference/parameter-details)
+    /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub presence_penalty: Option<f32>, // min: -2.0, max: 2.0, default 0
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
     ///
-    /// [See more information about frequency and presence penalties.](https://beta.openai.com/docs/api-reference/parameter-details)
+    /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub frequency_penalty: Option<f32>, // min: -2.0, max: 2.0, default: 0
 
@@ -129,7 +129,7 @@ pub struct CreateCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logit_bias: Option<HashMap<String, serde_json::Value>>, // default: null
 
-    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://beta.openai.com/docs/usage-policies/end-user-ids).
+    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 }
@@ -178,7 +178,7 @@ pub type CompletionResponseStream =
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateEditRequest {
-    /// ID of the model to use. You can use the [List models](https://beta.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://beta.openai.com/docs/models/overview) for descriptions of them.
+    /// ID of the model to use. You can use the [List models](https://platform.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://platform.openai.com/docs/models/overview) for descriptions of them.
     pub model: String,
 
     /// The input text to use as a starting point for the edit.
@@ -257,7 +257,7 @@ pub struct CreateImageRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<ResponseFormat>,
 
-    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://beta.openai.com/docs/usage-policies/end-user-ids).
+    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 }
@@ -306,7 +306,7 @@ pub struct CreateImageEditRequest {
     /// The format in which the generated images are returned. Must be one of `url` or `b64_json`.
     pub response_format: Option<ResponseFormat>,
 
-    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://beta.openai.com/docs/usage-policies/end-user-ids).
+    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
     pub user: Option<String>,
 }
 
@@ -329,7 +329,7 @@ pub struct CreateImageVariationRequest {
     /// The format in which the generated images are returned. Must be one of `url` or `b64_json`.
     pub response_format: Option<ResponseFormat>,
 
-    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://beta.openai.com/docs/usage-policies/end-user-ids).
+    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
     pub user: Option<String>,
 }
 
@@ -424,12 +424,12 @@ pub struct FileInput {
 pub struct CreateFileRequest {
     /// Name of the [JSON Lines](https://jsonlines.readthedocs.io/en/latest/) file to be uploaded.
     ///
-    /// If the `purpose` is set to "fine-tune", each line is a JSON record with "prompt" and "completion" fields representing your [training examples](https://beta.openai.com/docs/guides/fine-tuning/prepare-training-data).
+    /// If the `purpose` is set to "fine-tune", each line is a JSON record with "prompt" and "completion" fields representing your [training examples](https://platform.openai.com/docs/guides/fine-tuning/prepare-training-data).
     pub file: FileInput,
 
     /// The intended purpose of the uploaded documents.
     ///
-    /// Use "fine-tune" for [Fine-tuning](https://beta.openai.com/docs/api-reference/fine-tunes). This allows us to validate the format of the uploaded file.
+    /// Use "fine-tune" for [Fine-tuning](https://platform.openai.com/docs/api-reference/fine-tunes). This allows us to validate the format of the uploaded file.
     pub purpose: String,
 }
 
@@ -467,33 +467,33 @@ pub struct OpenAIFile {
 pub struct CreateFineTuneRequest {
     /// The ID of an uploaded file that contains training data.
     ///
-    /// See [upload file](https://beta.openai.com/docs/api-reference/files/upload) for how to upload a file.
+    /// See [upload file](https://platform.openai.com/docs/api-reference/files/upload) for how to upload a file.
     ///
     /// Your dataset must be formatted as a JSONL file, where each training
     /// example is a JSON object with the keys "prompt" and "completion".
     /// Additionally, you must upload your file with the purpose `fine-tune`.
     ///
-    /// See the [fine-tuning guide](https://beta.openai.com/docs/guides/fine-tuning/creating-training-data) for more details.
+    /// See the [fine-tuning guide](https://platform.openai.com/docs/guides/fine-tuning/creating-training-data) for more details.
     pub training_file: String,
 
     /// The ID of an uploaded file that contains validation data.
     ///
     /// If you provide this file, the data is used to generate validation
     /// metrics periodically during fine-tuning. These metrics can be viewed in
-    /// the [fine-tuning results file](https://beta.openai.com/docs/guides/fine-tuning/analyzing-your-fine-tuned-model).
+    /// the [fine-tuning results file](https://platform.openai.com/docs/guides/fine-tuning/analyzing-your-fine-tuned-model).
     /// Your train and validation data should be mutually exclusive.
     ///
     /// Your dataset must be formatted as a JSONL file, where each validation
     /// example is a JSON object with the keys "prompt" and "completion".
     /// Additionally, you must upload your file with the purpose `fine-tune`.
     ///
-    /// See the [fine-tuning guide](https://beta.openai.com/docs/guides/fine-tuning/creating-training-data) for more details.
+    /// See the [fine-tuning guide](https://platform.openai.com/docs/guides/fine-tuning/creating-training-data) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub validation_file: Option<String>,
 
     /// The name of the base model to fine-tune. You can select one of "ada",
     /// "babbage", "curie", "davinci", or a fine-tuned model created after 2022-04-21.
-    /// To learn more about these models, see the [Models](https://beta.openai.com/docs/models) documentation.
+    /// To learn more about these models, see the [Models](https://platform.openai.com/docs/models) documentation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
 
@@ -537,7 +537,7 @@ pub struct CreateFineTuneRequest {
 
     /// If set, we calculate classification-specific metrics such as accuracy
     /// and F-1 score using the validation set at the end of every epoch.
-    /// These metrics can be viewed in the [results file](https://beta.openai.com/docs/guides/fine-tuning/analyzing-your-fine-tuned-model).
+    /// These metrics can be viewed in the [results file](https://platform.openai.com/docs/guides/fine-tuning/analyzing-your-fine-tuned-model).
     ///
     /// In order to compute classification metrics, you must provide a
     /// `validation_file`. Additionally, you must
@@ -643,9 +643,9 @@ pub enum EmbeddingInput {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateEmbeddingRequest {
     /// ID of the model to use. You can use the
-    /// [List models](https://beta.openai.com/docs/api-reference/models/list)
+    /// [List models](https://platform.openai.com/docs/api-reference/models/list)
     /// API to see all of your available models, or see our
-    /// [Model overview](https://beta.openai.com/docs/models/overview)
+    /// [Model overview](https://platform.openai.com/docs/models/overview)
     /// for descriptions of them.
     pub model: String,
 
@@ -656,7 +656,7 @@ pub struct CreateEmbeddingRequest {
     pub input: EmbeddingInput,
 
     /// A unique identifier representing your end-user, which will help OpenAI
-    ///  to monitor and detect abuse. [Learn more](https://beta.openai.com/docs/usage-policies/end-user-ids).
+    ///  to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 }
