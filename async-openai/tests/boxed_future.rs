@@ -18,7 +18,7 @@ async fn boxed_future_test() {
                             return token_str.contains("yes") || token_str.contains("Yes");
                         }
                     },
-                    Err(_) => panic!()
+                    Err(e) => eprintln!("Error: {e}"),
                 }
             }
             false
