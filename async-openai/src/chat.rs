@@ -1,11 +1,12 @@
 use crate::{
-    client::Client,
     error::OpenAIError,
-    types::{ChatResponseStream, CreateChatRequest, CreateChatResponse},
+    types::{
+        ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse,
+    },
+    Client,
 };
 
-/// Given a series of messages, the model will return one or more predicted
-/// completion messages.
+/// Given a chat conversation, the model will return a chat completion response.
 pub struct Chat<'c> {
     client: &'c Client,
 }
@@ -15,11 +16,11 @@ impl<'c> Chat<'c> {
         Self { client }
     }
 
-    /// Creates a completion for the provided messages and parameters
+    /// Creates a completion for the chat message
     pub async fn create(
         &self,
-        request: CreateChatRequest,
-    ) -> Result<CreateChatResponse, OpenAIError> {
+        request: CreateChatCompletionRequest,
+    ) -> Result<CreateChatCompletionResponse, OpenAIError> {
         if request.stream.is_some() && request.stream.unwrap() {
             return Err(OpenAIError::InvalidArgument(
                 "When stream is true, use Chat::create_stream".into(),
@@ -28,17 +29,15 @@ impl<'c> Chat<'c> {
         self.client.post("/chat/completions", request).await
     }
 
-    /// Creates a completion request for the provided messages and parameters
+    /// Creates a completion for the chat message
     ///
-    /// Stream back partial progress. Tokens will be sent as data-only
-    /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-    /// as they become available, with the stream terminated by a data: \[DONE\] message.
+    /// partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format) as they become available, with the stream terminated by a `data: [DONE]` message.
     ///
-    /// [ChatResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
+    /// [ChatCompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
     pub async fn create_stream(
         &self,
-        mut request: CreateChatRequest,
-    ) -> Result<ChatResponseStream, OpenAIError> {
+        mut request: CreateChatCompletionRequest,
+    ) -> Result<ChatCompletionResponseStream, OpenAIError> {
         if request.stream.is_some() && !request.stream.unwrap() {
             return Err(OpenAIError::InvalidArgument(
                 "When stream is false, use Chat::create".into(),

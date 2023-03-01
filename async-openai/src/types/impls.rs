@@ -9,8 +9,8 @@ use crate::{
 };
 
 use super::{
-    EmbeddingInput, FileInput, ImageData, ImageInput, ImageResponse, ImageSize, ModerationInput,
-    Prompt, ResponseFormat, Stop,
+    AudioInput, AudioResponseFormat, EmbeddingInput, FileInput, ImageData, ImageInput,
+    ImageResponse, ImageSize, ModerationInput, Prompt, ResponseFormat, Role, Stop,
 };
 
 macro_rules! impl_from {
@@ -89,6 +89,7 @@ macro_rules! file_path_input {
 
 file_path_input!(ImageInput);
 file_path_input!(FileInput);
+file_path_input!(AudioInput);
 
 impl Display for ImageSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -112,6 +113,36 @@ impl Display for ResponseFormat {
             match self {
                 ResponseFormat::Url => "url",
                 ResponseFormat::B64Json => "b64_json",
+            }
+        )
+    }
+}
+
+impl Display for AudioResponseFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                AudioResponseFormat::Json => "json",
+                AudioResponseFormat::Srt => "srt",
+                AudioResponseFormat::Text => "text",
+                AudioResponseFormat::VerboseJson => "verbose_json",
+                AudioResponseFormat::Vtt => "vtt",
+            }
+        )
+    }
+}
+
+impl Display for Role {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Role::User => "user",
+                Role::System => "system",
+                Role::Assistant => "assistant",
             }
         )
     }

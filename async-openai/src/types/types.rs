@@ -1,9 +1,4 @@
-use std::{
-    collections::HashMap,
-    fmt::{Display, Formatter},
-    path::PathBuf,
-    pin::Pin,
-};
+use std::{collections::HashMap, path::PathBuf, pin::Pin};
 
 use derive_builder::Builder;
 use futures::Stream;
@@ -68,7 +63,7 @@ pub struct CreateCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_tokens: Option<u16>,
 
-    /// What [sampling temperature](https://towardsdatascience.com/how-to-sample-from-language-models-682bceb97277) to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
+    /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
     ///
     /// We generally recommend altering this or `top_p` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -139,101 +134,6 @@ pub struct CreateCompletionRequest {
     pub user: Option<String>,
 }
 
-#[derive(Clone, Serialize, Debug, Deserialize)]
-pub enum MessageRole {
-    #[serde(rename = "assistant")]
-    Assistant,
-    #[serde(rename = "system")]
-    System,
-    #[serde(rename = "user")]
-    User,
-}
-
-#[derive(Clone, Serialize, Deserialize, Debug, Builder)]
-#[builder(name = "MessageArgs")]
-#[builder(pattern = "mutable")]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
-pub struct Message {
-    pub role: MessageRole,
-    pub content: String,
-}
-
-#[derive(Clone, Serialize, Default, Debug, Builder)]
-#[builder(name = "CreateChatRequestArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
-pub struct CreateChatRequest {
-    /// ID of the model to use. You can use the [List models](https://platform.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://platform.openai.com/docs/models/overview) for descriptions of them.
-    pub model: String,
-
-    /// The message(s) to generate a response to, encoded as an array of the message type.
-    ///
-    /// Note that <|endoftext|> is the document separator that the model sees during training, so if a prompt is not specified the model will generate as if from the beginning of a new document.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub messages: Option<Vec<Message>>,
-
-    /// What [sampling temperature](https://towardsdatascience.com/how-to-sample-from-language-models-682bceb97277) to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
-    ///
-    /// We generally recommend altering this or `top_p` but not both.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub temperature: Option<f32>, // min: 0, max: 2, default: 1,
-
-    /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    ///
-    ///  We generally recommend altering this or `temperature` but not both.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub top_p: Option<f32>, // min: 0, max: 1, default: 1
-
-    /// How many completions to generate for each prompt.
-
-    /// **Note:** Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for `max_tokens` and `stop`.
-    ///
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub n: Option<u8>, // min:1 max: 128, default: 1
-
-    /// Whether to stream back partial progress. If set, tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format)
-    /// as they become available, with the stream terminated by a `data: [DONE]` message.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub stream: Option<bool>, // nullable: true
-
-    /// Include the log probabilities on the `logprobs` most likely tokens, as well the chosen tokens. For example, if `logprobs` is 5, the API will return a list of the 5 most likely tokens. The API will always return the `logprob` of the sampled token, so there may be up to `logprobs+1` elements in the response.
-
-    /// The maximum value for `logprobs` is 5. If you need more than this, please contact us through our [Help center](https://help.openai.com) and describe your use case.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub logprobs: Option<u8>, // min:0 , max: 5, default: null, nullable: true
-
-    ///  Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub stop: Option<Stop>,
-
-    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-    ///
-    /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub presence_penalty: Option<f32>, // min: -2.0, max: 2.0, default 0
-
-    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-    ///
-    /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub frequency_penalty: Option<f32>, // min: -2.0, max: 2.0, default: 0
-
-    /// Modify the likelihood of specified tokens appearing in the completion.
-    ///
-    /// Accepts a json object that maps tokens (specified by their token ID in the GPT tokenizer) to an associated bias value from -100 to 100. You can use this [tokenizer tool](/tokenizer?view=bpe) (which works for both GPT-2 and GPT-3) to convert text to token IDs. Mathematically, the bias is added to the logits generated by the model prior to sampling. The exact effect will vary per model, but values between -1 and 1 should decrease or increase likelihood of selection; values like -100 or 100 should result in a ban or exclusive selection of the relevant token.
-    ///
-    /// As an example, you can pass `{"50256": -100}` to prevent the <|endoftext|> token from being generated.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub logit_bias: Option<HashMap<String, serde_json::Value>>, // default: null
-
-    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub user: Option<String>,
-}
-
 #[derive(Debug, Deserialize)]
 pub struct Logprobs {
     pub tokens: Vec<String>,
@@ -247,13 +147,6 @@ pub struct Choice {
     pub text: String,
     pub index: u32,
     pub logprobs: Option<Logprobs>,
-    pub finish_reason: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct ChatChoice {
-    pub message: Message,
-    pub index: u32,
     pub finish_reason: Option<String>,
 }
 
@@ -274,22 +167,9 @@ pub struct CreateCompletionResponse {
     pub usage: Option<Usage>,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct CreateChatResponse {
-    pub id: String,
-    pub object: String,
-    pub created: u32,
-    pub choices: Vec<ChatChoice>,
-    pub usage: Option<Usage>,
-}
-
 /// Parsed server side events stream until an \[DONE\] is received from server.
 pub type CompletionResponseStream =
     Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>> + Send>>;
-
-/// Parsed server side events stream until an \[DONE\] is received from server.
-pub type ChatResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateChatResponse, OpenAIError>> + Send>>;
 
 #[derive(Debug, Clone, Serialize, Default, Builder)]
 #[builder(name = "CreateEditRequestArgs")]
@@ -298,7 +178,7 @@ pub type ChatResponseStream =
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateEditRequest {
-    /// ID of the model to use. You can use the [List models](https://platform.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://platform.openai.com/docs/models/overview) for descriptions of them.
+    /// ID of the model to use. You can use the `text-davinci-edit-001` or `code-davinci-edit-001` model with this endpoint.
     pub model: String,
 
     /// The input text to use as a starting point for the edit.
@@ -327,10 +207,8 @@ pub struct CreateEditRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct CreateEditResponse {
-    pub id: Option<String>,
     pub object: String,
     pub created: u32,
-    pub model: Option<String>,
     pub choices: Vec<Choice>,
     pub usage: Usage,
 }
@@ -408,11 +286,11 @@ pub struct ImageInput {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateImageEditRequest {
-    /// The image to edit. Must be a valid PNG file, less than 4MB, and square.
+    /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
     pub image: ImageInput,
 
     /// An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where `image` should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as `image`.
-    pub mask: ImageInput,
+    pub mask: Option<ImageInput>,
 
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     pub prompt: String,
@@ -800,4 +678,209 @@ pub struct CreateEmbeddingResponse {
     pub model: String,
     pub data: Vec<Embedding>,
     pub usage: EmbeddingUsage,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum Role {
+    System,
+    #[default]
+    User,
+    Assistant,
+}
+
+#[derive(Debug, Serialize, Default, Clone, Builder)]
+#[builder(name = "ChatCompletionRequestMessageArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct ChatCompletionRequestMessage {
+    /// The role of the author of this message.
+    pub role: Role,
+    /// The contents of the message
+    pub content: String,
+    /// The name of the user in a multi-user chat
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ChatCompletionResponseMessage {
+    pub role: Role,
+    pub content: String,
+}
+
+#[derive(Clone, Serialize, Default, Debug, Builder)]
+#[builder(name = "CreateChatCompletionRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateChatCompletionRequest {
+    /// ID of the model to use. Currently, only `gpt-3.5-turbo` and `gpt-3.5-turbo-0301` are supported.
+    pub model: String,
+
+    /// The messages to generate chat completions for, in the [chat format](https://platform.openai.com/docs/guides/chat/introduction).
+    pub messages: Vec<ChatCompletionRequestMessage>, // min: 1
+
+    /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
+    ///
+    /// We generally recommend altering this or `top_p` but not both.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub temperature: Option<f32>, // min: 0, max: 2, default: 1,
+
+    /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
+    ///
+    ///  We generally recommend altering this or `temperature` but not both.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub top_p: Option<f32>, // min: 0, max: 1, default: 1
+
+    /// How many chat completion choices to generate for each input message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub n: Option<u8>, // min:1, max: 128, default: 1
+
+    /// If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format) as they become available, with the stream terminated by a `data: [DONE]` message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stream: Option<bool>,
+
+    /// Up to 4 sequences where the API will stop generating further tokens.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stop: Option<Stop>,
+
+    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
+    ///
+    /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub presence_penalty: Option<f32>, // min: -2.0, max: 2.0, default 0
+
+    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
+    ///
+    /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub frequency_penalty: Option<f32>, // min: -2.0, max: 2.0, default: 0
+
+    /// Modify the likelihood of specified tokens appearing in the completion.
+    ///
+    /// Accepts a json object that maps tokens (specified by their token ID in the tokenizer) to an associated bias value from -100 to 100. Mathematically, the bias is added to the logits generated by the model prior to sampling. The exact effect will vary per model, but values between -1 and 1 should decrease or increase likelihood of selection; values like -100 or 100 should result in a ban or exclusive selection of the relevant token.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub logit_bias: Option<HashMap<String, serde_json::Value>>, // default: null
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ChatChoice {
+    pub index: u32,
+    pub message: ChatCompletionResponseMessage,
+    pub finish_reason: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateChatCompletionResponse {
+    pub id: String,
+    pub object: String,
+    pub created: u32,
+    pub model: String,
+    pub choices: Vec<ChatChoice>,
+    pub usage: Option<Usage>,
+}
+
+/// Parsed server side events stream until an \[DONE\] is received from server.
+pub type ChatCompletionResponseStream =
+    Pin<Box<dyn Stream<Item = Result<CreateChatCompletionStreamResponse, OpenAIError>> + Send>>;
+
+// For reason (not documented by OpenAI) the response from stream is different
+
+#[derive(Debug, Deserialize)]
+pub struct ChatCompletionResponseStreamMessage {
+    pub content: Option<String>,
+    pub role: Option<Role>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ChatChoiceDelta {
+    pub index: u32,
+    pub delta: ChatCompletionResponseStreamMessage,
+    pub finish_reason: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateChatCompletionStreamResponse {
+    pub id: Option<String>,
+    pub object: String,
+    pub created: u32,
+    pub model: String,
+    pub choices: Vec<ChatChoiceDelta>,
+    pub usage: Option<Usage>,
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct AudioInput {
+    pub path: PathBuf,
+}
+
+#[derive(Debug, Serialize, Default, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum AudioResponseFormat {
+    #[default]
+    Json,
+    Text,
+    Srt,
+    VerboseJson,
+    Vtt,
+}
+
+#[derive(Clone, Default, Debug, Builder)]
+#[builder(name = "CreateTranscriptionRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateTranscriptionRequest {
+    /// The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
+    pub file: AudioInput,
+
+    /// ID of the model to use. Only `whisper-1` is currently available.
+    pub model: String,
+
+    /// An optional text to guide the model's style or continue a previous audio segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text/prompting) should match the audio language.
+    pub prompt: Option<String>,
+
+    /// The format of the transcript output, in one of these options: json, text, srt, verbose_json, or vtt.
+    pub response_format: Option<AudioResponseFormat>,
+
+    /// The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically increase the temperature until certain thresholds are hit.
+    pub temperature: Option<f32>, // default: 0
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateTranscriptionResponse {
+    pub text: String,
+}
+
+#[derive(Clone, Default, Debug, Builder)]
+#[builder(name = "CreateTranslationRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateTranslationRequest {
+    /// The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
+    pub file: AudioInput,
+
+    /// ID of the model to use. Only `whisper-1` is currently available.
+    pub model: String,
+
+    /// An optional text to guide the model's style or continue a previous audio segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text/prompting) should be in English.
+    pub prompt: Option<String>,
+
+    /// The format of the transcript output, in one of these options: json, text, srt, verbose_json, or vtt.
+    pub response_format: Option<AudioResponseFormat>,
+
+    /// The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically increase the temperature until certain thresholds are hit.
+    pub temperature: Option<f32>, // default: 0
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateTranslationResponse {
+    pub text: String,
 }

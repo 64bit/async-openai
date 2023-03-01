@@ -48,6 +48,7 @@
 //! ## Examples
 //! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //!
+mod audio;
 mod chat;
 mod client;
 mod completion;
@@ -63,6 +64,8 @@ mod moderation;
 pub mod types;
 mod util;
 
+pub use audio::Audio;
+pub use chat::Chat;
 pub use client::Client;
 pub use client::API_BASE;
 pub use client::ORGANIZATION_HEADER;
