@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "chat",
+    "chat-stream",
     "codex",
     "create-edit",
     "completions",
