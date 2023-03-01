@@ -1,9 +1,4 @@
-use std::{
-    collections::HashMap,
-    fmt::{Display, Formatter},
-    path::PathBuf,
-    pin::Pin,
-};
+use std::{collections::HashMap, path::PathBuf, pin::Pin};
 
 use derive_builder::Builder;
 use futures::Stream;
@@ -251,13 +246,6 @@ pub struct Choice {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct ChatChoice {
-    pub message: Message,
-    pub index: u32,
-    pub finish_reason: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
 pub struct Usage {
     pub prompt_tokens: u32,
     pub completion_tokens: u32,
@@ -274,22 +262,9 @@ pub struct CreateCompletionResponse {
     pub usage: Option<Usage>,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct CreateChatResponse {
-    pub id: String,
-    pub object: String,
-    pub created: u32,
-    pub choices: Vec<ChatChoice>,
-    pub usage: Option<Usage>,
-}
-
 /// Parsed server side events stream until an \[DONE\] is received from server.
 pub type CompletionResponseStream =
     Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>> + Send>>;
-
-/// Parsed server side events stream until an \[DONE\] is received from server.
-pub type ChatResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateChatResponse, OpenAIError>> + Send>>;
 
 #[derive(Debug, Clone, Serialize, Default, Builder)]
 #[builder(name = "CreateEditRequestArgs")]

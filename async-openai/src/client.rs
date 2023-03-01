@@ -6,7 +6,6 @@ use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
-    chat::Chat,
     edit::Edits,
     error::{OpenAIError, WrappedError},
     file::Files,
@@ -125,11 +124,6 @@ impl Client {
     /// To call [Embeddings] group related APIs using this client.
     pub fn embeddings(&self) -> Embeddings {
         Embeddings::new(self)
-    }
-
-    /// To call [Chat] group related APIs using this client.
-    pub fn chat(&self) -> Chat {
-        Chat::new(self)
     }
 
     /// To call [Audio] group related APIs using this client.
