@@ -156,10 +156,14 @@ impl Display for MessageRole {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug, Builder)]
+#[builder(name = "MessageArgs")]
+#[builder(pattern = "mutable")]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct Message {
-    role: MessageRole,
-    content: String,
+    pub role: MessageRole,
+    pub content: String,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Builder)]
