@@ -20,6 +20,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let mut stream = client.chat().create_stream(request).await?;
 
+    // For reasons not documented in OpenAI docs / OpenAPI spec, the response of streaming call is different and doesn't include all the same fields.
     while let Some(result) = stream.next().await {
         match result {
             Ok(response) => {
