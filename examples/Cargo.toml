@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "chat",
     "codex",
     "create-edit",
     "completions",
