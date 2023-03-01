@@ -694,7 +694,7 @@ pub enum Role {
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
-//#[builder(build_fn(error = "OpenAIError"))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestMessage {
     /// The role of the author of this message.
     pub role: Role,
