@@ -11,7 +11,7 @@ use crate::{
     file::Files,
     image::Images,
     moderation::Moderations,
-    Chat, Completions, Embeddings, FineTunes, Models,
+    Audio, Chat, Completions, Embeddings, FineTunes, Models,
 };
 
 #[derive(Debug, Clone)]
@@ -121,9 +121,14 @@ impl Client {
         Embeddings::new(self)
     }
 
-    /// To call [Chat] group releated APIs using this client.
+    /// To call [Chat] group related APIs using this client.
     pub fn chat(&self) -> Chat {
         Chat::new(self)
+    }
+
+    /// To call [Audio] group related APIs using this client.
+    pub fn audio(&self) -> Audio {
+        Audio::new(self)
     }
 
     fn headers(&self) -> HeaderMap {
