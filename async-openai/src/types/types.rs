@@ -713,10 +713,6 @@ pub struct ChatCompletionResponseMessage {
     pub content: String,
 }
 
-/// Parsed server side events stream until an \[DONE\] is received from server.
-pub type ChatCompletionResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateChatCompletionResponse, OpenAIError>> + Send>>;
-
 #[derive(Clone, Serialize, Default, Debug, Builder)]
 #[builder(name = "CreateChatCompletionRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -787,5 +783,34 @@ pub struct CreateChatCompletionResponse {
     pub created: u32,
     pub model: String,
     pub choices: Vec<ChatChoice>,
+    pub usage: Option<Usage>,
+}
+
+/// Parsed server side events stream until an \[DONE\] is received from server.
+pub type ChatCompletionResponseStream =
+    Pin<Box<dyn Stream<Item = Result<CreateChatCompletionStreamResponse, OpenAIError>> + Send>>;
+
+// For reason (not documented by OpenAI) the response from stream is different
+
+#[derive(Debug, Deserialize)]
+pub struct ChatCompletionResponseStreamMessage {
+    pub content: Option<String>,
+    pub role: Option<Role>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ChatChoiceDelta {
+    pub index: u32,
+    pub delta: ChatCompletionResponseStreamMessage,
+    pub finish_reason: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateChatCompletionStreamResponse {
+    pub id: Option<String>,
+    pub object: String,
+    pub created: u32,
+    pub model: String,
+    pub choices: Vec<ChatChoiceDelta>,
     pub usage: Option<Usage>,
 }
