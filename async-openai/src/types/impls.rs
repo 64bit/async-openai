@@ -10,7 +10,7 @@ use crate::{
 
 use super::{
     EmbeddingInput, FileInput, ImageData, ImageInput, ImageResponse, ImageSize, ModerationInput,
-    Prompt, ResponseFormat, Stop,
+    Prompt, ResponseFormat, Role, Stop,
 };
 
 macro_rules! impl_from {
@@ -112,6 +112,20 @@ impl Display for ResponseFormat {
             match self {
                 ResponseFormat::Url => "url",
                 ResponseFormat::B64Json => "b64_json",
+            }
+        )
+    }
+}
+
+impl Display for Role {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Role::User => "user",
+                Role::System => "system",
+                Role::Assistant => "assistant",
             }
         )
     }

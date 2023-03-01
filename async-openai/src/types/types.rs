@@ -63,7 +63,7 @@ pub struct CreateCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_tokens: Option<u16>,
 
-    /// What [sampling temperature](https://towardsdatascience.com/how-to-sample-from-language-models-682bceb97277) to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
+    /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
     ///
     /// We generally recommend altering this or `top_p` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -680,4 +680,112 @@ pub struct CreateEmbeddingResponse {
     pub model: String,
     pub data: Vec<Embedding>,
     pub usage: EmbeddingUsage,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum Role {
+    System,
+    #[default]
+    User,
+    Assistant,
+}
+
+#[derive(Debug, Serialize, Default, Clone, Builder)]
+#[builder(name = "ChatCompletionRequestMessageArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+//#[builder(build_fn(error = "OpenAIError"))]
+pub struct ChatCompletionRequestMessage {
+    /// The role of the author of this message.
+    pub role: Role,
+    /// The contents of the message
+    pub content: String,
+    /// The name of the user in a multi-user chat
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ChatCompletionResponseMessage {
+    pub role: Role,
+    pub content: String,
+}
+
+/// Parsed server side events stream until an \[DONE\] is received from server.
+pub type ChatCompletionResponseStream =
+    Pin<Box<dyn Stream<Item = Result<CreateChatCompletionResponse, OpenAIError>> + Send>>;
+
+#[derive(Clone, Serialize, Default, Debug, Builder)]
+#[builder(name = "CreateChatCompletionRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateChatCompletionRequest {
+    /// ID of the model to use. Currently, only `gpt-3.5-turbo` and `gpt-3.5-turbo-0301` are supported.
+    pub model: String,
+
+    /// The messages to generate chat completions for, in the [chat format](https://platform.openai.com/docs/guides/chat/introduction).
+    pub messages: Vec<ChatCompletionRequestMessage>, // min: 1
+
+    /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
+    ///
+    /// We generally recommend altering this or `top_p` but not both.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub temperature: Option<f32>, // min: 0, max: 2, default: 1,
+
+    /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
+    ///
+    ///  We generally recommend altering this or `temperature` but not both.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub top_p: Option<f32>, // min: 0, max: 1, default: 1
+
+    /// How many chat completion choices to generate for each input message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub n: Option<u8>, // min:1, max: 128, default: 1
+
+    /// If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format) as they become available, with the stream terminated by a `data: [DONE]` message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stream: Option<bool>,
+
+    /// Up to 4 sequences where the API will stop generating further tokens.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stop: Option<Stop>,
+
+    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
+    ///
+    /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub presence_penalty: Option<f32>, // min: -2.0, max: 2.0, default 0
+
+    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
+    ///
+    /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub frequency_penalty: Option<f32>, // min: -2.0, max: 2.0, default: 0
+
+    /// Modify the likelihood of specified tokens appearing in the completion.
+    ///
+    /// Accepts a json object that maps tokens (specified by their token ID in the tokenizer) to an associated bias value from -100 to 100. Mathematically, the bias is added to the logits generated by the model prior to sampling. The exact effect will vary per model, but values between -1 and 1 should decrease or increase likelihood of selection; values like -100 or 100 should result in a ban or exclusive selection of the relevant token.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub logit_bias: Option<HashMap<String, serde_json::Value>>, // default: null
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ChatChoice {
+    pub index: u32,
+    pub message: ChatCompletionResponseMessage,
+    pub finish_reason: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateChatCompletionResponse {
+    pub id: String,
+    pub object: String,
+    pub created: u32,
+    pub model: String,
+    pub choices: Vec<ChatChoice>,
+    pub usage: Option<Usage>,
 }
