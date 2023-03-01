@@ -23,7 +23,7 @@
 
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
-  - [x] Completions (including SSE streaming)
+  - [x] Completions (including SSE streaming & Chat)
   - [x] Edits
   - [x] Embeddings
   - [x] Files
@@ -35,7 +35,7 @@
 - Non-streaming requests are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits) by the API server.
 - Ergonomic Rust library with builder pattern for all request objects.
 
-*Being a young project there could be rough edges.*
+_Being a young project there could be rough edges._
 
 ## Usage
 

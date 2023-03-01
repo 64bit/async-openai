@@ -6,6 +6,7 @@ use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
+    chat::Chat,
     edit::Edits,
     error::{OpenAIError, WrappedError},
     file::Files,
@@ -89,6 +90,11 @@ impl Client {
     /// To call [Completions] group related APIs using this client.
     pub fn completions(&self) -> Completions {
         Completions::new(self)
+    }
+
+    /// To call [Chat] group related APIs using this client.
+    pub fn chat(&self) -> Chat {
+        Chat::new(self)
     }
 
     /// To call [Edits] group related APIs using this client.
