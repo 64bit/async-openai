@@ -141,19 +141,12 @@ pub struct CreateCompletionRequest {
 
 #[derive(Clone, Serialize, Debug, Deserialize)]
 pub enum MessageRole {
+    #[serde(rename = "assistant")]
     Assistant,
+    #[serde(rename = "system")]
     System,
+    #[serde(rename = "user")]
     User,
-}
-
-impl Display for MessageRole {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            MessageRole::User => write!(f, "user"),
-            MessageRole::System => write!(f, "system"),
-            MessageRole::Assistant => write!(f, "assistant"),
-        }
-    }
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, Builder)]
