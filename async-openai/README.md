@@ -23,7 +23,9 @@
 
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
-  - [x] Completions (including SSE streaming & Chat)
+  - [x] Audio
+  - [x] Chat (including SSE streaming)
+  - [x] Completions (including SSE streaming)
   - [x] Edits
   - [x] Embeddings
   - [x] Files
