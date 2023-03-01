@@ -1,4 +1,4 @@
-### Output
+### Output 1
 
 ```
 Verse 1 (Chris Martin):
@@ -43,4 +43,53 @@ And it will never fade
 Together we will journey on
 In a symphony that's never played.
 
+```
+
+
+### Output 2
+
+```
+Verse 1:
+In the streets of Mumbai
+Where the colors come alive
+I see a boy with a dream
+He's searching for the light
+
+Then the music starts to play
+And the world begins to change
+The rhythm of his heartbeat
+Will guide him to his fate
+
+Chorus:
+So don't give up tonight
+Hold on to your dreams, don't hide
+Let the music lead the way
+And take you to a brand new day
+
+Verse 2:
+In the misty hills of England
+Where the silence greets the dawn
+I see a girl with a voice
+She's searching for a song
+
+Then the melody fills the air
+And the words begin to flow
+The power of her fire
+Will guide her to her home
+
+(Chorus)
+
+Bridge:
+Every note, every beat
+Takes us to a different street
+And we'll find our way
+Through the darkness and the grey
+
+(Chorus)
+
+Outro:
+So let's dance to the sunrise
+With our hearts and souls alive
+The world is waiting for us
+To make our dreams come to life
 ```
