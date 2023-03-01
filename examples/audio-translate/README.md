@@ -1,0 +1,3 @@
+### Output
+
+> The boat does not cross the waves in fear. Those who try never lose. When the tiny ant walks with the grain, It slips on the walls a hundred times. The faith in the mind fills the veins with courage. It does not fall and rise. After all, its hard work is not in vain. Those who try never lose. The tiny ant dives in the vermillion. It comes back empty-handed. The pearls do not meet in the deep water. Its fist is not empty every time. Those who try never lose. And the last verse is, Failure is a challenge, accept it. See what is missing and improve. Until you are unsuccessful, give up sleep and peace. Do not run away from the battlefield of struggle. You will not win without doing anything. Those who try never lose.
