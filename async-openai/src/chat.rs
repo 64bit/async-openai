@@ -6,6 +6,7 @@ use crate::{
     Client,
 };
 
+/// Given a chat conversation, the model will return a chat completion response.
 pub struct Chat<'c> {
     client: &'c Client,
 }

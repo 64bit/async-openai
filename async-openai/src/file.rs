@@ -104,6 +104,6 @@ mod tests {
         let delete_response = client.files().delete(&openai_file.id).await.unwrap();
 
         assert_eq!(openai_file.id, delete_response.id);
-        assert_eq!(delete_response.deleted, true);
+        assert!(delete_response.deleted);
     }
 }

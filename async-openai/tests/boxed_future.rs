@@ -1,13 +1,11 @@
-
-use futures::StreamExt;
 use futures::future::{BoxFuture, FutureExt};
+use futures::StreamExt;
 
-use async_openai::Client;
 use async_openai::types::{CompletionResponseStream, CreateCompletionRequestArgs};
+use async_openai::Client;
 
 #[tokio::test]
 async fn boxed_future_test() {
-
     fn interpret_bool(token_stream: &mut CompletionResponseStream) -> BoxFuture<'_, bool> {
         async move {
             while let Some(response) = token_stream.next().await {
@@ -17,12 +15,13 @@ async fn boxed_future_test() {
                         if !token_str.is_empty() {
                             return token_str.contains("yes") || token_str.contains("Yes");
                         }
-                    },
+                    }
                     Err(e) => eprintln!("Error: {e}"),
                 }
             }
             false
-        }.boxed()
+        }
+        .boxed()
     }
 
     let client = Client::new();
@@ -34,11 +33,11 @@ async fn boxed_future_test() {
         .stream(true)
         .logprobs(3)
         .max_tokens(64_u16)
-        .build().unwrap();
+        .build()
+        .unwrap();
 
     let mut stream = client.completions().create_stream(request).await.unwrap();
 
     let result = interpret_bool(&mut stream).await;
-    assert_eq!(result, true);
-
+    assert!(result);
 }
