@@ -30,12 +30,15 @@ impl<'c> Images<'c> {
         request: CreateImageEditRequest,
     ) -> Result<ImageResponse, OpenAIError> {
         let image_part = create_file_part(&request.image.path).await?;
-        let mask_part = create_file_part(&request.mask.path).await?;
 
         let mut form = reqwest::multipart::Form::new()
             .part("image", image_part)
-            .part("mask", mask_part)
             .text("prompt", request.prompt);
+
+        if let Some(mask) = request.mask {
+            let mask_part = create_file_part(&mask.path).await?;
+            form = form.part("mask", mask_part);
+        }
 
         if request.n.is_some() {
             form = form.text("n", request.n.unwrap().to_string())

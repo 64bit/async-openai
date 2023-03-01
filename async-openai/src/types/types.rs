@@ -178,7 +178,7 @@ pub type CompletionResponseStream =
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateEditRequest {
-    /// ID of the model to use. You can use the [List models](https://platform.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://platform.openai.com/docs/models/overview) for descriptions of them.
+    /// ID of the model to use. You can use the `text-davinci-edit-001` or `code-davinci-edit-001` model with this endpoint.
     pub model: String,
 
     /// The input text to use as a starting point for the edit.
@@ -207,10 +207,8 @@ pub struct CreateEditRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct CreateEditResponse {
-    pub id: Option<String>,
     pub object: String,
     pub created: u32,
-    pub model: Option<String>,
     pub choices: Vec<Choice>,
     pub usage: Usage,
 }
@@ -288,11 +286,11 @@ pub struct ImageInput {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateImageEditRequest {
-    /// The image to edit. Must be a valid PNG file, less than 4MB, and square.
+    /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
     pub image: ImageInput,
 
     /// An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where `image` should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as `image`.
-    pub mask: ImageInput,
+    pub mask: Option<ImageInput>,
 
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     pub prompt: String,
