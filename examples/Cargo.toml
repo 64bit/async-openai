@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "audio-transcribe",
     "chat",
     "chat-stream",
     "codex",
