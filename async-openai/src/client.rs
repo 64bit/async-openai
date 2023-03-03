@@ -2,6 +2,7 @@ use std::pin::Pin;
 
 use futures::{stream::StreamExt, Stream};
 use reqwest::header::HeaderMap;
+use reqwest::{Client as ReqwestClient};
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -22,6 +23,7 @@ pub struct Client {
     api_base: String,
     org_id: String,
     backoff: backoff::ExponentialBackoff,
+    reqwest_client: ReqwestClient,
 }
 
 /// Default v1 API base url
@@ -37,6 +39,7 @@ impl Default for Client {
             api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()),
             org_id: Default::default(),
             backoff: Default::default(),
+            reqwest_client: ReqwestClient::new(),
         }
     }
 }
@@ -68,6 +71,12 @@ impl Client {
     /// Exponential backoff for retrying [rate limited](https://help.openai.com/en/articles/5955598-is-api-usage-subject-to-any-rate-limits) requests. Form submissions are not retried.
     pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
         self.backoff = backoff;
+        self
+    }
+
+    /// To use reqwest client different from default client
+    pub fn with_reqwest_client(mut self, client: ReqwestClient) -> Self {
+        self.reqwest_client = client;
         self
     }
 
@@ -144,7 +153,7 @@ impl Client {
     where
         O: DeserializeOwned,
     {
-        let request = reqwest::Client::new()
+        let request = self.reqwest_client
             .get(format!("{}{path}", self.api_base()))
             .bearer_auth(self.api_key())
             .headers(self.headers())
@@ -158,7 +167,7 @@ impl Client {
     where
         O: DeserializeOwned,
     {
-        let request = reqwest::Client::new()
+        let request = self.reqwest_client
             .delete(format!("{}{path}", self.api_base()))
             .bearer_auth(self.api_key())
             .headers(self.headers())
@@ -173,7 +182,7 @@ impl Client {
         I: Serialize,
         O: DeserializeOwned,
     {
-        let request = reqwest::Client::new()
+        let request = self.reqwest_client
             .post(format!("{}{path}", self.api_base()))
             .bearer_auth(self.api_key())
             .headers(self.headers())
@@ -192,7 +201,7 @@ impl Client {
     where
         O: DeserializeOwned,
     {
-        let request = reqwest::Client::new()
+        let request = self.reqwest_client
             .post(format!("{}{path}", self.api_base()))
             .bearer_auth(self.api_key())
             .headers(self.headers())
@@ -227,13 +236,11 @@ impl Client {
     where
         O: DeserializeOwned,
     {
-        let client = reqwest::Client::new();
-
         match request.try_clone() {
             // Only clone-able requests can be retried
             Some(request) => {
                 backoff::future::retry(self.backoff.clone(), || async {
-                    let response = client
+                    let response = self.reqwest_client
                         .execute(request.try_clone().unwrap())
                         .await
                         .map_err(OpenAIError::Reqwest)
@@ -278,7 +285,7 @@ impl Client {
                 .await
             }
             None => {
-                let response = client.execute(request).await?;
+                let response = self.reqwest_client.execute(request).await?;
                 self.process_response(response).await
             }
         }
@@ -294,7 +301,7 @@ impl Client {
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let event_source = reqwest::Client::new()
+        let event_source = self.reqwest_client
             .post(format!("{}{path}", self.api_base()))
             .headers(self.headers())
             .bearer_auth(self.api_key())
@@ -315,7 +322,7 @@ impl Client {
         Q: Serialize + ?Sized,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let event_source = reqwest::Client::new()
+        let event_source = self.reqwest_client
             .get(format!("{}{path}", self.api_base()))
             .query(query)
             .headers(self.headers())
