@@ -771,7 +771,7 @@ pub struct CreateChatCompletionRequest {
 pub struct ChatChoice {
     pub index: u32,
     pub message: ChatCompletionResponseMessage,
-    pub finish_reason: String,
+    pub finish_reason: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
