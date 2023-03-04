@@ -10,6 +10,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let request = CreateChatCompletionRequestArgs::default()
+        .max_tokens(512u16)
         .model("gpt-3.5-turbo")
         .messages([
             ChatCompletionRequestMessageArgs::default()

@@ -724,6 +724,12 @@ pub struct CreateChatCompletionRequest {
     /// The messages to generate chat completions for, in the [chat format](https://platform.openai.com/docs/guides/chat/introduction).
     pub messages: Vec<ChatCompletionRequestMessage>, // min: 1
 
+    /// The maximum number of [tokens](/tokenizer) to generate in the completion.
+    ///
+    /// The token count of your prompt plus `max_tokens` cannot exceed the model's context length. Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_tokens: Option<u16>,
+
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
     ///
     /// We generally recommend altering this or `top_p` but not both.
