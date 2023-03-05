@@ -771,6 +771,7 @@ pub struct CreateChatCompletionRequest {
     pub logit_bias: Option<HashMap<String, serde_json::Value>>, // default: null
 
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids).
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 }
 
