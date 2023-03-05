@@ -2223,7 +2223,7 @@ components:
             A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](/docs/guides/safety-best-practices/end-user-ids).
       required:
         - model
-    
+
     CreateCompletionResponse:
       type: object
       properties:
@@ -2275,11 +2275,11 @@ components:
               type: integer
             total_tokens:
               type: integer
-          required: 
+          required:
             - prompt_tokens
             - completion_tokens
             - total_tokens
-      required: 
+      required:
         - id
         - object
         - created
@@ -2299,7 +2299,7 @@ components:
         name:
           type: string
           description: The name of the user in a multi-user chat
-      required: 
+      required:
         - role
         - content
 
@@ -2313,7 +2313,7 @@ components:
         content:
           type: string
           description: The contents of the message
-      required: 
+      required:
         - role
         - content
 
@@ -2372,6 +2372,11 @@ components:
               maxItems: 4
               items:
                 type: string
+        max_tokens:
+          description: |
+            The maximum number of tokens allowed for the generated answer. By default, the number of tokens the model can return will be (4096 - prompt tokens).
+          default: inf
+          type: integer
         presence_penalty:
           type: number
           default: 0
@@ -2431,11 +2436,11 @@ components:
               type: integer
             total_tokens:
               type: integer
-          required: 
+          required:
             - prompt_tokens
             - completion_tokens
             - total_tokens
-      required: 
+      required:
         - id
         - object
         - created
@@ -2536,11 +2541,11 @@ components:
               type: integer
             total_tokens:
               type: integer
-          required: 
+          required:
             - prompt_tokens
             - completion_tokens
             - total_tokens
-      required: 
+      required:
         - object
         - created
         - choices
@@ -2690,7 +2695,7 @@ components:
                     type: boolean
                   violence/graphic:
                     type: boolean
-                required: 
+                required:
                   - hate
                   - hate/threatening
                   - self-harm
@@ -2715,7 +2720,7 @@ components:
                     type: number
                   violence/graphic:
                     type: number
-                required: 
+                required:
                   - hate
                   - hate/threatening
                   - self-harm
@@ -2723,11 +2728,11 @@ components:
                   - sexual/minors
                   - violence
                   - violence/graphic
-            required: 
+            required:
               - flagged
               - categories
               - category_scores
-      required: 
+      required:
         - id
         - model
         - results
@@ -2810,7 +2815,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OpenAIFile'
-      required: 
+      required:
         - object
         - data
 
@@ -2845,7 +2850,7 @@ components:
           type: string
         deleted:
           type: boolean
-      required: 
+      required:
         - id
         - object
         - deleted
@@ -3249,7 +3254,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FineTune'
-      required: 
+      required:
         - object
         - data
 
@@ -3262,7 +3267,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FineTuneEvent'
-      required: 
+      required:
         - object
         - data
 
@@ -3322,7 +3327,7 @@ components:
                 type: array
                 items:
                   type: number
-            required: 
+            required:
               - index
               - object
               - embedding
@@ -3333,10 +3338,10 @@ components:
               type: integer
             total_tokens:
               type: integer
-          required: 
+          required:
             - prompt_tokens
             - total_tokens
-      required: 
+      required:
         - object
         - model
         - data
@@ -3346,12 +3351,12 @@ components:
       type: object
       additionalProperties: false
       properties:
-        file: 
+        file:
           description: |
             The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
           type: string
           format: binary
-        model: 
+        model:
           description: |
             ID of the model to use. Only `whisper-1` is currently available.
           type: string
@@ -3369,29 +3374,33 @@ components:
             The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically increase the temperature until certain thresholds are hit.
           type: number
           default: 0
+        language:
+          description: |
+            The language of the input audio. Supplying the input language in [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format will improve accuracy and latency.
+          type: string
       required:
         - file
         - model
 
-    # Note: This does not currently support the non-default response format types. 
+    # Note: This does not currently support the non-default response format types.
     CreateTranscriptionResponse:
       type: object
       properties:
         text:
           type: string
-      required: 
+      required:
         - text
 
     CreateTranslationRequest:
       type: object
       additionalProperties: false
       properties:
-        file: 
+        file:
           description: |
             The audio file to translate, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
           type: string
           format: binary
-        model: 
+        model:
           description: |
             ID of the model to use. Only `whisper-1` is currently available.
           type: string
@@ -3413,13 +3422,13 @@ components:
         - file
         - model
 
-    # Note: This does not currently support the non-default response format types. 
+    # Note: This does not currently support the non-default response format types.
     CreateTranslationResponse:
       type: object
       properties:
         text:
           type: string
-      required: 
+      required:
         - text
 
     Engine:
@@ -3434,7 +3443,7 @@ components:
           nullable: true
         ready:
           type: boolean
-      required: 
+      required:
         - id
         - object
         - created
@@ -3451,7 +3460,7 @@ components:
           type: integer
         owned_by:
           type: string
-      required: 
+      required:
         - id
         - object
         - created
@@ -3477,7 +3486,7 @@ components:
         status_details:
           type: object
           nullable: true
-      required: 
+      required:
         - id
         - object
         - bytes
@@ -3523,7 +3532,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FineTuneEvent'
-      required: 
+      required:
         - id
         - object
         - created_at
@@ -3548,7 +3557,7 @@ components:
           type: string
         message:
           type: string
-      required: 
+      required:
         - object
         - created_at
         - level
