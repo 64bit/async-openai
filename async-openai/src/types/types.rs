@@ -857,6 +857,9 @@ pub struct CreateTranscriptionRequest {
 
     /// The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically increase the temperature until certain thresholds are hit.
     pub temperature: Option<f32>, // default: 0
+
+    /// The language of the input audio. Supplying the input language in [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format will improve accuracy and latency.
+    pub language: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
