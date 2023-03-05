@@ -12,6 +12,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let request = CreateChatCompletionRequestArgs::default()
         .model("gpt-3.5-turbo")
+        .max_tokens(1024u16)
         .messages([ChatCompletionRequestMessageArgs::default()
             .content("write a song if Coldplay and AR Rahman collaborated together")
             .role(Role::User)
