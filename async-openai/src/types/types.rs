@@ -20,7 +20,7 @@ pub struct ListModelResponse {
     pub data: Vec<Model>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum Prompt {
     String(String),
@@ -30,7 +30,7 @@ pub enum Prompt {
     ArrayOfIntegerArray(Vec<Vec<u16>>),
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum Stop {
     String(String),           // nullable: true
@@ -689,7 +689,7 @@ pub enum Role {
     Assistant,
 }
 
-#[derive(Debug, Serialize, Default, Clone, Builder)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder)]
 #[builder(name = "ChatCompletionRequestMessageArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
@@ -711,7 +711,7 @@ pub struct ChatCompletionResponseMessage {
     pub content: String,
 }
 
-#[derive(Clone, Serialize, Default, Debug, Builder)]
+#[derive(Clone, Serialize, Default, Debug, Builder, Deserialize)]
 #[builder(name = "CreateChatCompletionRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
