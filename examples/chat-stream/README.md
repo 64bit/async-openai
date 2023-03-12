@@ -1,3 +1,15 @@
+## Output
+
+Content: "write a marketing blog praising and introducing Rust library async-openai"
+
+<img src="https://raw.githubusercontent.com/64bit/async-openai/assets/chat-stream/output.svg" />
+
+
+
+## Other Examples
+
+Content: "write a song if Coldplay and AR Rahman collaborated together"
+
 ### Output 1
 
 ```
