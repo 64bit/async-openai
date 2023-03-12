@@ -16,5 +16,6 @@ members = [
     "models",
     "moderations",
     "rate-limit-completions",
+    "dotenv-client"
 ]
 resolver = "2"
