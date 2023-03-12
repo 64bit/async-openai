@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Model {
     pub id: String,
     pub object: String,
@@ -14,7 +14,7 @@ pub struct Model {
     pub owned_by: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ListModelResponse {
     pub object: String,
     pub data: Vec<Model>,
@@ -134,7 +134,7 @@ pub struct CreateCompletionRequest {
     pub user: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Logprobs {
     pub tokens: Vec<String>,
     pub token_logprobs: Vec<Option<f32>>, // Option is to account for null value in the list
@@ -142,7 +142,7 @@ pub struct Logprobs {
     pub text_offset: Vec<u32>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Choice {
     pub text: String,
     pub index: u32,
@@ -150,14 +150,14 @@ pub struct Choice {
     pub finish_reason: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Usage {
     pub prompt_tokens: u32,
     pub completion_tokens: u32,
     pub total_tokens: u32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CreateCompletionResponse {
     pub id: String,
     pub object: String,
@@ -205,7 +205,7 @@ pub struct CreateEditRequest {
     pub top_p: Option<f32>, // min: 0, max: 1, default: 1
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CreateEditResponse {
     pub object: String,
     pub created: u32,
@@ -260,7 +260,7 @@ pub struct CreateImageRequest {
     pub user: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum ImageData {
     Url(std::sync::Arc<String>),
@@ -268,7 +268,7 @@ pub enum ImageData {
     B64Json(std::sync::Arc<String>),
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ImageResponse {
     pub created: u32,
     pub data: Vec<std::sync::Arc<ImageData>>,
@@ -364,7 +364,7 @@ pub struct CreateModerationRequest {
     pub model: Option<TextModerationModel>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Category {
     pub hate: bool,
     #[serde(rename = "hate/threatening")]
@@ -379,7 +379,7 @@ pub struct Category {
     pub violence_graphic: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CategoryScore {
     pub hate: f32,
     #[serde(rename = "hate/threatening")]
@@ -394,14 +394,14 @@ pub struct CategoryScore {
     pub violence_graphic: f32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ContentModerationResult {
     pub flagged: bool,
     pub categories: Category,
     pub category_scores: CategoryScore,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CreateModerationResponse {
     pub id: String,
     pub model: String,
@@ -431,20 +431,20 @@ pub struct CreateFileRequest {
     pub purpose: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ListFilesResponse {
     pub object: String,
     pub data: Vec<OpenAIFile>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct DeleteFileResponse {
     pub id: String,
     pub object: String,
     pub deleted: bool,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct OpenAIFile {
     pub id: String,
     pub object: String,
@@ -575,13 +575,13 @@ pub struct CreateFineTuneRequest {
     pub suffix: Option<String>, // default: null, minLength:1, maxLength:40
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ListFineTuneResponse {
     pub object: String,
     pub data: Vec<FineTune>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct FineTune {
     pub id: String,
     pub object: String,
@@ -598,7 +598,7 @@ pub struct FineTune {
     pub events: Option<Vec<FineTuneEvent>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct FineTuneEvent {
     pub object: String,
     pub created_at: u32,
@@ -606,7 +606,7 @@ pub struct FineTuneEvent {
     pub message: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ListFineTuneEventsResponse {
     pub object: String,
     pub data: Vec<FineTuneEvent>,
@@ -616,7 +616,7 @@ pub struct ListFineTuneEventsResponse {
 pub type FineTuneEventsResponseStream =
     Pin<Box<dyn Stream<Item = Result<ListFineTuneEventsResponse, OpenAIError>> + Send>>;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct DeleteModelResponse {
     pub id: String,
     pub object: String,
@@ -659,20 +659,20 @@ pub struct CreateEmbeddingRequest {
     pub user: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Embedding {
     pub index: u32,
     pub object: String,
     pub embedding: Vec<f32>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct EmbeddingUsage {
     pub prompt_tokens: u32,
     pub total_tokens: u32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CreateEmbeddingResponse {
     pub object: String,
     pub model: String,
@@ -705,7 +705,7 @@ pub struct ChatCompletionRequestMessage {
     pub name: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ChatCompletionResponseMessage {
     pub role: Role,
     pub content: String,
@@ -775,14 +775,14 @@ pub struct CreateChatCompletionRequest {
     pub user: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ChatChoice {
     pub index: u32,
     pub message: ChatCompletionResponseMessage,
     pub finish_reason: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CreateChatCompletionResponse {
     pub id: String,
     pub object: String,
@@ -798,20 +798,20 @@ pub type ChatCompletionResponseStream =
 
 // For reason (not documented by OpenAI) the response from stream is different
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ChatCompletionResponseStreamMessage {
     pub content: Option<String>,
     pub role: Option<Role>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ChatChoiceDelta {
     pub index: u32,
     pub delta: ChatCompletionResponseStreamMessage,
     pub finish_reason: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CreateChatCompletionStreamResponse {
     pub id: Option<String>,
     pub object: String,
@@ -863,7 +863,7 @@ pub struct CreateTranscriptionRequest {
     pub language: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CreateTranscriptionResponse {
     pub text: String,
 }
@@ -891,7 +891,7 @@ pub struct CreateTranslationRequest {
     pub temperature: Option<f32>, // default: 0
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CreateTranslationResponse {
     pub text: String,
 }
