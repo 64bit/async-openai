@@ -34,7 +34,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     //  If you call print! within a hot loop, this behavior may be the bottleneck of the loop.
     //  To avoid this, lock stdout with io::stdout().lock():
 
-
     let mut lock = stdout().lock();
     while let Some(result) = stream.next().await {
         match result {
