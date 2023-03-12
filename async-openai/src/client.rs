@@ -34,7 +34,7 @@ impl Default for Client {
     fn default() -> Self {
         Self {
             api_base: API_BASE.to_string(),
-            api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()),
+            api_key: std::env::var("OPENAI_API_KEY").unwrap_or_default(),
             org_id: Default::default(),
             backoff: Default::default(),
         }
@@ -45,6 +45,21 @@ impl Client {
     /// Create client with default [API_BASE] url and default API key from OPENAI_API_KEY env var
     pub fn new() -> Self {
         Default::default()
+    }
+
+    /// Create client using dotenv config
+    ///
+    /// Supported vars:
+    /// OPENAI_BASE for the API path
+    /// OPENAI_API_KEY for the API key
+    /// OPENAI_ORG for the organization
+    pub fn from_env() -> Self {
+        Self {
+            api_key: dotenv::var("OPENAI_API_KEY").unwrap_or_default(),
+            api_base: dotenv::var("OPENAI_BASE").unwrap_or(API_BASE.to_string()),
+            org_id: dotenv::var("OPENAI_ORG").unwrap_or_default(),
+            backoff: Default::default(),
+        }
     }
 
     /// To use a different API key different from default OPENAI_API_KEY env var
