@@ -18,6 +18,7 @@ use crate::{
 /// Client is a container for api key, base url, organization id, and backoff
 /// configuration used to make API calls.
 pub struct Client {
+    http_client: reqwest::Client,
     api_key: String,
     api_base: String,
     org_id: String,
@@ -33,6 +34,7 @@ impl Default for Client {
     /// Create client with default [API_BASE] url and default API key from OPENAI_API_KEY env var
     fn default() -> Self {
         Self {
+            http_client: reqwest::Client::new(),
             api_base: API_BASE.to_string(),
             api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()),
             org_id: Default::default(),
@@ -45,6 +47,14 @@ impl Client {
     /// Create client with default [API_BASE] url and default API key from OPENAI_API_KEY env var
     pub fn new() -> Self {
         Default::default()
+    }
+
+    /// Provide your own [client] to make HTTP requests with.
+    ///
+    /// [client]: reqwest::Client
+    pub fn with_http_client(mut self, http_client: reqwest::Client) -> Self {
+        self.http_client = http_client;
+        self
     }
 
     /// To use a different API key different from default OPENAI_API_KEY env var
@@ -144,7 +154,8 @@ impl Client {
     where
         O: DeserializeOwned,
     {
-        let request = reqwest::Client::new()
+        let request = self
+            .http_client
             .get(format!("{}{path}", self.api_base()))
             .bearer_auth(self.api_key())
             .headers(self.headers())
@@ -158,7 +169,8 @@ impl Client {
     where
         O: DeserializeOwned,
     {
-        let request = reqwest::Client::new()
+        let request = self
+            .http_client
             .delete(format!("{}{path}", self.api_base()))
             .bearer_auth(self.api_key())
             .headers(self.headers())
@@ -173,7 +185,8 @@ impl Client {
         I: Serialize,
         O: DeserializeOwned,
     {
-        let request = reqwest::Client::new()
+        let request = self
+            .http_client
             .post(format!("{}{path}", self.api_base()))
             .bearer_auth(self.api_key())
             .headers(self.headers())
@@ -192,7 +205,8 @@ impl Client {
     where
         O: DeserializeOwned,
     {
-        let request = reqwest::Client::new()
+        let request = self
+            .http_client
             .post(format!("{}{path}", self.api_base()))
             .bearer_auth(self.api_key())
             .headers(self.headers())
@@ -227,7 +241,7 @@ impl Client {
     where
         O: DeserializeOwned,
     {
-        let client = reqwest::Client::new();
+        let client = self.http_client.clone();
 
         match request.try_clone() {
             // Only clone-able requests can be retried
@@ -294,7 +308,8 @@ impl Client {
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let event_source = reqwest::Client::new()
+        let event_source = self
+            .http_client
             .post(format!("{}{path}", self.api_base()))
             .headers(self.headers())
             .bearer_auth(self.api_key())
@@ -315,7 +330,8 @@ impl Client {
         Q: Serialize + ?Sized,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let event_source = reqwest::Client::new()
+        let event_source = self
+            .http_client
             .get(format!("{}{path}", self.api_base()))
             .query(query)
             .headers(self.headers())
