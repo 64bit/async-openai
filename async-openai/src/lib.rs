@@ -14,6 +14,10 @@
 //!
 //! // Use organization other than default when making requests
 //! let client = Client::new().with_org_id("the-org");
+//!
+//! // Use custom reqwest client
+//! let http_client = reqwest::ClientBuilder::new().user_agent("async-openai").build().unwrap();
+//! let client = Client::new().with_http_client(http_client);
 //! ```
 //!
 //! ## Making requests
@@ -27,6 +31,7 @@
 //! let client = Client::new();
 //!
 //! // Create request using builder pattern
+//! // Every request struct has companion builder struct with same name + Args suffix
 //! let request = CreateCompletionRequestArgs::default()
 //!     .model("text-davinci-003")
 //!     .prompt("Tell me the recipe of alfredo pasta")

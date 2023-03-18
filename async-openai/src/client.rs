@@ -75,7 +75,8 @@ impl Client {
         self
     }
 
-    /// Exponential backoff for retrying [rate limited](https://help.openai.com/en/articles/5955598-is-api-usage-subject-to-any-rate-limits) requests. Form submissions are not retried.
+    /// Exponential backoff for retrying [rate limited](https://platform.openai.com/docs/guides/rate-limits) requests.
+    /// Form submissions are not retried.
     pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
         self.backoff = backoff;
         self
