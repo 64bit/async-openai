@@ -14,13 +14,19 @@ readme = "README.md"
 homepage = "https://github.com/64bit/async-openai"
 repository = "https://github.com/64bit/async-openai"
 
+[features]
+default = ["rustls"]
+# Enable rustls for TLS support
+rustls = ["reqwest/rustls-tls-native-roots"]
+# Enable native-tls for TLS support
+native-tls = ["reqwest/native-tls"]
 
 [dependencies]
 backoff = {version = "0.4.0", features = ["tokio"] }
 base64 = "0.21.0"
 futures = "0.3.26"
 rand = "0.8.5"
-reqwest = { version = "0.11.14", features = ["json", "stream", "multipart"] }
+reqwest = { version = "0.11.14", features = ["json", "stream", "multipart"],default-features = false }
 reqwest-eventsource = "0.4.0"
 serde = { version = "1.0.152", features = ["derive", "rc"] }
 serde_json = "1.0.93"
