@@ -18,7 +18,7 @@ pub enum OpenAIError {
     /// Error on the client side when reading file from file system
     #[error("failed to read file: {0}")]
     FileReadError(String),
-    /// Error when trying to stream completions SSE
+    /// Error on SSE streaming
     #[error("stream failed: {0}")]
     StreamError(String),
     /// Error from client side validation
@@ -40,4 +40,12 @@ pub struct ApiError {
 #[derive(Debug, Deserialize)]
 pub(crate) struct WrappedError {
     pub(crate) error: ApiError,
+}
+
+pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> OpenAIError {
+    tracing::error!(
+        "failed deserialization of: {}",
+        String::from_utf8_lossy(bytes.as_ref())
+    );
+    OpenAIError::JSONDeserialize(e)
 }

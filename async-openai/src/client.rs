@@ -7,7 +7,7 @@ use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
     edit::Edits,
-    error::{OpenAIError, WrappedError},
+    error::{map_deserialization_error, OpenAIError, WrappedError},
     file::Files,
     image::Images,
     moderation::Moderations,
@@ -226,8 +226,8 @@ impl Client {
         let bytes = response.bytes().await?;
 
         if !status.is_success() {
-            let wrapped_error: WrappedError =
-                serde_json::from_slice(bytes.as_ref()).map_err(OpenAIError::JSONDeserialize)?;
+            let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
+                .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
 
             return Err(OpenAIError::ApiError(wrapped_error.error));
         }
@@ -264,7 +264,7 @@ impl Client {
                     // Deserialize response body from either error object or actual response object
                     if !status.is_success() {
                         let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
-                            .map_err(OpenAIError::JSONDeserialize)
+                            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
                             .map_err(backoff::Error::Permanent)?;
 
                         if status.as_u16() == 429
@@ -286,7 +286,7 @@ impl Client {
                     }
 
                     let response: O = serde_json::from_slice(bytes.as_ref())
-                        .map_err(OpenAIError::JSONDeserialize)
+                        .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
                         .map_err(backoff::Error::Permanent)?;
                     Ok(response)
                 })
