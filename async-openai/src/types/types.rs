@@ -680,7 +680,7 @@ pub struct CreateEmbeddingResponse {
     pub usage: EmbeddingUsage,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum Role {
     System,
