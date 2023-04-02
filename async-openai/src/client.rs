@@ -232,8 +232,8 @@ impl Client {
             return Err(OpenAIError::ApiError(wrapped_error.error));
         }
 
-        let response: O =
-            serde_json::from_slice(bytes.as_ref()).map_err(OpenAIError::JSONDeserialize)?;
+        let response: O = serde_json::from_slice(bytes.as_ref())
+            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
         Ok(response)
     }
 
@@ -369,7 +369,9 @@ impl Client {
                             }
 
                             let response = match serde_json::from_str::<O>(&message.data) {
-                                Err(e) => Err(OpenAIError::JSONDeserialize(e)),
+                                Err(e) => {
+                                    Err(map_deserialization_error(e, &message.data.as_bytes()))
+                                }
                                 Ok(output) => Ok(output),
                             };
 
