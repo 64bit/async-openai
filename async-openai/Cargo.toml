@@ -1,6 +1,6 @@
 [package]
 name = "async-openai"
-version = "0.10.1"
+version = "0.10.2"
 authors = [
     "Himanshu Neema"
 ]
