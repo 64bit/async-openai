@@ -1,4 +1,5 @@
 use crate::{
+    config::Config,
     error::OpenAIError,
     types::{DeleteModelResponse, ListModelResponse, Model},
     Client,
@@ -7,12 +8,12 @@ use crate::{
 /// List and describe the various models available in the API.
 /// You can refer to the [Models](https://platform.openai.com/docs/models) documentation to understand what
 /// models are available and the differences between them.
-pub struct Models<'c> {
-    client: &'c Client,
+pub struct Models<'c, C: Config> {
+    client: &'c Client<C>,
 }
 
-impl<'c> Models<'c> {
-    pub fn new(client: &'c Client) -> Self {
+impl<'c, C: Config> Models<'c, C> {
+    pub fn new(client: &'c Client<C>) -> Self {
         Self { client }
     }
 

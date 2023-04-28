@@ -9,7 +9,7 @@ use futures::StreamExt;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let client = Client::new();
+    let client = Client::openai();
 
     let request = CreateChatCompletionRequestArgs::default()
         .model("gpt-3.5-turbo")

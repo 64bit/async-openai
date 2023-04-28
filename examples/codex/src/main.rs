@@ -7,7 +7,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let prompt = "/// Rust language
 /// Function to download a url and save it to disk.";
 
-    let client = Client::new();
+    let client = Client::openai();
 
     let request = CreateCompletionRequestArgs::default()
         .model("code-davinci-002")

@@ -3,7 +3,7 @@ use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let client = Client::new();
+    let client = Client::openai();
 
     let request = CreateEditRequestArgs::default()
         .model("text-davinci-edit-001")

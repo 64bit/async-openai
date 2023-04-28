@@ -5,19 +5,39 @@
 //! ```
 //! use async_openai::Client;
 //!
-//! // Create a client with api key from env var OPENAI_API_KEY and default base url.
-//! let client = Client::new();
+//! // Create a OpenAI client with api key from env var OPENAI_API_KEY and default base url.
+//! let client = Client::openai();
 //!
-//! // OR use API key from different source
+//! // Above is shortcut for
+//! let config = OpenAIConfig::default();
+//! let client = Client::new(config);
+//!
+//! // OR use API key from different source and a non default organization
 //! let api_key = "sk-..."; // This secret could be from a file, or environment variable.
-//! let client = Client::new().with_api_key(api_key);
+//! let config = OpenAIConfig::new()
+//!     .with_api_key(api_key)
+//!     .with_org_id("the-continental");
 //!
-//! // Use organization other than default when making requests
-//! let client = Client::new().with_org_id("the-org");
+//! let client = Client::new(config);
 //!
 //! // Use custom reqwest client
 //! let http_client = reqwest::ClientBuilder::new().user_agent("async-openai").build().unwrap();
-//! let client = Client::new().with_http_client(http_client);
+//! let client = Client::openai().with_http_client(http_client);
+//! ```
+//!
+//! ## Microsoft Azure Endpoints
+//!
+//! ```
+//! let config = AzureConfig::new()
+//!     .with_api_base("https://my-resource-name.openai.azure.com")
+//!     .with_api_version("2023-03-15-preview")
+//!     .with_deployment_id("deployment-id");
+//!
+//! let client = Client::new(config);
+//!
+//! // Note that Azure OpenAI service does not support all APIs and `async-openai`
+//! // doesn't restrict and still allows calls to all the same APIs as OpenAI.
+//!
 //! ```
 //!
 //! ## Making requests
@@ -28,7 +48,7 @@
 //! use async_openai::{Client, types::{CreateCompletionRequestArgs}};
 //!
 //! // Create client
-//! let client = Client::new();
+//! let client = Client::openai();
 //!
 //! // Create request using builder pattern
 //! // Every request struct has companion builder struct with same name + Args suffix
@@ -57,6 +77,7 @@ mod audio;
 mod chat;
 mod client;
 mod completion;
+mod config;
 mod download;
 mod edit;
 mod embedding;
@@ -72,9 +93,10 @@ mod util;
 pub use audio::Audio;
 pub use chat::Chat;
 pub use client::Client;
-pub use client::API_BASE;
-pub use client::ORGANIZATION_HEADER;
 pub use completion::Completions;
+pub use config::Config;
+pub use config::{AzureConfig, OpenAIConfig};
+pub use config::{OPENAI_API_BASE, OPENAI_ORGANIZATION_HEADER};
 pub use edit::Edits;
 pub use embedding::Embeddings;
 pub use file::Files;

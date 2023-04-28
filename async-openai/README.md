@@ -31,13 +31,13 @@
   - [x] Files
   - [x] Fine-Tuning (including SSE streaming)
   - [x] Images
-  - [ ] Microsoft Azure Endpoints / AD Authentication (see [issue](https://github.com/64bit/async-openai/issues/32))
+  - [x] Microsoft Azure Endpoints
   - [x] Models
   - [x] Moderations
 - Non-streaming requests are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits) by the API server.
 - Ergonomic Rust library with builder pattern for all request objects.
 
-_Being a young project there could be rough edges._
+_I do not have access to Azure Endpoints to test, hence there could be rough edges_
 
 ## Usage
 
@@ -68,7 +68,7 @@ use std::error::Error;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // create client, reads OPENAI_API_KEY environment variable for API key.
-    let client = Client::new();
+    let client = Client::openai();
 
     let request = CreateImageRequestArgs::default()
         .prompt("cats on sofa and carpet in living room")

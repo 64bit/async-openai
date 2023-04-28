@@ -1,4 +1,5 @@
 use crate::{
+    config::Config,
     error::OpenAIError,
     types::{
         CreateFineTuneRequest, FineTune, FineTuneEventsResponseStream, ListFineTuneEventsResponse,
@@ -10,12 +11,12 @@ use crate::{
 /// Manage fine-tuning jobs to tailor a model to your specific training data.
 ///
 /// Related guide: [Fine-tune models](https://platform.openai.com/docs/guides/fine-tuning)
-pub struct FineTunes<'c> {
-    client: &'c Client,
+pub struct FineTunes<'c, C: Config> {
+    client: &'c Client<C>,
 }
 
-impl<'c> FineTunes<'c> {
-    pub fn new(client: &'c Client) -> Self {
+impl<'c, C: Config> FineTunes<'c, C> {
+    pub fn new(client: &'c Client<C>) -> Self {
         Self { client }
     }
 

@@ -7,7 +7,7 @@ use async_openai::{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let client = Client::new();
+    let client = Client::openai();
 
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u16)

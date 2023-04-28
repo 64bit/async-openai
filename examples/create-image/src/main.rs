@@ -7,7 +7,7 @@ use std::error::Error;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // create client, reads OPENAI_API_KEY environment variable for API key.
-    let client = Client::new();
+    let client = Client::openai();
 
     let request = CreateImageRequestArgs::default()
         .prompt("cats on sofa and carpet in living room")

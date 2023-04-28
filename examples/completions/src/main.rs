@@ -4,7 +4,7 @@ use async_openai::{types::CreateCompletionRequestArgs, Client};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let client = Client::new();
+    let client = Client::openai();
 
     // single
     let request = CreateCompletionRequestArgs::default()

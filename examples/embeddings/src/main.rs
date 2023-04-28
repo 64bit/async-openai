@@ -4,7 +4,7 @@ use async_openai::{types::CreateEmbeddingRequestArgs, Client};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let client = Client::new();
+    let client = Client::openai();
 
     // An embedding is a vector (list) of floating point numbers.
     // The distance between two vectors measures their relatedness.
