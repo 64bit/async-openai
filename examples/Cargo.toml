@@ -2,6 +2,7 @@
 members = [
     "audio-transcribe",
     "audio-translate",
+    "azure-openai-service",
     "chat",
     "chat-stream",
     "create-edit",
