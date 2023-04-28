@@ -5,18 +5,18 @@ use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
-    config::Config,
+    config::{Config, OpenAIConfig},
     edit::Edits,
     error::{map_deserialization_error, OpenAIError, WrappedError},
     file::Files,
     image::Images,
     moderation::Moderations,
-    Audio, Chat, Completions, Embeddings, FineTunes, Models, OpenAIConfig,
+    Audio, Chat, Completions, Embeddings, FineTunes, Models,
 };
 
 #[derive(Debug, Clone)]
-/// Client is a container for api key, base url, organization id, and backoff
-/// configuration used to make API calls.
+/// Client is a container for config, backoff and http_client
+/// used to make API calls.
 pub struct Client<C: Config> {
     http_client: reqwest::Client,
     config: C,
@@ -24,6 +24,7 @@ pub struct Client<C: Config> {
 }
 
 impl Client<OpenAIConfig> {
+    /// Client with default [OpenAIConfig]
     pub fn openai() -> Self {
         Self {
             http_client: reqwest::Client::new(),

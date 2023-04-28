@@ -1,3 +1,4 @@
+//! Client configurations: [OpenAIConfig] for OpenAI, [AzureConfig] for Azure OpenAI Service.
 use reqwest::header::{HeaderMap, AUTHORIZATION};
 
 /// Default v1 API base url
@@ -5,6 +6,8 @@ pub const OPENAI_API_BASE: &str = "https://api.openai.com/v1";
 /// Name for organization header
 pub const OPENAI_ORGANIZATION_HEADER: &str = "OpenAI-Organization";
 
+/// [crate::Client] relies on this for every API call on OpenAI
+/// or Azure OpenAI service
 pub trait Config {
     fn headers(&self) -> HeaderMap;
     fn url(&self, path: &str) -> String;
@@ -15,6 +18,7 @@ pub trait Config {
     fn api_key(&self) -> &str;
 }
 
+/// Configuration for OpenAI API
 pub struct OpenAIConfig {
     api_base: String,
     api_key: String,
@@ -95,6 +99,7 @@ impl Config for OpenAIConfig {
     }
 }
 
+/// Configuration for Azure OpenAI Service
 pub struct AzureConfig {
     api_version: String,
     deployment_id: String,
