@@ -1,0 +1,20 @@
+
+[tasks.all]
+workspace = false
+script = '''
+cd  audio-transcribe && cargo run && cd -
+cd  audio-translate && cargo run && cd -
+cd  chat && cargo run && cd -
+cd  chat-stream && cargo run && cd -
+cd  completions && cargo run && cd -
+cd  completions-stream && cargo run && cd -
+cd  create-edit && cargo run && cd -
+cd  create-image && cargo run && cd -
+cd  create-image-b64-json && cargo run && cd -
+cd  create-image-edit && cargo run && cd -
+cd  create-image-variation && cargo run && cd -
+cd  embeddings && cargo run && cd -
+cd  models && cargo run && cd -
+cd  moderations && cargo run && cd -
+#cd  rate-limit-completions && cargo run && cd -
+'''
