@@ -31,7 +31,8 @@
 //! let config = AzureConfig::new()
 //!     .with_api_base("https://my-resource-name.openai.azure.com")
 //!     .with_api_version("2023-03-15-preview")
-//!     .with_deployment_id("deployment-id");
+//!     .with_deployment_id("deployment-id")
+//!     .with_api_key("...");
 //!
 //! let client = Client::new(config);
 //!
