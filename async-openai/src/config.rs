@@ -134,7 +134,7 @@ impl AzureConfig {
         self
     }
 
-    /// API base url in form of "https://your-resource-name.openai.azure.com"
+    /// API base url in form of <https://your-resource-name.openai.azure.com>
     pub fn with_api_base<S: Into<String>>(mut self, api_base: S) -> Self {
         self.api_base = api_base.into();
         self
