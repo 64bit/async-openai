@@ -3,7 +3,7 @@
 //! ## Creating client
 //!
 //! ```
-//! use async_openai::Client;
+//! use async_openai::{Client, config::OpenAIConfig};
 //!
 //! // Create a OpenAI client with api key from env var OPENAI_API_KEY and default base url.
 //! let client = Client::openai();
@@ -28,6 +28,8 @@
 //! ## Microsoft Azure Endpoints
 //!
 //! ```
+//! use async_openai::{Client, config::AzureConfig};
+//!
 //! let config = AzureConfig::new()
 //!     .with_api_base("https://my-resource-name.openai.azure.com")
 //!     .with_api_version("2023-03-15-preview")
