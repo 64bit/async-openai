@@ -7,6 +7,7 @@ members = [
     "create-edit",
     "completions",
     "completions-stream",
+    "completions-proxy",
     "create-image",
     "create-image-b64-json",
     "create-image-edit",

@@ -1,0 +1,18 @@
+[package]
+name = "completions-proxy"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+actix-web = "4.3"
+actix-web-lab = "0.19"
+async-openai = {path = "../../async-openai"}
+flume = "0.10"
+futures = "0.3.26"
+parking_lot = "0.12"
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.25.0", features = ["full"] }
+tracing = "0.1.36"
+tracing-subscriber = "0.3.15"
