@@ -4,7 +4,6 @@ members = [
     "audio-translate",
     "chat",
     "chat-stream",
-    "codex",
     "create-edit",
     "completions",
     "completions-stream",
