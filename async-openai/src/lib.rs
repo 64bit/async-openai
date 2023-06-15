@@ -10,7 +10,7 @@
 //!
 //! // Above is shortcut for
 //! let config = OpenAIConfig::default();
-//! let client = Client::new(config);
+//! let client = Client::with_config(config);
 //!
 //! // OR use API key from different source and a non default organization
 //! let api_key = "sk-..."; // This secret could be from a file, or environment variable.
@@ -18,7 +18,7 @@
 //!     .with_api_key(api_key)
 //!     .with_org_id("the-continental");
 //!
-//! let client = Client::new(config);
+//! let client = Client::with_config(config);
 //!
 //! // Use custom reqwest client
 //! let http_client = reqwest::ClientBuilder::new().user_agent("async-openai").build().unwrap();

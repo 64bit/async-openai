@@ -35,6 +35,7 @@ impl Client<OpenAIConfig> {
 }
 
 impl<C: Config> Client<C> {
+    /// Create client with [OpenAIConfig] or [crate::config::AzureConfig]
     pub fn with_config(config: C) -> Self {
         Self {
             http_client: reqwest::Client::new(),
