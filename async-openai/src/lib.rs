@@ -36,10 +36,10 @@
 //!     .with_deployment_id("deployment-id")
 //!     .with_api_key("...");
 //!
-//! let client = Client::new(config);
+//! let client = Client::with_config(config);
 //!
 //! // Note that Azure OpenAI service does not support all APIs and `async-openai`
-//! // doesn't restrict and still allows calls to all the same APIs as OpenAI.
+//! // doesn't restrict and still allows calls to all of the APIs as OpenAI.
 //!
 //! ```
 //!
