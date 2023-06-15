@@ -89,7 +89,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_deployment_id("deployment-id")
         .with_api_version("2023-03-15-preview");
 
-    let client = Client::new(config);
+    let client = Client::with_config(config);
 
     // Run embedding Example
     embedding_example(&client).await?;
