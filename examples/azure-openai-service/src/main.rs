@@ -63,10 +63,9 @@ async fn completions_stream_example(client: &Client<AzureConfig>) -> Result<(), 
 async fn embedding_example(client: &Client<AzureConfig>) -> Result<(), Box<dyn Error>> {
     let request = CreateEmbeddingRequestArgs::default()
         .model("text-embedding-ada-002")
-        .input([
+        .input(
             "Why do programmers hate nature? It has too many bugs.",
-            "Why was the computer cold? It left its Windows open.",
-        ])
+        )
         .build()?;
 
     let response = client.embeddings().create(request).await?;
@@ -96,7 +95,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     embedding_example(&client).await?;
 
     // Run completions stream Example
-    completions_stream_example(&client).await?;
+    // Bug (help wanted): https://github.com/64bit/async-openai/pull/67#issuecomment-1555165805
+    //completions_stream_example(&client).await?;
 
     // Run chat completion example
     chat_completion_example(&client).await?;
