@@ -64,7 +64,7 @@ mod tests {
 
         tokio::fs::write(test_file_path, contents).await.unwrap();
 
-        let client = Client::openai();
+        let client = Client::new();
 
         let request = CreateFileRequestArgs::default()
             .file(test_file_path)

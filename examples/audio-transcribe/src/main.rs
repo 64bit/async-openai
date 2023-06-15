@@ -3,7 +3,7 @@ use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let client = Client::openai();
+    let client = Client::new();
     // Credits and Source for audio: https://www.youtube.com/watch?v=oQnDVqGIv4s
     let request = CreateTranscriptionRequestArgs::default()
         .file(

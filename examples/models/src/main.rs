@@ -4,7 +4,7 @@ use async_openai::Client;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let client = Client::openai();
+    let client = Client::new();
 
     let model_list = client.models().list().await?;
 

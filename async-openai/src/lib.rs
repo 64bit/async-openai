@@ -6,7 +6,7 @@
 //! use async_openai::{Client, config::OpenAIConfig};
 //!
 //! // Create a OpenAI client with api key from env var OPENAI_API_KEY and default base url.
-//! let client = Client::openai();
+//! let client = Client::new();
 //!
 //! // Above is shortcut for
 //! let config = OpenAIConfig::default();
@@ -22,7 +22,7 @@
 //!
 //! // Use custom reqwest client
 //! let http_client = reqwest::ClientBuilder::new().user_agent("async-openai").build().unwrap();
-//! let client = Client::openai().with_http_client(http_client);
+//! let client = Client::new().with_http_client(http_client);
 //! ```
 //!
 //! ## Microsoft Azure Endpoints
@@ -51,7 +51,7 @@
 //! use async_openai::{Client, types::{CreateCompletionRequestArgs}};
 //!
 //! // Create client
-//! let client = Client::openai();
+//! let client = Client::new();
 //!
 //! // Create request using builder pattern
 //! // Every request struct has companion builder struct with same name + Args suffix

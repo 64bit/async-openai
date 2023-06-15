@@ -33,7 +33,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_embedding_string() {
-        let client = Client::openai();
+        let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
             .model("text-embedding-ada-002")
@@ -48,7 +48,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_embedding_string_array() {
-        let client = Client::openai();
+        let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
             .model("text-embedding-ada-002")
@@ -63,7 +63,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_embedding_integer_array() {
-        let client = Client::openai();
+        let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
             .model("text-embedding-ada-002")
@@ -78,7 +78,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_embedding_array_of_integer_array_matrix() {
-        let client = Client::openai();
+        let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
             .model("text-embedding-ada-002")
@@ -93,7 +93,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_embedding_array_of_integer_array() {
-        let client = Client::openai();
+        let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
             .model("text-embedding-ada-002")

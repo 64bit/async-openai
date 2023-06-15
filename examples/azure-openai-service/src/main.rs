@@ -4,11 +4,11 @@ use async_openai::{
     config::AzureConfig,
     types::{
         ChatCompletionRequestMessageArgs, CreateChatCompletionRequestArgs,
-        CreateCompletionRequestArgs, CreateEmbeddingRequestArgs, Role,
+        CreateEmbeddingRequestArgs, Role,
     },
     Client,
 };
-use futures::StreamExt;
+
 
 async fn chat_completion_example(client: &Client<AzureConfig>) -> Result<(), Box<dyn Error>> {
     let request = CreateChatCompletionRequestArgs::default()
@@ -38,27 +38,28 @@ async fn chat_completion_example(client: &Client<AzureConfig>) -> Result<(), Box
     Ok(())
 }
 
-async fn completions_stream_example(client: &Client<AzureConfig>) -> Result<(), Box<dyn Error>> {
-    let request = CreateCompletionRequestArgs::default()
-        .model("text-davinci-003")
-        .n(1)
-        .prompt("Tell me a short bedtime story about Optimus Prime and Bumblebee in Sir David Attenborough voice")
-        .stream(true)
-        .max_tokens(512_u16)
-        .build()?;
+// Bug (help wanted): https://github.com/64bit/async-openai/pull/67#issuecomment-1555165805
+// async fn completions_stream_example(client: &Client<AzureConfig>) -> Result<(), Box<dyn Error>> {
+//     let request = CreateCompletionRequestArgs::default()
+//         .model("text-davinci-003")
+//         .n(1)
+//         .prompt("Tell me a short bedtime story about Optimus Prime and Bumblebee in Sir David Attenborough voice")
+//         .stream(true)
+//         .max_tokens(512_u16)
+//         .build()?;
 
-    let mut stream = client.completions().create_stream(request).await?;
+//     let mut stream = client.completions().create_stream(request).await?;
 
-    while let Some(response) = stream.next().await {
-        match response {
-            Ok(ccr) => ccr.choices.iter().for_each(|c| {
-                print!("{}", c.text);
-            }),
-            Err(e) => eprintln!("{}", e),
-        }
-    }
-    Ok(())
-}
+//     while let Some(response) = stream.next().await {
+//         match response {
+//             Ok(ccr) => ccr.choices.iter().for_each(|c| {
+//                 print!("{}", c.text);
+//             }),
+//             Err(e) => eprintln!("{}", e),
+//         }
+//     }
+//     Ok(())
+// }
 
 async fn embedding_example(client: &Client<AzureConfig>) -> Result<(), Box<dyn Error>> {
     let request = CreateEmbeddingRequestArgs::default()

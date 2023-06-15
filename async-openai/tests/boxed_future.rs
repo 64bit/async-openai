@@ -24,7 +24,7 @@ async fn boxed_future_test() {
         .boxed()
     }
 
-    let client = Client::openai();
+    let client = Client::new();
 
     let request = CreateCompletionRequestArgs::default()
         .model("text-babbage-001")

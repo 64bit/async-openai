@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_max_elapsed_time(Some(std::time::Duration::from_secs(60)))
         .build();
 
-    let client = Client::openai().with_backoff(backoff);
+    let client = Client::new().with_backoff(backoff);
 
     let request = CreateCompletionRequestArgs::default()
         .model("text-ada-001")

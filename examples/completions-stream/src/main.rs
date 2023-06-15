@@ -3,7 +3,7 @@ use futures::StreamExt;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = Client::openai();
+    let client = Client::new();
 
     let request = CreateCompletionRequestArgs::default()
         .model("text-davinci-003")

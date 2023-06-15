@@ -25,7 +25,7 @@ pub struct Client<C: Config> {
 
 impl Client<OpenAIConfig> {
     /// Client with default [OpenAIConfig]
-    pub fn openai() -> Self {
+    pub fn new() -> Self {
         Self {
             http_client: reqwest::Client::new(),
             config: OpenAIConfig::default(),
@@ -35,7 +35,7 @@ impl Client<OpenAIConfig> {
 }
 
 impl<C: Config> Client<C> {
-    pub fn new(config: C) -> Self {
+    pub fn with_config(config: C) -> Self {
         Self {
             http_client: reqwest::Client::new(),
             config,

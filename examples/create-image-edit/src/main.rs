@@ -6,7 +6,7 @@ use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let client = Client::openai();
+    let client = Client::new();
 
     let request = CreateImageEditRequestArgs::default()
         .image("./images/sunlit_lounge.png")
