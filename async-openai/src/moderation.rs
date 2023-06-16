@@ -1,4 +1,5 @@
 use crate::{
+    config::Config,
     error::OpenAIError,
     types::{CreateModerationRequest, CreateModerationResponse},
     Client,
@@ -7,12 +8,12 @@ use crate::{
 /// Given a input text, outputs if the model classifies it as violating OpenAI's content policy.
 ///
 /// Related guide: [Moderations](https://platform.openai.com/docs/guides/moderation/overview)
-pub struct Moderations<'c> {
-    client: &'c Client,
+pub struct Moderations<'c, C: Config> {
+    client: &'c Client<C>,
 }
 
-impl<'c> Moderations<'c> {
-    pub fn new(client: &'c Client) -> Self {
+impl<'c, C: Config> Moderations<'c, C> {
+    pub fn new(client: &'c Client<C>) -> Self {
         Self { client }
     }
 

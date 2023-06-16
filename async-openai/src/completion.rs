@@ -1,5 +1,6 @@
 use crate::{
     client::Client,
+    config::Config,
     error::OpenAIError,
     types::{CompletionResponseStream, CreateCompletionRequest, CreateCompletionResponse},
 };
@@ -7,12 +8,12 @@ use crate::{
 /// Given a prompt, the model will return one or more predicted
 /// completions, and can also return the probabilities of alternative
 /// tokens at each position.
-pub struct Completions<'c> {
-    client: &'c Client,
+pub struct Completions<'c, C: Config> {
+    client: &'c Client<C>,
 }
 
-impl<'c> Completions<'c> {
-    pub fn new(client: &'c Client) -> Self {
+impl<'c, C: Config> Completions<'c, C> {
+    pub fn new(client: &'c Client<C>) -> Self {
         Self { client }
     }
 

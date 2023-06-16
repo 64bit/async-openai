@@ -1,11 +1,11 @@
 use std::pin::Pin;
 
 use futures::{stream::StreamExt, Stream};
-use reqwest::header::HeaderMap;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
+    config::{Config, OpenAIConfig},
     edit::Edits,
     error::{map_deserialization_error, OpenAIError, WrappedError},
     file::Files,
@@ -15,38 +15,33 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
-/// Client is a container for api key, base url, organization id, and backoff
-/// configuration used to make API calls.
-pub struct Client {
+/// Client is a container for config, backoff and http_client
+/// used to make API calls.
+pub struct Client<C: Config> {
     http_client: reqwest::Client,
-    api_key: String,
-    api_base: String,
-    org_id: String,
+    config: C,
     backoff: backoff::ExponentialBackoff,
 }
 
-/// Default v1 API base url
-pub const API_BASE: &str = "https://api.openai.com/v1";
-/// Name for organization header
-pub const ORGANIZATION_HEADER: &str = "OpenAI-Organization";
-
-impl Default for Client {
-    /// Create client with default [API_BASE] url and default API key from OPENAI_API_KEY env var
-    fn default() -> Self {
+impl Client<OpenAIConfig> {
+    /// Client with default [OpenAIConfig]
+    pub fn new() -> Self {
         Self {
             http_client: reqwest::Client::new(),
-            api_base: API_BASE.to_string(),
-            api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()),
-            org_id: Default::default(),
+            config: OpenAIConfig::default(),
             backoff: Default::default(),
         }
     }
 }
 
-impl Client {
-    /// Create client with default [API_BASE] url and default API key from OPENAI_API_KEY env var
-    pub fn new() -> Self {
-        Default::default()
+impl<C: Config> Client<C> {
+    /// Create client with [OpenAIConfig] or [crate::config::AzureConfig]
+    pub fn with_config(config: C) -> Self {
+        Self {
+            http_client: reqwest::Client::new(),
+            config,
+            backoff: Default::default(),
+        }
     }
 
     /// Provide your own [client] to make HTTP requests with.
@@ -57,24 +52,6 @@ impl Client {
         self
     }
 
-    /// To use a different API key different from default OPENAI_API_KEY env var
-    pub fn with_api_key<S: Into<String>>(mut self, api_key: S) -> Self {
-        self.api_key = api_key.into();
-        self
-    }
-
-    /// To use a different organization id other than default
-    pub fn with_org_id<S: Into<String>>(mut self, org_id: S) -> Self {
-        self.org_id = org_id.into();
-        self
-    }
-
-    /// To use a API base url different from default [API_BASE]
-    pub fn with_api_base<S: Into<String>>(mut self, api_base: S) -> Self {
-        self.api_base = api_base.into();
-        self
-    }
-
     /// Exponential backoff for retrying [rate limited](https://platform.openai.com/docs/guides/rate-limits) requests.
     /// Form submissions are not retried.
     pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
@@ -82,72 +59,56 @@ impl Client {
         self
     }
 
-    pub fn api_base(&self) -> &str {
-        &self.api_base
-    }
-
-    pub fn api_key(&self) -> &str {
-        &self.api_key
-    }
-
     // API groups
 
     /// To call [Models] group related APIs using this client.
-    pub fn models(&self) -> Models {
+    pub fn models(&self) -> Models<C> {
         Models::new(self)
     }
 
     /// To call [Completions] group related APIs using this client.
-    pub fn completions(&self) -> Completions {
+    pub fn completions(&self) -> Completions<C> {
         Completions::new(self)
     }
 
     /// To call [Chat] group related APIs using this client.
-    pub fn chat(&self) -> Chat {
+    pub fn chat(&self) -> Chat<C> {
         Chat::new(self)
     }
 
     /// To call [Edits] group related APIs using this client.
-    pub fn edits(&self) -> Edits {
+    pub fn edits(&self) -> Edits<C> {
         Edits::new(self)
     }
 
     /// To call [Images] group related APIs using this client.
-    pub fn images(&self) -> Images {
+    pub fn images(&self) -> Images<C> {
         Images::new(self)
     }
 
     /// To call [Moderations] group related APIs using this client.
-    pub fn moderations(&self) -> Moderations {
+    pub fn moderations(&self) -> Moderations<C> {
         Moderations::new(self)
     }
 
     /// To call [Files] group related APIs using this client.
-    pub fn files(&self) -> Files {
+    pub fn files(&self) -> Files<C> {
         Files::new(self)
     }
 
     /// To call [FineTunes] group related APIs using this client.
-    pub fn fine_tunes(&self) -> FineTunes {
+    pub fn fine_tunes(&self) -> FineTunes<C> {
         FineTunes::new(self)
     }
 
     /// To call [Embeddings] group related APIs using this client.
-    pub fn embeddings(&self) -> Embeddings {
+    pub fn embeddings(&self) -> Embeddings<C> {
         Embeddings::new(self)
     }
 
     /// To call [Audio] group related APIs using this client.
-    pub fn audio(&self) -> Audio {
+    pub fn audio(&self) -> Audio<C> {
         Audio::new(self)
-    }
-
-    fn headers(&self) -> HeaderMap {
-        let mut headers = HeaderMap::new();
-        if !self.org_id.is_empty() {
-            headers.insert(ORGANIZATION_HEADER, self.org_id.as_str().parse().unwrap());
-        }
-        headers
     }
 
     /// Make a GET request to {path} and deserialize the response body
@@ -157,9 +118,9 @@ impl Client {
     {
         let request = self
             .http_client
-            .get(format!("{}{path}", self.api_base()))
-            .bearer_auth(self.api_key())
-            .headers(self.headers())
+            .get(self.config.url(path))
+            .query(&self.config.query())
+            .headers(self.config.headers())
             .build()?;
 
         self.execute(request).await
@@ -172,9 +133,9 @@ impl Client {
     {
         let request = self
             .http_client
-            .delete(format!("{}{path}", self.api_base()))
-            .bearer_auth(self.api_key())
-            .headers(self.headers())
+            .delete(self.config.url(path))
+            .query(&self.config.query())
+            .headers(self.config.headers())
             .build()?;
 
         self.execute(request).await
@@ -188,9 +149,9 @@ impl Client {
     {
         let request = self
             .http_client
-            .post(format!("{}{path}", self.api_base()))
-            .bearer_auth(self.api_key())
-            .headers(self.headers())
+            .post(self.config.url(path))
+            .query(&self.config.query())
+            .headers(self.config.headers())
             .json(&request)
             .build()?;
 
@@ -208,9 +169,9 @@ impl Client {
     {
         let request = self
             .http_client
-            .post(format!("{}{path}", self.api_base()))
-            .bearer_auth(self.api_key())
-            .headers(self.headers())
+            .post(self.config.url(path))
+            .query(&self.config.query())
+            .headers(self.config.headers())
             .multipart(form)
             .build()?;
 
@@ -311,14 +272,14 @@ impl Client {
     {
         let event_source = self
             .http_client
-            .post(format!("{}{path}", self.api_base()))
-            .headers(self.headers())
-            .bearer_auth(self.api_key())
+            .post(self.config.url(path))
+            .query(&self.config.query())
+            .headers(self.config.headers())
             .json(&request)
             .eventsource()
             .unwrap();
 
-        Client::stream(event_source).await
+        stream(event_source).await
     }
 
     /// Make HTTP GET request to receive SSE
@@ -333,61 +294,59 @@ impl Client {
     {
         let event_source = self
             .http_client
-            .get(format!("{}{path}", self.api_base()))
+            .get(self.config.url(path))
             .query(query)
-            .headers(self.headers())
-            .bearer_auth(self.api_key())
+            .query(&self.config.query())
+            .headers(self.config.headers())
             .eventsource()
             .unwrap();
 
-        Client::stream(event_source).await
+        stream(event_source).await
     }
+}
 
-    /// Request which responds with SSE.
-    /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-    pub(crate) async fn stream<O>(
-        mut event_source: EventSource,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
-    where
-        O: DeserializeOwned + std::marker::Send + 'static,
-    {
-        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+/// Request which responds with SSE.
+/// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
+pub(crate) async fn stream<O>(
+    mut event_source: EventSource,
+) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+where
+    O: DeserializeOwned + std::marker::Send + 'static,
+{
+    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
-        tokio::spawn(async move {
-            while let Some(ev) = event_source.next().await {
-                match ev {
-                    Err(e) => {
-                        if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
+    tokio::spawn(async move {
+        while let Some(ev) = event_source.next().await {
+            match ev {
+                Err(e) => {
+                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
+                        // rx dropped
+                        break;
+                    }
+                }
+                Ok(event) => match event {
+                    Event::Message(message) => {
+                        if message.data == "[DONE]" {
+                            break;
+                        }
+
+                        let response = match serde_json::from_str::<O>(&message.data) {
+                            Err(e) => Err(map_deserialization_error(e, &message.data.as_bytes())),
+                            Ok(output) => Ok(output),
+                        };
+
+                        if let Err(_e) = tx.send(response) {
                             // rx dropped
                             break;
                         }
                     }
-                    Ok(event) => match event {
-                        Event::Message(message) => {
-                            if message.data == "[DONE]" {
-                                break;
-                            }
-
-                            let response = match serde_json::from_str::<O>(&message.data) {
-                                Err(e) => {
-                                    Err(map_deserialization_error(e, &message.data.as_bytes()))
-                                }
-                                Ok(output) => Ok(output),
-                            };
-
-                            if let Err(_e) = tx.send(response) {
-                                // rx dropped
-                                break;
-                            }
-                        }
-                        Event::Open => continue,
-                    },
-                }
+                    Event::Open => continue,
+                },
             }
+        }
 
-            event_source.close();
-        });
+        event_source.close();
+    });
 
-        Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
-    }
+    Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
 }

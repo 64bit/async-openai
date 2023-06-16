@@ -1,4 +1,5 @@
 use crate::{
+    config::Config,
     error::OpenAIError,
     types::{
         CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImageResponse,
@@ -10,12 +11,12 @@ use crate::{
 /// Given a prompt and/or an input image, the model will generate a new image.
 ///
 /// Related guide: [Image generation](https://platform.openai.com/docs/guides/images/introduction)
-pub struct Images<'c> {
-    client: &'c Client,
+pub struct Images<'c, C: Config> {
+    client: &'c Client<C>,
 }
 
-impl<'c> Images<'c> {
-    pub fn new(client: &'c Client) -> Self {
+impl<'c, C: Config> Images<'c, C> {
+    pub fn new(client: &'c Client<C>) -> Self {
         Self { client }
     }
 

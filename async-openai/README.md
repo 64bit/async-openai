@@ -31,14 +31,13 @@
   - [x] Files
   - [x] Fine-Tuning (including SSE streaming)
   - [x] Images
-  - [ ] Microsoft Azure Endpoints / AD Authentication (see [issue](https://github.com/64bit/async-openai/issues/32))
+  - [x] Microsoft Azure Endpoints
   - [x] Models
   - [x] Moderations
 - Non-streaming requests are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits) by the API server.
 - Ergonomic Rust library with builder pattern for all request objects.
 
-_Being a young project there could be rough edges._
-
+**Note on Azure OpenAI Service**:  `async-openai` primarily implements OpenAI APIs, and exposes same library for Azure OpenAI Service too. In reality Azure OpenAI Service provides only subset of OpenAI APIs.
 ## Usage
 
 The library reads [API key](https://platform.openai.com/account/api-keys) from the environment variable `OPENAI_API_KEY`.
@@ -104,7 +103,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 Thank you for your time to contribute and improve the project, I'd be happy to have you!
 
-A good starting point would be an [open issue](https://github.com/64bit/async-openai/issues).
+A good starting point would be existing [open issues](https://github.com/64bit/async-openai/issues).
 
 ## License
 

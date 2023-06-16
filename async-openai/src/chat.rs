@@ -1,4 +1,5 @@
 use crate::{
+    config::Config,
     error::OpenAIError,
     types::{
         ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse,
@@ -7,12 +8,12 @@ use crate::{
 };
 
 /// Given a chat conversation, the model will return a chat completion response.
-pub struct Chat<'c> {
-    client: &'c Client,
+pub struct Chat<'c, C: Config> {
+    client: &'c Client<C>,
 }
 
-impl<'c> Chat<'c> {
-    pub fn new(client: &'c Client) -> Self {
+impl<'c, C: Config> Chat<'c, C> {
+    pub fn new(client: &'c Client<C>) -> Self {
         Self { client }
     }
 
