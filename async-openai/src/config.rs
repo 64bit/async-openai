@@ -8,7 +8,7 @@ pub const OPENAI_ORGANIZATION_HEADER: &str = "OpenAI-Organization";
 
 /// [crate::Client] relies on this for every API call on OpenAI
 /// or Azure OpenAI service
-pub trait Config {
+pub trait Config: Clone {
     fn headers(&self) -> HeaderMap;
     fn url(&self, path: &str) -> String;
     fn query(&self) -> Vec<(&str, &str)>;
@@ -19,6 +19,7 @@ pub trait Config {
 }
 
 /// Configuration for OpenAI API
+#[derive(Clone, Debug)]
 pub struct OpenAIConfig {
     api_base: String,
     api_key: String,
@@ -100,6 +101,7 @@ impl Config for OpenAIConfig {
 }
 
 /// Configuration for Azure OpenAI Service
+#[derive(Clone, Debug)]
 pub struct AzureConfig {
     api_version: String,
     deployment_id: String,
