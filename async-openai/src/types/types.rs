@@ -713,9 +713,15 @@ pub struct ChatCompletionRequestMessage {
 pub struct ChatCompletionResponseMessage {
     pub role: Role,
     pub content: String,
+    pub function_call: Option<serde_json::Value>,
 }
 
-#[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[builder(name = "FunctionsArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct Functions {
     /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
     pub name: String,
@@ -724,7 +730,7 @@ pub struct Functions {
     pub description: Option<String>,
     /// The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples, and the [JSON Schema](https://json-schema.org/understanding-json-schema/) reference for documentation about the format.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub params: Option<serde_json::Value>,
+    pub parameters: Option<serde_json::Value>,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Builder, Deserialize, PartialEq)]
@@ -812,8 +818,8 @@ pub struct CreateChatCompletionResponse {
     pub object: String,
     pub created: u32,
     pub model: String,
-    pub choices: Vec<ChatChoice>,
     pub usage: Option<Usage>,
+    pub choices: Vec<ChatChoice>,
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.

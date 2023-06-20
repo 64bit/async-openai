@@ -1,4 +1,6 @@
 [workspace]
 members = [
     "async-openai",
+    "examples/*"
 ]
+resolver = "2"
