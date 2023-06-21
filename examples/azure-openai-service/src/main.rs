@@ -9,7 +9,6 @@ use async_openai::{
     Client,
 };
 
-
 async fn chat_completion_example(client: &Client<AzureConfig>) -> Result<(), Box<dyn Error>> {
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u16)
@@ -31,7 +30,7 @@ async fn chat_completion_example(client: &Client<AzureConfig>) -> Result<(), Box
     println!("\nResponse:\n");
     for choice in response.choices {
         println!(
-            "{}: Role: {}  Content: {}",
+            "{}: Role: {}  Content: {:?}",
             choice.index, choice.message.role, choice.message.content
         );
     }
@@ -64,9 +63,7 @@ async fn chat_completion_example(client: &Client<AzureConfig>) -> Result<(), Box
 async fn embedding_example(client: &Client<AzureConfig>) -> Result<(), Box<dyn Error>> {
     let request = CreateEmbeddingRequestArgs::default()
         .model("text-embedding-ada-002")
-        .input(
-            "Why do programmers hate nature? It has too many bugs.",
-        )
+        .input("Why do programmers hate nature? It has too many bugs.")
         .build()?;
 
     let response = client.embeddings().create(request).await?;

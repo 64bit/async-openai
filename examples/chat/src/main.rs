@@ -37,7 +37,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("\nResponse:\n");
     for choice in response.choices {
         println!(
-            "{}: Role: {}  Content: {}",
+            "{}: Role: {}  Content: {:?}",
             choice.index, choice.message.role, choice.message.content
         );
     }

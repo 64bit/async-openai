@@ -687,6 +687,7 @@ pub enum Role {
     #[default]
     User,
     Assistant,
+    Function,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
@@ -712,7 +713,7 @@ pub struct ChatCompletionRequestMessage {
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ChatCompletionResponseMessage {
     pub role: Role,
-    pub content: String,
+    pub content: Option<String>,
     pub function_call: Option<serde_json::Value>,
 }
 

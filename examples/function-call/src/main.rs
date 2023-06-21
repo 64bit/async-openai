@@ -7,9 +7,19 @@ use async_openai::{
 use serde_json::json;
 use std::collections::HashMap;
 use std::error::Error;
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    // This should come from env var outside the program
+    std::env::set_var("RUST_LOG", "warn");
+
+    // Setup tracing subscriber so that library can log the rate limited message
+    tracing_subscriber::registry()
+        .with(fmt::layer())
+        .with(EnvFilter::from_default_env())
+        .init();
+
     let client = Client::new();
 
     let request = CreateChatCompletionRequestArgs::default()
@@ -37,28 +47,57 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .function_call(json!("auto"))
         .build()?;
 
-    println!("request = {:#?}", request);
+    // println!("request = {:#?}", request);
 
-    let response_message = client.chat().create(request).await?;
-    // .choices
-    // .get(0)
-    // .unwrap()
-    // .message
-    // .clone();
-    println!("resonse message: {:#?}", response_message);
+    let response_message = client
+        .chat()
+        .create(request)
+        .await?
+        .choices
+        .get(0)
+        .unwrap()
+        .message
+        .clone();
 
-    // if let Some(value) = response_message.function_call {
-    //     let mut available_functions: HashMap<&str, fn(&str, &str) -> serde_json::Value> =
-    //         HashMap::new();
-    //     available_functions.insert("get_current_weather", get_current_weather);
-    //     let function_name = value["function_call"]["name"].as_str().unwrap();
-    //     println!("function name: {:?}", function_name);
-    //     let function_args = &value["function_call"]["arguments"];
-    //     let location = function_args["location"].as_str().unwrap();
-    //     let unit = "fahrenheit";
-    //     let function = available_functions.get(function_name).unwrap();
-    //     let _function_response = function(location, unit);
-    // }
+    if let Some(value) = response_message.function_call {
+        let mut available_functions: HashMap<&str, fn(&str, &str) -> serde_json::Value> =
+            HashMap::new();
+        available_functions.insert("get_current_weather", get_current_weather);
+        let function_name = value["name"].as_str().unwrap();
+
+        let function_args = if let serde_json::Value::String(args) = &value["arguments"] {
+            args.parse::<serde_json::Value>().unwrap()
+        } else {
+            value["arguments"].clone()
+        };
+
+        let location = function_args["location"].as_str().unwrap();
+        let unit = "fahrenheit";
+        let function = available_functions.get(function_name).unwrap();
+        let function_response = function(location, unit);
+
+        let message = vec![
+            ChatCompletionRequestMessageArgs::default()
+                .role(Role::User)
+                .content("What's the weather like in Boston?")
+                .build()?,
+            ChatCompletionRequestMessageArgs::default()
+                .role(Role::Function)
+                .name(function_name)
+                .content(function_response.to_string())
+                .build()?,
+        ];
+
+        let request = CreateChatCompletionRequestArgs::default()
+            .max_tokens(512u16)
+            .model("gpt-3.5-turbo-0613")
+            .messages(message)
+            .build()?;
+
+        let response = client.chat().create(request).await?;
+
+        println!("response: {:#?}", response);
+    }
 
     Ok(())
 }
@@ -72,38 +111,4 @@ fn get_current_weather(location: &str, unit: &str) -> serde_json::Value {
     });
 
     weather_info
-}
-
-#[test]
-fn test_json() {
-    // let json_value = json!({
-    //     "type": "object",
-    //     "properties": {
-    //         "location": {
-    //             "type": "string",
-    //             "description": "The city and state, e.g. San Francisco, CA",
-    //         },
-    //         "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]},
-    //     },
-    //     "required": ["location"],
-    // });
-
-    // println!("json_value: {:?}", json_value);
-
-    let ret = FunctionsArgs::default()
-        .name("get_current_weather")
-        .description("Get the current weather in a given location")
-        .parameters(json!({
-            "type": "object",
-            "properties": {
-                "location": {
-                    "type": "string",
-                    "description": "The city and state, e.g. San Francisco, CA",
-                },
-                "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]},
-            },
-            "required": ["location"],
-        }))
-        .build();
-    println!("ret = {:?}", ret);
 }
