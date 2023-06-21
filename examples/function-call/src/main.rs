@@ -47,8 +47,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .function_call(json!("auto"))
         .build()?;
 
-    // println!("request = {:#?}", request);
-
     let response_message = client
         .chat()
         .create(request)
@@ -96,7 +94,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         let response = client.chat().create(request).await?;
 
-        println!("response: {:#?}", response);
+        println!("\nResponse:\n");
+        for choice in response.choices {
+            println!(
+                "{}: Role: {}  Content: {:?}",
+                choice.index, choice.message.role, choice.message.content
+            );
+        }
     }
 
     Ok(())
