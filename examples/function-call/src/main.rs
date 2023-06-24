@@ -1,6 +1,7 @@
 use async_openai::{
     types::{
-        ChatCompletionRequestMessageArgs, CreateChatCompletionRequestArgs, FunctionsArgs, Role,
+        ChatCompletionFunctionCall, ChatCompletionFunctionsArgs, ChatCompletionRequestMessageArgs,
+        CreateChatCompletionRequestArgs, Role,
     },
     Client,
 };
@@ -29,7 +30,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .role(Role::User)
             .content("What's the weather like in Boston?")
             .build()?])
-        .functions([FunctionsArgs::default()
+        .functions([ChatCompletionFunctionsArgs::default()
             .name("get_current_weather")
             .description("Get the current weather in a given location")
             .parameters(json!({
@@ -44,7 +45,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 "required": ["location"],
             }))
             .build()?])
-        .function_call(json!("auto"))
+        .function_call(ChatCompletionFunctionCall::Object(json!("auto")))
         .build()?;
 
     let response_message = client
