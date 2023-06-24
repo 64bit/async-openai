@@ -1,0 +1,21 @@
+[workspace]
+members = [
+    "audio-transcribe",
+    "audio-translate",
+    "azure-openai-service",
+    "chat",
+    "chat-stream",
+    "create-edit",
+    "completions",
+    "completions-stream",
+    "create-image",
+    "create-image-b64-json",
+    "create-image-edit",
+    "create-image-variation",
+    "embeddings",
+    "function-call",
+    "models",
+    "moderations",
+    "rate-limit-completions",
+]
+resolver = "2"

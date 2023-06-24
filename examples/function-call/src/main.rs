@@ -1,6 +1,6 @@
 use async_openai::{
     types::{
-        ChatCompletionFunctionCall, ChatCompletionFunctionsArgs, ChatCompletionRequestMessageArgs,
+        ChatCompletionFunctionsArgs, ChatCompletionRequestMessageArgs,
         CreateChatCompletionRequestArgs, Role,
     },
     Client,
@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 "required": ["location"],
             }))
             .build()?])
-        .function_call(ChatCompletionFunctionCall::Object(json!("auto")))
+        .function_call("auto")
         .build()?;
 
     let response_message = client
@@ -58,21 +58,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .message
         .clone();
 
-    if let Some(value) = response_message.function_call {
+    if let Some(function_call) = response_message.function_call {
         let mut available_functions: HashMap<&str, fn(&str, &str) -> serde_json::Value> =
             HashMap::new();
         available_functions.insert("get_current_weather", get_current_weather);
-        let function_name = value["name"].as_str().unwrap();
-
-        let function_args = if let serde_json::Value::String(args) = &value["arguments"] {
-            args.parse::<serde_json::Value>().unwrap()
-        } else {
-            value["arguments"].clone()
-        };
+        let function_name = function_call.name;
+        let function_args: serde_json::Value = function_call.arguments.parse().unwrap();
 
         let location = function_args["location"].as_str().unwrap();
         let unit = "fahrenheit";
-        let function = available_functions.get(function_name).unwrap();
+        let function = available_functions.get(function_name.as_str()).unwrap();
         let function_response = function(location, unit);
 
         let message = vec![

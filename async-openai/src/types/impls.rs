@@ -9,8 +9,9 @@ use crate::{
 };
 
 use super::{
-    AudioInput, AudioResponseFormat, EmbeddingInput, FileInput, ImageData, ImageInput,
-    ImageResponse, ImageSize, ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, EmbeddingInput, FileInput,
+    ImageData, ImageInput, ImageResponse, ImageSize, ModerationInput, Prompt, ResponseFormat, Role,
+    Stop,
 };
 
 macro_rules! impl_from {
@@ -345,3 +346,15 @@ macro_rules! impl_from_for_array_of_integer_array {
 
 impl_from_for_array_of_integer_array!(u32, EmbeddingInput);
 impl_from_for_array_of_integer_array!(u16, Prompt);
+
+impl From<&str> for ChatCompletionFunctionCall {
+    fn from(value: &str) -> Self {
+        ChatCompletionFunctionCall::String(value.to_string())
+    }
+}
+
+impl From<serde_json::Value> for ChatCompletionFunctionCall {
+    fn from(value: serde_json::Value) -> Self {
+        ChatCompletionFunctionCall::Object(value)
+    }
+}
