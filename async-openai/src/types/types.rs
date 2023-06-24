@@ -706,9 +706,9 @@ pub enum Role {
 pub struct ChatCompletionRequestMessage {
     /// The role of the messages author. One of `system`, `user`, `assistant`, or `function`.
     pub role: Role,
-    #[serde(skip_serializing_if = "Option::is_none")]
     /// The contents of the message.
     /// `content` is required for all messages except assistant messages with function calls.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
     /// The name of the author of this message. `name` is required if role is function,
     /// and it should be the name of the function whose response is in the `content`.
@@ -760,16 +760,16 @@ pub struct CreateChatCompletionRequest {
     /// A list of messages comprising the conversation so far. [Example Python code](https://github.com/openai/openai-cookbook/blob/main/examples/How_to_format_inputs_to_ChatGPT_models.ipynb).
     pub messages: Vec<ChatCompletionRequestMessage>, // min: 1
 
-    #[serde(skip_serializing_if = "Option::is_none")]
     /// A list of functions the model may generate JSON inputs for.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub functions: Option<Vec<ChatCompletionFunctions>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
     /// Controls how the model responds to function calls.
     /// "none" means the model does not call a function, and responds to the end-user.
     /// "auto" means the model can pick between an end-user or calling a function.
     /// Specifying a particular function via `{"name":\ "my_function"}` forces the model to call that function.
     /// "none" is the default when no functions are present. "auto" is the default if functions are present.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub function_call: Option<ChatCompletionFunctionCall>,
 
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random,
