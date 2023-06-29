@@ -20,6 +20,8 @@ default = ["rustls"]
 rustls = ["reqwest/rustls-tls-native-roots"]
 # Enable native-tls for TLS support
 native-tls = ["reqwest/native-tls"]
+# Remove dependency on OpenSSL
+native-tls-vendored = ["reqwest/native-tls-vendored"]
 
 [dependencies]
 backoff = {version = "0.4.0", features = ["tokio"] }
