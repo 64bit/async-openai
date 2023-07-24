@@ -619,9 +619,15 @@ pub struct ListFineTuneEventsResponse {
     pub data: Vec<FineTuneEvent>,
 }
 
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct ListFineTuneEventsStreamResponse {
+    pub object: String,
+    pub data: Option<Vec<FineTuneEvent>>,
+}
+
 /// Parsed server side events stream until an \[DONE\] is received from server.
 pub type FineTuneEventsResponseStream =
-    Pin<Box<dyn Stream<Item = Result<ListFineTuneEventsResponse, OpenAIError>> + Send>>;
+    Pin<Box<dyn Stream<Item = Result<ListFineTuneEventsStreamResponse, OpenAIError>> + Send>>;
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct DeleteModelResponse {

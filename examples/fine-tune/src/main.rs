@@ -1,7 +1,8 @@
 use std::error::Error;
-use serde_json::{Value, Error as OtherError};
-use std::fs::OpenOptions;
-use std::io::Write;
+//use serde_json::{Value, Error as OtherError};
+//use std::fs::OpenOptions;
+//use std::io::Write;
+use futures::StreamExt;
 
 use async_openai::{
     types::{CreateFileRequestArgs, CreateFineTuneRequestArgs},
@@ -10,7 +11,8 @@ use async_openai::{
 
 use std::fs::File;
 use std::io::{self, BufRead};
-use std::path::Path;
+//use std::path::Path;
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 // Sentiment analysis, tweets about the aspects of the current state of 
 // airtificial intelegence; prompting techniques and AI dev tools. 
@@ -28,6 +30,14 @@ async fn print_first_line(path: &str) -> io::Result<()> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+     // This should come from env var outside the program
+     std::env::set_var("RUST_LOG", "warn");
+
+     // Setup tracing subscriber so that library can log the rate limited message
+     tracing_subscriber::registry()
+         .with(fmt::layer())
+         .with(EnvFilter::from_default_env())
+         .init();
     let client = Client::new();
 
     // Delete previous file records
@@ -37,7 +47,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         client.files().delete(&files.id).await.unwrap();
     }
     
-    let file_path_train = "./data/train.jsonl";
+    let file_path_train = "./data_files/train.jsonl";
 
     // print_first_line(file_path_train).await?;
 
@@ -47,10 +57,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .build()
         .unwrap();
 
-    let openai_training_file = client.files().create(train_request).await.unwrap();
+    let _ = client.files().create(train_request).await.unwrap();
 
     // Optional: This Request body field is Optional https://platform.openai.com/docs/api-reference/fine-tunes/create#fine-tunes/create-validation_file
-    let file_path_validate = "./data/validate.jsonl";
+    let file_path_validate = "./data_files/validate.jsonl";
 
     // print_first_line(file_path_validate).await?;
 
@@ -59,7 +69,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     .build()
     .unwrap();
 
-    let openai_validation_file = client.files().create(validate_request).await.unwrap();
+    let _ = client.files().create(validate_request).await.unwrap();
 
     let list_files = client.files().list().await.unwrap();
 
@@ -77,11 +87,32 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    let fine_tune = CreateFineTuneRequestArgs::default().training_file(training_id).validation_file(validation_id).build().unwrap();
+    let fine_tune = CreateFineTuneRequestArgs::default().training_file(training_id).validation_file(validation_id).n_epochs(1u32).build().unwrap();
 
     let job = client.fine_tunes().create(fine_tune).await.unwrap();
 
-    let r = client.fine_tunes().list_events_stream(&job.id).await;
-    
+    match client.fine_tunes().list_events_stream(&job.id).await {
+        Ok(mut stream) => {
+            while let Some(item) = stream.next().await {
+                match item {
+                    Ok(response) => {
+                        println!("{:?}", response);
+
+                        let sio = client.fine_tunes().retrieve(&job.id).await.unwrap();
+                        // println!{"{:?}",sio }
+                        
+                        if let Some(name) = sio.fine_tuned_model {
+                        
+                            println!("{:?}", name);
+                        }
+                    },
+                    Err(error) => continue //println!("-// {:?}", error),
+                }
+            }
+        },
+        Err(e) => {
+            println!("-/ {:?}", e)
+        }
+    }
     Ok(())
 }
