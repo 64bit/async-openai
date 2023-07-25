@@ -84,7 +84,7 @@ impl Config for OpenAIConfig {
     }
 
     fn url(&self, path: &str) -> String {
-        format!("{}{}", OPENAI_API_BASE, path)
+        format!("{}{}", self.api_base, path)
     }
 
     fn api_base(&self) -> &str {
