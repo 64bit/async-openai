@@ -14,6 +14,7 @@ members = [
     "create-image-variation",
     "embeddings",
     "function-call",
+    "function-call-stream",
     "models",
     "moderations",
     "rate-limit-completions",
