@@ -166,9 +166,9 @@ pub struct Usage {
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateCompletionResponse {
-    pub id: String,
-    pub object: String,
-    pub created: u32,
+    pub id: Option<String>,
+    pub object: Option<String>,
+    pub created: Option<u32>,
     pub model: String,
     pub choices: Vec<Choice>,
     pub usage: Option<Usage>,

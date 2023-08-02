@@ -1,4 +1,4 @@
-use crate::{
+ use crate::{
     config::Config,
     error::OpenAIError,
     types::{CreateFileRequest, DeleteFileResponse, ListFilesResponse, OpenAIFile},
