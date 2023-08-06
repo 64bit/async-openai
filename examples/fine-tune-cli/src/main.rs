@@ -73,7 +73,7 @@ async fn completion(model: String, prompt: String, client: Client<OpenAIConfig>)
     let request = CreateCompletionRequestArgs::default()
         .model(model)
         .prompt(prompt)
-        .max_tokens(40_u16)
+        .max_tokens(1_u16)
         .build()
         .unwrap();
 
