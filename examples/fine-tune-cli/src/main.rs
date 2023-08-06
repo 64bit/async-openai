@@ -89,7 +89,7 @@ fn cli() -> Command {
         .arg_required_else_help(true)
         .subcommand(
             Command::new("data")
-                .about("Provide trainning and vlidation(Optional) data")
+                .about("Provide training and validation (Optional) data")
                 .arg_required_else_help(true)
                 .arg(
                     arg!(<PATH> ... "Path to trainning file and optionally validation file")
