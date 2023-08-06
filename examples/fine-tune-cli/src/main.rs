@@ -104,7 +104,7 @@ fn cli() -> Command {
         )
         .subcommand(
             Command::new("test")
-                .about("pushes things")
+                .about("classify prompt as positive or negative")
                 .arg(arg!(<FINE_TUNE_MODEL> "The remote to target"))
                 .arg(arg!(<PROMPT> "Provide a completion prompt to test your model"))
                 .arg_required_else_help(true),
