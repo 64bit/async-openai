@@ -871,26 +871,26 @@ pub type ChatCompletionResponseStream =
 // For reason (not documented by OpenAI) the response from stream is different
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct ChatCompletionResponseStreamMessage {
-    pub content: Option<String>,
+pub struct ChatCompletionStreamResponseDelta {
     pub role: Option<Role>,
+    pub content: Option<String>,
+    pub function_call: Option<FunctionCall>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct ChatChoiceDelta {
+pub struct ChatCompletionResponseStreamMessage {
     pub index: u32,
-    pub delta: ChatCompletionResponseStreamMessage,
+    pub delta: ChatCompletionStreamResponseDelta,
     pub finish_reason: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateChatCompletionStreamResponse {
-    pub id: Option<String>,
+    pub id: String,
     pub object: String,
     pub created: u32,
     pub model: String,
-    pub choices: Vec<ChatChoiceDelta>,
-    pub usage: Option<Usage>,
+    pub choices: Vec<ChatCompletionResponseStreamMessage>,
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
