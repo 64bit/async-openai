@@ -231,7 +231,7 @@ impl<C: Config> Client<C> {
                         if status.as_u16() == 429
                             // API returns 429 also when:
                             // "You exceeded your current quota, please check your plan and billing details."
-                            && wrapped_error.error.r#type != "insufficient_quota"
+                            && wrapped_error.error.r#type != Some("insufficient_quota".to_string())
                         {
                             // Rate limited retry...
                             tracing::warn!("Rate limited: {}", wrapped_error.error.message);
