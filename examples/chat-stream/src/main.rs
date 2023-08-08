@@ -22,9 +22,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let mut stream = client.chat().create_stream(request).await?;
 
-    // For reasons not documented in OpenAI docs / OpenAPI spec,
-    // the response of streaming call is different and doesn't include all the same fields.
-
     // From Rust docs on print: https://doc.rust-lang.org/std/macro.print.html
     //
     //  Note that stdout is frequently line-buffered by default so it may be necessary
