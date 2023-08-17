@@ -90,7 +90,7 @@ async fn call_fn(client: &Client<OpenAIConfig>, name: &str, args: &str) -> Resul
     let function_args: serde_json::Value = args.parse().unwrap();
 
     let location = function_args["location"].as_str().unwrap();
-    let unit = "fahrenheit"; // why doesn't the model return a unit argument?
+    let unit = function_args["unit"].as_str().unwrap_or("fahrenheit");
     let function = available_functions.get(name).unwrap();
     let function_response = function(location, unit); // call the function
 
