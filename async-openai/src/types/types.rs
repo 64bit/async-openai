@@ -869,12 +869,17 @@ pub type ChatCompletionResponseStream =
     Pin<Box<dyn Stream<Item = Result<CreateChatCompletionStreamResponse, OpenAIError>> + Send>>;
 
 // For reason (not documented by OpenAI) the response from stream is different
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct FunctionCallStream {
+    pub name: Option<String>,
+    pub arguments: Option<String>,
+}
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ChatCompletionStreamResponseDelta {
     pub role: Option<Role>,
     pub content: Option<String>,
-    pub function_call: Option<FunctionCall>,
+    pub function_call: Option<FunctionCallStream>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
