@@ -18,5 +18,5 @@ cd  function-call && cargo run && cd -
 cd  function-call-stream && cargo run && cd -
 cd  models && cargo run && cd -
 cd  moderations && cargo run && cd -
-#cd  rate-limit-completions && cargo run && cd -
+#cd  rate-limit-edit && cargo run && cd -
 '''

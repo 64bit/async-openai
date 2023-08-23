@@ -10,9 +10,9 @@ use async_openai::{
     Client,
 };
 
+use async_openai::config::OpenAIConfig;
 use futures::StreamExt;
 use serde_json::json;
-use async_openai::config::OpenAIConfig;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -78,11 +78,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         stdout().flush()?;
     }
 
-
     Ok(())
 }
 
-async fn call_fn(client: &Client<OpenAIConfig>, name: &str, args: &str) -> Result<(), Box<dyn Error>> {
+async fn call_fn(
+    client: &Client<OpenAIConfig>,
+    name: &str,
+    args: &str,
+) -> Result<(), Box<dyn Error>> {
     let mut available_functions: HashMap<&str, fn(&str, &str) -> serde_json::Value> =
         HashMap::new();
     available_functions.insert("get_current_weather", get_current_weather);
