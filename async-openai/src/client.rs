@@ -184,6 +184,10 @@ impl<C: Config> Client<C> {
     }
 
     /// Execute a HTTP request and retry on rate limit
+    ///
+    /// request_maker serves one purpose: to be able to create request again
+    /// to retry API call after getting rate limited. request_maker is async because
+    /// reqwest::multipart::Form is created by async calls to read files for uploads.
     async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
