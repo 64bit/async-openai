@@ -53,7 +53,6 @@ impl<C: Config> Client<C> {
     }
 
     /// Exponential backoff for retrying [rate limited](https://platform.openai.com/docs/guides/rate-limits) requests.
-    /// Form submissions are not retried.
     pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
         self.backoff = backoff;
         self
