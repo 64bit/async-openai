@@ -4,7 +4,6 @@ use crate::{
     types::{
         CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImageResponse,
     },
-    util::create_file_part,
     Client,
 };
 
@@ -30,37 +29,7 @@ impl<'c, C: Config> Images<'c, C> {
         &self,
         request: CreateImageEditRequest,
     ) -> Result<ImageResponse, OpenAIError> {
-        let image_part = create_file_part(&request.image.path).await?;
-
-        let mut form = reqwest::multipart::Form::new()
-            .part("image", image_part)
-            .text("prompt", request.prompt);
-
-        if let Some(mask) = request.mask {
-            let mask_part = create_file_part(&mask.path).await?;
-            form = form.part("mask", mask_part);
-        }
-
-        if request.n.is_some() {
-            form = form.text("n", request.n.unwrap().to_string())
-        }
-
-        if request.size.is_some() {
-            form = form.text("size", request.size.unwrap().to_string())
-        }
-
-        if request.response_format.is_some() {
-            form = form.text(
-                "response_format",
-                request.response_format.unwrap().to_string(),
-            )
-        }
-
-        if request.user.is_some() {
-            form = form.text("user", request.user.unwrap())
-        }
-
-        self.client.post_form("/images/edits", form).await
+        self.client.post_form("/images/edits", request).await
     }
 
     /// Creates a variation of a given image.
@@ -68,29 +37,6 @@ impl<'c, C: Config> Images<'c, C> {
         &self,
         request: CreateImageVariationRequest,
     ) -> Result<ImageResponse, OpenAIError> {
-        let image_part = create_file_part(&request.image.path).await?;
-
-        let mut form = reqwest::multipart::Form::new().part("image", image_part);
-
-        if request.n.is_some() {
-            form = form.text("n", request.n.unwrap().to_string())
-        }
-
-        if request.size.is_some() {
-            form = form.text("size", request.size.unwrap().to_string())
-        }
-
-        if request.response_format.is_some() {
-            form = form.text(
-                "response_format",
-                request.response_format.unwrap().to_string(),
-            )
-        }
-
-        if request.user.is_some() {
-            form = form.text("user", request.user.unwrap())
-        }
-
-        self.client.post_form("/images/variations", form).await
+        self.client.post_form("/images/variations", request).await
     }
 }

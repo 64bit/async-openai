@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 
 use async_openai::{
+    config::OpenAIConfig,
     types::{CreateCompletionRequestArgs, CreateFileRequestArgs, CreateFineTuneRequestArgs},
     Client,
-    config::OpenAIConfig,
 };
 use clap::{arg, Command};
 

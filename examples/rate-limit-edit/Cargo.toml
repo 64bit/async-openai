@@ -1,5 +1,5 @@
 [package]
-name = "rate-limit-completions"
+name = "rate-limit-edit"
 version = "0.1.0"
 edition = "2021"
 publish = false

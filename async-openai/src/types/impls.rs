@@ -6,12 +6,14 @@ use std::{
 use crate::{
     download::{download_url, save_b64},
     error::OpenAIError,
+    util::create_file_part,
 };
 
 use super::{
-    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, EmbeddingInput, FileInput,
-    ImageData, ImageInput, ImageResponse, ImageSize, ModerationInput, Prompt, ResponseFormat, Role,
-    Stop,
+    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, CreateFileRequest,
+    CreateImageEditRequest, CreateImageVariationRequest, CreateTranscriptionRequest,
+    CreateTranslationRequest, EmbeddingInput, FileInput, ImageData, ImageInput, ImageResponse,
+    ImageSize, ModerationInput, Prompt, ResponseFormat, Role, Stop,
 };
 
 macro_rules! impl_from {
@@ -358,3 +360,141 @@ impl From<serde_json::Value> for ChatCompletionFunctionCall {
         ChatCompletionFunctionCall::Object(value)
     }
 }
+
+// start: types to multipart from
+
+#[async_convert::async_trait]
+impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
+    type Error = OpenAIError;
+
+    async fn try_from(request: CreateTranscriptionRequest) -> Result<Self, Self::Error> {
+        let audio_part = create_file_part(&request.file.path).await?;
+
+        let mut form = reqwest::multipart::Form::new()
+            .part("file", audio_part)
+            .text("model", request.model);
+
+        if let Some(prompt) = request.prompt {
+            form = form.text("prompt", prompt);
+        }
+
+        if let Some(response_format) = request.response_format {
+            form = form.text("response_format", response_format.to_string())
+        }
+
+        if let Some(temperature) = request.temperature {
+            form = form.text("temperature", temperature.to_string())
+        }
+        Ok(form)
+    }
+}
+
+#[async_convert::async_trait]
+impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Form {
+    type Error = OpenAIError;
+
+    async fn try_from(request: CreateTranslationRequest) -> Result<Self, Self::Error> {
+        let audio_part = create_file_part(&request.file.path).await?;
+
+        let mut form = reqwest::multipart::Form::new()
+            .part("file", audio_part)
+            .text("model", request.model);
+
+        if let Some(prompt) = request.prompt {
+            form = form.text("prompt", prompt);
+        }
+
+        if let Some(response_format) = request.response_format {
+            form = form.text("response_format", response_format.to_string())
+        }
+
+        if let Some(temperature) = request.temperature {
+            form = form.text("temperature", temperature.to_string())
+        }
+        Ok(form)
+    }
+}
+
+#[async_convert::async_trait]
+impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
+    type Error = OpenAIError;
+
+    async fn try_from(request: CreateImageEditRequest) -> Result<Self, Self::Error> {
+        let image_part = create_file_part(&request.image.path).await?;
+
+        let mut form = reqwest::multipart::Form::new()
+            .part("image", image_part)
+            .text("prompt", request.prompt);
+
+        if let Some(mask) = request.mask {
+            let mask_part = create_file_part(&mask.path).await?;
+            form = form.part("mask", mask_part);
+        }
+
+        if request.n.is_some() {
+            form = form.text("n", request.n.unwrap().to_string())
+        }
+
+        if request.size.is_some() {
+            form = form.text("size", request.size.unwrap().to_string())
+        }
+
+        if request.response_format.is_some() {
+            form = form.text(
+                "response_format",
+                request.response_format.unwrap().to_string(),
+            )
+        }
+
+        if request.user.is_some() {
+            form = form.text("user", request.user.unwrap())
+        }
+        Ok(form)
+    }
+}
+
+#[async_convert::async_trait]
+impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart::Form {
+    type Error = OpenAIError;
+
+    async fn try_from(request: CreateImageVariationRequest) -> Result<Self, Self::Error> {
+        let image_part = create_file_part(&request.image.path).await?;
+
+        let mut form = reqwest::multipart::Form::new().part("image", image_part);
+
+        if request.n.is_some() {
+            form = form.text("n", request.n.unwrap().to_string())
+        }
+
+        if request.size.is_some() {
+            form = form.text("size", request.size.unwrap().to_string())
+        }
+
+        if request.response_format.is_some() {
+            form = form.text(
+                "response_format",
+                request.response_format.unwrap().to_string(),
+            )
+        }
+
+        if request.user.is_some() {
+            form = form.text("user", request.user.unwrap())
+        }
+        Ok(form)
+    }
+}
+
+#[async_convert::async_trait]
+impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
+    type Error = OpenAIError;
+
+    async fn try_from(request: CreateFileRequest) -> Result<Self, Self::Error> {
+        let file_part = create_file_part(&request.file.path).await?;
+        let form = reqwest::multipart::Form::new()
+            .part("file", file_part)
+            .text("purpose", request.purpose);
+        Ok(form)
+    }
+}
+
+// end: types to multipart form
