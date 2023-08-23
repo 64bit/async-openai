@@ -2,7 +2,6 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::{CreateFileRequest, DeleteFileResponse, ListFilesResponse, OpenAIFile},
-    util::create_file_part,
     Client,
 };
 
@@ -18,11 +17,7 @@ impl<'c, C: Config> Files<'c, C> {
 
     /// Upload a file that contains document(s) to be used across various endpoints/features. Currently, the size of all the files uploaded by one organization can be up to 1 GB. Please contact us if you need to increase the storage limit.
     pub async fn create(&self, request: CreateFileRequest) -> Result<OpenAIFile, OpenAIError> {
-        let file_part = create_file_part(&request.file.path).await?;
-        let form = reqwest::multipart::Form::new()
-            .part("file", file_part)
-            .text("purpose", request.purpose);
-        self.client.post_form("/files", form).await
+        self.client.post_form("/files", request).await
     }
 
     /// Returns a list of files that belong to the user's organization.

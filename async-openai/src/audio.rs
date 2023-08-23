@@ -5,7 +5,6 @@ use crate::{
         CreateTranscriptionRequest, CreateTranscriptionResponse, CreateTranslationRequest,
         CreateTranslationResponse,
     },
-    util::create_file_part,
     Client,
 };
 
@@ -25,25 +24,9 @@ impl<'c, C: Config> Audio<'c, C> {
         &self,
         request: CreateTranscriptionRequest,
     ) -> Result<CreateTranscriptionResponse, OpenAIError> {
-        let audio_part = create_file_part(&request.file.path).await?;
-
-        let mut form = reqwest::multipart::Form::new()
-            .part("file", audio_part)
-            .text("model", request.model);
-
-        if let Some(prompt) = request.prompt {
-            form = form.text("prompt", prompt);
-        }
-
-        if let Some(response_format) = request.response_format {
-            form = form.text("response_format", response_format.to_string())
-        }
-
-        if let Some(temperature) = request.temperature {
-            form = form.text("temperature", temperature.to_string())
-        }
-
-        self.client.post_form("/audio/transcriptions", form).await
+        self.client
+            .post_form("/audio/transcriptions", request)
+            .await
     }
 
     /// Translates audio into into English.
@@ -51,24 +34,6 @@ impl<'c, C: Config> Audio<'c, C> {
         &self,
         request: CreateTranslationRequest,
     ) -> Result<CreateTranslationResponse, OpenAIError> {
-        let audio_part = create_file_part(&request.file.path).await?;
-
-        let mut form = reqwest::multipart::Form::new()
-            .part("file", audio_part)
-            .text("model", request.model);
-
-        if let Some(prompt) = request.prompt {
-            form = form.text("prompt", prompt);
-        }
-
-        if let Some(response_format) = request.response_format {
-            form = form.text("response_format", response_format.to_string())
-        }
-
-        if let Some(temperature) = request.temperature {
-            form = form.text("temperature", temperature.to_string())
-        }
-
-        self.client.post_form("/audio/translations", form).await
+        self.client.post_form("/audio/translations", request).await
     }
 }
