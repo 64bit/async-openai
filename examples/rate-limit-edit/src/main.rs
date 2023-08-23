@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use async_openai::{types::CreateCompletionRequestArgs, Client};
+use async_openai::{types::CreateEditRequestArgs, Client};
 
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
@@ -21,17 +21,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let client = Client::new().with_backoff(backoff);
 
-    let request = CreateCompletionRequestArgs::default()
-        .model("text-ada-001")
-        .prompt("Tell me a joke")
-        .max_tokens(30_u16)
+    let request = CreateEditRequestArgs::default()
+        .model("text-davinci-edit-001")
+        .input("The food was delicious and the waiter...")
+        .instruction("make it 20 words long")
         .build()?;
 
     // Make back to back requests in a loop to trigger rate limits
     // which will be retried by exponential backoff
-    for _ in 0..100 {
-        let response = client.completions().create(request.clone()).await?;
-        println!("{}", response.choices[0].text);
+
+    // Limit: 20 RPM
+
+    for idx in 0..100 {
+        let response = client.edits().create(request.clone()).await?;
+        println!("[{idx}] {:?}", response.usage);
     }
 
     Ok(())

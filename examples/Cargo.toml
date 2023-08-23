@@ -18,6 +18,6 @@ members = [
     "function-call-stream",
     "models",
     "moderations",
-    "rate-limit-completions",
+    "rate-limit-edit",
 ]
 resolver = "2"
