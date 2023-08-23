@@ -850,9 +850,9 @@ pub struct ChatChoice {
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateChatCompletionResponse {
-    pub id: String,
-    pub object: String,
-    pub created: u32,
+    pub id: Option<String>,
+    pub object: Option<String>,
+    pub created: Option<u32>,
     pub model: String,
     pub usage: Option<Usage>,
     pub choices: Vec<ChatChoice>,
@@ -880,8 +880,8 @@ pub struct ChatChoiceDelta {
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateChatCompletionStreamResponse {
     pub id: Option<String>,
-    pub object: String,
-    pub created: u32,
+    pub object: Option<String>,
+    pub created: Option<u32>,
     pub model: String,
     pub choices: Vec<ChatChoiceDelta>,
     pub usage: Option<Usage>,
