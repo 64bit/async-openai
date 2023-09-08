@@ -723,7 +723,8 @@ pub struct ChatCompletionRequestMessage {
     pub role: Role,
     /// The contents of the message.
     /// `content` is required for all messages except assistant messages with function calls.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    // DON'T SKIP: https://github.com/64bit/async-openai/issues/103
+    //#[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
     /// The name of the author of this message. `name` is required if role is function,
     /// and it should be the name of the function whose response is in the `content`.
