@@ -197,8 +197,9 @@ impl<C: Config> Client<C> {
         let client = self.http_client.clone();
 
         backoff::future::retry(self.backoff.clone(), || async {
+            let request = request_maker().await.map_err(backoff::Error::Permanent)?;
             let response = client
-                .execute(request_maker().await?)
+                .execute(request)
                 .await
                 .map_err(OpenAIError::Reqwest)
                 .map_err(backoff::Error::Permanent)?;
