@@ -1,5 +1,6 @@
 //! Client configurations: [OpenAIConfig] for OpenAI, [AzureConfig] for Azure OpenAI Service.
 use reqwest::header::{HeaderMap, AUTHORIZATION};
+use serde::Deserialize;
 
 /// Default v1 API base url
 pub const OPENAI_API_BASE: &str = "https://api.openai.com/v1";
@@ -19,7 +20,8 @@ pub trait Config: Clone {
 }
 
 /// Configuration for OpenAI API
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize)]
+#[serde(default)]
 pub struct OpenAIConfig {
     api_base: String,
     api_key: String,
@@ -101,7 +103,8 @@ impl Config for OpenAIConfig {
 }
 
 /// Configuration for Azure OpenAI Service
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize)]
+#[serde(default)]
 pub struct AzureConfig {
     api_version: String,
     deployment_id: String,
