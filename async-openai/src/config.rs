@@ -10,13 +10,41 @@ pub const OPENAI_ORGANIZATION_HEADER: &str = "OpenAI-Organization";
 /// [crate::Client] relies on this for every API call on OpenAI
 /// or Azure OpenAI service
 pub trait Config: Clone {
-    fn headers(&self) -> HeaderMap;
-    fn url(&self, path: &str) -> String;
-    fn query(&self) -> Vec<(&str, &str)>;
-
+    /// The root API URL, without a trailing slash.
     fn api_base(&self) -> &str;
 
+    /// The user's API key.
     fn api_key(&self) -> &str;
+
+    /// The organization ID.
+    fn org_id(&self) -> &str {
+        ""
+    }
+
+    /// Return appropriate headers to send to the OpenAI API.
+    fn headers(&self) -> HeaderMap {
+        let mut headers = HeaderMap::new();
+        if !self.org_id().is_empty() {
+            headers.insert(OPENAI_ORGANIZATION_HEADER, self.org_id().parse().unwrap());
+        }
+
+        headers.insert(
+            AUTHORIZATION,
+            format!("Bearer {}", self.api_key()).parse().unwrap(),
+        );
+
+        headers
+    }
+
+    /// Return a full URL when given a relative path.
+    fn url(&self, path: &str) -> String {
+        format!("{}{}", self.api_base(), path)
+    }
+
+    /// The query string to be appended to the request.
+    fn query(&self) -> Vec<(&str, &str)> {
+        vec![]
+    }
 }
 
 /// Configuration for OpenAI API
@@ -61,44 +89,19 @@ impl OpenAIConfig {
         self.api_base = api_base.into();
         self
     }
-
-    pub fn org_id(&self) -> &str {
-        &self.org_id
-    }
 }
 
 impl Config for OpenAIConfig {
-    fn headers(&self) -> HeaderMap {
-        let mut headers = HeaderMap::new();
-        if !self.org_id.is_empty() {
-            headers.insert(
-                OPENAI_ORGANIZATION_HEADER,
-                self.org_id.as_str().parse().unwrap(),
-            );
-        }
-
-        headers.insert(
-            AUTHORIZATION,
-            format!("Bearer {}", self.api_key).as_str().parse().unwrap(),
-        );
-
-        headers
-    }
-
-    fn url(&self, path: &str) -> String {
-        format!("{}{}", self.api_base, path)
-    }
-
     fn api_base(&self) -> &str {
-        &self.api_base
+        self.api_base.as_str()
     }
 
     fn api_key(&self) -> &str {
-        &self.api_key
+        self.api_key.as_str()
     }
 
-    fn query(&self) -> Vec<(&str, &str)> {
-        vec![]
+    fn org_id(&self) -> &str {
+        self.org_id.as_str()
     }
 }
 
