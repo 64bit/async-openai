@@ -20,12 +20,22 @@ pub trait Config: Clone {
 }
 
 /// Configuration for OpenAI API
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(default)]
 pub struct OpenAIConfig {
     api_base: String,
     api_key: String,
     org_id: String,
+}
+
+impl std::fmt::Debug for OpenAIConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("OpenAIConfig")
+            .field("api_base", &self.api_base)
+            .field("api_key", &"[redacted]")
+            .field("org_id", &self.org_id)
+            .finish()
+    }
 }
 
 impl Default for OpenAIConfig {
@@ -103,13 +113,24 @@ impl Config for OpenAIConfig {
 }
 
 /// Configuration for Azure OpenAI Service
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(default)]
 pub struct AzureConfig {
     api_version: String,
     deployment_id: String,
     api_base: String,
     api_key: String,
+}
+
+impl std::fmt::Debug for AzureConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AzureConfig")
+            .field("api_version", &self.api_version)
+            .field("deployment_id", &self.deployment_id)
+            .field("api_base", &self.api_base)
+            .field("api_key", &"[redacted]")
+            .finish()
+    }
 }
 
 impl Default for AzureConfig {
