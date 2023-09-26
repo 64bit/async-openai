@@ -1,5 +1,6 @@
 //! Client configurations: [OpenAIConfig] for OpenAI, [AzureConfig] for Azure OpenAI Service.
 use reqwest::header::{HeaderMap, AUTHORIZATION};
+use secrecy::{ExposeSecret, Secret};
 use serde::Deserialize;
 
 /// Default v1 API base url
@@ -16,33 +17,23 @@ pub trait Config: Clone {
 
     fn api_base(&self) -> &str;
 
-    fn api_key(&self) -> &str;
+    fn api_key(&self) -> &Secret<String>;
 }
 
 /// Configuration for OpenAI API
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(default)]
 pub struct OpenAIConfig {
     api_base: String,
-    api_key: String,
+    api_key: Secret<String>,
     org_id: String,
-}
-
-impl std::fmt::Debug for OpenAIConfig {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("OpenAIConfig")
-            .field("api_base", &self.api_base)
-            .field("api_key", &"[redacted]")
-            .field("org_id", &self.org_id)
-            .finish()
-    }
 }
 
 impl Default for OpenAIConfig {
     fn default() -> Self {
         Self {
             api_base: OPENAI_API_BASE.to_string(),
-            api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()),
+            api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()).into(),
             org_id: Default::default(),
         }
     }
@@ -62,7 +53,7 @@ impl OpenAIConfig {
 
     /// To use a different API key different from default OPENAI_API_KEY env var
     pub fn with_api_key<S: Into<String>>(mut self, api_key: S) -> Self {
-        self.api_key = api_key.into();
+        self.api_key = Secret::from(api_key.into());
         self
     }
 
@@ -89,7 +80,7 @@ impl Config for OpenAIConfig {
 
         headers.insert(
             AUTHORIZATION,
-            format!("Bearer {}", self.api_key).as_str().parse().unwrap(),
+            format!("Bearer {}", self.api_key.expose_secret()).as_str().parse().unwrap(),
         );
 
         headers
@@ -103,7 +94,7 @@ impl Config for OpenAIConfig {
         &self.api_base
     }
 
-    fn api_key(&self) -> &str {
+    fn api_key(&self) -> &Secret<String> {
         &self.api_key
     }
 
@@ -113,31 +104,21 @@ impl Config for OpenAIConfig {
 }
 
 /// Configuration for Azure OpenAI Service
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(default)]
 pub struct AzureConfig {
     api_version: String,
     deployment_id: String,
     api_base: String,
-    api_key: String,
+    api_key: Secret<String>,
 }
 
-impl std::fmt::Debug for AzureConfig {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("AzureConfig")
-            .field("api_version", &self.api_version)
-            .field("deployment_id", &self.deployment_id)
-            .field("api_base", &self.api_base)
-            .field("api_key", &"[redacted]")
-            .finish()
-    }
-}
 
 impl Default for AzureConfig {
     fn default() -> Self {
         Self {
             api_base: Default::default(),
-            api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()),
+            api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()).into(),
             deployment_id: Default::default(),
             api_version: Default::default(),
         }
@@ -161,7 +142,7 @@ impl AzureConfig {
 
     /// To use a different API key different from default OPENAI_API_KEY env var
     pub fn with_api_key<S: Into<String>>(mut self, api_key: S) -> Self {
-        self.api_key = api_key.into();
+        self.api_key = Secret::from(api_key.into());
         self
     }
 
@@ -176,7 +157,7 @@ impl Config for AzureConfig {
     fn headers(&self) -> HeaderMap {
         let mut headers = HeaderMap::new();
 
-        headers.insert("api-key", self.api_key.as_str().parse().unwrap());
+        headers.insert("api-key", self.api_key.expose_secret().as_str().parse().unwrap());
 
         headers
     }
@@ -192,7 +173,7 @@ impl Config for AzureConfig {
         &self.api_base
     }
 
-    fn api_key(&self) -> &str {
+    fn api_key(&self) -> &Secret<String> {
         &self.api_key
     }
 
