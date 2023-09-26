@@ -17,7 +17,7 @@ pub trait Config: Clone {
 
     fn api_base(&self) -> &str;
 
-    fn api_key(&self) -> &str;
+    fn api_key(&self) -> &Secret<String>;
 }
 
 /// Configuration for OpenAI API
@@ -94,8 +94,8 @@ impl Config for OpenAIConfig {
         &self.api_base
     }
 
-    fn api_key(&self) -> &str {
-        &self.api_key.expose_secret()
+    fn api_key(&self) -> &Secret<String> {
+        &self.api_key
     }
 
     fn query(&self) -> Vec<(&str, &str)> {
@@ -173,8 +173,8 @@ impl Config for AzureConfig {
         &self.api_base
     }
 
-    fn api_key(&self) -> &str {
-        &self.api_key.expose_secret()
+    fn api_key(&self) -> &Secret<String> {
+        &self.api_key
     }
 
     fn query(&self) -> Vec<(&str, &str)> {
