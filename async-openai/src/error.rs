@@ -1,5 +1,6 @@
 //! Errors originating from API calls, parsing responses, and reading-or-writing to the file system.
 use serde::Deserialize;
+use serde_json::Error;
 
 #[derive(Debug, thiserror::Error)]
 pub enum OpenAIError {
@@ -12,6 +13,9 @@ pub enum OpenAIError {
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: {0}")]
     JSONDeserialize(serde_json::Error),
+    /// Error when serialize request for send to api
+    #[error("failed to serialize request for send to api: {0}")]
+    JSONSerialize(serde_json::Error),
     /// Error on the client side when saving file to file system
     #[error("failed to save file: {0}")]
     FileSaveError(String),
@@ -48,4 +52,10 @@ pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> O
         String::from_utf8_lossy(bytes.as_ref())
     );
     OpenAIError::JSONDeserialize(e)
+}
+
+impl From<serde_json::Error> for OpenAIError {
+    fn from(value: Error) -> Self {
+        OpenAIError::JSONSerialize(value)
+    }
 }

@@ -762,6 +762,56 @@ pub struct ChatCompletionFunctions {
     pub parameters: Option<serde_json::Value>,
 }
 
+/// parameters:
+//   endpoint: https://mysearchexample.search.windows.net
+//   key: '***(admin key)'
+//   indexName: my-chunk-index
+//   fieldsMapping:
+//     titleField: productName
+//     urlField: productUrl
+//     filepathField: productFilePath
+//     contentFields:
+//     - productDescription
+//     contentFieldsSeparator: |2+
+//
+//   topNDocuments: 5
+//   queryType: semantic
+//   semanticConfiguration: defaultConfiguration
+//   inScope: true
+//   roleInformation: roleInformation
+#[derive(Clone, Serialize, Default, Debug, Builder, Deserialize, PartialEq)]
+#[builder(name = "AzureCognitiveSearchParametersArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+#[serde(rename_all = "camelCase")]
+pub struct AzureCognitiveSearchParameters {
+    pub endpoint: String,
+    pub key: String,
+    pub index_name: String,
+}
+
+#[derive(Clone, Serialize, Debug, Builder, Deserialize, PartialEq)]
+#[builder(name = "AzureCognitiveSearchDataSourceArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct AzureCognitiveSearchDataSource {
+    #[serde(rename = "type")]
+    pub _type: String,
+    pub parameters: AzureCognitiveSearchParameters,
+}
+impl Default for AzureCognitiveSearchDataSource {
+    fn default() -> Self {
+       Self {
+           _type: "AzureCognitiveSearch".to_string(),
+           parameters: Default::default(),
+       }
+    }
+}
+
 #[derive(Clone, Serialize, Default, Debug, Builder, Deserialize, PartialEq)]
 #[builder(name = "CreateChatCompletionRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -771,10 +821,16 @@ pub struct ChatCompletionFunctions {
 pub struct CreateChatCompletionRequest {
     /// ID of the model to use.
     /// See the [model endpoint compatibility](https://platform.openai.com/docs/models/model-endpoint-compatibility) table for details on which models work with the Chat API.
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub model: String,
 
     /// A list of messages comprising the conversation so far. [Example Python code](https://github.com/openai/openai-cookbook/blob/main/examples/How_to_format_inputs_to_ChatGPT_models.ipynb).
     pub messages: Vec<ChatCompletionRequestMessage>, // min: 1
+
+    /// The data sources to be used for the Azure OpenAI on your data feature
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "dataSources")]
+    pub data_sources: Option<Vec<AzureCognitiveSearchDataSource>>,
 
     /// A list of functions the model may generate JSON inputs for.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -820,6 +876,7 @@ pub struct CreateChatCompletionRequest {
     /// The maximum number of [tokens](https://platform.openai.com/tokenizer) to generate in the chat completion.
     ///
     /// The total length of input tokens and generated tokens is limited by the model's context length. [Example Python code](https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb) for counting tokens.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_tokens: Option<u16>,
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.

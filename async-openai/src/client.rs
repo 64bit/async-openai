@@ -1,6 +1,9 @@
+use std::fmt::{Display, Formatter};
 use std::pin::Pin;
+use std::str::from_utf8;
 
 use futures::{stream::StreamExt, Stream};
+use reqwest::header::{CONTENT_TYPE, HeaderValue};
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -13,6 +16,7 @@ use crate::{
     moderation::Moderations,
     Audio, Chat, Completions, Embeddings, FineTunes, Models,
 };
+use crate::types::Stop::String;
 
 #[derive(Debug, Clone)]
 /// Client is a container for config, backoff and http_client
@@ -151,12 +155,38 @@ impl<C: Config> Client<C> {
         O: DeserializeOwned,
     {
         let request_maker = || async {
+            let url = self.config.url(path);
+            let query = &self.config.query();
+            let mut headers = self.config.headers();
+
+            let body = serde_json::to_vec(&request)?;
+            if !headers.contains_key(CONTENT_TYPE) {
+                headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+            }
+
+            struct BodyDisplay {
+                body: Vec<u8>
+            }
+            impl Display for BodyDisplay {
+                fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                    match from_utf8(&self.body) {
+                        Ok(body) => f.write_str(body),
+                        Err(_) => f.write_str("Cannot display body"),
+                    }
+                }
+            }
+
+            tracing::debug!("url: {}", url);
+            tracing::debug!("query: {:?}", query);
+            tracing::debug!("headers: {:?}", headers);
+            tracing::debug!("body: {}", BodyDisplay{body: body.clone()});
+
             Ok(self
                 .http_client
-                .post(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .json(&request)
+                .post(url)
+                .query(query)
+                .headers(headers)
+                .body(body)
                 .build()?)
         };
 

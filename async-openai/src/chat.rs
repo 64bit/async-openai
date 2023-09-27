@@ -27,7 +27,11 @@ impl<'c, C: Config> Chat<'c, C> {
                 "When stream is true, use Chat::create_stream".into(),
             ));
         }
-        self.client.post("/chat/completions", request).await
+        if request.data_sources.is_none() {
+            self.client.post("/chat/completions", request).await
+        } else {
+            self.client.post("/extensions/chat/completions", request).await
+        }
     }
 
     /// Creates a completion for the chat message
