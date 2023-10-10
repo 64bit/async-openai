@@ -2,7 +2,7 @@ use std::{collections::HashMap, path::PathBuf, pin::Pin};
 
 use derive_builder::Builder;
 use futures::Stream;
-use serde::{Deserialize, Serialize};
+use serde::{ser::SerializeMap, Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
@@ -37,11 +37,40 @@ pub enum Stop {
     StringArray(Vec<String>), // minItems: 1; maxItems: 4
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(untagged)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ChatCompletionFunctionCall {
-    String(String),
-    Object(serde_json::Value),
+    None,
+    Auto,
+    Function(String),
+}
+
+impl Serialize for ChatCompletionFunctionCall {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        match self {
+            ChatCompletionFunctionCall::None => serializer.serialize_str("none"),
+            ChatCompletionFunctionCall::Auto => serializer.serialize_str("auto"),
+            ChatCompletionFunctionCall::Function(s) => {
+                let mut map = serializer.serialize_map(Some(1))?;
+                map.serialize_entry("name", s)?;
+                map.end()
+            }
+        }
+    }
+}
+
+impl<'de> serde::de::Deserialize<'de> for ChatCompletionFunctionCall {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+
+        match s.as_str() {
+            "none" => Ok(ChatCompletionFunctionCall::None),
+            "auto" => Ok(ChatCompletionFunctionCall::Auto),
+            _ => Ok(ChatCompletionFunctionCall::Function(s)),
+        }
+    }
 }
 
 #[derive(Clone, Serialize, Default, Debug, Builder, PartialEq)]
