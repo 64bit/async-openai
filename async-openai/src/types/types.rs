@@ -220,7 +220,7 @@ pub struct CreateEditResponse {
     pub usage: Usage,
 }
 
-#[derive(Default, Debug, Serialize, Clone, PartialEq)]
+#[derive(Default, Debug, Serialize, Clone, Copy, PartialEq)]
 pub enum ImageSize {
     #[serde(rename = "256x256")]
     S256x256,
@@ -231,7 +231,7 @@ pub enum ImageSize {
     S1024x1024,
 }
 
-#[derive(Debug, Serialize, Default, Clone, PartialEq)]
+#[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ResponseFormat {
     #[default]
@@ -345,7 +345,7 @@ pub enum ModerationInput {
     StringArray(Vec<String>),
 }
 
-#[derive(Debug, Serialize, Default, Clone, PartialEq)]
+#[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
 pub enum TextModerationModel {
     #[default]
     #[serde(rename = "text-moderation-latest")]
@@ -693,7 +693,7 @@ pub struct CreateEmbeddingResponse {
     pub usage: EmbeddingUsage,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, Default, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum Role {
     System,
@@ -904,7 +904,7 @@ pub struct AudioInput {
     pub path: PathBuf,
 }
 
-#[derive(Debug, Serialize, Default, Clone, PartialEq)]
+#[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum AudioResponseFormat {
     #[default]
