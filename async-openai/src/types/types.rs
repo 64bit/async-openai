@@ -39,38 +39,12 @@ pub enum Stop {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ChatCompletionFunctionCall {
+    /// The model does not call a function, and responds to the end-user.
     None,
+    /// The model can pick between an end-user or calling a function.
     Auto,
+    /// Forces the model to call the specified function.
     Function(String),
-}
-
-impl Serialize for ChatCompletionFunctionCall {
-    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        match self {
-            ChatCompletionFunctionCall::None => serializer.serialize_str("none"),
-            ChatCompletionFunctionCall::Auto => serializer.serialize_str("auto"),
-            ChatCompletionFunctionCall::Function(s) => {
-                let mut map = serializer.serialize_map(Some(1))?;
-                map.serialize_entry("name", s)?;
-                map.end()
-            }
-        }
-    }
-}
-
-impl<'de> serde::de::Deserialize<'de> for ChatCompletionFunctionCall {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let s = String::deserialize(deserializer)?;
-
-        match s.as_str() {
-            "none" => Ok(ChatCompletionFunctionCall::None),
-            "auto" => Ok(ChatCompletionFunctionCall::Auto),
-            _ => Ok(ChatCompletionFunctionCall::Function(s)),
-        }
-    }
 }
 
 #[derive(Clone, Serialize, Default, Debug, Builder, PartialEq)]
@@ -810,10 +784,7 @@ pub struct CreateChatCompletionRequest {
     pub functions: Option<Vec<ChatCompletionFunctions>>,
 
     /// Controls how the model responds to function calls.
-    /// "none" means the model does not call a function, and responds to the end-user.
-    /// "auto" means the model can pick between an end-user or calling a function.
-    /// Specifying a particular function via `{"name":\ "my_function"}` forces the model to call that function.
-    /// "none" is the default when no functions are present. "auto" is the default if functions are present.
+    /// None is the default when no functions are present. Auto is the default if functions are present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub function_call: Option<ChatCompletionFunctionCall>,
 

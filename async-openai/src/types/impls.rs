@@ -351,13 +351,36 @@ impl_from_for_array_of_integer_array!(u16, Prompt);
 
 impl From<&str> for ChatCompletionFunctionCall {
     fn from(value: &str) -> Self {
-        ChatCompletionFunctionCall::String(value.to_string())
+        match value {
+            "none" => Self::None,
+            "auto" => Self::Auto,
+            _ => Self::Function(value.to_string()),
+        }
     }
 }
 
-impl From<serde_json::Value> for ChatCompletionFunctionCall {
-    fn from(value: serde_json::Value) -> Self {
-        ChatCompletionFunctionCall::Object(value)
+impl Serialize for ChatCompletionFunctionCall {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        match self {
+            ChatCompletionFunctionCall::None => serializer.serialize_str("none"),
+            ChatCompletionFunctionCall::Auto => serializer.serialize_str("auto"),
+            ChatCompletionFunctionCall::Function(s) => {
+                let mut map = serializer.serialize_map(Some(1))?;
+                map.serialize_entry("name", s)?;
+                map.end()
+            }
+        }
+    }
+}
+
+impl<'de> serde::de::Deserialize<'de> for ChatCompletionFunctionCall {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+
+        Ok(s.as_str().into())
     }
 }
 
