@@ -2,7 +2,7 @@ use std::{collections::HashMap, path::PathBuf, pin::Pin};
 
 use derive_builder::Builder;
 use futures::Stream;
-use serde::{ser::SerializeMap, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
