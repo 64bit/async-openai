@@ -1,4 +1,7 @@
+use std::marker::PhantomData;
 use std::pin::Pin;
+use std::task::{Context, Poll};
+use pin_project_lite::pin_project;
 
 use futures::{stream::StreamExt, Stream};
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
@@ -262,7 +265,7 @@ impl<C: Config> Client<C> {
             .eventsource()
             .unwrap();
 
-        stream(event_source).await
+        Box::pin(OpenAIEventStream::new(event_source))
     }
 
     /// Make HTTP GET request to receive SSE
@@ -284,52 +287,59 @@ impl<C: Config> Client<C> {
             .eventsource()
             .unwrap();
 
-        stream(event_source).await
+        Box::pin(OpenAIEventStream::new(event_source))
     }
 }
 
-/// Request which responds with SSE.
-/// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-pub(crate) async fn stream<O>(
-    mut event_source: EventSource,
-) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
-where
-    O: DeserializeOwned + std::marker::Send + 'static,
-{
-    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+pin_project! {
+    /// Request which responds with SSE.
+    /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
+    pub(crate) struct OpenAIEventStream<O> {
+        #[pin]
+        event_source: EventSource,
+        _phantom_data: PhantomData<O>
+    }
+}
 
-    tokio::spawn(async move {
-        while let Some(ev) = event_source.next().await {
-            match ev {
-                Err(e) => {
-                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
-                        // rx dropped
-                        break;
+impl<O> OpenAIEventStream<O> {
+    pub(crate) fn new(event_source: EventSource) -> Self{
+        Self {
+            event_source,
+            _phantom_data: PhantomData::default(),
+        }
+    }
+}
+
+impl<O: DeserializeOwned + std::marker::Send + 'static> Stream for OpenAIEventStream<O> {
+    type Item = Result<O, OpenAIError>;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let this = self.project();
+        let event_source: Pin<&mut EventSource> = this.event_source;
+        match event_source.poll_next(cx) {
+            Poll::Ready(response) => {
+                match response {
+                    None => Poll::Ready(None), // end of the stream
+                    Some(result) => match result {
+                        Ok(event) => match event {
+                            Event::Open => Poll::Pending,  // stream is open but no data yet
+                            Event::Message(message) => {
+                                if message.data == "[DONE]" {
+                                    Poll::Ready(None)  // end of the stream, defined by OpenAI
+                                } else {
+                                    // deserialize the data
+                                    match serde_json::from_str::<O>(&message.data) {
+                                        Err(e) => Poll::Ready(Some(Err(map_deserialization_error(e, &message.data.as_bytes())))),
+                                        Ok(output) => Poll::Ready(Some(Ok(output))),
+                                    }
+                                }
+                            }
+                        }
+                        Err(e) => Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
                     }
                 }
-                Ok(event) => match event {
-                    Event::Message(message) => {
-                        if message.data == "[DONE]" {
-                            break;
-                        }
-
-                        let response = match serde_json::from_str::<O>(&message.data) {
-                            Err(e) => Err(map_deserialization_error(e, &message.data.as_bytes())),
-                            Ok(output) => Ok(output),
-                        };
-
-                        if let Err(_e) = tx.send(response) {
-                            // rx dropped
-                            break;
-                        }
-                    }
-                    Event::Open => continue,
-                },
             }
+            Poll::Pending => Poll::Pending
         }
-
-        event_source.close();
-    });
-
-    Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+    }
 }
