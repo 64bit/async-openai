@@ -6,12 +6,18 @@ use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
     config::{Config, OpenAIConfig},
-    edit::Edits,
     error::{map_deserialization_error, OpenAIError, WrappedError},
+    moderation::Moderations,
+    Chat, Completions, Embeddings, Models,
+};
+
+#[cfg(feature = "enable_tokio")]
+use crate::{
+    edit::Edits,
     file::Files,
     image::Images,
-    moderation::Moderations,
-    Audio, Chat, Completions, Embeddings, FineTunes, Models,
+    Audio,
+    FineTunes
 };
 
 #[derive(Debug, Clone)]
@@ -75,11 +81,13 @@ impl<C: Config> Client<C> {
         Chat::new(self)
     }
 
+    #[cfg(feature = "enable_tokio")]
     /// To call [Edits] group related APIs using this client.
     pub fn edits(&self) -> Edits<C> {
         Edits::new(self)
     }
 
+    #[cfg(feature = "enable_tokio")]
     /// To call [Images] group related APIs using this client.
     pub fn images(&self) -> Images<C> {
         Images::new(self)
@@ -90,11 +98,13 @@ impl<C: Config> Client<C> {
         Moderations::new(self)
     }
 
+    #[cfg(feature = "enable_tokio")]
     /// To call [Files] group related APIs using this client.
     pub fn files(&self) -> Files<C> {
         Files::new(self)
     }
 
+    #[cfg(feature = "enable_tokio")]
     /// To call [FineTunes] group related APIs using this client.
     pub fn fine_tunes(&self) -> FineTunes<C> {
         FineTunes::new(self)
@@ -105,6 +115,7 @@ impl<C: Config> Client<C> {
         Embeddings::new(self)
     }
 
+    #[cfg(feature = "enable_tokio")]
     /// To call [Audio] group related APIs using this client.
     pub fn audio(&self) -> Audio<C> {
         Audio::new(self)
@@ -243,6 +254,7 @@ impl<C: Config> Client<C> {
         .await
     }
 
+    #[cfg(feature = "enable_tokio")]
     /// Make HTTP POST request to receive SSE
     pub(crate) async fn post_stream<I, O>(
         &self,
@@ -265,6 +277,7 @@ impl<C: Config> Client<C> {
         stream(event_source).await
     }
 
+    #[cfg(feature = "enable_tokio")]
     /// Make HTTP GET request to receive SSE
     pub(crate) async fn get_stream<Q, O>(
         &self,
@@ -288,6 +301,7 @@ impl<C: Config> Client<C> {
     }
 }
 
+#[cfg(feature = "enable_tokio")]
 /// Request which responds with SSE.
 /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
 pub(crate) async fn stream<O>(

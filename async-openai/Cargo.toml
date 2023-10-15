@@ -15,7 +15,9 @@ homepage = "https://github.com/64bit/async-openai"
 repository = "https://github.com/64bit/async-openai"
 
 [features]
-default = ["rustls"]
+default = ["rustls", "enable_tokio"]
+# Enable tokio
+enable_tokio = ["backoff/tokio", "tokio", "tokio-util", "tokio-stream"]
 # Enable rustls for TLS support
 rustls = ["reqwest/rustls-tls-native-roots"]
 # Enable native-tls for TLS support
@@ -24,7 +26,7 @@ native-tls = ["reqwest/native-tls"]
 native-tls-vendored = ["reqwest/native-tls-vendored"]
 
 [dependencies]
-backoff = {version = "0.4.0", features = ["tokio"] }
+backoff = {version = "0.4.0", features = ["futures"] }
 base64 = "0.21.0"
 futures = "0.3.26"
 rand = "0.8.5"
@@ -33,13 +35,14 @@ reqwest-eventsource = "0.4.0"
 serde = { version = "1.0.152", features = ["derive", "rc"] }
 serde_json = "1.0.93"
 thiserror = "1.0.38"
-tokio = { version = "1.25.0", features = ["fs", "macros"] }
-tokio-stream = "0.1.11"
-tokio-util = { version = "0.7.7", features = ["codec", "io-util"] }
 tracing = "0.1.37"
 derive_builder = "0.12.0"
 async-convert = "1.0.0"
 secrecy = { version = "0.8.0", features=["serde"] }
+tokio = { version = "1.25.0", features = ["fs", "macros"], optional = true }
+tokio-stream = { version = "0.1.11", optional = true }
+tokio-util = { version = "0.7.7", features = ["codec", "io-util"], optional = true }
 
 [dev-dependencies]
 tokio-test = "0.4.2"
+tokio = { version = "1.25.0", features = ["fs", "macros"] }

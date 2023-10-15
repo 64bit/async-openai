@@ -2,8 +2,11 @@ use crate::{
     client::Client,
     config::Config,
     error::OpenAIError,
-    types::{CompletionResponseStream, CreateCompletionRequest, CreateCompletionResponse},
+    types::{CreateCompletionRequest, CreateCompletionResponse},
 };
+
+#[cfg(feature = "enable_tokio")]
+use crate::types::CompletionResponseStream;
 
 /// Given a prompt, the model will return one or more predicted
 /// completions, and can also return the probabilities of alternative
@@ -30,6 +33,7 @@ impl<'c, C: Config> Completions<'c, C> {
         self.client.post("/completions", request).await
     }
 
+    #[cfg(feature = "enable_tokio")]
     /// Creates a completion request for the provided prompt and parameters
     ///
     /// Stream back partial progress. Tokens will be sent as data-only
