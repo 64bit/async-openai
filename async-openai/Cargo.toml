@@ -17,7 +17,9 @@ repository = "https://github.com/64bit/async-openai"
 [features]
 default = ["rustls", "enable_tokio"]
 # Enable tokio
-enable_tokio = ["backoff/tokio", "tokio", "tokio-util", "tokio-stream"]
+enable_tokio = ["backoff/tokio", "tokio", "tokio-util", "tokio-stream", "enable_backoff"]
+# Enable backoff
+enable_backoff = ["backoff"]
 # Enable rustls for TLS support
 rustls = ["reqwest/rustls-tls-native-roots"]
 # Enable native-tls for TLS support
@@ -26,7 +28,7 @@ native-tls = ["reqwest/native-tls"]
 native-tls-vendored = ["reqwest/native-tls-vendored"]
 
 [dependencies]
-backoff = {version = "0.4.0", features = ["futures"] }
+backoff = {version = "0.4.0", features = ["futures"], optional = true }
 base64 = "0.21.0"
 futures = "0.3.26"
 rand = "0.8.5"

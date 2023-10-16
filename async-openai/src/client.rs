@@ -31,6 +31,7 @@ use crate::{
 pub struct Client<C: Config> {
     http_client: reqwest::Client,
     config: C,
+    #[cfg(feature = "enable_backoff")]
     backoff: backoff::ExponentialBackoff,
 }
 
@@ -40,6 +41,7 @@ impl Client<OpenAIConfig> {
         Self {
             http_client: reqwest::Client::new(),
             config: OpenAIConfig::default(),
+            #[cfg(feature = "enable_backoff")]
             backoff: Default::default(),
         }
     }
@@ -51,6 +53,7 @@ impl<C: Config> Client<C> {
         Self {
             http_client: reqwest::Client::new(),
             config,
+            #[cfg(feature = "enable_backoff")]
             backoff: Default::default(),
         }
     }
@@ -63,6 +66,7 @@ impl<C: Config> Client<C> {
         self
     }
 
+    #[cfg(feature = "enable_backoff")]
     /// Exponential backoff for retrying [rate limited](https://platform.openai.com/docs/guides/rate-limits) requests.
     pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
         self.backoff = backoff;
@@ -199,6 +203,7 @@ impl<C: Config> Client<C> {
         self.execute(request_maker).await
     }
 
+    #[cfg(feature = "enable_backoff")]
     /// Execute a HTTP request and retry on rate limit
     ///
     /// request_maker serves one purpose: to be able to create request again
@@ -257,6 +262,57 @@ impl<C: Config> Client<C> {
             Ok(response)
         })
         .await
+    }
+
+    #[cfg(not(feature = "enable_backoff"))]
+    /// Execute a HTTP request and retry on rate limit
+    ///
+    /// request_maker serves one purpose: to be able to create request again
+    /// to retry API call after getting rate limited. request_maker is async because
+    /// reqwest::multipart::Form is created by async calls to read files for uploads.
+    async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
+        where
+            O: DeserializeOwned,
+            M: Fn() -> Fut,
+            Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+    {
+        let client = self.http_client.clone();
+
+        let request = request_maker().await?;
+        let response = client
+            .execute(request)
+            .await
+            .map_err(OpenAIError::Reqwest)?;
+
+        let status = response.status();
+        let bytes = response
+            .bytes()
+            .await
+            .map_err(OpenAIError::Reqwest)?;
+
+        // Deserialize response body from either error object or actual response object
+        if !status.is_success() {
+            let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
+                .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+
+            if status.as_u16() == 429
+                // API returns 429 also when:
+                // "You exceeded your current quota, please check your plan and billing details."
+                && wrapped_error.error.r#type != Some("insufficient_quota".to_string())
+            {
+                // Rate limited retry...
+                tracing::warn!("Rate limited: {}", wrapped_error.error.message);
+                return Err(OpenAIError::ApiError(wrapped_error.error));
+            } else {
+                return Err(OpenAIError::ApiError(
+                    wrapped_error.error,
+                ));
+            }
+        }
+
+        let response: O = serde_json::from_slice(bytes.as_ref())
+            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+        Ok(response)
     }
 
     /// Make HTTP POST request to receive SSE
