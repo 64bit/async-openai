@@ -33,7 +33,7 @@ base64 = "0.21.0"
 futures = "0.3.26"
 rand = "0.8.5"
 reqwest = { version = "0.11.14", features = ["json", "stream", "multipart"],default-features = false }
-reqwest-eventsource = "0.4.0"
+reqwest-eventsource = "0.5.0"
 serde = { version = "1.0.152", features = ["derive", "rc"] }
 serde_json = "1.0.93"
 thiserror = "1.0.38"
