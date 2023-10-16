@@ -1,9 +1,11 @@
+use std::future;
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use pin_project_lite::pin_project;
 
 use futures::{stream::StreamExt, Stream};
+use futures::stream::Filter;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -296,16 +298,19 @@ pin_project! {
     /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
     pub(crate) struct OpenAIEventStream<O> {
         #[pin]
-        event_source: EventSource,
+        stream: Filter<EventSource, future::Ready<bool>, fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>>,
         _phantom_data: PhantomData<O>
     }
 }
 
 impl<O> OpenAIEventStream<O> {
-    pub(crate) fn new(event_source: EventSource) -> Self{
+    pub(crate) fn new(event_source: EventSource) -> Self {
         Self {
-            event_source,
-            _phantom_data: PhantomData::default(),
+            stream: event_source.filter(|result|
+                // filter out the first event which is always Event::Open
+                future::ready(!(result.is_ok()&&result.as_ref().unwrap().eq(&Event::Open)))
+            ),
+            _phantom_data: PhantomData
         }
     }
 }
@@ -315,14 +320,14 @@ impl<O: DeserializeOwned + std::marker::Send + 'static> Stream for OpenAIEventSt
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let this = self.project();
-        let event_source: Pin<&mut EventSource> = this.event_source;
-        match event_source.poll_next(cx) {
+        let stream: Pin<&mut _> = this.stream;
+        match stream.poll_next(cx) {
             Poll::Ready(response) => {
                 match response {
                     None => Poll::Ready(None), // end of the stream
                     Some(result) => match result {
                         Ok(event) => match event {
-                            Event::Open => Poll::Pending,  // stream is open but no data yet
+                            Event::Open => unreachable!(), // it has been filtered out
                             Event::Message(message) => {
                                 if message.data == "[DONE]" {
                                     Poll::Ready(None)  // end of the stream, defined by OpenAI
