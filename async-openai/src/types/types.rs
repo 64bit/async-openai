@@ -176,7 +176,6 @@ pub struct CreateCompletionResponse {
     pub usage: Option<Usage>,
 }
 
-#[cfg(feature = "enable_tokio")]
 /// Parsed server side events stream until an \[DONE\] is received from server.
 pub type CompletionResponseStream =
     Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>> + Send>>;
