@@ -16,6 +16,8 @@ repository = "https://github.com/64bit/async-openai"
 
 [features]
 default = ["rustls", "enable_tokio"]
+# build for wasm32-unknown-unknown
+wasm = ["getrandom/js", "rustls"]
 # Enable tokio
 enable_tokio = ["backoff/tokio", "tokio", "tokio-util", "tokio-stream", "enable_backoff"]
 # Enable backoff
@@ -45,6 +47,7 @@ tokio = { version = "1.25.0", features = ["fs", "macros"], optional = true }
 tokio-stream = { version = "0.1.11", optional = true }
 tokio-util = { version = "0.7.7", features = ["codec", "io-util"], optional = true }
 pin-project-lite = "0.2"
+getrandom = { version = "0.2" }
 
 
 [dev-dependencies]
