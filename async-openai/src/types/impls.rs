@@ -3,14 +3,14 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{
-    error::OpenAIError,
-    util::create_file_part,
-};
+use crate::error::OpenAIError;
 use super::{ChatCompletionFunctionCall, EmbeddingInput, ModerationInput, Prompt, Role, Stop};
 
 #[cfg(feature = "enable_tokio")]
 use crate::download::{download_url, save_b64};
+
+#[cfg(feature = "enable_tokio")]
+use crate::util::create_file_part;
 
 #[cfg(feature = "enable_tokio")]
 use super::{
@@ -96,8 +96,11 @@ macro_rules! file_path_input {
     };
 }
 
+#[cfg(feature = "enable_tokio")]
 file_path_input!(ImageInput);
+#[cfg(feature = "enable_tokio")]
 file_path_input!(FileInput);
+#[cfg(feature = "enable_tokio")]
 file_path_input!(AudioInput);
 
 #[cfg(feature = "enable_tokio")]
