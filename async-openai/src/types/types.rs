@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use derive_builder::Builder;
 use futures::Stream;
 use serde::{Deserialize, Serialize};
+use crate::client::OpenAIEventStream;
 
 use crate::error::OpenAIError;
 
@@ -177,8 +178,7 @@ pub struct CreateCompletionResponse {
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
-pub type CompletionResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>> + Send>>;
+pub type CompletionResponseStream = OpenAIEventStream<CreateCompletionResponse>;
 
 #[cfg(feature = "enable_tokio")]
 #[derive(Debug, Clone, Serialize, Default, Builder, PartialEq)]
@@ -625,7 +625,6 @@ pub struct FineTune {
     pub events: Option<Vec<FineTuneEvent>>,
 }
 
-#[cfg(feature = "enable_tokio")]
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct FineTuneEvent {
     pub object: String,
@@ -634,24 +633,20 @@ pub struct FineTuneEvent {
     pub message: String,
 }
 
-#[cfg(feature = "enable_tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct ListFineTuneEventsResponse {
     pub object: String,
     pub data: Vec<FineTuneEvent>,
 }
 
-#[cfg(feature = "enable_tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct ListFineTuneEventsStreamResponse {
     pub object: String,
     pub data: Option<Vec<FineTuneEvent>>,
 }
 
-#[cfg(feature = "enable_tokio")]
 /// Parsed server side events stream until an \[DONE\] is received from server.
-pub type FineTuneEventsResponseStream =
-    Pin<Box<dyn Stream<Item = Result<ListFineTuneEventsStreamResponse, OpenAIError>> + Send>>;
+pub type FineTuneEventsResponseStream = OpenAIEventStream<ListFineTuneEventsStreamResponse>;
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct DeleteModelResponse {
@@ -890,8 +885,7 @@ pub struct CreateChatCompletionResponse {
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
-pub type ChatCompletionResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateChatCompletionStreamResponse, OpenAIError>> + Send>>;
+pub type ChatCompletionResponseStream = OpenAIEventStream<CreateChatCompletionStreamResponse>;
 
 // For reason (not documented by OpenAI) the response from stream is different
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]

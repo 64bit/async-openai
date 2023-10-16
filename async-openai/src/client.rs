@@ -264,7 +264,7 @@ impl<C: Config> Client<C> {
         &self,
         path: &str,
         request: I,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    ) -> OpenAIEventStream<O>
     where
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
@@ -278,7 +278,7 @@ impl<C: Config> Client<C> {
             .eventsource()
             .unwrap();
 
-        Box::pin(OpenAIEventStream::new(event_source))
+        OpenAIEventStream::new(event_source)
     }
 
     /// Make HTTP GET request to receive SSE
@@ -286,7 +286,7 @@ impl<C: Config> Client<C> {
         &self,
         path: &str,
         query: &Q,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    ) -> OpenAIEventStream<O>
     where
         Q: Serialize + ?Sized,
         O: DeserializeOwned + std::marker::Send + 'static,
@@ -300,14 +300,14 @@ impl<C: Config> Client<C> {
             .eventsource()
             .unwrap();
 
-        Box::pin(OpenAIEventStream::new(event_source))
+        OpenAIEventStream::new(event_source)
     }
 }
 
 pin_project! {
     /// Request which responds with SSE.
     /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-    pub(crate) struct OpenAIEventStream<O> {
+    pub struct OpenAIEventStream<O> {
         #[pin]
         stream: Filter<EventSource, future::Ready<bool>, fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>>,
         _phantom_data: PhantomData<O>
