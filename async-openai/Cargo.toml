@@ -15,13 +15,13 @@ homepage = "https://github.com/64bit/async-openai"
 repository = "https://github.com/64bit/async-openai"
 
 [features]
-default = ["rustls", "enable_tokio"]
+default = ["rustls", "tokio"]
 # build for wasm32-unknown-unknown
 wasm = ["getrandom/js", "rustls"]
 # Enable tokio
-enable_tokio = ["backoff/tokio", "tokio", "tokio-util", "tokio-stream", "enable_backoff"]
+tokio = ["backoff/tokio", "dep:tokio", "tokio-util", "tokio-stream", "backoff"]
 # Enable backoff
-enable_backoff = ["backoff"]
+backoff = ["dep:backoff"]
 # Enable rustls for TLS support
 rustls = ["reqwest/rustls-tls-native-roots"]
 # Enable native-tls for TLS support

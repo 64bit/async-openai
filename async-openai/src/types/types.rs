@@ -1,5 +1,5 @@
 use std::{collections::HashMap, pin::Pin};
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 use std::path::PathBuf;
 
 use derive_builder::Builder;
@@ -222,7 +222,7 @@ pub struct CreateEditResponse {
     pub usage: Usage,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Default, Debug, Serialize, Clone, Copy, PartialEq)]
 pub enum ImageSize {
     #[serde(rename = "256x256")]
@@ -234,7 +234,7 @@ pub enum ImageSize {
     S1024x1024,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ResponseFormat {
@@ -244,7 +244,7 @@ pub enum ResponseFormat {
     B64Json,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Clone, Serialize, Default, Builder, PartialEq)]
 #[builder(name = "CreateImageRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -272,7 +272,7 @@ pub struct CreateImageRequest {
     pub user: Option<String>,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ImageData {
@@ -281,20 +281,20 @@ pub enum ImageData {
     B64Json(std::sync::Arc<String>),
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ImageResponse {
     pub created: u32,
     pub data: Vec<std::sync::Arc<ImageData>>,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct ImageInput {
     pub path: PathBuf,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Clone, Default, Builder, PartialEq)]
 #[builder(name = "CreateImageEditRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -324,7 +324,7 @@ pub struct CreateImageEditRequest {
     pub user: Option<String>,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateImageVariationRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -425,13 +425,13 @@ pub struct CreateModerationResponse {
     pub results: Vec<ContentModerationResult>,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct FileInput {
     pub path: PathBuf,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateFileRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -450,14 +450,14 @@ pub struct CreateFileRequest {
     pub purpose: String,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct ListFilesResponse {
     pub object: String,
     pub data: Vec<OpenAIFile>,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct DeleteFileResponse {
     pub id: String,
@@ -911,13 +911,13 @@ pub struct CreateChatCompletionStreamResponse {
     pub choices: Vec<ChatCompletionResponseStreamMessage>,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct AudioInput {
     pub path: PathBuf,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum AudioResponseFormat {
@@ -929,7 +929,7 @@ pub enum AudioResponseFormat {
     Vtt,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Clone, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateTranscriptionRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -956,13 +956,13 @@ pub struct CreateTranscriptionRequest {
     pub language: Option<String>,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct CreateTranscriptionResponse {
     pub text: String,
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Clone, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateTranslationRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -986,7 +986,7 @@ pub struct CreateTranslationRequest {
     pub temperature: Option<f32>, // default: 0
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateTranslationResponse {
     pub text: String,

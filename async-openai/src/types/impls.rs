@@ -6,20 +6,20 @@ use std::{
 use crate::error::OpenAIError;
 use super::{ChatCompletionFunctionCall, EmbeddingInput, ModerationInput, Prompt, Role, Stop};
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 use crate::download::{download_url, save_b64};
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 use crate::util::create_file_part;
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 use super::{
     AudioInput, AudioResponseFormat, CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateTranscriptionRequest,
     CreateTranslationRequest, ResponseFormat,
 };
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 use super::{FileInput, ImageData, ImageInput, ImageResponse, ImageSize};
 
 macro_rules! impl_from {
@@ -96,14 +96,14 @@ macro_rules! file_path_input {
     };
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 file_path_input!(ImageInput);
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 file_path_input!(FileInput);
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 file_path_input!(AudioInput);
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 impl Display for ImageSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -118,7 +118,7 @@ impl Display for ImageSize {
     }
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 impl Display for ResponseFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -132,7 +132,7 @@ impl Display for ResponseFormat {
     }
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 impl Display for AudioResponseFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -149,7 +149,7 @@ impl Display for AudioResponseFormat {
     }
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 impl Display for Role {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -165,7 +165,7 @@ impl Display for Role {
     }
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 impl ImageResponse {
     /// Save each image in a dedicated Tokio task and return paths to saved files.
     /// For [ResponseFormat::Url] each file is downloaded in dedicated Tokio task.
@@ -214,7 +214,7 @@ impl ImageResponse {
     }
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 impl ImageData {
     async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<PathBuf, OpenAIError> {
         match self {
@@ -378,7 +378,7 @@ impl From<serde_json::Value> for ChatCompletionFunctionCall {
 
 // start: types to multipart from
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -405,7 +405,7 @@ impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::
     }
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -432,7 +432,7 @@ impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Fo
     }
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -471,7 +471,7 @@ impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form
     }
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -503,7 +503,7 @@ impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart:
     }
 }
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;

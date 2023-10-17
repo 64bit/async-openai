@@ -77,39 +77,39 @@
 //! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //!
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 mod audio;
 mod chat;
 mod client;
 mod completion;
 pub mod config;
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 mod download;
 mod edit;
 mod embedding;
 pub mod error;
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 mod file;
 mod fine_tune;
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 mod image;
 mod model;
 mod moderation;
 pub mod types;
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 mod util;
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 pub use audio::Audio;
 pub use chat::Chat;
 pub use client::Client;
 pub use completion::Completions;
 pub use edit::Edits;
 pub use embedding::Embeddings;
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 pub use file::Files;
 pub use fine_tune::FineTunes;
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 pub use image::Images;
 pub use model::Models;
 pub use moderation::Moderations;

@@ -16,7 +16,7 @@ use crate::{
     Chat, Completions, Embeddings, Models, FineTunes
 };
 
-#[cfg(feature = "enable_tokio")]
+#[cfg(feature = "tokio")]
 use crate::{
     edit::Edits,
     file::Files,
@@ -30,7 +30,7 @@ use crate::{
 pub struct Client<C: Config> {
     http_client: reqwest::Client,
     config: C,
-    #[cfg(feature = "enable_backoff")]
+    #[cfg(feature = "backoff")]
     backoff: backoff::ExponentialBackoff,
 }
 
@@ -40,7 +40,7 @@ impl Client<OpenAIConfig> {
         Self {
             http_client: reqwest::Client::new(),
             config: OpenAIConfig::default(),
-            #[cfg(feature = "enable_backoff")]
+            #[cfg(feature = "backoff")]
             backoff: Default::default(),
         }
     }
@@ -52,7 +52,7 @@ impl<C: Config> Client<C> {
         Self {
             http_client: reqwest::Client::new(),
             config,
-            #[cfg(feature = "enable_backoff")]
+            #[cfg(feature = "backoff")]
             backoff: Default::default(),
         }
     }
@@ -65,7 +65,7 @@ impl<C: Config> Client<C> {
         self
     }
 
-    #[cfg(feature = "enable_backoff")]
+    #[cfg(feature = "backoff")]
     /// Exponential backoff for retrying [rate limited](https://platform.openai.com/docs/guides/rate-limits) requests.
     pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
         self.backoff = backoff;
@@ -89,13 +89,13 @@ impl<C: Config> Client<C> {
         Chat::new(self)
     }
 
-    #[cfg(feature = "enable_tokio")]
+    #[cfg(feature = "tokio")]
     /// To call [Edits] group related APIs using this client.
     pub fn edits(&self) -> Edits<C> {
         Edits::new(self)
     }
 
-    #[cfg(feature = "enable_tokio")]
+    #[cfg(feature = "tokio")]
     /// To call [Images] group related APIs using this client.
     pub fn images(&self) -> Images<C> {
         Images::new(self)
@@ -106,7 +106,7 @@ impl<C: Config> Client<C> {
         Moderations::new(self)
     }
 
-    #[cfg(feature = "enable_tokio")]
+    #[cfg(feature = "tokio")]
     /// To call [Files] group related APIs using this client.
     pub fn files(&self) -> Files<C> {
         Files::new(self)
@@ -122,7 +122,7 @@ impl<C: Config> Client<C> {
         Embeddings::new(self)
     }
 
-    #[cfg(feature = "enable_tokio")]
+    #[cfg(feature = "tokio")]
     /// To call [Audio] group related APIs using this client.
     pub fn audio(&self) -> Audio<C> {
         Audio::new(self)
@@ -201,7 +201,7 @@ impl<C: Config> Client<C> {
         self.execute(request_maker).await
     }
 
-    #[cfg(feature = "enable_backoff")]
+    #[cfg(feature = "backoff")]
     /// Execute a HTTP request and retry on rate limit
     ///
     /// request_maker serves one purpose: to be able to create request again
@@ -262,7 +262,7 @@ impl<C: Config> Client<C> {
         .await
     }
 
-    #[cfg(not(feature = "enable_backoff"))]
+    #[cfg(not(feature = "backoff"))]
     /// Execute a HTTP request and retry on rate limit
     ///
     /// request_maker serves one purpose: to be able to create request again
