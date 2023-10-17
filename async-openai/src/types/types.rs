@@ -180,7 +180,6 @@ pub struct CreateCompletionResponse {
 /// Parsed server side events stream until an \[DONE\] is received from server.
 pub type CompletionResponseStream = OpenAIEventStream<CreateCompletionResponse>;
 
-#[cfg(feature = "enable_tokio")]
 #[derive(Debug, Clone, Serialize, Default, Builder, PartialEq)]
 #[builder(name = "CreateEditRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -215,7 +214,6 @@ pub struct CreateEditRequest {
     pub top_p: Option<f32>, // min: 0, max: 1, default: 1
 }
 
-#[cfg(feature = "enable_tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateEditResponse {
     pub object: String,
@@ -467,7 +465,6 @@ pub struct DeleteFileResponse {
     pub deleted: bool,
 }
 
-#[cfg(feature = "enable_tokio")]
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct OpenAIFile {
     pub id: String,
@@ -480,7 +477,6 @@ pub struct OpenAIFile {
     pub status_details: Option<serde_json::Value>, // nullable: true
 }
 
-#[cfg(feature = "enable_tokio")]
 #[derive(Debug, Serialize, Clone, Default, Builder, PartialEq)]
 #[builder(name = "CreateFineTuneRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -600,14 +596,12 @@ pub struct CreateFineTuneRequest {
     pub suffix: Option<String>, // default: null, minLength:1, maxLength:40
 }
 
-#[cfg(feature = "enable_tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct ListFineTuneResponse {
     pub object: String,
     pub data: Vec<FineTune>,
 }
 
-#[cfg(feature = "enable_tokio")]
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct FineTune {
     pub id: String,

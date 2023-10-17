@@ -1,7 +1,6 @@
 use futures::future::{BoxFuture, FutureExt};
 use futures::StreamExt;
 
-#[cfg(feature = "enable_tokio")]
 use async_openai::types::{CompletionResponseStream, CreateCompletionRequestArgs};
 use async_openai::Client;
 

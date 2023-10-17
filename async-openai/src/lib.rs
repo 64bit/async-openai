@@ -85,13 +85,11 @@ mod completion;
 pub mod config;
 #[cfg(feature = "enable_tokio")]
 mod download;
-#[cfg(feature = "enable_tokio")]
 mod edit;
 mod embedding;
 pub mod error;
 #[cfg(feature = "enable_tokio")]
 mod file;
-#[cfg(feature = "enable_tokio")]
 mod fine_tune;
 #[cfg(feature = "enable_tokio")]
 mod image;
@@ -106,12 +104,10 @@ pub use audio::Audio;
 pub use chat::Chat;
 pub use client::Client;
 pub use completion::Completions;
-#[cfg(feature = "enable_tokio")]
 pub use edit::Edits;
 pub use embedding::Embeddings;
 #[cfg(feature = "enable_tokio")]
 pub use file::Files;
-#[cfg(feature = "enable_tokio")]
 pub use fine_tune::FineTunes;
 #[cfg(feature = "enable_tokio")]
 pub use image::Images;

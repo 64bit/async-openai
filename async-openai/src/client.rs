@@ -13,7 +13,7 @@ use crate::{
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, OpenAIError, WrappedError},
     moderation::Moderations,
-    Chat, Completions, Embeddings, Models,
+    Chat, Completions, Embeddings, Models, FineTunes
 };
 
 #[cfg(feature = "enable_tokio")]
@@ -22,7 +22,6 @@ use crate::{
     file::Files,
     image::Images,
     Audio,
-    FineTunes
 };
 
 #[derive(Debug, Clone)]
@@ -113,7 +112,6 @@ impl<C: Config> Client<C> {
         Files::new(self)
     }
 
-    #[cfg(feature = "enable_tokio")]
     /// To call [FineTunes] group related APIs using this client.
     pub fn fine_tunes(&self) -> FineTunes<C> {
         FineTunes::new(self)
