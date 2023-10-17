@@ -110,6 +110,10 @@ impl<C: Config> Client<C> {
         Audio::new(self)
     }
 
+    pub fn config(&self) -> &C {
+        &self.config
+    }
+
     /// Make a GET request to {path} and deserialize the response body
     pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
     where
