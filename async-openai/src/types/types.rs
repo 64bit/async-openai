@@ -1,9 +1,8 @@
-use std::{collections::HashMap, pin::Pin};
+use std::collections::HashMap;
 #[cfg(feature = "tokio")]
 use std::path::PathBuf;
 
 use derive_builder::Builder;
-use futures::Stream;
 use serde::{Deserialize, Serialize};
 use crate::client::OpenAIEventStream;
 
