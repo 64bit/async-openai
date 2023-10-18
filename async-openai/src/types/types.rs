@@ -636,7 +636,7 @@ pub struct DeleteModelResponse {
     pub deleted: bool,
 }
 
-#[derive(Debug, Serialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(untagged)]
 pub enum EmbeddingInput {
     String(String),
@@ -646,7 +646,7 @@ pub enum EmbeddingInput {
     ArrayOfIntegerArray(Vec<Vec<u32>>),
 }
 
-#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateEmbeddingRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
