@@ -152,7 +152,7 @@ pub struct Logprobs {
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct Choice {
     pub text: String,
-    pub index: u32,
+    pub index: Option<u32>,
     pub logprobs: Option<Logprobs>,
     pub finish_reason: Option<String>,
 }
@@ -668,7 +668,7 @@ pub struct CreateEmbeddingRequest {
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct Embedding {
-    pub index: u32,
+    pub index: Option<u32>,
     pub object: String,
     pub embedding: Vec<f32>,
 }
@@ -843,7 +843,7 @@ pub struct CreateChatCompletionRequest {
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ChatChoice {
-    pub index: u32,
+    pub index: Option<u32>,
     pub message: ChatCompletionResponseMessage,
     pub finish_reason: Option<String>,
 }
@@ -872,7 +872,7 @@ pub struct ChatCompletionResponseStreamMessage {
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ChatChoiceDelta {
-    pub index: u32,
+    pub index: Option<u32>,
     pub delta: ChatCompletionResponseStreamMessage,
     pub finish_reason: Option<String>,
 }
