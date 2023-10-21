@@ -1,5 +1,4 @@
 use crate::{
-    config::Config,
     error::OpenAIError,
     types::{CreateModerationRequest, CreateModerationResponse},
     Client,

@@ -245,7 +245,7 @@ impl Client {
                 .map_err(backoff::Error::Permanent)?;
             Ok(response)
         })
-        .await
+            .await
     }
 
     /// Make HTTP POST request to receive SSE

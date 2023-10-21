@@ -1,6 +1,5 @@
 use crate::{
     client::Client,
-    config::Config,
     error::OpenAIError,
     types::{CompletionResponseStream, CreateCompletionRequest, CreateCompletionResponse},
 };
