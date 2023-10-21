@@ -6,12 +6,12 @@ use crate::{
 };
 
 /// Files are used to upload documents that can be used with features like [Fine-tuning](https://platform.openai.com/docs/api-reference/fine-tunes).
-pub struct Files<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct Files<'c> {
+    client: &'c Client,
 }
 
-impl<'c, C: Config> Files<'c, C> {
-    pub fn new(client: &'c Client<C>) -> Self {
+impl<'c> Files<'c> {
+    pub fn new(client: &'c Client) -> Self {
         Self { client }
     }
 

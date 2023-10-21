@@ -1,4 +1,5 @@
 use std::pin::Pin;
+use std::rc::Rc;
 
 use futures::{stream::StreamExt, Stream};
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
@@ -17,29 +18,29 @@ use crate::{
 #[derive(Debug, Clone)]
 /// Client is a container for config, backoff and http_client
 /// used to make API calls.
-pub struct Client<C: Config> {
+pub struct Client {
     http_client: reqwest::Client,
-    config: C,
+    config: Rc<dyn Config>,
     backoff: backoff::ExponentialBackoff,
 }
 
-impl Client<OpenAIConfig> {
+impl Client {
     /// Client with default [OpenAIConfig]
     pub fn new() -> Self {
         Self {
             http_client: reqwest::Client::new(),
-            config: OpenAIConfig::default(),
+            config: Rc::new(OpenAIConfig::default()),
             backoff: Default::default(),
         }
     }
 }
 
-impl<C: Config> Client<C> {
+impl Client {
     /// Create client with [OpenAIConfig] or [crate::config::AzureConfig]
-    pub fn with_config(config: C) -> Self {
+    pub fn with_config<C: Config>(config: C) -> Self {
         Self {
             http_client: reqwest::Client::new(),
-            config,
+            config: Rc::new(config),
             backoff: Default::default(),
         }
     }
@@ -61,56 +62,56 @@ impl<C: Config> Client<C> {
     // API groups
 
     /// To call [Models] group related APIs using this client.
-    pub fn models(&self) -> Models<C> {
+    pub fn models(&self) -> Models {
         Models::new(self)
     }
 
     /// To call [Completions] group related APIs using this client.
-    pub fn completions(&self) -> Completions<C> {
+    pub fn completions(&self) -> Completions {
         Completions::new(self)
     }
 
     /// To call [Chat] group related APIs using this client.
-    pub fn chat(&self) -> Chat<C> {
+    pub fn chat(&self) -> Chat {
         Chat::new(self)
     }
 
     /// To call [Edits] group related APIs using this client.
-    pub fn edits(&self) -> Edits<C> {
+    pub fn edits(&self) -> Edits {
         Edits::new(self)
     }
 
     /// To call [Images] group related APIs using this client.
-    pub fn images(&self) -> Images<C> {
+    pub fn images(&self) -> Images {
         Images::new(self)
     }
 
     /// To call [Moderations] group related APIs using this client.
-    pub fn moderations(&self) -> Moderations<C> {
+    pub fn moderations(&self) -> Moderations {
         Moderations::new(self)
     }
 
     /// To call [Files] group related APIs using this client.
-    pub fn files(&self) -> Files<C> {
+    pub fn files(&self) -> Files {
         Files::new(self)
     }
 
     /// To call [FineTunes] group related APIs using this client.
-    pub fn fine_tunes(&self) -> FineTunes<C> {
+    pub fn fine_tunes(&self) -> FineTunes {
         FineTunes::new(self)
     }
 
     /// To call [Embeddings] group related APIs using this client.
-    pub fn embeddings(&self) -> Embeddings<C> {
+    pub fn embeddings(&self) -> Embeddings {
         Embeddings::new(self)
     }
 
     /// To call [Audio] group related APIs using this client.
-    pub fn audio(&self) -> Audio<C> {
+    pub fn audio(&self) -> Audio {
         Audio::new(self)
     }
 
-    pub fn config(&self) -> &C {
+    pub fn config(&self) -> &Rc<dyn Config> {
         &self.config
     }
 

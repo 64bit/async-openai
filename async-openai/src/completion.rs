@@ -8,12 +8,12 @@ use crate::{
 /// Given a prompt, the model will return one or more predicted
 /// completions, and can also return the probabilities of alternative
 /// tokens at each position.
-pub struct Completions<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct Completions<'c> {
+    client: &'c Client,
 }
 
-impl<'c, C: Config> Completions<'c, C> {
-    pub fn new(client: &'c Client<C>) -> Self {
+impl<'c> Completions<'c> {
+    pub fn new(client: &'c Client) -> Self {
         Self { client }
     }
 

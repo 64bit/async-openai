@@ -8,12 +8,12 @@ use crate::{
 };
 
 /// Given a chat conversation, the model will return a chat completion response.
-pub struct Chat<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct Chat<'c> {
+    client: &'c Client,
 }
 
-impl<'c, C: Config> Chat<'c, C> {
-    pub fn new(client: &'c Client<C>) -> Self {
+impl<'c> Chat<'c> {
+    pub fn new(client: &'c Client) -> Self {
         Self { client }
     }
 

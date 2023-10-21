@@ -10,12 +10,12 @@ use crate::{
 
 /// Turn audio into text
 /// Related guide: [Speech to text](https://platform.openai.com/docs/guides/speech-to-text)
-pub struct Audio<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct Audio<'c> {
+    client: &'c Client,
 }
 
-impl<'c, C: Config> Audio<'c, C> {
-    pub fn new(client: &'c Client<C>) -> Self {
+impl<'c> Audio<'c> {
+    pub fn new(client: &'c Client) -> Self {
         Self { client }
     }
 
