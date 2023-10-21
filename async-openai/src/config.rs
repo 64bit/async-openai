@@ -1,4 +1,5 @@
 //! Client configurations: [OpenAIConfig] for OpenAI, [AzureConfig] for Azure OpenAI Service.
+use std::fmt::Debug;
 use reqwest::header::{HeaderMap, AUTHORIZATION};
 use secrecy::{ExposeSecret, Secret};
 use serde::Deserialize;
@@ -10,7 +11,7 @@ pub const OPENAI_ORGANIZATION_HEADER: &str = "OpenAI-Organization";
 
 /// [crate::Client] relies on this for every API call on OpenAI
 /// or Azure OpenAI service
-pub trait Config {
+pub trait Config: 'static + Debug {
     fn headers(&self) -> HeaderMap;
     fn url(&self, path: &str) -> String;
     fn query(&self) -> Vec<(&str, &str)>;
