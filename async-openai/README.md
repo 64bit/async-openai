@@ -24,20 +24,22 @@
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
   - [x] Audio
-  - [x] Chat (including SSE streaming)
-  - [x] Completions (including SSE streaming)
-  - [x] Edits
+  - [x] Chat
+  - [x] Completions (Legacy)
+  - [x] Edits (Deprecated)
   - [x] Embeddings
   - [x] Files
-  - [x] Fine-Tuning (including SSE streaming)
+  - [x] Fine-Tuning
+  - [x] Fine-Tunes (Deprecated)
   - [x] Images
-  - [x] Microsoft Azure Endpoints
+  - [x] Microsoft OpenAI Service
   - [x] Models
   - [x] Moderations
+- Support SSE streaming on available APIs
 - All requests including form submissions (except SSE streaming) are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits) by the API server.
-- Ergonomic Rust library with builder pattern for all request objects.
+- Ergonomic builder pattern for all request objects.
 
-**Note on Azure OpenAI Service (AOS)**:  `async-openai` primarily implements OpenAI APIs, and does't try to maintain parity with spec of AOS.
+**Note on Azure OpenAI Service (AOS)**:  `async-openai` primarily implements OpenAI spec, and doesn't try to maintain parity with spec of AOS.
 
 ## Usage
 
