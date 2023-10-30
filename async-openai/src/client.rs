@@ -11,7 +11,7 @@ use crate::{
     file::Files,
     image::Images,
     moderation::Moderations,
-    Audio, Chat, Completions, Embeddings, FineTunes, Models,
+    Audio, Chat, Completions, Embeddings, FineTunes, FineTuning, Models,
 };
 
 #[derive(Debug, Clone)]
@@ -76,6 +76,7 @@ impl<C: Config> Client<C> {
     }
 
     /// To call [Edits] group related APIs using this client.
+    #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn edits(&self) -> Edits<C> {
         Edits::new(self)
     }
@@ -96,8 +97,14 @@ impl<C: Config> Client<C> {
     }
 
     /// To call [FineTunes] group related APIs using this client.
+    #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn fine_tunes(&self) -> FineTunes<C> {
         FineTunes::new(self)
+    }
+
+    /// To call [FineTuning] group related APIs using this client.
+    pub fn fine_tuning(&self) -> FineTuning<C> {
+        FineTuning::new(self)
     }
 
     /// To call [Embeddings] group related APIs using this client.
@@ -124,6 +131,25 @@ impl<C: Config> Client<C> {
                 .http_client
                 .get(self.config.url(path))
                 .query(&self.config.query())
+                .headers(self.config.headers())
+                .build()?)
+        };
+
+        self.execute(request_maker).await
+    }
+
+    /// Make a GET request to {path} with given Query and deserialize the response body
+    pub(crate) async fn get_with_query<Q, O>(&self, path: &str, query: &Q) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+        Q: Serialize + ?Sized,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .get(self.config.url(path))
+                .query(&self.config.query())
+                .query(query)
                 .headers(self.config.headers())
                 .build()?)
         };

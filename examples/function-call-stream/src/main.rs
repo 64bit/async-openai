@@ -2,10 +2,11 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::io::{stdout, Write};
 
+use async_openai::types::FinishReason;
 use async_openai::{
     types::{
         ChatCompletionFunctionsArgs, ChatCompletionRequestMessageArgs,
-        CreateChatCompletionRequestArgs, FinishReason, Role,
+        CreateChatCompletionRequestArgs, Role,
     },
     Client,
 };
@@ -62,8 +63,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             fn_args.push_str(args);
                         }
                     }
-                    if let Some(finish_reason) = chat_choice.finish_reason {
-                        if finish_reason == FinishReason::FunctionCall {
+                    if let Some(finish_reason) = &chat_choice.finish_reason {
+                        if matches!(finish_reason, FinishReason::FunctionCall) {
                             call_fn(&client, &fn_name, &fn_args).await?;
                         }
                     } else if let Some(content) = &chat_choice.delta.content {

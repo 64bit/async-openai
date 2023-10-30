@@ -12,8 +12,8 @@ use crate::{
 use super::{
     AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateTranscriptionRequest,
-    CreateTranslationRequest, EmbeddingInput, FileInput, ImageData, ImageInput, ImageResponse,
-    ImageSize, ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    CreateTranslationRequest, EmbeddingInput, FileInput, Image, ImageInput, ImageSize,
+    ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role, Stop,
 };
 
 macro_rules! impl_from {
@@ -152,7 +152,7 @@ impl Display for Role {
     }
 }
 
-impl ImageResponse {
+impl ImagesResponse {
     /// Save each image in a dedicated Tokio task and return paths to saved files.
     /// For [ResponseFormat::Url] each file is downloaded in dedicated Tokio task.
     pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<Vec<PathBuf>, OpenAIError> {
@@ -200,11 +200,11 @@ impl ImageResponse {
     }
 }
 
-impl ImageData {
+impl Image {
     async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<PathBuf, OpenAIError> {
         match self {
-            ImageData::Url(url) => download_url(url, dir).await,
-            ImageData::B64Json(b64_json) => save_b64(b64_json, dir).await,
+            Image::Url(url) => download_url(url, dir).await,
+            Image::B64Json(b64_json) => save_b64(b64_json, dir).await,
         }
     }
 }
@@ -351,14 +351,11 @@ impl_from_for_array_of_integer_array!(u16, Prompt);
 
 impl From<&str> for ChatCompletionFunctionCall {
     fn from(value: &str) -> Self {
-        match value {
-            "none" => Self::None,
+        match value.to_lowercase().as_str() {
             "auto" => Self::Auto,
-            _ => Self::Function { name: value.to_string() },
+            "none" => Self::None,
+            _ => Self::Function { name: value.into() },
         }
-    }
-}
-
     }
 }
 

@@ -6,11 +6,16 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
+/// Describes an OpenAI model offering that can be used with the API.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct Model {
+    /// The model identifier, which can be referenced in the API endpoints.
     pub id: String,
+    /// The object type, which is always "model".
     pub object: String,
+    /// The Unix timestamp (in seconds) when the model was created.
     pub created: u32,
+    /// The organization that owns the model.
     pub owned_by: String,
 }
 
@@ -37,14 +42,21 @@ pub enum Stop {
     StringArray(Vec<String>), // minItems: 1; maxItems: 4
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum ChatCompletionFunctionCall {
     /// The model does not call a function, and responds to the end-user.
+    #[serde(rename = "none")]
     None,
     /// The model can pick between an end-user or calling a function.
+    #[serde(rename = "auto")]
     Auto,
+
+    // In spec this is ChatCompletionFunctionCallOption
+    // based on feedback from @m1guelpf in https://github.com/64bit/async-openai/pull/118
+    // it is diverged from the spec
     /// Forces the model to call the specified function.
-    Function { name : String },
+    #[serde(untagged)]
+    Function { name: String },
 }
 
 #[derive(Clone, Serialize, Default, Debug, Builder, PartialEq)]
@@ -152,18 +164,30 @@ pub struct Logprobs {
     pub text_offset: Vec<u32>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum CompletionFinishReason {
+    Stop,
+    Length,
+    ContentFilter,
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct Choice {
     pub text: String,
     pub index: u32,
     pub logprobs: Option<Logprobs>,
-    pub finish_reason: Option<FinishReason>,
+    pub finish_reason: Option<CompletionFinishReason>,
 }
 
+/// Usage statistics for the completion request.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct Usage {
+pub struct CompletionUsage {
+    /// Number of tokens in the prompt.
     pub prompt_tokens: u32,
+    /// Number of tokens in the generated completion.
     pub completion_tokens: u32,
+    /// Total number of tokens used in the request (prompt + completion).
     pub total_tokens: u32,
 }
 
@@ -174,7 +198,7 @@ pub struct CreateCompletionResponse {
     pub created: u32,
     pub model: String,
     pub choices: Vec<Choice>,
-    pub usage: Option<Usage>,
+    pub usage: Option<CompletionUsage>,
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
@@ -220,7 +244,7 @@ pub struct CreateEditResponse {
     pub object: String,
     pub created: u32,
     pub choices: Vec<Choice>,
-    pub usage: Usage,
+    pub usage: CompletionUsage,
 }
 
 #[derive(Default, Debug, Serialize, Clone, Copy, PartialEq)]
@@ -272,16 +296,18 @@ pub struct CreateImageRequest {
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum ImageData {
-    Url(std::sync::Arc<String>),
+pub enum Image {
+    /// The URL of the generated image, if `response_format` is `url` (default).
+    Url(String),
+    /// The base64-encoded JSON of the generated image, if `response_format` is `b64_json`.
     #[serde(rename = "b64_json")]
     B64Json(std::sync::Arc<String>),
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct ImageResponse {
+pub struct ImagesResponse {
     pub created: u32,
-    pub data: Vec<std::sync::Arc<ImageData>>,
+    pub data: Vec<std::sync::Arc<Image>>,
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -376,45 +402,94 @@ pub struct CreateModerationRequest {
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct Category {
+    /// Content that expresses, incites, or promotes hate based on race, gender,
+    /// ethnicity, religion, nationality, sexual orientation, disability status, or
+    /// caste. Hateful content aimed at non-protected groups (e.g., chess players)
+    /// is harrassment.
     pub hate: bool,
     #[serde(rename = "hate/threatening")]
+    /// Hateful content that also includes violence or serious harm towards the
+    /// targeted group based on race, gender, ethnicity, religion, nationality,
+    /// sexual orientation, disability status, or caste.
     pub hate_threatening: bool,
+    /// Content that expresses, incites, or promotes harassing language towards any target.
+    pub harassment: bool,
+    /// Harassment content that also includes violence or serious harm towards any target.
+    #[serde(rename = "harassment/threatening")]
+    pub harassment_threatening: bool,
+    /// Content that promotes, encourages, or depicts acts of self-harm, such as suicide, cutting, and eating disorders.
     #[serde(rename = "self-harm")]
     pub self_harm: bool,
+    /// Content where the speaker expresses that they are engaging or intend to engage in acts of self-harm, such as suicide, cutting, and eating disorders.
+    #[serde(rename = "self-harm/intent")]
+    pub self_harm_intent: bool,
+    /// Content that encourages performing acts of self-harm, such as suicide, cutting, and eating disorders, or that gives instructions or advice on how to commit such acts.
+    #[serde(rename = "self-harm/instructions")]
+    pub self_harm_instructions: bool,
+    /// Content meant to arouse sexual excitement, such as the description of sexual activity, or that promotes sexual services (excluding sex education and wellness).
     pub sexual: bool,
+    /// Sexual content that includes an individual who is under 18 years old.
     #[serde(rename = "sexual/minors")]
     pub sexual_minors: bool,
+    /// Content that depicts death, violence, or physical injury.
     pub violence: bool,
+    /// Content that depicts death, violence, or physical injury in graphic detail.
     #[serde(rename = "violence/graphic")]
     pub violence_graphic: bool,
 }
 
+/// A list of the categories along with their scores as predicted by model.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct CategoryScore {
+    /// The score for the category 'hate'.
     pub hate: f32,
+    /// The score for the category 'hate/threatening'.
     #[serde(rename = "hate/threatening")]
     pub hate_threatening: f32,
+    /// The score for the category 'harassment'.
+    pub harassment: f32,
+    /// The score for the category 'harassment/threatening'.
+    #[serde(rename = "harassment/threatening")]
+    pub harassment_threatening: f32,
+    /// The score for the category 'self-harm'.
     #[serde(rename = "self-harm")]
     pub self_harm: f32,
+    /// The score for the category 'self-harm/intent'.
+    #[serde(rename = "self-harm/intent")]
+    pub self_harm_intent: f32,
+    /// The score for the category 'self-harm/instructions'.
+    #[serde(rename = "self-harm/instructions")]
+    pub self_harm_instructions: f32,
+    /// The score for the category 'sexual'.
     pub sexual: f32,
+    /// The score for the category 'sexual/minors'.
     #[serde(rename = "sexual/minors")]
     pub sexual_minors: f32,
+    /// The score for the category 'violence'.
     pub violence: f32,
+    /// The score for the category 'violence/graphic'.
     #[serde(rename = "violence/graphic")]
     pub violence_graphic: f32,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ContentModerationResult {
+    /// Whether the content violates [OpenAI's usage policies](https://platform.openai.com/policies/usage-policies).
     pub flagged: bool,
+    /// A list of the categories, and whether they are flagged or not.
     pub categories: Category,
+    /// A list of the categories along with their scores as predicted by model.
     pub category_scores: CategoryScore,
 }
 
+/// Represents policy compliance report by OpenAI's content moderation model against a given input.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct CreateModerationResponse {
+    /// The unique identifier for the moderation request.
     pub id: String,
+    /// The model used to generate the moderation results.
     pub model: String,
+    /// A list of moderation objects.
     pub results: Vec<ContentModerationResult>,
 }
 
@@ -430,14 +505,15 @@ pub struct FileInput {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateFileRequest {
-    /// Name of the [JSON Lines](https://jsonlines.readthedocs.io/en/latest/) file to be uploaded.
+    /// The file object to be uploaded.
     ///
-    /// If the `purpose` is set to "fine-tune", each line is a JSON record with "prompt" and "completion" fields representing your [training examples](https://platform.openai.com/docs/guides/fine-tuning/prepare-training-data).
+    /// If the `purpose` is set to "fine-tune", the file will be used for fine-tuning.
     pub file: FileInput,
 
-    /// The intended purpose of the uploaded documents.
+    /// The intended purpose of the uploaded file.
     ///
-    /// Use "fine-tune" for [Fine-tuning](https://platform.openai.com/docs/api-reference/fine-tunes). This allows us to validate the format of the uploaded file.
+    /// Use "fine-tune" for [fine-tuning](https://platform.openai.com/docs/api-reference/fine-tuning).
+    /// This allows us to validate the format of the uploaded file is correct for fine-tuning.
     pub purpose: String,
 }
 
@@ -454,16 +530,27 @@ pub struct DeleteFileResponse {
     pub deleted: bool,
 }
 
+/// The `File` object represents a document that has been uploaded to OpenAI.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct OpenAIFile {
+    /// The file identifier, which can be referenced in the API endpoints.
     pub id: String,
+    /// The object type, which is always "file".
     pub object: String,
+    /// The size of the file in bytes.
     pub bytes: u32,
+    /// The Unix timestamp (in seconds) for when the file was created.
     pub created_at: u32,
+    /// The name of the file.
     pub filename: String,
+    /// The intended purpose of the file. Currently, only "fine-tune" is supported.
     pub purpose: String,
+    /// The current status of the file, which can be either `uploaded`, `processed`,
+    /// `pending`, `error`, `deleting` or `deleted`.
     pub status: Option<String>,
-    pub status_details: Option<serde_json::Value>, // nullable: true
+    /// Additional details about the status of the file. If the file is in the `error`
+    /// state, this will include a message describing the error.
+    pub status_details: Option<String>, // nullable: true
 }
 
 #[derive(Debug, Serialize, Clone, Default, Builder, PartialEq)]
@@ -632,6 +719,161 @@ pub struct ListFineTuneEventsStreamResponse {
 pub type FineTuneEventsResponseStream =
     Pin<Box<dyn Stream<Item = Result<ListFineTuneEventsStreamResponse, OpenAIError>> + Send>>;
 
+//// Start Fine Tuning
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
+#[serde(untagged)]
+pub enum NEpochs {
+    NEpochs(u8),
+    #[default]
+    #[serde(rename = "auto")]
+    Auto,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
+pub struct Hyperparameters {
+    /// The number of epochs to train the model for. An epoch refers to one full cycle through the training dataset.
+    ///
+    /// "auto" decides the optimal number of epochs based on the size of the dataset.
+    /// If setting the number manually, we support any number between 1 and 50 epochs.
+    n_epochs: NEpochs,
+}
+
+#[derive(Debug, Serialize, Clone, Default, Builder, PartialEq)]
+#[builder(name = "CreateFineTuningJobRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateFineTuningJobRequest {
+    /// The name of the model to fine-tune. You can select one of the
+    /// [supported models](https://platform.openai.com/docs/guides/fine-tuning/what-models-can-be-fine-tuned).
+    pub model: String,
+
+    /// The ID of an uploaded file that contains training data.
+    ///
+    /// See [upload file](https://platform.openai.com/docs/api-reference/files/upload) for how to upload a file.
+    ///
+    /// Your dataset must be formatted as a JSONL file. Additionally, you must upload your file with the purpose `fine-tune`.
+    ///
+    /// See the [fine-tuning guide](https://platform.openai.com/docs/guides/fine-tuning) for more details.
+    pub training_file: String,
+
+    /// The hyperparameters used for the fine-tuning job.
+    pub hyperparameters: Option<Hyperparameters>,
+
+    /// A string of up to 18 characters that will be added to your fine-tuned model name.
+    ///
+    /// For example, a `suffix` of "custom-model-name" would produce a model name
+    /// like `ft:gpt-3.5-turbo:openai:custom-model-name:7p4lURel`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suffix: Option<String>, // default: null, minLength:1, maxLength:40
+
+    /// The ID of an uploaded file that contains validation data.
+    ///
+    /// If you provide this file, the data is used to generate validation
+    /// metrics periodically during fine-tuning. These metrics can be viewed in
+    /// the fine-tuning results file.
+    /// The same data should not be present in both train and validation files.
+    ///
+    /// Your dataset must be formatted as a JSONL file. You must upload your file with the purpose `fine-tune`.
+    ///
+    /// See the [fine-tuning guide](https://platform.openai.com/docs/guides/fine-tuning) for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub validation_file: Option<String>,
+}
+
+/// For fine-tuning jobs that have `failed`, this will contain more information on the cause of the failure.
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct FineTuneJobError {
+    ///  A machine-readable error code.
+    pub code: String,
+    ///  A human-readable error message.
+    pub message: String,
+    /// The parameter that was invalid, usually `training_file` or `validation_file`.
+    /// This field will be null if the failure was not parameter-specific.
+    pub param: Option<String>, // nullable true
+}
+
+/// The `fine_tuning.job` object represents a fine-tuning job that has been created through the API.
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct FineTuningJob {
+    /// The object identifier, which can be referenced in the API endpoints.
+    pub id: String,
+    /// The Unix timestamp (in seconds) for when the fine-tuning job was created.
+    pub created_at: u32,
+    /// For fine-tuning jobs that have `failed`, this will contain more information on the cause of the failure.
+    pub error: Option<FineTuneJobError>,
+    /// The name of the fine-tuned model that is being created.
+    /// The value will be null if the fine-tuning job is still running.
+    pub fine_tuned_model: Option<String>, // nullable: true
+    /// The Unix timestamp (in seconds) for when the fine-tuning job was finished.
+    /// The value will be null if the fine-tuning job is still running.
+    pub finished_at: Option<u32>, // nullable true
+
+    /// The hyperparameters used for the fine-tuning job.
+    /// See the [fine-tuning guide](/docs/guides/fine-tuning) for more details.
+    pub hyperparameters: Hyperparameters,
+
+    ///  The base model that is being fine-tuned.
+    pub model: String,
+
+    /// The object type, which is always "fine_tuning.job".
+    pub object: String,
+    /// The organization that owns the fine-tuning job.
+    pub organization_id: String,
+
+    /// The compiled results file ID(s) for the fine-tuning job.
+    /// You can retrieve the results with the [Files API](https://platform.openai.com/docs/api-reference/files/retrieve-contents).
+    pub result_files: Vec<String>,
+
+    /// The current status of the fine-tuning job, which can be either
+    /// `validating_files`, `queued`, `running`, `succeeded`, `failed`, or `cancelled`.
+    pub status: String,
+
+    /// The total number of billable tokens processed by this fine-tuning job. The value will be null if the fine-tuning job is still running.
+    pub trained_tokens: Option<u32>,
+
+    /// The file ID used for training. You can retrieve the training data with the [Files API](https://platform.openai.com/docs/api-reference/files/retrieve-contents).
+    pub training_file: String,
+
+    ///  The file ID used for validation. You can retrieve the validation results with the [Files API](https://platform.openai.com/docs/api-reference/files/retrieve-contents).
+    pub validation_file: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ListPaginatedFineTuningJobsResponse {
+    data: Vec<FineTuningJob>,
+    has_more: bool,
+    object: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ListFineTuningJobEventsResponse {
+    data: Vec<FineTuningJobEvent>,
+    object: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum Level {
+    Info,
+    Warn,
+    Error,
+}
+
+///Fine-tuning job event object
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct FineTuningJobEvent {
+    pub id: String,
+    pub created_at: u32,
+    pub level: Level,
+    pub message: String,
+    pub object: String,
+}
+
+//// End Fine Tuning
+
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct DeleteModelResponse {
     pub id: String,
@@ -649,6 +891,14 @@ pub enum EmbeddingInput {
     ArrayOfIntegerArray(Vec<Vec<u32>>),
 }
 
+#[derive(Debug, Serialize, Default, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum EncodingFormat {
+    #[default]
+    Float,
+    Base64,
+}
+
 #[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateEmbeddingRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -663,11 +913,16 @@ pub struct CreateEmbeddingRequest {
     /// for descriptions of them.
     pub model: String,
 
-    /// Input text to get embeddings for, encoded as a string or array of tokens.
-    /// To get embeddings for multiple inputs in a single request, pass an array
-    /// of strings or array of token arrays. Each input must not exceed 8192
-    /// tokens in length.
+    /// Input text to embed, encoded as a string or array of tokens. To embed multiple
+    ///  inputs in a single request, pass an array of strings or array of token arrays.
+    ///  The input must not exceed the max input tokens for the model (8192 tokens for
+    ///  `text-embedding-ada-002`) and cannot be an empty string.
+    /// [Example Python code](https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken) for counting tokens.
     pub input: EmbeddingInput,
+
+    /// The format to return the embeddings in. Can be either `float` or [`base64`](https://pypi.org/project/pybase64/). Defaults to float
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub encoding_format: Option<EncodingFormat>,
 
     /// A unique identifier representing your end-user, which will help OpenAI
     ///  to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
@@ -675,24 +930,34 @@ pub struct CreateEmbeddingRequest {
     pub user: Option<String>,
 }
 
+/// Represents an embedding vector returned by embedding endpoint.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct Embedding {
+    /// The index of the embedding in the list of embeddings.
     pub index: u32,
+    /// The object type, which is always "embedding".
     pub object: String,
+    /// The embedding vector, which is a list of floats. The length of vector
+    /// depends on the model as listed in the [embedding guide](https://platform.openai.com/docs/guides/embeddings).
     pub embedding: Vec<f32>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct EmbeddingUsage {
+    /// The number of tokens used by the prompt.
     pub prompt_tokens: u32,
+    /// The total number of tokens used by the request.
     pub total_tokens: u32,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateEmbeddingResponse {
     pub object: String,
+    /// The name of the model used to generate the embedding.
     pub model: String,
+    /// The list of embeddings generated by the model.
     pub data: Vec<Embedding>,
+    /// The usage information for the request.
     pub usage: EmbeddingUsage,
 }
 
@@ -704,15 +969,6 @@ pub enum Role {
     User,
     Assistant,
     Function,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum FinishReason {
-    Stop,
-    Length,
-    FunctionCall,
-    ContentFilter,
 }
 
 /// The name and arguments of a function that should be called, as generated by the model.
@@ -733,12 +989,12 @@ pub struct FunctionCall {
 pub struct ChatCompletionRequestMessage {
     /// The role of the messages author. One of `system`, `user`, `assistant`, or `function`.
     pub role: Role,
-    /// The contents of the message.
-    /// `content` is required for all messages except assistant messages with function calls.
+    /// The contents of the message. `content` is required for all messages,
+    /// and may be null for assistant messages with function calls.
     // DON'T SKIP: https://github.com/64bit/async-openai/issues/103
     //#[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
-    /// The name of the author of this message. `name` is required if role is function,
+    /// The name of the author of this message. `name` is required if role is `function`,
     /// and it should be the name of the function whose response is in the `content`.
     /// May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -748,10 +1004,14 @@ pub struct ChatCompletionRequestMessage {
     pub function_call: Option<FunctionCall>,
 }
 
+/// A chat completion message generated by the model.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ChatCompletionResponseMessage {
+    /// The role of the author of this message.
     pub role: Role,
+    /// The contents of the message.
     pub content: Option<String>,
+    /// The name and arguments of a function that should be called, as generated by the model.
     pub function_call: Option<FunctionCall>,
 }
 
@@ -764,12 +1024,13 @@ pub struct ChatCompletionResponseMessage {
 pub struct ChatCompletionFunctions {
     /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
     pub name: String,
-    /// The description of what the function does.
+    /// A description of what the function does, used by the model to choose when and how to call the function.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     /// The parameters the functions accepts, described as a JSON Schema object.
-    /// See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples,
-    /// and the [JSON Schema](https://json-schema.org/understanding-json-schema/) reference for documentation about the format.
+    /// See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about
+    /// the format.\n\nTo describe a function that accepts no parameters, provide the
+    /// value `{\"type\": \"object\", \"properties\": {}}`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<serde_json::Value>,
 }
@@ -785,7 +1046,7 @@ pub struct CreateChatCompletionRequest {
     /// See the [model endpoint compatibility](https://platform.openai.com/docs/models/model-endpoint-compatibility) table for details on which models work with the Chat API.
     pub model: String,
 
-    /// A list of messages comprising the conversation so far. [Example Python code](https://github.com/openai/openai-cookbook/blob/main/examples/How_to_format_inputs_to_ChatGPT_models.ipynb).
+    /// A list of messages comprising the conversation so far. [Example Python code](https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models).
     pub messages: Vec<ChatCompletionRequestMessage>, // min: 1
 
     /// A list of functions the model may generate JSON inputs for.
@@ -820,8 +1081,8 @@ pub struct CreateChatCompletionRequest {
     pub n: Option<u8>, // min:1, max: 128, default: 1
 
     /// If set, partial message deltas will be sent, like in ChatGPT.
-    /// Tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format) as they become available,
-    /// with the stream terminated by a `data: [DONE]` message.[Example Python code](https://github.com/openai/openai-cookbook/blob/main/examples/How_to_stream_completions.ipynb).
+    /// Tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format)
+    /// as they become available, with the stream terminated by a `data: [DONE]` message. [Example Python code](https://cookbook.openai.com/examples/how_to_stream_completions).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stream: Option<bool>,
 
@@ -860,20 +1121,41 @@ pub struct CreateChatCompletionRequest {
     pub user: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum FinishReason {
+    Stop,
+    Length,
+    FunctionCall,
+    ContentFilter,
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ChatChoice {
+    /// The index of the choice in the list of choices.
     pub index: u32,
     pub message: ChatCompletionResponseMessage,
+    /// The reason the model stopped generating tokens. This will be `stop` if the
+    ///  model hit a natural stop point or a provided stop sequence, `length` if the
+    /// maximum number of tokens specified in the request was reached, `content_filter`
+    /// if content was omitted due to a flag from our content filters, or
+    /// `function_call` if the model called a function.
     pub finish_reason: Option<FinishReason>,
 }
 
+/// Represents a chat completion response returned by model, based on the provided input.
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateChatCompletionResponse {
+    /// A unique identifier for the chat completion.
     pub id: String,
+    /// The object type, which is always `chat.completion`.
     pub object: String,
+    /// The Unix timestamp (in seconds) of when the chat completion was created.
     pub created: u32,
+    /// The model used for the chat completion.
     pub model: String,
-    pub usage: Option<Usage>,
+    pub usage: Option<CompletionUsage>,
+    /// A list of chat completion choices. Can be more than one if `n` is greater than 1.
     pub choices: Vec<ChatChoice>,
 }
 
@@ -884,30 +1166,46 @@ pub type ChatCompletionResponseStream =
 // For reason (not documented by OpenAI) the response from stream is different
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct FunctionCallStream {
+    /// The name of the function to call.
     pub name: Option<String>,
+    /// The arguments to call the function with, as generated by the model in JSON format.
+    /// Note that the model does not always generate valid JSON, and may hallucinate
+    /// parameters not defined by your function schema. Validate the arguments in your
+    /// code before calling your function.
     pub arguments: Option<String>,
 }
 
+/// A chat completion delta generated by streamed model responses.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ChatCompletionStreamResponseDelta {
+    /// The role of the author of this message.
     pub role: Option<Role>,
+    /// The contents of the chunk message.
     pub content: Option<String>,
+    /// The name and arguments of a function that should be called, as generated by the model.
     pub function_call: Option<FunctionCallStream>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ChatCompletionResponseStreamMessage {
+    /// The index of the choice in the list of choices.
     pub index: u32,
     pub delta: ChatCompletionStreamResponseDelta,
     pub finish_reason: Option<FinishReason>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+/// Represents a streamed chunk of a chat completion response returned by model, based on the provided input.
 pub struct CreateChatCompletionStreamResponse {
+    /// A unique identifier for the chat completion. Each chunk has the same ID.
     pub id: String,
+    /// The object type, which is always `chat.completion.chunk`.
     pub object: String,
+    /// The Unix timestamp (in seconds) of when the chat completion was created. Each chunk has the same timestamp.
     pub created: u32,
+    /// The model to generate the completion.
     pub model: String,
+    /// A list of chat completion choices. Can be more than one if `n` is greater than 1.
     pub choices: Vec<ChatCompletionResponseStreamMessage>,
 }
 

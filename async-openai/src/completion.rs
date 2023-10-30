@@ -5,9 +5,12 @@ use crate::{
     types::{CompletionResponseStream, CreateCompletionRequest, CreateCompletionResponse},
 };
 
-/// Given a prompt, the model will return one or more predicted
-/// completions, and can also return the probabilities of alternative
-/// tokens at each position.
+/// Given a prompt, the model will return one or more predicted completions,
+/// and can also return the probabilities of alternative tokens at each position.
+/// We recommend most users use our Chat completions API.
+/// [Learn more](https://platform.openai.com/docs/deprecations/2023-07-06-gpt-and-embeddings)
+///
+/// Related guide: [Legacy Completions](https://platform.openai.com/docs/guides/gpt/completions-api)
 pub struct Completions<'c, C: Config> {
     client: &'c Client<C>,
 }
