@@ -352,9 +352,9 @@ impl_from_for_array_of_integer_array!(u16, Prompt);
 impl From<&str> for ChatCompletionFunctionCall {
     fn from(value: &str) -> Self {
         match value.to_lowercase().as_str() {
-            "auto" => ChatCompletionFunctionCall::Auto,
-            "none" => ChatCompletionFunctionCall::None,
-            _ => ChatCompletionFunctionCall::Function { name: value.into() },
+            "auto" => Self::Auto,
+            "none" => Self::None,
+            _ => Self::Function { name: value.into() },
         }
     }
 }
