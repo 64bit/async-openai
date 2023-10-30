@@ -43,10 +43,16 @@ pub enum Stop {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(untagged)]
 pub enum ChatCompletionFunctionCall {
-    String(String),
-    Object(serde_json::Value),
+    #[serde(rename = "lowercase")]
+    Auto,
+    #[serde(rename = "lowercase")]
+    None,
+    // In spec this is ChatCompletionFunctionCallOption
+    // based on feedback from @m1guelpf in https://github.com/64bit/async-openai/pull/118
+    // it is diverged from the spec
+    #[serde(untagged)]
+    Function { name: String },
 }
 
 #[derive(Clone, Serialize, Default, Debug, Builder, PartialEq)]

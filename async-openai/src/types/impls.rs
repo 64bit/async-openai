@@ -351,13 +351,11 @@ impl_from_for_array_of_integer_array!(u16, Prompt);
 
 impl From<&str> for ChatCompletionFunctionCall {
     fn from(value: &str) -> Self {
-        ChatCompletionFunctionCall::String(value.to_string())
-    }
-}
-
-impl From<serde_json::Value> for ChatCompletionFunctionCall {
-    fn from(value: serde_json::Value) -> Self {
-        ChatCompletionFunctionCall::Object(value)
+        match value.to_lowercase().as_str() {
+            "auto" => ChatCompletionFunctionCall::Auto,
+            "none" => ChatCompletionFunctionCall::None,
+            _ => ChatCompletionFunctionCall::Function { name: value.into() },
+        }
     }
 }
 
