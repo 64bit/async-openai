@@ -138,6 +138,25 @@ impl<C: Config> Client<C> {
         self.execute(request_maker).await
     }
 
+    /// Make a GET request to {path} with given Query and deserialize the response body
+    pub(crate) async fn get_with_query<Q, O>(&self, path: &str, query: &Q) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+        Q: Serialize + ?Sized,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .get(self.config.url(path))
+                .query(&self.config.query())
+                .query(query)
+                .headers(self.config.headers())
+                .build()?)
+        };
+
+        self.execute(request_maker).await
+    }
+
     /// Make a DELETE request to {path} and deserialize the response body
     pub(crate) async fn delete<O>(&self, path: &str) -> Result<O, OpenAIError>
     where

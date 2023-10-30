@@ -1,10 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     config::Config,
     error::OpenAIError,
     types::{
-        CreateFineTuneRequest, CreateFineTuningJobRequest, FineTune, FineTuneEventsResponseStream,
-        FineTuningJob, ListFineTuneEventsResponse, ListFineTuneResponse,
-        ListFineTuningJobEventsResponse, ListPaginatedFineTuningJobsResponse,
+        CreateFineTuningJobRequest, FineTuningJob, ListFineTuningJobEventsResponse,
+        ListPaginatedFineTuningJobsResponse,
     },
     Client,
 };
@@ -34,9 +35,15 @@ impl<'c, C: Config> FineTuning<'c, C> {
     }
 
     /// List your organization's fine-tuning jobs
-    pub async fn list_paginated(&self) -> Result<ListPaginatedFineTuningJobsResponse, OpenAIError> {
+    pub async fn list_paginated<Q>(
+        &self,
+        query: &Q,
+    ) -> Result<ListPaginatedFineTuningJobsResponse, OpenAIError>
+    where
+        Q: Serialize + ?Sized,
+    {
         // todo: optional after & limit query params
-        self.client.get(&format!("/fine_tuning/jobs")).await
+        self.client.get_with_query("/fine_tuning/jobs", query).await
     }
 
     /// Gets info about the fine-tune job.
@@ -59,13 +66,20 @@ impl<'c, C: Config> FineTuning<'c, C> {
     }
 
     /// Get fine-grained status updates for a fine-tune job.
-    pub async fn list_events(
+    pub async fn list_events<Q>(
         &self,
         fine_tuning_job_id: &str,
-    ) -> Result<ListFineTuningJobEventsResponse, OpenAIError> {
+        query: &Q,
+    ) -> Result<ListFineTuningJobEventsResponse, OpenAIError>
+    where
+        Q: Serialize + ?Sized,
+    {
         // todo: optional after and limit query params
         self.client
-            .get(format!("/fine_tuning/jobs/{fine_tuning_job_id}/events").as_str())
+            .get_with_query(
+                format!("/fine_tuning/jobs/{fine_tuning_job_id}/events").as_str(),
+                query,
+            )
             .await
     }
 }
