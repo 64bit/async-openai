@@ -439,14 +439,15 @@ pub struct FileInput {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateFileRequest {
-    /// Name of the [JSON Lines](https://jsonlines.readthedocs.io/en/latest/) file to be uploaded.
+    /// The file object to be uploaded.
     ///
-    /// If the `purpose` is set to "fine-tune", each line is a JSON record with "prompt" and "completion" fields representing your [training examples](https://platform.openai.com/docs/guides/fine-tuning/prepare-training-data).
+    /// If the `purpose` is set to "fine-tune", the file will be used for fine-tuning.
     pub file: FileInput,
 
-    /// The intended purpose of the uploaded documents.
+    /// The intended purpose of the uploaded file.
     ///
-    /// Use "fine-tune" for [Fine-tuning](https://platform.openai.com/docs/api-reference/fine-tunes). This allows us to validate the format of the uploaded file.
+    /// Use "fine-tune" for [fine-tuning](https://platform.openai.com/docs/api-reference/fine-tuning).
+    /// This allows us to validate the format of the uploaded file is correct for fine-tuning.
     pub purpose: String,
 }
 
@@ -463,16 +464,27 @@ pub struct DeleteFileResponse {
     pub deleted: bool,
 }
 
+/// The `File` object represents a document that has been uploaded to OpenAI.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct OpenAIFile {
+    /// The file identifier, which can be referenced in the API endpoints.
     pub id: String,
+    /// The object type, which is always "file".
     pub object: String,
+    /// The size of the file in bytes.
     pub bytes: u32,
+    /// The Unix timestamp (in seconds) for when the file was created.
     pub created_at: u32,
+    /// The name of the file.
     pub filename: String,
+    /// The intended purpose of the file. Currently, only "fine-tune" is supported.
     pub purpose: String,
+    /// The current status of the file, which can be either `uploaded`, `processed`,
+    /// `pending`, `error`, `deleting` or `deleted`.
     pub status: Option<String>,
-    pub status_details: Option<serde_json::Value>, // nullable: true
+    /// Additional details about the status of the file. If the file is in the `error`
+    /// state, this will include a message describing the error.
+    pub status_details: Option<String>, // nullable: true
 }
 
 #[derive(Debug, Serialize, Clone, Default, Builder, PartialEq)]
