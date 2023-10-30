@@ -11,7 +11,7 @@ use crate::{
     file::Files,
     image::Images,
     moderation::Moderations,
-    Audio, Chat, Completions, Embeddings, FineTunes, Models,
+    Audio, Chat, Completions, Embeddings, FineTunes, FineTuning, Models,
 };
 
 #[derive(Debug, Clone)]
@@ -100,6 +100,11 @@ impl<C: Config> Client<C> {
     #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn fine_tunes(&self) -> FineTunes<C> {
         FineTunes::new(self)
+    }
+
+    /// To call [FineTuning] group related APIs using this client.
+    pub fn fine_tuning(&self) -> FineTuning<C> {
+        FineTuning::new(self)
     }
 
     /// To call [Embeddings] group related APIs using this client.

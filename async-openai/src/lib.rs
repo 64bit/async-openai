@@ -89,6 +89,7 @@ pub mod error;
 mod file;
 #[deprecated(since = "0.15.0", note = "By OpenAI")]
 mod fine_tune;
+mod fine_tuning;
 mod image;
 mod model;
 mod moderation;
@@ -103,6 +104,7 @@ pub use edit::Edits;
 pub use embedding::Embeddings;
 pub use file::Files;
 pub use fine_tune::FineTunes;
+pub use fine_tuning::FineTuning;
 pub use image::Images;
 pub use model::Models;
 pub use moderation::Moderations;
