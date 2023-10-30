@@ -44,7 +44,7 @@ pub enum ChatCompletionFunctionCall {
     /// The model can pick between an end-user or calling a function.
     Auto,
     /// Forces the model to call the specified function.
-    Function(String),
+    Function { name : String },
 }
 
 #[derive(Clone, Serialize, Default, Debug, Builder, PartialEq)]
