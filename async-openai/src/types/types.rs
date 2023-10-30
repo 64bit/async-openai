@@ -6,11 +6,16 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
+/// Describes an OpenAI model offering that can be used with the API.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct Model {
+    /// The model identifier, which can be referenced in the API endpoints.
     pub id: String,
+    /// The object type, which is always "model".
     pub object: String,
+    /// The Unix timestamp (in seconds) when the model was created.
     pub created: u32,
+    /// The organization that owns the model.
     pub owned_by: String,
 }
 
