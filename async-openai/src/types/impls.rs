@@ -3,8 +3,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use serde::{ser::SerializeMap, Serialize};
-
 use crate::{
     download::{download_url, save_b64},
     error::OpenAIError,
