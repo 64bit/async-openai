@@ -42,7 +42,6 @@ impl<'c, C: Config> FineTuning<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        // todo: optional after & limit query params
         self.client.get_with_query("/fine_tuning/jobs", query).await
     }
 
@@ -74,7 +73,6 @@ impl<'c, C: Config> FineTuning<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        // todo: optional after and limit query params
         self.client
             .get_with_query(
                 format!("/fine_tuning/jobs/{fine_tuning_job_id}/events").as_str(),
