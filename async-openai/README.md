@@ -32,7 +32,7 @@
   - [x] Fine-Tuning
   - [x] Fine-Tunes (Deprecated)
   - [x] Images
-  - [x] Microsoft OpenAI Service
+  - [x] Microsoft Azure OpenAI Service
   - [x] Models
   - [x] Moderations
 - Support SSE streaming on available APIs
