@@ -356,7 +356,7 @@ impl From<&str> for ChatCompletionFunctionCall {
         match value {
             "none" => Self::None,
             "auto" => Self::Auto,
-            _ => Self::Function(value.to_string()),
+            _ => Self::Function { name: value.to_string() },
         }
     }
 }
