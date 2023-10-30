@@ -229,7 +229,7 @@ pub struct CreateEditResponse {
     pub object: String,
     pub created: u32,
     pub choices: Vec<Choice>,
-    pub usage: Usage,
+    pub usage: CompletionUsage,
 }
 
 #[derive(Default, Debug, Serialize, Clone, Copy, PartialEq)]
