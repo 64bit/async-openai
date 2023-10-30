@@ -37,11 +37,14 @@ pub enum Stop {
     StringArray(Vec<String>), // minItems: 1; maxItems: 4
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(untagged)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ChatCompletionFunctionCall {
-    String(String),
-    Object(serde_json::Value),
+    /// The model does not call a function, and responds to the end-user.
+    None,
+    /// The model can pick between an end-user or calling a function.
+    Auto,
+    /// Forces the model to call the specified function.
+    Function { name : String },
 }
 
 #[derive(Clone, Serialize, Default, Debug, Builder, PartialEq)]
