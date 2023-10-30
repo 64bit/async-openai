@@ -281,16 +281,18 @@ pub struct CreateImageRequest {
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum ImageData {
-    Url(std::sync::Arc<String>),
+pub enum Image {
+    /// The URL of the generated image, if `response_format` is `url` (default).
+    Url(String),
+    /// The base64-encoded JSON of the generated image, if `response_format` is `b64_json`.
     #[serde(rename = "b64_json")]
     B64Json(std::sync::Arc<String>),
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct ImageResponse {
+pub struct ImagesResponse {
     pub created: u32,
-    pub data: Vec<std::sync::Arc<ImageData>>,
+    pub data: Vec<std::sync::Arc<Image>>,
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
