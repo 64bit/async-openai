@@ -149,12 +149,20 @@ pub struct Logprobs {
     pub text_offset: Vec<u32>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum CompletionFinishReason {
+    Stop,
+    Length,
+    ContentFilter,
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct Choice {
     pub text: String,
     pub index: u32,
     pub logprobs: Option<Logprobs>,
-    pub finish_reason: Option<String>,
+    pub finish_reason: Option<CompletionFinishReason>,
 }
 
 /// Usage statistics for the completion request.
@@ -175,7 +183,7 @@ pub struct CreateCompletionResponse {
     pub created: u32,
     pub model: String,
     pub choices: Vec<Choice>,
-    pub usage: Option<Usage>,
+    pub usage: Option<CompletionUsage>,
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
