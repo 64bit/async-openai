@@ -37,7 +37,8 @@
 - All requests including form submissions (except SSE streaming) are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits) by the API server.
 - Ergonomic Rust library with builder pattern for all request objects.
 
-**Note on Azure OpenAI Service**:  `async-openai` primarily implements OpenAI APIs, and exposes same library for Azure OpenAI Service too. In reality Azure OpenAI Service provides only subset of OpenAI APIs.
+**Note on Azure OpenAI Service (AOS)**:  `async-openai` primarily implements OpenAI APIs, and does't try to maintain parity with spec of AOS.
+
 ## Usage
 
 The library reads [API key](https://platform.openai.com/account/api-keys) from the environment variable `OPENAI_API_KEY`.
