@@ -82,10 +82,12 @@ mod client;
 mod completion;
 pub mod config;
 mod download;
+#[deprecated(since = "0.15.0", note = "By OpenAI")]
 mod edit;
 mod embedding;
 pub mod error;
 mod file;
+#[deprecated(since = "0.15.0", note = "By OpenAI")]
 mod fine_tune;
 mod image;
 mod model;

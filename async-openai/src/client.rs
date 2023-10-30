@@ -76,6 +76,7 @@ impl<C: Config> Client<C> {
     }
 
     /// To call [Edits] group related APIs using this client.
+    #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn edits(&self) -> Edits<C> {
         Edits::new(self)
     }
@@ -96,6 +97,7 @@ impl<C: Config> Client<C> {
     }
 
     /// To call [FineTunes] group related APIs using this client.
+    #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn fine_tunes(&self) -> FineTunes<C> {
         FineTunes::new(self)
     }
