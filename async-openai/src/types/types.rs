@@ -44,9 +44,9 @@ pub enum Stop {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum ChatCompletionFunctionCall {
-    #[serde(rename = "lowercase")]
+    #[serde(rename = "auto")]
     Auto,
-    #[serde(rename = "lowercase")]
+    #[serde(rename = "none")]
     None,
     // In spec this is ChatCompletionFunctionCallOption
     // based on feedback from @m1guelpf in https://github.com/64bit/async-openai/pull/118
