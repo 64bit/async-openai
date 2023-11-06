@@ -1,5 +1,6 @@
 use std::{collections::HashMap, path::PathBuf, pin::Pin};
 
+use bytes::Bytes;
 use derive_builder::Builder;
 use futures::Stream;
 use serde::{Deserialize, Serialize};
@@ -1345,7 +1346,7 @@ pub struct CreateTranslationResponse {
     pub text: String,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone)]
 pub struct CreateSpeechResponse {
-    pub text: String,
+    pub bytes: Bytes,
 }

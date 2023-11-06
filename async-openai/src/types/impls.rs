@@ -11,9 +11,9 @@ use crate::{
 
 use super::{
     AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateTranscriptionRequest,
-    CreateTranslationRequest, EmbeddingInput, FileInput, Image, ImageInput, ImageSize,
-    ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
+    CreateTranscriptionRequest, CreateTranslationRequest, EmbeddingInput, FileInput, Image,
+    ImageInput, ImageSize, ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role, Stop,
 };
 
 macro_rules! impl_from {
@@ -197,6 +197,28 @@ impl ImagesResponse {
                     .join("; "),
             ))
         }
+    }
+}
+
+impl CreateSpeechResponse {
+    pub async fn save<P: AsRef<Path>>(&self, file_path: P) -> Result<(), OpenAIError> {
+        let exists = match Path::try_exists(file_path.as_ref()) {
+            Ok(exists) => exists,
+            Err(e) => return Err(OpenAIError::FileSaveError(e.to_string())),
+        };
+
+        if !exists {
+            if let Some(parent) = file_path.as_ref().parent() {
+                std::fs::create_dir_all(parent)
+                    .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
+            }
+        }
+
+        tokio::fs::write(file_path, &self.bytes)
+            .await
+            .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
+
+        Ok(())
     }
 }
 
