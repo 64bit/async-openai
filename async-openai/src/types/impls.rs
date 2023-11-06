@@ -6,7 +6,7 @@ use std::{
 use crate::{
     download::{download_url, save_b64},
     error::OpenAIError,
-    util::create_file_part,
+    util::{create_all_dir, create_file_part},
 };
 
 use super::{
@@ -156,15 +156,7 @@ impl ImagesResponse {
     /// Save each image in a dedicated Tokio task and return paths to saved files.
     /// For [ResponseFormat::Url] each file is downloaded in dedicated Tokio task.
     pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<Vec<PathBuf>, OpenAIError> {
-        let exists = match Path::try_exists(dir.as_ref()) {
-            Ok(exists) => exists,
-            Err(e) => return Err(OpenAIError::FileSaveError(e.to_string())),
-        };
-
-        if !exists {
-            std::fs::create_dir_all(dir.as_ref())
-                .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
-        }
+        create_all_dir(dir.as_ref())?;
 
         let mut handles = vec![];
         for id in self.data.clone() {
@@ -202,16 +194,10 @@ impl ImagesResponse {
 
 impl CreateSpeechResponse {
     pub async fn save<P: AsRef<Path>>(&self, file_path: P) -> Result<(), OpenAIError> {
-        let exists = match Path::try_exists(file_path.as_ref()) {
-            Ok(exists) => exists,
-            Err(e) => return Err(OpenAIError::FileSaveError(e.to_string())),
-        };
+        let dir = file_path.as_ref().parent();
 
-        if !exists {
-            if let Some(parent) = file_path.as_ref().parent() {
-                std::fs::create_dir_all(parent)
-                    .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
-            }
+        if let Some(dir) = dir {
+            create_all_dir(dir)?;
         }
 
         tokio::fs::write(file_path, &self.bytes)
