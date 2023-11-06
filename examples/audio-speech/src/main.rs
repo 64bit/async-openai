@@ -16,7 +16,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let response = client.audio().speech(request).await?;
 
-    std::fs::write("audio.mp3", response)?;
+    response.save("./data/audio.mp3").await?;
 
     Ok(())
 }
