@@ -1225,6 +1225,16 @@ pub enum AudioResponseFormat {
     Vtt,
 }
 
+#[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum SpeechResponseFormat {
+    #[default]
+    Mp3,
+    Opus,
+    Aac,
+    Flac,
+}
+
 #[derive(Clone, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateTranscriptionRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -1256,6 +1266,26 @@ pub struct CreateTranscriptionResponse {
     pub text: String,
 }
 
+#[derive(Clone, Default, Debug, Builder, PartialEq, Serialize)]
+#[builder(name = "CreateSpeechRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateSpeechRequest {
+    /// The text to generate audio for. The maximum length is 4096 characters.
+    pub input: String,
+
+    /// ID of the model to use. Only `tts-1` and `tts-1-hd` are currently available.
+    pub model: String,
+
+    /// The format to audio in. Supported formats are mp3, opus, aac, and flac.
+    pub response_format: Option<SpeechResponseFormat>,
+
+    /// The speed of the generated audio. Select a value from 0.25 to 4.0. 1.0 is the default.
+    pub speed: Option<f32>, // default: 1.0
+}
+
 #[derive(Clone, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateTranslationRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -1281,5 +1311,10 @@ pub struct CreateTranslationRequest {
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateTranslationResponse {
+    pub text: String,
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct CreateSpeechResponse {
     pub text: String,
 }

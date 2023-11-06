@@ -1,5 +1,6 @@
 use std::pin::Pin;
 
+use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
@@ -174,6 +175,24 @@ impl<C: Config> Client<C> {
         self.execute(request_maker).await
     }
 
+    /// Make a POST request to {path} and return the response body
+    pub(crate) async fn post_raw<I>(&self, path: &str, request: I) -> Result<Bytes, OpenAIError>
+    where
+        I: Serialize,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .post(self.config.url(path))
+                .query(&self.config.query())
+                .headers(self.config.headers())
+                .json(&request)
+                .build()?)
+        };
+
+        self.execute_raw(request_maker).await
+    }
+
     /// Make a POST request to {path} and deserialize the response body
     pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
     where
@@ -218,9 +237,8 @@ impl<C: Config> Client<C> {
     /// request_maker serves one purpose: to be able to create request again
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
-    async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
+    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
     where
-        O: DeserializeOwned,
         M: Fn() -> Fut,
         Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
     {
@@ -265,12 +283,28 @@ impl<C: Config> Client<C> {
                 }
             }
 
-            let response: O = serde_json::from_slice(bytes.as_ref())
-                .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
-                .map_err(backoff::Error::Permanent)?;
-            Ok(response)
+            Ok(bytes)
         })
         .await
+    }
+
+    /// Execute a HTTP request and retry on rate limit
+    ///
+    /// request_maker serves one purpose: to be able to create request again
+    /// to retry API call after getting rate limited. request_maker is async because
+    /// reqwest::multipart::Form is created by async calls to read files for uploads.
+    async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+        M: Fn() -> Fut,
+        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+    {
+        let bytes = self.execute_raw(request_maker).await?;
+
+        let response: O = serde_json::from_slice(bytes.as_ref())
+            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+
+        Ok(response)
     }
 
     /// Make HTTP POST request to receive SSE

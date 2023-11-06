@@ -1,9 +1,11 @@
+use bytes::Bytes;
+
 use crate::{
     config::Config,
     error::OpenAIError,
     types::{
-        CreateTranscriptionRequest, CreateTranscriptionResponse, CreateTranslationRequest,
-        CreateTranslationResponse,
+        CreateSpeechRequest, CreateTranscriptionRequest, CreateTranscriptionResponse,
+        CreateTranslationRequest, CreateTranslationResponse,
     },
     Client,
 };
@@ -35,5 +37,9 @@ impl<'c, C: Config> Audio<'c, C> {
         request: CreateTranslationRequest,
     ) -> Result<CreateTranslationResponse, OpenAIError> {
         self.client.post_form("/audio/translations", request).await
+    }
+
+    pub async fn speech(&self, request: CreateSpeechRequest) -> Result<Bytes, OpenAIError> {
+        self.client.post_raw("/audio/speech", request).await
     }
 }
