@@ -1279,6 +1279,9 @@ pub struct CreateSpeechRequest {
     /// ID of the model to use. Only `tts-1` and `tts-1-hd` are currently available.
     pub model: String,
 
+    /// The voice to use when generating the audio. Supported voices are `alloy`, `echo`, `fable`, `onyx`, `nova`, and `shimmer`.
+    pub voice: String,
+
     /// The format to audio in. Supported formats are mp3, opus, aac, and flac.
     pub response_format: Option<SpeechResponseFormat>,
 
