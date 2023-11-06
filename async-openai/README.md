@@ -23,7 +23,7 @@
 
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
-  - [x] Audio
+  - [x] Audio (Whisper/TTS)
   - [x] Chat
   - [x] Completions (Legacy)
   - [x] Edits (Deprecated)
