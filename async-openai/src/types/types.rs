@@ -1235,17 +1235,29 @@ pub enum SpeechResponseFormat {
     Flac,
 }
 
-#[derive(Debug, Serialize, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
-#[serde(untagged)]
+#[derive(Debug, Default, Serialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
 #[non_exhaustive]
 pub enum Voice {
+    #[default]
     Alloy,
     Echo,
     Fable,
     Onyx,
     Nova,
     Shimmer,
+    #[serde(untagged)]
+    Other(String),
+}
+
+#[derive(Debug, Default, Serialize, Clone, PartialEq)]
+pub enum SpeechModel {
+    #[default]
+    #[serde(rename = "tts-1")]
+    Tts1,
+    #[serde(rename = "tts-1-hd")]
+    Tts1Hd,
+    #[serde(untagged)]
     Other(String),
 }
 
@@ -1280,26 +1292,28 @@ pub struct CreateTranscriptionResponse {
     pub text: String,
 }
 
-#[derive(Clone, Debug, Builder, PartialEq, Serialize)]
+#[derive(Clone, Default, Debug, Builder, PartialEq, Serialize)]
 #[builder(name = "CreateSpeechRequestArgs")]
 #[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option))]
+#[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateSpeechRequest {
     /// The text to generate audio for. The maximum length is 4096 characters.
     pub input: String,
 
-    /// ID of the model to use. Only `tts-1` and `tts-1-hd` are currently available.
-    pub model: String,
+    /// One of the available [TTS models](https://platform.openai.com/docs/models/tts): `tts-1` or `tts-1-hd`
+    pub model: SpeechModel,
 
     /// The voice to use when generating the audio. Supported voices are `alloy`, `echo`, `fable`, `onyx`, `nova`, and `shimmer`.
     pub voice: Voice,
 
     /// The format to audio in. Supported formats are mp3, opus, aac, and flac.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<SpeechResponseFormat>,
 
     /// The speed of the generated audio. Select a value from 0.25 to 4.0. 1.0 is the default.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub speed: Option<f32>, // default: 1.0
 }
 
