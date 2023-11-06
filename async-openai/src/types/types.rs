@@ -1235,6 +1235,20 @@ pub enum SpeechResponseFormat {
     Flac,
 }
 
+#[derive(Debug, Serialize, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+#[serde(untagged)]
+#[non_exhaustive]
+pub enum Voice {
+    Alloy,
+    Echo,
+    Fable,
+    Onyx,
+    Nova,
+    Shimmer,
+    Other(String),
+}
+
 #[derive(Clone, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateTranscriptionRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -1266,10 +1280,10 @@ pub struct CreateTranscriptionResponse {
     pub text: String,
 }
 
-#[derive(Clone, Default, Debug, Builder, PartialEq, Serialize)]
+#[derive(Clone, Debug, Builder, PartialEq, Serialize)]
 #[builder(name = "CreateSpeechRequestArgs")]
 #[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
+#[builder(setter(into, strip_option))]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateSpeechRequest {
@@ -1280,7 +1294,7 @@ pub struct CreateSpeechRequest {
     pub model: String,
 
     /// The voice to use when generating the audio. Supported voices are `alloy`, `echo`, `fable`, `onyx`, `nova`, and `shimmer`.
-    pub voice: String,
+    pub voice: Voice,
 
     /// The format to audio in. Supported formats are mp3, opus, aac, and flac.
     pub response_format: Option<SpeechResponseFormat>,
