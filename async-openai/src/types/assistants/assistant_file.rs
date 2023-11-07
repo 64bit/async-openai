@@ -1,4 +1,3 @@
-
 use serde::{Deserialize, Serialize};
 
 /// A list of [Files](https://platform.openai.com/docs/api-reference/files) attached to an `assistant`.
