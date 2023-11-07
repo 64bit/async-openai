@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
+use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::types::FunctionCall;
+use crate::{error::OpenAIError, types::FunctionCall};
 
 use super::AssistantTools;
 
@@ -83,7 +84,7 @@ pub struct SubmitToolOutputs {
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct RunToolCallObject {
-    /// The ID of the tool call. This ID must be referenced when you submit the tool outputs in using the [Submit tool outputs to run](/docs/api-reference/runs/submitToolOutputs) endpoint.
+    /// The ID of the tool call. This ID must be referenced when you submit the tool outputs in using the [Submit tool outputs to run](https://platform.openai.com/docs/api-reference/runs/submitToolOutputs) endpoint.
     id: String,
     /// The type of tool call the output is required for. For now, this is always `function`.
     r#type: String,
@@ -104,4 +105,41 @@ pub struct LastError {
 pub enum LastErrorCode {
     ServerError,
     RateLimitExceeded,
+}
+
+#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[builder(name = "CreateRunRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateRunRequest {
+    /// The ID of the [assistant](https://platform.openai.com/docs/api-reference/assistants) to use to execute this run.
+    pub assistant_id: String,
+
+    /// The ID of the [Model](https://platform.openai.com/docs/api-reference/models) to be used to execute this run. If a value is provided here, it will override the model associated with the assistant. If not, the model associated with the assistant will be used.
+    pub model: Option<String>,
+
+    /// Override the default system message of the assistant. This is useful for modifying the behavior on a per-run basis.
+    pub instructions: Option<String>,
+
+    /// Override the tools the assistant can use for this run. This is useful for modifying the behavior on a per-run basis.
+    pub tools: Option<Vec<AssistantTools>>,
+
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
+}
+
+#[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
+pub struct ModifyRunRequest {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
+}
+
+#[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
+pub struct ListRunsResponse {
+    object: String,
+    data: Vec<RunObject>,
+    first_id: String,
+    last_id: String,
+    has_more: bool,
 }
