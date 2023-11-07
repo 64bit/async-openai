@@ -5,3 +5,6 @@ Cargo.lock
 
 # directory used to store images
 data
+
+.env
+.idea
