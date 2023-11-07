@@ -7,6 +7,7 @@ use crate::{
     Client,
 };
 
+/// Represents a step in execution of a run.
 pub struct Steps<'c, C: Config> {
     pub thread_id: String,
     pub run_id: String,

@@ -11,6 +11,9 @@ use crate::{
     Client,
 };
 
+/// Represents an execution run on a thread.
+///
+/// Related guide: [Assistants](https://platform.openai.com/docs/assistants/overview)
 pub struct Runs<'c, C: Config> {
     pub thread_id: String,
     client: &'c Client<C>,

@@ -10,6 +10,7 @@ use crate::{
     Client,
 };
 
+/// Files attached to an assistant.
 pub struct AssistantFiles<'c, C: Config> {
     client: &'c Client<C>,
     pub assistant_id: String,

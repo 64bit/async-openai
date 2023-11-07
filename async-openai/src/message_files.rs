@@ -7,6 +7,7 @@ use crate::{
     Client,
 };
 
+/// Files attached to a message.
 pub struct MessageFiles<'c, C: Config> {
     client: &'c Client<C>,
     pub thread_id: String,

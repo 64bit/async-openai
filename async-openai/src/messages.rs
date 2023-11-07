@@ -7,6 +7,7 @@ use crate::{
     Client, MessageFiles,
 };
 
+/// Represents a message within a [thread](https://platform.openai.com/docs/api-reference/threads).
 pub struct Messages<'c, C: Config> {
     ///  The ID of the [thread](https://platform.openai.com/docs/api-reference/threads) to create a message for.
     pub thread_id: String,
