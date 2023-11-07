@@ -1013,7 +1013,7 @@ paths:
 
               audio_file = open("speech.mp3", "rb")
               transcript = client.audio.transcriptions.create(
-                model="whisper-1",
+                model="whisper-1", 
                 file=audio_file
               )
             node: |
@@ -1071,7 +1071,7 @@ paths:
 
               audio_file = open("speech.mp3", "rb")
               transcript = client.audio.translations.create(
-                model="whisper-1",
+                model="whisper-1", 
                 file=audio_file
               )
             node: |
@@ -1418,7 +1418,7 @@ paths:
                 client = OpenAI()
 
                 client.fine_tuning.jobs.create(
-                  training_file="file-abc123",
+                  training_file="file-abc123", 
                   model="gpt-3.5-turbo"
                 )
               node.js: |
@@ -1466,8 +1466,8 @@ paths:
                 client = OpenAI()
 
                 client.fine_tuning.jobs.create(
-                  training_file="file-abc123",
-                  model="gpt-3.5-turbo",
+                  training_file="file-abc123", 
+                  model="gpt-3.5-turbo", 
                   hyperparameters={
                     "n_epochs":2
                   }
@@ -1518,8 +1518,8 @@ paths:
                 client = OpenAI()
 
                 client.fine_tuning.jobs.create(
-                  training_file="file-abc123",
-                  validation_file="file-def456",
+                  training_file="file-abc123", 
+                  validation_file="file-def456", 
                   model="gpt-3.5-turbo"
                 )
               node.js: |
@@ -1740,7 +1740,7 @@ paths:
               client = OpenAI()
 
               client.fine_tuning.jobs.list_events(
-                fine_tuning_job_id="ftjob-abc123",
+                fine_tuning_job_id="ftjob-abc123", 
                 limit=2
               )
             node.js: |-
@@ -3259,9 +3259,9 @@ paths:
               client = OpenAI()
 
               my_updated_thread = openai.beta.threads.update(
-                "thread_abc123",
+                "thread_abc123", 
                 metadata={
-                  "modified": "true",
+                  "modified": "true", 
                   "user": "abc123"
                 }
               )
@@ -4828,7 +4828,7 @@ paths:
               client = OpenAI()
 
               assistant_file = client.beta.assistants.files.create(
-                assistant_id="asst_FBOFvAOHhwEWMghbMGseaPGQ",
+                assistant_id="asst_FBOFvAOHhwEWMghbMGseaPGQ", 
                 file_id="file-wB6RM6wHdA49HfS2DJ9fEyrH"
               )
               print(assistant_file)
@@ -4838,8 +4838,8 @@ paths:
 
               async function main() {
                 const myAssistantFile = await openai.beta.assistants.files.create(
-                  "asst_FBOFvAOHhwEWMghbMGseaPGQ",
-                  {
+                  "asst_FBOFvAOHhwEWMghbMGseaPGQ", 
+                  { 
                     file_id: "file-wB6RM6wHdA49HfS2DJ9fEyrH"
                   }
                 );
@@ -6003,9 +6003,9 @@ components:
               example: "json_object"
               default: "text"
               description: |
-                Setting to `json_object` enables JSON mode. This guarantees that the message the model generates is valid JSON.
+                Setting to `json_object` enables JSON mode. This guarantees that the message the model generates is valid JSON. 
 
-                Note that your system prompt must still instruct the model to produce JSON, and to help ensure you don't forget, the API will throw an error if the string `JSON` does not appear in your system message. Also note that the message content may be partial (i.e. cut off) if `finish_reason="length"`, which indicates the generation exceeded `max_tokens` or the conversation exceeded the max context length.
+                Note that your system prompt must still instruct the model to produce JSON, and to help ensure you don't forget, the API will throw an error if the string `JSON` does not appear in your system message. Also note that the message content may be partial (i.e. cut off) if `finish_reason="length"`, which indicates the generation exceeded `max_tokens` or the conversation exceeded the max context length. 
 
                 Must be one of `text` or `json_object`.
         seed:
@@ -6014,7 +6014,7 @@ components:
           maximum: 9223372036854775807
           nullable: true
           description: |
-            This feature is in Beta.
+            This feature is in Beta. 
             If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.
             Determinism is not guaranteed, and you should refer to the `system_fingerprint` response parameter to monitor changes in the backend.
           x-oaiMeta:
@@ -6813,7 +6813,7 @@ components:
               default: auto
             n_epochs:
               description: |
-                The number of epochs to train the model for. An epoch refers to one full cycle
+                The number of epochs to train the model for. An epoch refers to one full cycle 
                 through the training dataset.
               oneOf:
                 - type: string
