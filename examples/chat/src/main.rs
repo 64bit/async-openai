@@ -1,7 +1,10 @@
 use std::error::Error;
 
 use async_openai::{
-    types::{ChatCompletionRequestMessageArgs, CreateChatCompletionRequestArgs, Role},
+    types::{
+        ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestSystemMessageArgs,
+        ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
+    },
     Client,
 };
 
@@ -13,24 +16,26 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .max_tokens(512u16)
         .model("gpt-3.5-turbo")
         .messages([
-            ChatCompletionRequestMessageArgs::default()
-                .role(Role::System)
+            ChatCompletionRequestSystemMessageArgs::default()
                 .content("You are a helpful assistant.")
-                .build()?,
-            ChatCompletionRequestMessageArgs::default()
-                .role(Role::User)
+                .build()?
+                .into(),
+            ChatCompletionRequestUserMessageArgs::default()
                 .content("Who won the world series in 2020?")
-                .build()?,
-            ChatCompletionRequestMessageArgs::default()
-                .role(Role::Assistant)
+                .build()?
+                .into(),
+            ChatCompletionRequestAssistantMessageArgs::default()
                 .content("The Los Angeles Dodgers won the World Series in 2020.")
-                .build()?,
-            ChatCompletionRequestMessageArgs::default()
-                .role(Role::User)
+                .build()?
+                .into(),
+            ChatCompletionRequestUserMessageArgs::default()
                 .content("Where was it played?")
-                .build()?,
+                .build()?
+                .into(),
         ])
         .build()?;
+
+    println!("{}", serde_json::to_string(&request).unwrap());
 
     let response = client.chat().create(request).await?;
 

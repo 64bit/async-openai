@@ -19,10 +19,11 @@
 
 ## Overview
 
-`async-openai` is an unofficial Rust library for OpenAI REST API.
+`async-openai` is an unofficial Rust library for OpenAI.
 
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
+  - [x] Assistants (Beta)
   - [x] Audio (Whisper/TTS)
   - [x] Chat
   - [x] Completions (Legacy)
@@ -108,8 +109,6 @@ Thank you for your time to contribute and improve the project, I'd be happy to h
 
 A good starting point would be existing [open issues](https://github.com/64bit/async-openai/issues).
 
-## Complimentary Crates
-- [openai-func-enums](https://github.com/frankfralick/openai-func-enums) provides procedural macros that make it easier to use this library with OpenAI API's function calling feature. It also provides derive macros you can add to existing [clap](https://github.com/clap-rs/clap) application subcommands for natural language use of command line tools.
 
 ## License
 

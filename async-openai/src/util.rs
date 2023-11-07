@@ -38,3 +38,17 @@ pub(crate) async fn create_file_part<P: AsRef<Path>>(
 
     Ok(file_part)
 }
+
+pub(crate) fn create_all_dir<P: AsRef<Path>>(dir: P) -> Result<(), OpenAIError> {
+    let exists = match Path::try_exists(dir.as_ref()) {
+        Ok(exists) => exists,
+        Err(e) => return Err(OpenAIError::FileSaveError(e.to_string())),
+    };
+
+    if !exists {
+        std::fs::create_dir_all(dir.as_ref())
+            .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
+    }
+
+    Ok(())
+}

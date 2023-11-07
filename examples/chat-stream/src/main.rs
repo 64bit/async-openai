@@ -1,10 +1,8 @@
 use std::error::Error;
 use std::io::{stdout, Write};
 
-use async_openai::{
-    types::{ChatCompletionRequestMessageArgs, CreateChatCompletionRequestArgs, Role},
-    Client,
-};
+use async_openai::types::ChatCompletionRequestUserMessageArgs;
+use async_openai::{types::CreateChatCompletionRequestArgs, Client};
 use futures::StreamExt;
 
 #[tokio::main]
@@ -14,10 +12,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let request = CreateChatCompletionRequestArgs::default()
         .model("gpt-3.5-turbo")
         .max_tokens(512u16)
-        .messages([ChatCompletionRequestMessageArgs::default()
+        .messages([ChatCompletionRequestUserMessageArgs::default()
             .content("Write a marketing blog praising and introducing Rust library async-openai")
-            .role(Role::User)
-            .build()?])
+            .build()?
+            .into()])
         .build()?;
 
     let mut stream = client.chat().create_stream(request).await?;

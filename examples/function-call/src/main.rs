@@ -1,7 +1,7 @@
 use async_openai::{
     types::{
-        ChatCompletionFunctionsArgs, ChatCompletionRequestMessageArgs,
-        CreateChatCompletionRequestArgs, Role,
+        ChatCompletionFunctionsArgs, ChatCompletionRequestFunctionMessageArgs,
+        ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, Role,
     },
     Client,
 };
@@ -26,10 +26,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u16)
         .model("gpt-3.5-turbo-0613")
-        .messages([ChatCompletionRequestMessageArgs::default()
-            .role(Role::User)
+        .messages([ChatCompletionRequestUserMessageArgs::default()
             .content("What's the weather like in Boston?")
-            .build()?])
+            .build()?
+            .into()])
         .functions([ChatCompletionFunctionsArgs::default()
             .name("get_current_weather")
             .description("Get the current weather in a given location")
@@ -71,16 +71,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let function_response = function(location, unit);
 
         let message = vec![
-            ChatCompletionRequestMessageArgs::default()
-                .role(Role::User)
+            ChatCompletionRequestUserMessageArgs::default()
                 .content("What's the weather like in Boston?")
-                .build()?,
-            ChatCompletionRequestMessageArgs::default()
-                .role(Role::Function)
-                .name(function_name)
+                .build()?
+                .into(),
+            ChatCompletionRequestFunctionMessageArgs::default()
                 .content(function_response.to_string())
-                .build()?,
+                .name(function_name)
+                .build()?
+                .into(),
         ];
+
+        println!("{}", serde_json::to_string(&message).unwrap());
 
         let request = CreateChatCompletionRequestArgs::default()
             .max_tokens(512u16)

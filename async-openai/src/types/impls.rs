@@ -6,14 +6,21 @@ use std::{
 use crate::{
     download::{download_url, save_b64},
     error::OpenAIError,
-    util::create_file_part,
+    util::{create_all_dir, create_file_part},
 };
 
 use super::{
-    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateTranscriptionRequest,
-    CreateTranslationRequest, EmbeddingInput, FileInput, Image, ImageInput, ImageSize,
-    ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, ChatCompletionFunctions,
+    ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
+    ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
+    ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
+    ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
+    ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
+    ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest,
+    CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
+    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
+    FileInput, FunctionName, Image, ImageInput, ImageModel, ImageSize, ImageUrl, ImagesResponse,
+    ModerationInput, Prompt, ResponseFormat, Role, Stop,
 };
 
 macro_rules! impl_from {
@@ -70,6 +77,20 @@ impl_from!(&str, EmbeddingInput);
 impl_from!(String, EmbeddingInput);
 impl_from!(&String, EmbeddingInput);
 
+macro_rules! impl_default {
+    ($for_typ:ty) => {
+        impl Default for $for_typ {
+            fn default() -> Self {
+                Self::String("".into())
+            }
+        }
+    };
+}
+
+impl_default!(Prompt);
+impl_default!(ModerationInput);
+impl_default!(EmbeddingInput);
+
 macro_rules! file_path_input {
     ($for_typ:ty) => {
         impl $for_typ {
@@ -100,9 +121,39 @@ impl Display for ImageSize {
             f,
             "{}",
             match self {
-                ImageSize::S256x256 => "256x256",
-                ImageSize::S512x512 => "512x512",
-                ImageSize::S1024x1024 => "1024x1024",
+                Self::S256x256 => "256x256",
+                Self::S512x512 => "512x512",
+                Self::S1024x1024 => "1024x1024",
+                Self::S1792x1024 => "1792x1024",
+                Self::S1024x1792 => "1024x1792",
+            }
+        )
+    }
+}
+
+impl Display for DallE2ImageSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::S256x256 => "256x256",
+                Self::S512x512 => "512x512",
+                Self::S1024x1024 => "1024x1024",
+            }
+        )
+    }
+}
+
+impl Display for ImageModel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::DallE2 => "dall-e-2",
+                Self::DallE3 => "dall-e-3",
+                Self::Other(other) => other,
             }
         )
     }
@@ -147,6 +198,7 @@ impl Display for Role {
                 Role::System => "system",
                 Role::Assistant => "assistant",
                 Role::Function => "function",
+                Role::Tool => "tool",
             }
         )
     }
@@ -156,15 +208,7 @@ impl ImagesResponse {
     /// Save each image in a dedicated Tokio task and return paths to saved files.
     /// For [ResponseFormat::Url] each file is downloaded in dedicated Tokio task.
     pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<Vec<PathBuf>, OpenAIError> {
-        let exists = match Path::try_exists(dir.as_ref()) {
-            Ok(exists) => exists,
-            Err(e) => return Err(OpenAIError::FileSaveError(e.to_string())),
-        };
-
-        if !exists {
-            std::fs::create_dir_all(dir.as_ref())
-                .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
-        }
+        create_all_dir(dir.as_ref())?;
 
         let mut handles = vec![];
         for id in self.data.clone() {
@@ -200,24 +244,28 @@ impl ImagesResponse {
     }
 }
 
+impl CreateSpeechResponse {
+    pub async fn save<P: AsRef<Path>>(&self, file_path: P) -> Result<(), OpenAIError> {
+        let dir = file_path.as_ref().parent();
+
+        if let Some(dir) = dir {
+            create_all_dir(dir)?;
+        }
+
+        tokio::fs::write(file_path, &self.bytes)
+            .await
+            .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
+
+        Ok(())
+    }
+}
+
 impl Image {
     async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<PathBuf, OpenAIError> {
         match self {
-            Image::Url(url) => download_url(url, dir).await,
-            Image::B64Json(b64_json) => save_b64(b64_json, dir).await,
+            Image::Url { url, .. } => download_url(url, dir).await,
+            Image::B64Json { b64_json, .. } => save_b64(b64_json, dir).await,
         }
-    }
-}
-
-impl Default for ModerationInput {
-    fn default() -> Self {
-        ModerationInput::String("".to_owned())
-    }
-}
-
-impl Default for EmbeddingInput {
-    fn default() -> Self {
-        EmbeddingInput::String("".to_owned())
     }
 }
 
@@ -351,10 +399,170 @@ impl_from_for_array_of_integer_array!(u16, Prompt);
 
 impl From<&str> for ChatCompletionFunctionCall {
     fn from(value: &str) -> Self {
-        match value.to_lowercase().as_str() {
+        match value {
             "auto" => Self::Auto,
             "none" => Self::None,
             _ => Self::Function { name: value.into() },
+        }
+    }
+}
+
+impl From<&str> for FunctionName {
+    fn from(value: &str) -> Self {
+        Self { name: value.into() }
+    }
+}
+
+impl From<String> for FunctionName {
+    fn from(value: String) -> Self {
+        Self { name: value }
+    }
+}
+
+impl From<&str> for ChatCompletionNamedToolChoice {
+    fn from(value: &str) -> Self {
+        Self {
+            r#type: super::ChatCompletionToolType::Function,
+            function: value.into(),
+        }
+    }
+}
+
+impl From<String> for ChatCompletionNamedToolChoice {
+    fn from(value: String) -> Self {
+        Self {
+            r#type: super::ChatCompletionToolType::Function,
+            function: value.into(),
+        }
+    }
+}
+
+impl From<&str> for ChatCompletionToolChoiceOption {
+    fn from(value: &str) -> Self {
+        match value {
+            "auto" => Self::Auto,
+            "none" => Self::None,
+            _ => Self::Named(value.into()),
+        }
+    }
+}
+
+impl From<String> for ChatCompletionToolChoiceOption {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "auto" => Self::Auto,
+            "none" => Self::None,
+            _ => Self::Named(value.into()),
+        }
+    }
+}
+
+impl From<(String, serde_json::Value)> for ChatCompletionFunctions {
+    fn from(value: (String, serde_json::Value)) -> Self {
+        Self {
+            name: value.0,
+            description: None,
+            parameters: value.1,
+        }
+    }
+}
+
+impl From<ChatCompletionRequestUserMessage> for ChatCompletionRequestMessage {
+    fn from(value: ChatCompletionRequestUserMessage) -> Self {
+        Self::User(value)
+    }
+}
+
+impl From<ChatCompletionRequestSystemMessage> for ChatCompletionRequestMessage {
+    fn from(value: ChatCompletionRequestSystemMessage) -> Self {
+        Self::System(value)
+    }
+}
+
+impl From<ChatCompletionRequestAssistantMessage> for ChatCompletionRequestMessage {
+    fn from(value: ChatCompletionRequestAssistantMessage) -> Self {
+        Self::Assistant(value)
+    }
+}
+
+impl From<ChatCompletionRequestFunctionMessage> for ChatCompletionRequestMessage {
+    fn from(value: ChatCompletionRequestFunctionMessage) -> Self {
+        Self::Function(value)
+    }
+}
+
+impl From<ChatCompletionRequestToolMessage> for ChatCompletionRequestMessage {
+    fn from(value: ChatCompletionRequestToolMessage) -> Self {
+        Self::Tool(value)
+    }
+}
+
+impl From<&str> for ChatCompletionRequestUserMessageContent {
+    fn from(value: &str) -> Self {
+        ChatCompletionRequestUserMessageContent::Text(value.into())
+    }
+}
+
+impl From<String> for ChatCompletionRequestUserMessageContent {
+    fn from(value: String) -> Self {
+        ChatCompletionRequestUserMessageContent::Text(value.into())
+    }
+}
+
+impl From<Vec<ChatCompletionRequestMessageContentPart>>
+    for ChatCompletionRequestUserMessageContent
+{
+    fn from(value: Vec<ChatCompletionRequestMessageContentPart>) -> Self {
+        ChatCompletionRequestUserMessageContent::Array(value)
+    }
+}
+
+impl From<ChatCompletionRequestMessageContentPartText> for ChatCompletionRequestMessageContentPart {
+    fn from(value: ChatCompletionRequestMessageContentPartText) -> Self {
+        ChatCompletionRequestMessageContentPart::Text(value)
+    }
+}
+
+impl From<ChatCompletionRequestMessageContentPartImage>
+    for ChatCompletionRequestMessageContentPart
+{
+    fn from(value: ChatCompletionRequestMessageContentPartImage) -> Self {
+        ChatCompletionRequestMessageContentPart::Image(value)
+    }
+}
+
+impl From<&str> for ChatCompletionRequestMessageContentPartText {
+    fn from(value: &str) -> Self {
+        ChatCompletionRequestMessageContentPartText {
+            r#type: "text".into(),
+            text: value.into(),
+        }
+    }
+}
+
+impl From<String> for ChatCompletionRequestMessageContentPartText {
+    fn from(value: String) -> Self {
+        ChatCompletionRequestMessageContentPartText {
+            r#type: "text".into(),
+            text: value,
+        }
+    }
+}
+
+impl From<&str> for ImageUrl {
+    fn from(value: &str) -> Self {
+        Self {
+            url: value.into(),
+            detail: Default::default(),
+        }
+    }
+}
+
+impl From<String> for ImageUrl {
+    fn from(value: String) -> Self {
+        Self {
+            url: value.into(),
+            detail: Default::default(),
         }
     }
 }
@@ -429,6 +637,10 @@ impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form
             form = form.part("mask", mask_part);
         }
 
+        if let Some(model) = request.model {
+            form = form.text("model", model.to_string())
+        }
+
         if request.n.is_some() {
             form = form.text("n", request.n.unwrap().to_string())
         }
@@ -459,6 +671,10 @@ impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart:
         let image_part = create_file_part(&request.image.path).await?;
 
         let mut form = reqwest::multipart::Form::new().part("image", image_part);
+
+        if let Some(model) = request.model {
+            form = form.text("model", model.to_string())
+        }
 
         if request.n.is_some() {
             form = form.text("n", request.n.unwrap().to_string())
