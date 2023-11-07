@@ -11,7 +11,7 @@ use crate::{
 };
 
 /// Build assistants that can call models and use tools to perform tasks.
-
+///
 /// [Get started with the Assistants API](https://platform.openai.com/docs/assistants)
 pub struct Assistants<'c, C: Config> {
     client: &'c Client<C>,

@@ -1,4 +1,4 @@
-//! Async Rust library for OpenAI REST API based on OpenAPI spec.
+//! Rust library for OpenAI
 //!
 //! ## Creating client
 //!
