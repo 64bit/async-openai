@@ -73,8 +73,7 @@ pub struct CreateCompletionRequest {
     /// The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.
     ///
     /// Note that <|endoftext|> is the document separator that the model sees during training, so if a prompt is not specified the model will generate as if from the beginning of a new document.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub prompt: Option<Prompt>,
+    pub prompt: Prompt,
 
     /// The suffix that comes after a completion of inserted text.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -155,6 +154,12 @@ pub struct CreateCompletionRequest {
     /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
+
+    /// If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.
+    ///
+    /// Determinism is not guaranteed, and you should refer to the `system_fingerprint` response parameter to monitor changes in the backend.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub seed: Option<i64>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
@@ -194,11 +199,22 @@ pub struct CompletionUsage {
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateCompletionResponse {
+    /// A unique identifier for the completion.
     pub id: String,
-    pub object: String,
-    pub created: u32,
-    pub model: String,
     pub choices: Vec<Choice>,
+    /// The Unix timestamp (in seconds) of when the completion was created.
+    pub created: u32,
+
+    /// The model used for completion.
+    pub model: String,
+    /// This fingerprint represents the backend configuration that the model runs with.
+    ///
+    /// Can be used in conjunction with the `seed` request parameter to understand when backend changes have been
+    /// made that might impact determinism.
+    pub system_fingerprint: Option<String>,
+
+    /// The object type, which is always "text_completion"
+    pub object: String,
     pub usage: Option<CompletionUsage>,
 }
 

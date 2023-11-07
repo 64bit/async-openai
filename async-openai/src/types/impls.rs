@@ -71,6 +71,18 @@ impl_from!(&str, EmbeddingInput);
 impl_from!(String, EmbeddingInput);
 impl_from!(&String, EmbeddingInput);
 
+macro_rules! impl_default {
+    ($for_typ:ty) => {
+        impl Default for $for_typ {
+            fn default() -> Self {
+                Self::String("".into())
+            }
+        }
+    };
+}
+
+impl_default!(Prompt);
+
 macro_rules! file_path_input {
     ($for_typ:ty) => {
         impl $for_typ {
