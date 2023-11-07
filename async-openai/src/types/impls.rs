@@ -10,11 +10,16 @@ use crate::{
 };
 
 use super::{
-    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, CreateFileRequest,
+    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
+    ChatCompletionRequestAssistantMessage, ChatCompletionRequestFunctionMessage,
+    ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPart,
+    ChatCompletionRequestMessageContentPartImage, ChatCompletionRequestMessageContentPartText,
+    ChatCompletionRequestSystemMessage, ChatCompletionRequestToolMessage,
+    ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent, CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
     CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
-    FileInput, Image, ImageInput, ImageModel, ImageSize, ImagesResponse, ModerationInput, Prompt,
-    ResponseFormat, Role, Stop,
+    FileInput, Image, ImageInput, ImageModel, ImageSize, ImageUrl, ImagesResponse, ModerationInput,
+    Prompt, ResponseFormat, Role, Stop,
 };
 
 macro_rules! impl_from {
@@ -82,6 +87,8 @@ macro_rules! impl_default {
 }
 
 impl_default!(Prompt);
+impl_default!(ModerationInput);
+impl_default!(EmbeddingInput);
 
 macro_rules! file_path_input {
     ($for_typ:ty) => {
@@ -261,18 +268,6 @@ impl Image {
     }
 }
 
-impl Default for ModerationInput {
-    fn default() -> Self {
-        ModerationInput::String("".to_owned())
-    }
-}
-
-impl Default for EmbeddingInput {
-    fn default() -> Self {
-        EmbeddingInput::String("".to_owned())
-    }
-}
-
 macro_rules! impl_from_for_integer_array {
     ($from_typ:ty, $to_typ:ty) => {
         impl<const N: usize> From<[$from_typ; N]> for $to_typ {
@@ -407,6 +402,106 @@ impl From<&str> for ChatCompletionFunctionCall {
             "auto" => Self::Auto,
             "none" => Self::None,
             _ => Self::Function { name: value.into() },
+        }
+    }
+}
+
+impl From<ChatCompletionRequestUserMessage> for ChatCompletionRequestMessage {
+    fn from(value: ChatCompletionRequestUserMessage) -> Self {
+        Self::User(value)
+    }
+}
+
+impl From<ChatCompletionRequestSystemMessage> for ChatCompletionRequestMessage {
+    fn from(value: ChatCompletionRequestSystemMessage) -> Self {
+        Self::System(value)
+    }
+}
+
+impl From<ChatCompletionRequestAssistantMessage> for ChatCompletionRequestMessage {
+    fn from(value: ChatCompletionRequestAssistantMessage) -> Self {
+        Self::Assistant(value)
+    }
+}
+
+impl From<ChatCompletionRequestFunctionMessage> for ChatCompletionRequestMessage {
+    fn from(value: ChatCompletionRequestFunctionMessage) -> Self {
+        Self::Function(value)
+    }
+}
+
+impl From<ChatCompletionRequestToolMessage> for ChatCompletionRequestMessage {
+    fn from(value: ChatCompletionRequestToolMessage) -> Self {
+        Self::Tool(value)
+    }
+}
+
+impl From<&str> for ChatCompletionRequestUserMessageContent {
+    fn from(value: &str) -> Self {
+        ChatCompletionRequestUserMessageContent::Text(value.into())
+    }
+}
+
+impl From<String> for ChatCompletionRequestUserMessageContent {
+    fn from(value: String) -> Self {
+        ChatCompletionRequestUserMessageContent::Text(value.into())
+    }
+}
+
+impl From<Vec<ChatCompletionRequestMessageContentPart>>
+    for ChatCompletionRequestUserMessageContent
+{
+    fn from(value: Vec<ChatCompletionRequestMessageContentPart>) -> Self {
+        ChatCompletionRequestUserMessageContent::Array(value)
+    }
+}
+
+impl From<ChatCompletionRequestMessageContentPartText> for ChatCompletionRequestMessageContentPart {
+    fn from(value: ChatCompletionRequestMessageContentPartText) -> Self {
+        ChatCompletionRequestMessageContentPart::Text(value)
+    }
+}
+
+impl From<ChatCompletionRequestMessageContentPartImage>
+    for ChatCompletionRequestMessageContentPart
+{
+    fn from(value: ChatCompletionRequestMessageContentPartImage) -> Self {
+        ChatCompletionRequestMessageContentPart::Image(value)
+    }
+}
+
+impl From<&str> for ChatCompletionRequestMessageContentPartText {
+    fn from(value: &str) -> Self {
+        ChatCompletionRequestMessageContentPartText {
+            r#type: "text".into(),
+            text: value.into(),
+        }
+    }
+}
+
+impl From<String> for ChatCompletionRequestMessageContentPartText {
+    fn from(value: String) -> Self {
+        ChatCompletionRequestMessageContentPartText {
+            r#type: "text".into(),
+            text: value,
+        }
+    }
+}
+
+impl From<&str> for ImageUrl {
+    fn from(value: &str) -> Self {
+        Self {
+            url: value.into(),
+            detail: Default::default(),
+        }
+    }
+}
+
+impl From<String> for ImageUrl {
+    fn from(value: String) -> Self {
+        Self {
+            url: value.into(),
+            detail: Default::default(),
         }
     }
 }

@@ -1070,27 +1070,157 @@ pub struct FunctionCall {
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
-#[builder(name = "ChatCompletionRequestMessageArgs")]
+#[builder(name = "ChatCompletionRequestSystemMessageArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
-pub struct ChatCompletionRequestMessage {
-    /// The role of the messages author. One of `system`, `user`, `assistant`, or `function`.
-    pub role: Role,
-    /// The contents of the message. `content` is required for all messages,
-    /// and may be null for assistant messages with function calls.
-    // DON'T SKIP: https://github.com/64bit/async-openai/issues/103
-    //#[serde(skip_serializing_if = "Option::is_none")]
+pub struct ChatCompletionRequestSystemMessage {
+    /// The contents of the system message.
     pub content: Option<String>,
-    /// The name of the author of this message. `name` is required if role is `function`,
-    /// and it should be the name of the function whose response is in the `content`.
-    /// May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
+    /// The role of the messages author, in this case `system`.
+    #[builder(default = "Role::System")]
+    pub role: Role,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
+#[builder(name = "ChatCompletionRequestMessageContentPartTextArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct ChatCompletionRequestMessageContentPartText {
+    #[builder(default = "\"text\".into()")]
+    pub r#type: String,
+    pub text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum ImageUrlDetail {
+    #[default]
+    Auto,
+    Low,
+    High,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
+#[builder(name = "ImageUrlArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct ImageUrl {
+    /// Either a URL of the image or the base64 encoded image data.
+    pub url: String,
+    /// Specifies the detail level of the image.
+    pub detail: ImageUrlDetail,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
+#[builder(name = "ChatCompletionRequestMessageContentPartImageArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct ChatCompletionRequestMessageContentPartImage {
+    #[builder(default = "\"image_url\".into()")]
+    pub r#type: String,
+    pub image_url: ImageUrl,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum ChatCompletionRequestMessageContentPart {
+    Text(ChatCompletionRequestMessageContentPartText),
+    Image(ChatCompletionRequestMessageContentPartImage),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum ChatCompletionRequestUserMessageContent {
+    /// The text contents of the message.
+    Text(String),
+    ///  An array of content parts with a defined type, each can be of type `text` or `image_url`
+    /// when passing in images. You can pass multiple images by adding multiple `image_url` content parts.
+    ///  Image input is only supported when using the `gpt-4-visual-preview` model.
+    Array(Vec<ChatCompletionRequestMessageContentPart>),
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
+#[builder(name = "ChatCompletionRequestUserMessageArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct ChatCompletionRequestUserMessage {
+    /// The contents of the user message.
+    pub content: Option<ChatCompletionRequestUserMessageContent>,
+    /// The role of the messages author, in this case `user`.
+    #[builder(default = "Role::User")]
+    pub role: Role,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
+#[builder(name = "ChatCompletionRequestAssistantMessageArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct ChatCompletionRequestAssistantMessage {
+    /// The contents of the assistant message.
+    pub content: Option<String>,
+    /// The role of the messages author, in this case `assistant`.
+    #[builder(default = "Role::Assistant")]
+    pub role: Role,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-    /// The name and arguments of a function that should be called, as generated by the model.
+    pub tool_calls: Option<Vec<ChatCompletionMessageToolCall>>,
+    /// Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model.
+    #[deprecated]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub function_call: Option<FunctionCall>,
+}
+
+/// Tool message
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
+#[builder(name = "ChatCompletionRequestToolMessageArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct ChatCompletionRequestToolMessage {
+    /// The role of the messages author, in this case `tool`.
+    #[builder(default = "Role::Tool")]
+    role: Role,
+    /// The contents of the tool message.
+    content: Option<String>,
+    tool_call_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
+#[builder(name = "ChatCompletionRequestFunctionMessageArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct ChatCompletionRequestFunctionMessage {
+    /// The role of the messages author, in this case `function`.
+    #[builder(default = "Role::Function")]
+    role: Role,
+    /// The return value from the function call, to return to the model.
+    content: Option<String>,
+    /// The name of the function to call.
+    name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum ChatCompletionRequestMessage {
+    System(ChatCompletionRequestSystemMessage),
+    User(ChatCompletionRequestUserMessage),
+    Assistant(ChatCompletionRequestAssistantMessage),
+    Tool(ChatCompletionRequestToolMessage),
+    Function(ChatCompletionRequestFunctionMessage),
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
