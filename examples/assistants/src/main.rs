@@ -1,4 +1,7 @@
-use async_openai::{types::CreateThreadRequestArgs, Client};
+use async_openai::{
+    types::{CreateMessageRequestArgs, CreateRunRequestArgs, CreateThreadRequestArgs},
+    Client,
+};
 use std::error::Error;
 use tracing_subscriber::{
     prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt, EnvFilter,
@@ -18,10 +21,28 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let assistants = client.assistants().list(&query).await?;
     println!("assistants: {assistants:#?}");
 
-    let request = CreateThreadRequestArgs::default().build()?;
-    let thread_object = client.threads().create(request).await?;
+    let create_thread_request = CreateThreadRequestArgs::default().build()?;
+    let thread_object = client.threads().create(create_thread_request).await?;
 
     println!("thread object: {thread_object:#?}");
+
+    let create_message_request = CreateMessageRequestArgs::default().build()?;
+    let message_object = client
+        .threads()
+        .messages(&thread_object.id)
+        .create(create_message_request)
+        .await?;
+
+    println!("message object: {message_object:#?}");
+
+    let create_run_request = CreateRunRequestArgs::default().build()?;
+    let run_object = client
+        .threads()
+        .runs(&thread_object.id)
+        .create(create_run_request)
+        .await;
+
+    println!("run object: {run_object:#?}");
 
     let thread_runs = client
         .threads()
