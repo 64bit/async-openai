@@ -1,7 +1,10 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{CreateThreadRequest, DeleteThreadResponse, ModifyThreadRequest, ThreadObject},
+    types::{
+        CreateThreadAndRunRequest, CreateThreadRequest, DeleteThreadResponse, ModifyThreadRequest,
+        RunObject, ThreadObject,
+    },
     Client, Messages, Runs,
 };
 
@@ -25,6 +28,14 @@ impl<'c, C: Config> Threads<'c, C> {
     /// Call [Runs] group API to manage runs in [thread_id] thread.
     pub fn runs(&self, thread_id: &str) -> Runs<C> {
         Runs::new(self.client, thread_id)
+    }
+
+    /// Create a thread and run it in one request.
+    pub async fn create_and_run(
+        &self,
+        request: CreateThreadAndRunRequest,
+    ) -> Result<RunObject, OpenAIError> {
+        self.client.post("/threads/runs", request).await
     }
 
     /// Create a thread.

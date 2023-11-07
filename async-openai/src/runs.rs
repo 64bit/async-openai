@@ -3,7 +3,10 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{CreateRunRequest, ListRunsResponse, ModifyRunRequest, RunObject},
+    types::{
+        CreateRunRequest, ListRunsResponse, ModifyRunRequest, RunObject,
+        SubmitToolOutputsRunRequest,
+    },
     Client,
 };
 
@@ -55,6 +58,33 @@ impl<'c, C: Config> Runs<'c, C> {
     {
         self.client
             .get_with_query(&format!("/threads/{}/runs", self.thread_id), query)
+            .await
+    }
+
+    /// When a run has the status: "requires_action" and required_action.type is submit_tool_outputs, this endpoint can be used to submit the outputs from the tool calls once they're all completed. All outputs must be submitted in a single request.
+    pub async fn submit_tool_outputs(
+        &self,
+        run_id: &str,
+        request: SubmitToolOutputsRunRequest,
+    ) -> Result<RunObject, OpenAIError> {
+        self.client
+            .post(
+                &format!(
+                    "/threads/{}/runs/{run_id}/submit_tool_outputs",
+                    self.thread_id
+                ),
+                request,
+            )
+            .await
+    }
+
+    /// Cancels a run that is `in_progress`
+    pub async fn cancel(&self, run_id: &str) -> Result<RunObject, OpenAIError> {
+        self.client
+            .post(
+                &format!("/threads/{}/runs/{run_id}/cancel", self.thread_id),
+                (),
+            )
             .await
     }
 }

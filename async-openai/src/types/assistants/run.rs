@@ -143,3 +143,22 @@ pub struct ListRunsResponse {
     last_id: String,
     has_more: bool,
 }
+
+#[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
+pub struct SubmitToolOutputsRunRequest {
+    /// A list of tools for which the outputs are being submitted.
+    tools_outputs: Vec<ToolsOutputs>,
+}
+
+#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[builder(name = "ToolsOutputsArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct ToolsOutputs {
+    /// The ID of the tool call in the `required_action` object within the run object the output is being submitted for.
+    pub tool_call_id: Option<String>,
+    /// The output of the tool call to be submitted to continue the run.
+    pub output: Option<String>,
+}
