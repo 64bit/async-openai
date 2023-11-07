@@ -22,7 +22,7 @@ impl<'c, C: Config> Assistants<'c, C> {
         Self { client }
     }
 
-    /// Assistant [Files] API group
+    /// Assistant [AssistantFiles] API group
     pub fn files(&self, assistant_id: &str) -> AssistantFiles<C> {
         AssistantFiles::new(self.client, assistant_id)
     }
@@ -65,6 +65,6 @@ impl<'c, C: Config> Assistants<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        self.client.get_with_query("", query).await
+        self.client.get_with_query("/assistants", query).await
     }
 }
