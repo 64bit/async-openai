@@ -113,14 +113,14 @@ pub struct ModifyAssistantRequest {
     pub metadata: Option<HashMap<String, serde_json::Value>>,
 }
 
-#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
 pub struct DeleteAssistantResponse {
     pub id: String,
     pub deleted: bool,
     pub object: String,
 }
 
-#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
 pub struct ListAssistantsResponse {
     pub object: String,
     pub data: Vec<AssistantObject>,

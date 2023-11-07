@@ -3,7 +3,6 @@ mod assistant_file;
 mod assistant_impls;
 mod message;
 mod message_file;
-mod message_impls;
 mod run;
 mod step;
 mod thread;
