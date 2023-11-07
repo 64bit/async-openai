@@ -27,7 +27,7 @@ pub struct MessageObject {
     pub role: MessageRole,
 
     /// The content of the message in array of text and/or images.
-    pub content: MessageContent,
+    pub content: Vec<MessageContent>,
 
     /// If applicable, the ID of the [assistant](https://platform.openai.com/docs/api-reference/assistants) that authored this message.
     pub assistant_id: Option<String>,
