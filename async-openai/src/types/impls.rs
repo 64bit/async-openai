@@ -12,8 +12,9 @@ use crate::{
 use super::{
     AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
-    CreateTranscriptionRequest, CreateTranslationRequest, EmbeddingInput, FileInput, Image,
-    ImageInput, ImageSize, ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
+    FileInput, Image, ImageInput, ImageModel, ImageSize, ImagesResponse, ModerationInput, Prompt,
+    ResponseFormat, Role, Stop,
 };
 
 macro_rules! impl_from {
@@ -100,9 +101,39 @@ impl Display for ImageSize {
             f,
             "{}",
             match self {
-                ImageSize::S256x256 => "256x256",
-                ImageSize::S512x512 => "512x512",
-                ImageSize::S1024x1024 => "1024x1024",
+                Self::S256x256 => "256x256",
+                Self::S512x512 => "512x512",
+                Self::S1024x1024 => "1024x1024",
+                Self::S1792x1024 => "1792x1024",
+                Self::S1024x1792 => "1024x1792",
+            }
+        )
+    }
+}
+
+impl Display for DallE2ImageSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::S256x256 => "256x256",
+                Self::S512x512 => "512x512",
+                Self::S1024x1024 => "1024x1024",
+            }
+        )
+    }
+}
+
+impl Display for ImageModel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::DallE2 => "dall-e-2",
+                Self::DallE3 => "dall-e-3",
+                Self::Other(other) => other,
             }
         )
     }
@@ -211,8 +242,8 @@ impl CreateSpeechResponse {
 impl Image {
     async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<PathBuf, OpenAIError> {
         match self {
-            Image::Url(url) => download_url(url, dir).await,
-            Image::B64Json(b64_json) => save_b64(b64_json, dir).await,
+            Image::Url { url, .. } => download_url(url, dir).await,
+            Image::B64Json { b64_json, .. } => save_b64(b64_json, dir).await,
         }
     }
 }
@@ -437,6 +468,10 @@ impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form
             form = form.part("mask", mask_part);
         }
 
+        if let Some(model) = request.model {
+            form = form.text("model", model.to_string())
+        }
+
         if request.n.is_some() {
             form = form.text("n", request.n.unwrap().to_string())
         }
@@ -467,6 +502,10 @@ impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart:
         let image_part = create_file_part(&request.image.path).await?;
 
         let mut form = reqwest::multipart::Form::new().part("image", image_part);
+
+        if let Some(model) = request.model {
+            form = form.text("model", model.to_string())
+        }
 
         if request.n.is_some() {
             form = form.text("n", request.n.unwrap().to_string())
