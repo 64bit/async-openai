@@ -131,12 +131,12 @@ pub struct ImageFile {
 pub struct CreateMessageRequest {
     /// The role of the entity that is creating the message. Currently only `user` is supported.
     #[builder(default = "\"user\".into()")]
-    role: String,
+    pub role: String,
     /// The content of the message.
-    content: String,
+    pub content: String,
     /// A list of [File](https://platform.openai.com/docs/api-reference/files) IDs that the message should use. There can be a maximum of 10 files attached to a message. Useful for tools like `retrieval` and `code_interpreter` that can access and use files.
     #[serde(skip_serializing_if = "Option::is_none")]
-    file_ids: Option<Vec<String>>,
+    pub file_ids: Option<Vec<String>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<HashMap<String, serde_json::Value>>,
@@ -157,9 +157,9 @@ pub struct DeleteMessageResponse {
 
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
 pub struct ListMessagesResponse {
-    object: String,
-    data: Vec<MessageObject>,
-    first_id: String,
-    last_id: String,
-    has_more: bool,
+    pub object: String,
+    pub data: Vec<MessageObject>,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
+    pub has_more: bool,
 }

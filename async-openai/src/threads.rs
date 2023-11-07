@@ -22,7 +22,7 @@ impl<'c, C: Config> Threads<'c, C> {
 
     /// Call [Messages] group API to manage message in [thread_id] thread.
     pub fn messages(&self, thread_id: &str) -> Messages<C> {
-        Messages::new(&self.client, thread_id)
+        Messages::new(self.client, thread_id)
     }
 
     /// Call [Runs] group API to manage runs in [thread_id] thread.

@@ -166,18 +166,18 @@ pub struct RunStepDetailsToolCallsFunctionObject {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct FunctionObject {
     /// The name of the function.
-    name: String,
+    pub name: String,
     /// The arguments passed to the function.
-    arguments: String,
+    pub arguments: String,
     /// The output of the function. This will be `null` if the outputs have not been [submitted](https://platform.openai.com/docs/api-reference/runs/submitToolOutputs) yet.
-    output: Option<String>,
+    pub output: Option<String>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct ListRunStepsResponse {
-    object: String,
-    data: Vec<RunStepObject>,
-    first_id: String,
-    last_id: String,
-    has_more: bool,
+    pub object: String,
+    pub data: Vec<RunStepObject>,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
+    pub has_more: bool,
 }

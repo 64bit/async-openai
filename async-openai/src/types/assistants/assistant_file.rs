@@ -35,7 +35,7 @@ pub struct DeleteAssistantFileResponse {
 pub struct ListAssistantFilesResponse {
     pub object: String,
     pub data: Vec<AssistantFileObject>,
-    pub first_id: String,
-    pub last_id: String,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
     pub has_more: bool,
 }

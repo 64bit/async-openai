@@ -137,11 +137,11 @@ pub struct ModifyRunRequest {
 
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
 pub struct ListRunsResponse {
-    object: String,
-    data: Vec<RunObject>,
-    first_id: String,
-    last_id: String,
-    has_more: bool,
+    pub object: String,
+    pub data: Vec<RunObject>,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
+    pub has_more: bool,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]

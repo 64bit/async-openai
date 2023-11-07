@@ -124,7 +124,7 @@ pub struct DeleteAssistantResponse {
 pub struct ListAssistantsResponse {
     pub object: String,
     pub data: Vec<AssistantObject>,
-    pub first_id: String,
-    pub last_id: String,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
     pub has_more: bool,
 }
