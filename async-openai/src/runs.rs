@@ -3,6 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
+    steps::Steps,
     types::{
         CreateRunRequest, ListRunsResponse, ModifyRunRequest, RunObject,
         SubmitToolOutputsRunRequest,
@@ -21,6 +22,11 @@ impl<'c, C: Config> Runs<'c, C> {
             client,
             thread_id: thread_id.into(),
         }
+    }
+
+    ///  [Steps] API group
+    pub fn steps(&self, run_id: &str) -> Steps<C> {
+        Steps::new(self.client, &self.thread_id, run_id)
     }
 
     /// Create a run.
