@@ -1,5 +1,3 @@
-use bytes::Bytes;
-
 use crate::{
     config::Config,
     error::OpenAIError,
