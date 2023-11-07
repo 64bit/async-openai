@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
+use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
+
+use crate::error::OpenAIError;
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -117,4 +120,46 @@ pub struct MessageContentImageFileObject {
 pub struct ImageFile {
     /// The [File](https://platform.openai.com/docs/api-reference/files) ID of the image in the message content.
     pub file_id: String,
+}
+
+#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[builder(name = "CreateMessageRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateMessageRequest {
+    /// The role of the entity that is creating the message. Currently only `user` is supported.
+    #[builder(default = "\"user\".into()")]
+    role: String,
+    /// The content of the message.
+    content: String,
+    /// A list of [File](https://platform.openai.com/docs/api-reference/files) IDs that the message should use. There can be a maximum of 10 files attached to a message. Useful for tools like `retrieval` and `code_interpreter` that can access and use files.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    file_ids: Option<Vec<String>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
+}
+
+#[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
+pub struct ModifyMessageRequest {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
+}
+
+#[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
+pub struct DeleteMessageResponse {
+    pub id: String,
+    pub deleted: bool,
+    pub object: String,
+}
+
+#[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
+pub struct ListMessagesResponse {
+    object: String,
+    data: Vec<MessageObject>,
+    first_id: String,
+    last_id: String,
+    has_more: bool,
 }

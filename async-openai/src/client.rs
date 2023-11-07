@@ -12,7 +12,7 @@ use crate::{
     file::Files,
     image::Images,
     moderation::Moderations,
-    Assistants, Audio, Chat, Completions, Embeddings, FineTunes, FineTuning, Models,
+    Assistants, Audio, Chat, Completions, Embeddings, FineTunes, FineTuning, Models, Threads,
 };
 
 #[derive(Debug, Clone)]
@@ -121,6 +121,11 @@ impl<C: Config> Client<C> {
     /// To call [Assistants] group related APIs using this client.
     pub fn assistants(&self) -> Assistants<C> {
         Assistants::new(self)
+    }
+
+    /// To call [Threads] group related APIs using this client.
+    pub fn threads(&self) -> Threads<C> {
+        Threads::new(self)
     }
 
     pub fn config(&self) -> &C {

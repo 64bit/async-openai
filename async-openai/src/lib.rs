@@ -92,8 +92,10 @@ mod file;
 mod fine_tune;
 mod fine_tuning;
 mod image;
+mod messages;
 mod model;
 mod moderation;
+mod threads;
 pub mod types;
 mod util;
 
@@ -108,5 +110,7 @@ pub use file::Files;
 pub use fine_tune::FineTunes;
 pub use fine_tuning::FineTuning;
 pub use image::Images;
+pub use messages::Messages;
 pub use model::Models;
 pub use moderation::Moderations;
+pub use threads::Threads;
