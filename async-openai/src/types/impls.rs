@@ -10,16 +10,17 @@ use crate::{
 };
 
 use super::{
-    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
-    ChatCompletionRequestAssistantMessage, ChatCompletionRequestFunctionMessage,
-    ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPart,
-    ChatCompletionRequestMessageContentPartImage, ChatCompletionRequestMessageContentPartText,
-    ChatCompletionRequestSystemMessage, ChatCompletionRequestToolMessage,
-    ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent, CreateFileRequest,
+    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, ChatCompletionFunctions,
+    ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
+    ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
+    ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
+    ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
+    ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
+    ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
     CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
-    FileInput, Image, ImageInput, ImageModel, ImageSize, ImageUrl, ImagesResponse, ModerationInput,
-    Prompt, ResponseFormat, Role, Stop,
+    FileInput, FunctionName, Image, ImageInput, ImageModel, ImageSize, ImageUrl, ImagesResponse,
+    ModerationInput, Prompt, ResponseFormat, Role, Stop,
 };
 
 macro_rules! impl_from {
@@ -398,10 +399,70 @@ impl_from_for_array_of_integer_array!(u16, Prompt);
 
 impl From<&str> for ChatCompletionFunctionCall {
     fn from(value: &str) -> Self {
-        match value.to_lowercase().as_str() {
+        match value {
             "auto" => Self::Auto,
             "none" => Self::None,
             _ => Self::Function { name: value.into() },
+        }
+    }
+}
+
+impl From<&str> for FunctionName {
+    fn from(value: &str) -> Self {
+        Self { name: value.into() }
+    }
+}
+
+impl From<String> for FunctionName {
+    fn from(value: String) -> Self {
+        Self { name: value }
+    }
+}
+
+impl From<&str> for ChatCompletionNamedToolChoice {
+    fn from(value: &str) -> Self {
+        Self {
+            r#type: super::ChatCompletionToolType::Function,
+            function: value.into(),
+        }
+    }
+}
+
+impl From<String> for ChatCompletionNamedToolChoice {
+    fn from(value: String) -> Self {
+        Self {
+            r#type: super::ChatCompletionToolType::Function,
+            function: value.into(),
+        }
+    }
+}
+
+impl From<&str> for ChatCompletionToolChoiceOption {
+    fn from(value: &str) -> Self {
+        match value {
+            "auto" => Self::Auto,
+            "none" => Self::None,
+            _ => Self::Named(value.into()),
+        }
+    }
+}
+
+impl From<String> for ChatCompletionToolChoiceOption {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "auto" => Self::Auto,
+            "none" => Self::None,
+            _ => Self::Named(value.into()),
+        }
+    }
+}
+
+impl From<(String, serde_json::Value)> for ChatCompletionFunctions {
+    fn from(value: (String, serde_json::Value)) -> Self {
+        Self {
+            name: value.0,
+            description: None,
+            parameters: value.1,
         }
     }
 }

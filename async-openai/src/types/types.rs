@@ -1300,8 +1300,14 @@ pub enum ChatCompletionToolType {
     Function,
 }
 
-#[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Default, Debug, Builder, Deserialize, PartialEq)]
+#[builder(name = "ChatCompletionToolArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionTool {
+    #[builder(default = "ChatCompletionToolType::Function")]
     pub r#type: ChatCompletionToolType,
     pub function: ChatCompletionFunctions,
 }
