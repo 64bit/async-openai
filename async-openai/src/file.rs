@@ -5,7 +5,7 @@ use crate::{
     Client,
 };
 
-/// Files are used to upload documents that can be used with features like [Fine-tuning](https://platform.openai.com/docs/api-reference/fine-tuning).
+/// Files are used to upload documents that can be used with features like Assistants and Fine-tuning.
 pub struct Files<'c, C: Config> {
     client: &'c Client<C>,
 }
