@@ -178,6 +178,7 @@ impl Display for Role {
                 Role::System => "system",
                 Role::Assistant => "assistant",
                 Role::Function => "function",
+                Role::Tool => "tool",
             }
         )
     }
