@@ -40,7 +40,7 @@ impl Default for AssistantToolsFunction {
     fn default() -> Self {
         Self {
             r#type: "function".into(),
-            ..Default::default()
+            function: Default::default(),
         }
     }
 }

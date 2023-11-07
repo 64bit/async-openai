@@ -1,6 +1,7 @@
 mod assistant;
 mod assistant_impls;
 mod message;
+mod message_impls;
 mod run;
 mod thread;
 
