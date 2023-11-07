@@ -618,6 +618,18 @@ pub struct DeleteFileResponse {
     pub deleted: bool,
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub enum OpenAIFilePurpose {
+    #[serde(rename = "fine-tune")]
+    FineTune,
+    #[serde(rename = "fine-tune-results")]
+    FineTuneResults,
+    #[serde(rename = "assistants")]
+    Assistants,
+    #[serde(rename = "assistants_output")]
+    AssistantsOutput,
+}
+
 /// The `File` object represents a document that has been uploaded to OpenAI.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct OpenAIFile {
@@ -631,13 +643,13 @@ pub struct OpenAIFile {
     pub created_at: u32,
     /// The name of the file.
     pub filename: String,
-    /// The intended purpose of the file. Currently, only "fine-tune" is supported.
-    pub purpose: String,
-    /// The current status of the file, which can be either `uploaded`, `processed`,
-    /// `pending`, `error`, `deleting` or `deleted`.
+    /// The intended purpose of the file. Supported values are `fine-tune`, `fine-tune-results`, `assistants`, and `assistants_output`.
+    pub purpose: OpenAIFilePurpose,
+    /// Deprecated. The current status of the file, which can be either `uploaded`, `processed`, or `error`.
+    #[deprecated]
     pub status: Option<String>,
-    /// Additional details about the status of the file. If the file is in the `error`
-    /// state, this will include a message describing the error.
+    /// Deprecated. For details on why a fine-tuning training file failed validation, see the `error` field on `fine_tuning.job`.
+    #[deprecated]
     pub status_details: Option<String>, // nullable: true
 }
 
@@ -883,6 +895,17 @@ pub struct FineTuneJobError {
     pub param: Option<String>, // nullable true
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum FineTuningJobStatus {
+    ValidatingFiles,
+    Queued,
+    Running,
+    Succeeded,
+    Failed,
+    Cancelled,
+}
+
 /// The `fine_tuning.job` object represents a fine-tuning job that has been created through the API.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct FineTuningJob {
@@ -917,7 +940,7 @@ pub struct FineTuningJob {
 
     /// The current status of the fine-tuning job, which can be either
     /// `validating_files`, `queued`, `running`, `succeeded`, `failed`, or `cancelled`.
-    pub status: String,
+    pub status: FineTuningJobStatus,
 
     /// The total number of billable tokens processed by this fine-tuning job. The value will be null if the fine-tuning job is still running.
     pub trained_tokens: Option<u32>,
