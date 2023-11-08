@@ -85,19 +85,19 @@ pub struct SubmitToolOutputs {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct RunToolCallObject {
     /// The ID of the tool call. This ID must be referenced when you submit the tool outputs in using the [Submit tool outputs to run](https://platform.openai.com/docs/api-reference/runs/submitToolOutputs) endpoint.
-    id: String,
+    pub id: String,
     /// The type of tool call the output is required for. For now, this is always `function`.
-    r#type: String,
+    pub r#type: String,
     /// The function definition.
-    function: FunctionCall,
+    pub function: FunctionCall,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct LastError {
     /// One of `server_error` or `rate_limit_exceeded`.
-    code: LastErrorCode,
+    pub code: LastErrorCode,
     /// A human-readable description of the error.
-    message: String,
+    pub message: String,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -147,7 +147,7 @@ pub struct ListRunsResponse {
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
 pub struct SubmitToolOutputsRunRequest {
     /// A list of tools for which the outputs are being submitted.
-    tools_outputs: Vec<ToolsOutputs>,
+    pub tools_outputs: Vec<ToolsOutputs>,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
