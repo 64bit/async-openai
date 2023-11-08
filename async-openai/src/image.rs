@@ -19,7 +19,7 @@ impl<'c> Images<'c> {
     }
 
     /// Creates an image given a prompt.
-    pub async fn create(&self, request: CreateImageRequest) -> Result<ImageResponse, OpenAIError> {
+    pub async fn create(&self, request: CreateImageRequest) -> Result<ImagesResponse, OpenAIError> {
         self.client.post("/images/generations", request).await
     }
 

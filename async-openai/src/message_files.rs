@@ -1,21 +1,20 @@
 use serde::Serialize;
 
 use crate::{
-    config::Config,
     error::OpenAIError,
     types::{ListMessageFilesResponse, MessageFileObject},
     Client,
 };
 
 /// Files attached to a message.
-pub struct MessageFiles<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct MessageFiles<'c> {
+    client: &'c Client,
     pub thread_id: String,
     pub message_id: String,
 }
 
-impl<'c, C: Config> MessageFiles<'c, C> {
-    pub fn new(client: &'c Client<C>, thread_id: &str, message_id: &str) -> Self {
+impl<'c> MessageFiles<'c> {
+    pub fn new(client: &'c Client, thread_id: &str, message_id: &str) -> Self {
         Self {
             client,
             thread_id: thread_id.into(),

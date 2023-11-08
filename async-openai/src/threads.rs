@@ -1,5 +1,4 @@
 use crate::{
-    config::Config,
     error::OpenAIError,
     types::{
         CreateThreadAndRunRequest, CreateThreadRequest, DeleteThreadResponse, ModifyThreadRequest,
@@ -11,22 +10,22 @@ use crate::{
 /// Create threads that assistants can interact with.
 ///
 /// Related guide: [Assistants](https://platform.openai.com/docs/assistants/overview)
-pub struct Threads<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct Threads<'c> {
+    client: &'c Client,
 }
 
-impl<'c, C: Config> Threads<'c, C> {
-    pub fn new(client: &'c Client<C>) -> Self {
+impl<'c> Threads<'c> {
+    pub fn new(client: &'c Client) -> Self {
         Self { client }
     }
 
     /// Call [Messages] group API to manage message in [thread_id] thread.
-    pub fn messages(&self, thread_id: &str) -> Messages<C> {
+    pub fn messages(&self, thread_id: &str) -> Messages {
         Messages::new(self.client, thread_id)
     }
 
     /// Call [Runs] group API to manage runs in [thread_id] thread.
-    pub fn runs(&self, thread_id: &str) -> Runs<C> {
+    pub fn runs(&self, thread_id: &str) -> Runs {
         Runs::new(self.client, thread_id)
     }
 

@@ -1,21 +1,20 @@
 use serde::Serialize;
 
 use crate::{
-    config::Config,
     error::OpenAIError,
     types::{CreateMessageRequest, ListMessagesResponse, MessageObject, ModifyMessageRequest},
     Client, MessageFiles,
 };
 
 /// Represents a message within a [thread](https://platform.openai.com/docs/api-reference/threads).
-pub struct Messages<'c, C: Config> {
+pub struct Messages<'c> {
     ///  The ID of the [thread](https://platform.openai.com/docs/api-reference/threads) to create a message for.
     pub thread_id: String,
-    client: &'c Client<C>,
+    client: &'c Client,
 }
 
-impl<'c, C: Config> Messages<'c, C> {
-    pub fn new(client: &'c Client<C>, thread_id: &str) -> Self {
+impl<'c> Messages<'c> {
+    pub fn new(client: &'c Client, thread_id: &str) -> Self {
         Self {
             client,
             thread_id: thread_id.into(),
@@ -23,7 +22,7 @@ impl<'c, C: Config> Messages<'c, C> {
     }
 
     /// Call [MessageFiles] API group
-    pub fn files(&self, message_id: &str) -> MessageFiles<C> {
+    pub fn files(&self, message_id: &str) -> MessageFiles {
         MessageFiles::new(self.client, &self.thread_id, message_id)
     }
 

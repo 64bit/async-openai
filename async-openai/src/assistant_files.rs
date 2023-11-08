@@ -1,7 +1,6 @@
 use serde::Serialize;
 
 use crate::{
-    config::Config,
     error::OpenAIError,
     types::{
         AssistantFileObject, CreateAssistantFileRequest, DeleteAssistantFileResponse,
@@ -11,13 +10,13 @@ use crate::{
 };
 
 /// Files attached to an assistant.
-pub struct AssistantFiles<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct AssistantFiles<'c> {
+    client: &'c Client,
     pub assistant_id: String,
 }
 
-impl<'c, C: Config> AssistantFiles<'c, C> {
-    pub fn new(client: &'c Client<C>, assistant_id: &str) -> Self {
+impl<'c> AssistantFiles<'c> {
+    pub fn new(client: &'c Client, assistant_id: &str) -> Self {
         Self {
             client,
             assistant_id: assistant_id.into(),

@@ -1,7 +1,6 @@
 use serde::Serialize;
 
 use crate::{
-    config::Config,
     error::OpenAIError,
     types::{
         CreateFineTuningJobRequest, FineTuningJob, ListFineTuningJobEventsResponse,
@@ -13,12 +12,12 @@ use crate::{
 /// Manage fine-tuning jobs to tailor a model to your specific training data.
 ///
 /// Related guide: [Fine-tune models](https://platform.openai.com/docs/guides/fine-tuning)
-pub struct FineTuning<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct FineTuning<'c> {
+    client: &'c Client,
 }
 
-impl<'c, C: Config> FineTuning<'c, C> {
-    pub fn new(client: &'c Client<C>) -> Self {
+impl<'c> FineTuning<'c> {
+    pub fn new(client: &'c Client) -> Self {
         Self { client }
     }
 

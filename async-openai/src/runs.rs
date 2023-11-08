@@ -1,7 +1,6 @@
 use serde::Serialize;
 
 use crate::{
-    config::Config,
     error::OpenAIError,
     steps::Steps,
     types::{
@@ -14,13 +13,13 @@ use crate::{
 /// Represents an execution run on a thread.
 ///
 /// Related guide: [Assistants](https://platform.openai.com/docs/assistants/overview)
-pub struct Runs<'c, C: Config> {
+pub struct Runs<'c> {
     pub thread_id: String,
-    client: &'c Client<C>,
+    client: &'c Client,
 }
 
-impl<'c, C: Config> Runs<'c, C> {
-    pub fn new(client: &'c Client<C>, thread_id: &str) -> Self {
+impl<'c> Runs<'c> {
+    pub fn new(client: &'c Client, thread_id: &str) -> Self {
         Self {
             client,
             thread_id: thread_id.into(),
@@ -28,7 +27,7 @@ impl<'c, C: Config> Runs<'c, C> {
     }
 
     ///  [Steps] API group
-    pub fn steps(&self, run_id: &str) -> Steps<C> {
+    pub fn steps(&self, run_id: &str) -> Steps {
         Steps::new(self.client, &self.thread_id, run_id)
     }
 

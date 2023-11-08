@@ -1,21 +1,20 @@
 use serde::Serialize;
 
 use crate::{
-    config::Config,
     error::OpenAIError,
     types::{ListRunStepsResponse, RunStepObject},
     Client,
 };
 
 /// Represents a step in execution of a run.
-pub struct Steps<'c, C: Config> {
+pub struct Steps<'c> {
     pub thread_id: String,
     pub run_id: String,
-    client: &'c Client<C>,
+    client: &'c Client,
 }
 
-impl<'c, C: Config> Steps<'c, C> {
-    pub fn new(client: &'c Client<C>, thread_id: &str, run_id: &str) -> Self {
+impl<'c> Steps<'c> {
+    pub fn new(client: &'c Client, thread_id: &str, run_id: &str) -> Self {
         Self {
             client,
             thread_id: thread_id.into(),
