@@ -1,4 +1,4 @@
-//! Async Rust library for OpenAI REST API based on OpenAPI spec.
+//! Rust library for OpenAI
 //!
 //! ## Creating client
 //!
@@ -76,23 +76,35 @@
 //! ## Examples
 //! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //!
+mod assistant_files;
+mod assistants;
 mod audio;
 mod chat;
 mod client;
 mod completion;
 pub mod config;
 mod download;
+#[deprecated(since = "0.15.0", note = "By OpenAI")]
 mod edit;
 mod embedding;
 pub mod error;
 mod file;
+#[deprecated(since = "0.15.0", note = "By OpenAI")]
 mod fine_tune;
+mod fine_tuning;
 mod image;
+mod message_files;
+mod messages;
 mod model;
 mod moderation;
+mod runs;
+mod steps;
+mod threads;
 pub mod types;
 mod util;
 
+pub use assistant_files::AssistantFiles;
+pub use assistants::Assistants;
 pub use audio::Audio;
 pub use chat::Chat;
 pub use client::Client;
@@ -101,6 +113,12 @@ pub use edit::Edits;
 pub use embedding::Embeddings;
 pub use file::Files;
 pub use fine_tune::FineTunes;
+pub use fine_tuning::FineTuning;
 pub use image::Images;
+pub use message_files::MessageFiles;
+pub use messages::Messages;
 pub use model::Models;
 pub use moderation::Moderations;
+pub use runs::Runs;
+pub use steps::Steps;
+pub use threads::Threads;

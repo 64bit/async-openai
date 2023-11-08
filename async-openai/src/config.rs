@@ -9,6 +9,9 @@ pub const OPENAI_API_BASE: &str = "https://api.openai.com/v1";
 /// Name for organization header
 pub const OPENAI_ORGANIZATION_HEADER: &str = "OpenAI-Organization";
 
+/// Calls to the Assistants API require that you pass a Beta header
+pub const OPENAI_BETA_HEADER: &str = "OpenAI-Beta";
+
 /// [crate::Client] relies on this for every API call on OpenAI
 /// or Azure OpenAI service
 pub trait Config: 'static + Debug {
@@ -34,7 +37,9 @@ impl Default for OpenAIConfig {
     fn default() -> Self {
         Self {
             api_base: OPENAI_API_BASE.to_string(),
-            api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()).into(),
+            api_key: std::env::var("OPENAI_API_KEY")
+                .unwrap_or_else(|_| "".to_string())
+                .into(),
             org_id: Default::default(),
         }
     }
@@ -81,8 +86,15 @@ impl Config for OpenAIConfig {
 
         headers.insert(
             AUTHORIZATION,
-            format!("Bearer {}", self.api_key.expose_secret()).as_str().parse().unwrap(),
+            format!("Bearer {}", self.api_key.expose_secret())
+                .as_str()
+                .parse()
+                .unwrap(),
         );
+
+        // hack for Assistants APIs
+        // Calls to the Assistants API require that you pass a Beta header
+        headers.insert(OPENAI_BETA_HEADER, "assistants=v1".parse().unwrap());
 
         headers
     }
@@ -114,12 +126,13 @@ pub struct AzureConfig {
     api_key: Secret<String>,
 }
 
-
 impl Default for AzureConfig {
     fn default() -> Self {
         Self {
             api_base: Default::default(),
-            api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()).into(),
+            api_key: std::env::var("OPENAI_API_KEY")
+                .unwrap_or_else(|_| "".to_string())
+                .into(),
             deployment_id: Default::default(),
             api_version: Default::default(),
         }
@@ -158,7 +171,10 @@ impl Config for AzureConfig {
     fn headers(&self) -> HeaderMap {
         let mut headers = HeaderMap::new();
 
-        headers.insert("api-key", self.api_key.expose_secret().as_str().parse().unwrap());
+        headers.insert(
+            "api-key",
+            self.api_key.expose_secret().as_str().parse().unwrap(),
+        );
 
         headers
     }

@@ -3,8 +3,8 @@ use std::error::Error;
 use async_openai::{
     config::AzureConfig,
     types::{
-        ChatCompletionRequestMessageArgs, CreateChatCompletionRequestArgs,
-        CreateEmbeddingRequestArgs, Role,
+        ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
+        CreateChatCompletionRequestArgs, CreateEmbeddingRequestArgs,
     },
     Client,
 };
@@ -14,14 +14,14 @@ async fn chat_completion_example(client: &Client) -> Result<(), Box<dyn Error>> 
         .max_tokens(512u16)
         .model("gpt-3.5-turbo")
         .messages([
-            ChatCompletionRequestMessageArgs::default()
-                .role(Role::System)
+            ChatCompletionRequestSystemMessageArgs::default()
                 .content("You are a helpful assistant.")
-                .build()?,
-            ChatCompletionRequestMessageArgs::default()
-                .role(Role::User)
+                .build()?
+                .into(),
+            ChatCompletionRequestUserMessageArgs::default()
                 .content("How does large language model work?")
-                .build()?,
+                .build()?
+                .into(),
         ])
         .build()?;
 

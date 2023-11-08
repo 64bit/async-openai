@@ -1,14 +1,14 @@
 use crate::{
     error::OpenAIError,
     types::{
-        CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImageResponse,
+        CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImagesResponse,
     },
     Client,
 };
 
 /// Given a prompt and/or an input image, the model will generate a new image.
 ///
-/// Related guide: [Image generation](https://platform.openai.com/docs/guides/images/introduction)
+/// Related guide: [Image generation](https://platform.openai.com/docs/guides/images)
 pub struct Images<'c> {
     client: &'c Client,
 }
@@ -27,7 +27,7 @@ impl<'c> Images<'c> {
     pub async fn create_edit(
         &self,
         request: CreateImageEditRequest,
-    ) -> Result<ImageResponse, OpenAIError> {
+    ) -> Result<ImagesResponse, OpenAIError> {
         self.client.post_form("/images/edits", request).await
     }
 
@@ -35,7 +35,7 @@ impl<'c> Images<'c> {
     pub async fn create_variation(
         &self,
         request: CreateImageVariationRequest,
-    ) -> Result<ImageResponse, OpenAIError> {
+    ) -> Result<ImagesResponse, OpenAIError> {
         self.client.post_form("/images/variations", request).await
     }
 }

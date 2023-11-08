@@ -6,7 +6,7 @@ use crate::{
 
 /// Given a input text, outputs if the model classifies it as violating OpenAI's content policy.
 ///
-/// Related guide: [Moderations](https://platform.openai.com/docs/guides/moderation/overview)
+/// Related guide: [Moderations](https://platform.openai.com/docs/guides/moderation)
 pub struct Moderations<'c> {
     client: &'c Client,
 }

@@ -1,10 +1,9 @@
 [package]
-name = "chat"
+name = "audio-speech"
 version = "0.1.0"
 edition = "2021"
 publish = false
 
 [dependencies]
 async-openai = {path = "../../async-openai"}
-serde_json = "1.0.108"
 tokio = { version = "1.25.0", features = ["full"] }
