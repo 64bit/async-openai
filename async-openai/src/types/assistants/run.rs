@@ -32,7 +32,7 @@ pub struct RunObject {
     pub last_error: Option<LastError>,
 
     /// The Unix timestamp (in seconds) for when the run will expire.
-    pub expires_at: i32,
+    pub expires_at: Option<i32>,
     ///  The Unix timestamp (in seconds) for when the run was started.
     pub started_at: Option<i32>,
     /// The Unix timestamp (in seconds) for when the run was cancelled.
