@@ -1410,7 +1410,11 @@ pub struct CreateChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub presence_penalty: Option<f32>, // min: -2.0, max: 2.0, default 0
 
-    /// An object specifying the format that the model must output. Used to enable JSON mode.
+    /// An object specifying the format that the model must output.
+    ///
+    /// Setting to `{ "type": "json_object" }` enables JSON mode, which guarantees the message the model generates is valid JSON.
+    ///
+    /// **Important:** when using JSON mode, you **must** also instruct the model to produce JSON yourself via a system or user message. Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in increased latency and appearance of a "stuck" request. Also note that the message content may be partially cut off if `finish_reason="length"`, which indicates the generation exceeded `max_tokens` or the conversation exceeded the max context length.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<ChatCompletionResponseFormat>,
 
@@ -1575,6 +1579,9 @@ pub struct CreateChatCompletionStreamResponse {
     pub created: u32,
     /// The model to generate the completion.
     pub model: String,
+    /// This fingerprint represents the backend configuration that the model runs with.
+    /// Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism.
+    pub system_fingerprint: Option<String>,
     /// The object type, which is always `chat.completion.chunk`.
     pub object: String,
 }

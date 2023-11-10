@@ -12,7 +12,7 @@ use super::AssistantTools;
 pub struct RunObject {
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,
-    /// The object type, which is always `assistant.run`.
+    /// The object type, which is always `thread.run`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the run was created.
     pub created_at: i32,
