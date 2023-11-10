@@ -16,7 +16,7 @@ pub enum RunStepType {
 pub struct RunStepObject {
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,
-    /// The object type, which is always `assistant.run.step`.
+    /// The object type, which is always `thread.run.step`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the run step was created.
     pub created_at: i32,
@@ -33,7 +33,7 @@ pub struct RunStepObject {
     /// The type of run step, which can be either `message_creation` or `tool_calls`.
     pub r#type: RunStepType,
 
-    /// The status of the run, which can be either `in_progress`, `cancelled`, `failed`, `completed`, or `expired`.
+    /// The status of the run step, which can be either `in_progress`, `cancelled`, `failed`, `completed`, or `expired`.
     pub status: RunStatus,
 
     /// The details of the run step.
