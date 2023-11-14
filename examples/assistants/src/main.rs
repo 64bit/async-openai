@@ -1,5 +1,5 @@
 use async_openai::{
-    types::{CreateMessageRequestArgs, CreateRunRequestArgs, CreateThreadRequestArgs, CreateThreadAndRunRequestArgs, CreateThreadAndRunRequest, CreateChatCompletionRequestArgs, ChatCompletionRequestSystemMessageArgs, Role, RunStatus, MessageContent, MessageContentTextObject},
+    types::{CreateMessageRequestArgs, CreateRunRequestArgs, CreateThreadRequestArgs, CreateThreadAndRunRequestArgs, CreateThreadAndRunRequest, CreateChatCompletionRequestArgs, ChatCompletionRequestSystemMessageArgs, Role, RunStatus, MessageContent, MessageContentTextObject, CreateAssistantRequestArgs},
     Client, config::OpenAIConfig,
 };
 use std::error::Error;
@@ -7,19 +7,34 @@ use std::error::Error;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let query = [("limit", "1")]; //limit the list responses to 1 message
-
-    //our api key
-    let KEY = "YOUR KEY HERE";
-
-    //the id of the Assistant we want to use
-    let rust_bot_id = "Your Assistant ID Here";
     
     //create a client
-    let config = Client::new();
+    let client = Client::new();
 
     //create a thread for the conversation
     let thread_request = CreateThreadRequestArgs::default().build()?;
     let thread = client.threads().create(thread_request.clone()).await?;
+
+    //ask the user for the name of the assistant
+    println!("enter the name of your assistant");
+    //get user input
+    let mut assistant_name = String::new();
+    std::io::stdin().read_line(&mut assistant_name).unwrap();
+
+    //ask the user for the instruction set for the assistant
+    println!("enter the instruction set for your new assistant");
+    //get user input
+    let mut instructions = String::new();
+    std::io::stdin().read_line(&mut instructions).unwrap();
+    let assistant_request = CreateAssistantRequestArgs::default()
+        .name(&assistant_name)
+        .instructions(&instructions)
+        .model("gpt-3.5-turbo-1106")
+        .build()?;
+
+    let assistant = client.assistants().create(assistant_request).await?;
+    //get the id of the assistant
+    let assistant_id = &assistant.id;
 
     loop{
         println!("How can I help you?");
@@ -42,7 +57,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         //create a run for the thread
         let run_request = CreateRunRequestArgs::default()
-            .assistant_id(rust_bot_id)
+            .assistant_id(assistant_id)
             .build()?;
         let run = client
             .threads()
