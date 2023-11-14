@@ -14,9 +14,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     //the id of the Assistant we want to use
     let rust_bot_id = "Your Assistant ID Here";
     
-    //create a client with our api key
-    let config = OpenAIConfig::new().with_api_key(KEY);
-    let client = Client::with_config(config);
+    //create a client
+    let config = Client::new();
 
     //create a thread for the conversation
     let thread_request = CreateThreadRequestArgs::default().build()?;
