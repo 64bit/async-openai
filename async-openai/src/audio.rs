@@ -2,8 +2,8 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::{
-        CreateTranscriptionRequest, CreateTranscriptionResponse, CreateTranslationRequest,
-        CreateTranslationResponse,
+        CreateSpeechRequest, CreateSpeechResponse, CreateTranscriptionRequest,
+        CreateTranscriptionResponse, CreateTranslationRequest, CreateTranslationResponse,
     },
     Client,
 };
@@ -35,5 +35,15 @@ impl<'c, C: Config> Audio<'c, C> {
         request: CreateTranslationRequest,
     ) -> Result<CreateTranslationResponse, OpenAIError> {
         self.client.post_form("/audio/translations", request).await
+    }
+
+    /// Generates audio from the input text.
+    pub async fn speech(
+        &self,
+        request: CreateSpeechRequest,
+    ) -> Result<CreateSpeechResponse, OpenAIError> {
+        let bytes = self.client.post_raw("/audio/speech", request).await?;
+
+        Ok(CreateSpeechResponse { bytes })
     }
 }

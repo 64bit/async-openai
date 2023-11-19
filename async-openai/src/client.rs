@@ -4,6 +4,7 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 use pin_project_lite::pin_project;
 
+use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
 use futures::stream::Filter;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
@@ -91,6 +92,7 @@ impl<C: Config> Client<C> {
 
     #[cfg(feature = "tokio")]
     /// To call [Edits] group related APIs using this client.
+    #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn edits(&self) -> Edits<C> {
         Edits::new(self)
     }
@@ -113,8 +115,15 @@ impl<C: Config> Client<C> {
     }
 
     /// To call [FineTunes] group related APIs using this client.
+    #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn fine_tunes(&self) -> FineTunes<C> {
         FineTunes::new(self)
+    }
+
+    // TODO: decide whether fine_tuning needs tokio feature gate
+    /// To call [FineTuning] group related APIs using this client.
+    pub fn fine_tuning(&self) -> FineTuning<C> {
+        FineTuning::new(self)
     }
 
     /// To call [Embeddings] group related APIs using this client.
@@ -128,6 +137,22 @@ impl<C: Config> Client<C> {
         Audio::new(self)
     }
 
+    // TODO: decide whether needs tokio feature gate
+    /// To call [Assistants] group related APIs using this client.
+    pub fn assistants(&self) -> Assistants<C> {
+        Assistants::new(self)
+    }
+
+    // TODO: decide whether needs tokio feature gate
+    /// To call [Threads] group related APIs using this client.
+    pub fn threads(&self) -> Threads<C> {
+        Threads::new(self)
+    }
+
+    pub fn config(&self) -> &C {
+        &self.config
+    }
+
     /// Make a GET request to {path} and deserialize the response body
     pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
     where
@@ -138,6 +163,25 @@ impl<C: Config> Client<C> {
                 .http_client
                 .get(self.config.url(path))
                 .query(&self.config.query())
+                .headers(self.config.headers())
+                .build()?)
+        };
+
+        self.execute(request_maker).await
+    }
+
+    /// Make a GET request to {path} with given Query and deserialize the response body
+    pub(crate) async fn get_with_query<Q, O>(&self, path: &str, query: &Q) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+        Q: Serialize + ?Sized,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .get(self.config.url(path))
+                .query(&self.config.query())
+                .query(query)
                 .headers(self.config.headers())
                 .build()?)
         };
@@ -160,6 +204,24 @@ impl<C: Config> Client<C> {
         };
 
         self.execute(request_maker).await
+    }
+
+    /// Make a POST request to {path} and return the response body
+    pub(crate) async fn post_raw<I>(&self, path: &str, request: I) -> Result<Bytes, OpenAIError>
+    where
+        I: Serialize,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .post(self.config.url(path))
+                .query(&self.config.query())
+                .headers(self.config.headers())
+                .json(&request)
+                .build()?)
+        };
+
+        self.execute_raw(request_maker).await
     }
 
     /// Make a POST request to {path} and deserialize the response body
@@ -207,9 +269,8 @@ impl<C: Config> Client<C> {
     /// request_maker serves one purpose: to be able to create request again
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
-    async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
+    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
     where
-        O: DeserializeOwned,
         M: Fn() -> Fut,
         Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
     {
@@ -254,14 +315,31 @@ impl<C: Config> Client<C> {
                 }
             }
 
-            let response: O = serde_json::from_slice(bytes.as_ref())
-                .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
-                .map_err(backoff::Error::Permanent)?;
-            Ok(response)
+            Ok(bytes)
         })
         .await
     }
 
+    /// Execute a HTTP request and retry on rate limit
+    ///
+    /// request_maker serves one purpose: to be able to create request again
+    /// to retry API call after getting rate limited. request_maker is async because
+    /// reqwest::multipart::Form is created by async calls to read files for uploads.
+    async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+        M: Fn() -> Fut,
+        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+    {
+        let bytes = self.execute_raw(request_maker).await?;
+
+        let response: O = serde_json::from_slice(bytes.as_ref())
+            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+
+        Ok(response)
+    }
+
+    // TODO: add execute_raw with no backoff
     #[cfg(not(feature = "backoff"))]
     /// Execute a HTTP request and retry on rate limit
     ///

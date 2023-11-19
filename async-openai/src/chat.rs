@@ -7,7 +7,9 @@ use crate::{
     Client,
 };
 
-/// Given a chat conversation, the model will return a chat completion response.
+/// Given a list of messages comprising a conversation, the model will return a response.
+///
+/// Related guide: [Chat completions](https://platform.openai.com/docs/guides/gpt)
 pub struct Chat<'c, C: Config> {
     client: &'c Client<C>,
 }
@@ -17,7 +19,7 @@ impl<'c, C: Config> Chat<'c, C> {
         Self { client }
     }
 
-    /// Creates a completion for the chat message
+    /// Creates a model response for the given chat conversation.
     pub async fn create(
         &self,
         request: CreateChatCompletionRequest,

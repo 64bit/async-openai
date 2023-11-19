@@ -1,8 +1,5 @@
 ## create-image-b64-json
 
-Its recommended to use the `ResponseFormat` to be `Url` as the files can be downloaded and saved in dedicated Tokio task.
-In case of b64 json - the API response contains full images but files are still saved in separate Tokio task.
-
 ### Input
 
 <div align="center">

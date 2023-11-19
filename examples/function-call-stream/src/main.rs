@@ -2,11 +2,11 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::io::{stdout, Write};
 
+use async_openai::types::{
+    ChatCompletionRequestFunctionMessageArgs, ChatCompletionRequestUserMessageArgs, FinishReason,
+};
 use async_openai::{
-    types::{
-        ChatCompletionFunctionsArgs, ChatCompletionRequestMessageArgs,
-        CreateChatCompletionRequestArgs, Role,
-    },
+    types::{ChatCompletionFunctionsArgs, CreateChatCompletionRequestArgs, Role},
     Client,
 };
 
@@ -21,10 +21,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u16)
         .model("gpt-3.5-turbo-0613")
-        .messages([ChatCompletionRequestMessageArgs::default()
-            .role(Role::User)
+        .messages([ChatCompletionRequestUserMessageArgs::default()
             .content("What's the weather like in Boston?")
-            .build()?])
+            .build()?
+            .into()])
         .functions([ChatCompletionFunctionsArgs::default()
             .name("get_current_weather")
             .description("Get the current weather in a given location")
@@ -63,7 +63,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         }
                     }
                     if let Some(finish_reason) = &chat_choice.finish_reason {
-                        if finish_reason == "function_call" {
+                        if matches!(finish_reason, FinishReason::FunctionCall) {
                             call_fn(&client, &fn_name, &fn_args).await?;
                         }
                     } else if let Some(content) = &chat_choice.delta.content {
@@ -98,15 +98,15 @@ async fn call_fn(
     let function_response = function(location, unit); // call the function
 
     let message = vec![
-        ChatCompletionRequestMessageArgs::default()
-            .role(Role::User)
+        ChatCompletionRequestUserMessageArgs::default()
             .content("What's the weather like in Boston?")
-            .build()?,
-        ChatCompletionRequestMessageArgs::default()
-            .role(Role::Function)
+            .build()?
+            .into(),
+        ChatCompletionRequestFunctionMessageArgs::default()
             .content(function_response.to_string())
-            .name(name.clone())
-            .build()?,
+            .name(name)
+            .build()?
+            .into(),
     ];
 
     let request = CreateChatCompletionRequestArgs::default()

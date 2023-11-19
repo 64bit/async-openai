@@ -1,4 +1,4 @@
-//! Async Rust library for OpenAI REST API based on OpenAPI spec.
+//! Rust library for OpenAI
 //!
 //! ## Creating client
 //!
@@ -96,6 +96,8 @@
 //!   - Enabled by default.
 //!   - _Now_ disabling this feature will disable all media related functionalities.
 
+mod assistant_files;
+mod assistants;
 #[cfg(feature = "tokio")]
 mod audio;
 mod chat;
@@ -104,20 +106,30 @@ mod completion;
 pub mod config;
 #[cfg(feature = "tokio")]
 mod download;
+#[deprecated(since = "0.15.0", note = "By OpenAI")]
 mod edit;
 mod embedding;
 pub mod error;
 #[cfg(feature = "tokio")]
 mod file;
+#[deprecated(since = "0.15.0", note = "By OpenAI")]
 mod fine_tune;
+mod fine_tuning;
 #[cfg(feature = "tokio")]
 mod image;
+mod message_files;
+mod messages;
 mod model;
 mod moderation;
+mod runs;
+mod steps;
+mod threads;
 pub mod types;
 #[cfg(feature = "tokio")]
 mod util;
 
+pub use assistant_files::AssistantFiles;
+pub use assistants::Assistants;
 #[cfg(feature = "tokio")]
 pub use audio::Audio;
 pub use chat::Chat;
@@ -128,7 +140,13 @@ pub use embedding::Embeddings;
 #[cfg(feature = "tokio")]
 pub use file::Files;
 pub use fine_tune::FineTunes;
+pub use fine_tuning::FineTuning;
 #[cfg(feature = "tokio")]
 pub use image::Images;
+pub use message_files::MessageFiles;
+pub use messages::Messages;
 pub use model::Models;
 pub use moderation::Moderations;
+pub use runs::Runs;
+pub use steps::Steps;
+pub use threads::Threads;
