@@ -115,7 +115,6 @@ impl<C: Config> Client<C> {
         FineTunes::new(self)
     }
 
-    // TODO: decide whether fine_tuning needs tokio feature gate
     /// To call [FineTuning] group related APIs using this client.
     pub fn fine_tuning(&self) -> FineTuning<C> {
         FineTuning::new(self)
@@ -132,13 +131,11 @@ impl<C: Config> Client<C> {
         Audio::new(self)
     }
 
-    // TODO: decide whether needs tokio feature gate
     /// To call [Assistants] group related APIs using this client.
     pub fn assistants(&self) -> Assistants<C> {
         Assistants::new(self)
     }
 
-    // TODO: decide whether needs tokio feature gate
     /// To call [Threads] group related APIs using this client.
     pub fn threads(&self) -> Threads<C> {
         Threads::new(self)
