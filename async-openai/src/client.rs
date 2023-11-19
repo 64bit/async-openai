@@ -10,12 +10,7 @@ use futures::stream::Filter;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{
-    config::{Config, OpenAIConfig},
-    error::{map_deserialization_error, OpenAIError, WrappedError},
-    moderation::Moderations,
-    Chat, Completions, Embeddings, Models, FineTunes
-};
+use crate::{config::{Config, OpenAIConfig}, error::{map_deserialization_error, OpenAIError, WrappedError}, moderation::Moderations, Chat, Completions, Embeddings, Models, FineTunes, FineTuning, Assistants, Threads};
 
 #[cfg(feature = "tokio")]
 use crate::{

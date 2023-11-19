@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 use futures::stream::StreamExt;
 use log::Level;
 
-use async_openai::types::{ChatCompletionRequestMessageArgs, CreateChatCompletionRequestArgs, Role};
+use async_openai::types::{ChatCompletionRequestMessage, ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, Role};
 
 const API_BASE: &str = "...";
 const API_KEY: &str = "...";
@@ -25,11 +25,12 @@ pub fn app(cx: Scope) -> Element {
                 .max_tokens(512u16)
                 .model("gpt-3.5-turbo-0613")
                 .messages([
-                    ChatCompletionRequestMessageArgs::default()
-                        .role(Role::User)
-                        .content(GREETING)
-                        .build()
-                        .unwrap()
+                    ChatCompletionRequestMessage::User(
+                        ChatCompletionRequestUserMessageArgs::default()
+                            .content(GREETING)
+                            .build()
+                            .unwrap()
+                    )
                 ])
                 .build().unwrap();
             let mut stream = client.chat().create_stream(request).await.unwrap();

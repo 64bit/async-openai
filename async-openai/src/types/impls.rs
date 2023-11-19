@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::error::OpenAIError;
-use super::{ChatCompletionFunctionCall, EmbeddingInput, ModerationInput, Prompt, Role, Stop};
+use super::{ChatCompletionFunctionCall, EmbeddingInput, ImagesResponse, ModerationInput, Prompt, Role, Stop};
 
 #[cfg(feature = "tokio")]
 use crate::download::{download_url, save_b64};
@@ -15,10 +15,8 @@ use crate::util::{create_file_part, create_all_dir};
 // TODO: clean below
 #[cfg(feature = "tokio")]
 use super::{
-    AudioInput, AudioResponseFormat, CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateTranscriptionRequest,
-    CreateTranslationRequest, ResponseFormat,
-    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, ChatCompletionFunctions,
+    AudioInput, AudioResponseFormat,
+    ChatCompletionFunctions,
     ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
     ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
     ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
@@ -26,13 +24,13 @@ use super::{
     ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
-    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
-    FileInput, FunctionName, Image, ImageInput, ImageModel, ImageSize, ImageUrl, ImagesResponse,
-    ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
+    FunctionName, Image, ImageModel, ImageUrl,
+    ResponseFormat,
 };
 
 #[cfg(feature = "tokio")]
-use super::{FileInput, ImageData, ImageInput, ImageResponse, ImageSize};
+use super::{FileInput, ImageInput, ImageSize};
 
 macro_rules! impl_from {
     ($from_typ:ty, $to_typ:ty) => {
@@ -224,7 +222,7 @@ impl Display for Role {
 }
 
 #[cfg(feature = "tokio")]
-impl ImageResponse {
+impl ImagesResponse {
     /// Save each image in a dedicated Tokio task and return paths to saved files.
     /// For [ResponseFormat::Url] each file is downloaded in dedicated Tokio task.
     pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<Vec<PathBuf>, OpenAIError> {
