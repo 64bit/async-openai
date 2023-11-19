@@ -12,7 +12,7 @@ use super::AssistantTools;
 pub struct RunObject {
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,
-    /// The object type, which is always `assistant.run`.
+    /// The object type, which is always `thread.run`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the run was created.
     pub created_at: i32,
@@ -32,7 +32,7 @@ pub struct RunObject {
     pub last_error: Option<LastError>,
 
     /// The Unix timestamp (in seconds) for when the run will expire.
-    pub expires_at: i32,
+    pub expires_at: Option<i32>,
     ///  The Unix timestamp (in seconds) for when the run was started.
     pub started_at: Option<i32>,
     /// The Unix timestamp (in seconds) for when the run was cancelled.
@@ -147,7 +147,7 @@ pub struct ListRunsResponse {
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
 pub struct SubmitToolOutputsRunRequest {
     /// A list of tools for which the outputs are being submitted.
-    pub tools_outputs: Vec<ToolsOutputs>,
+    pub tool_outputs: Vec<ToolsOutputs>,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
