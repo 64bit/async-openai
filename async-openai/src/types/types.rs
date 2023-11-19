@@ -1739,6 +1739,7 @@ pub struct CreateTranslationResponse {
     pub text: String,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Clone)]
 pub struct CreateSpeechResponse {
     pub bytes: Bytes,

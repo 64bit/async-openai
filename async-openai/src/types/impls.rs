@@ -1,10 +1,25 @@
-use std::{
-    fmt::Display,
-    path::{Path, PathBuf},
-};
+use std::fmt::Display;
 
 use crate::error::OpenAIError;
-use super::{ChatCompletionFunctionCall, EmbeddingInput, ImagesResponse, ModerationInput, Prompt, Role, Stop};
+use super::{
+    ChatCompletionFunctionCall,
+    EmbeddingInput, ModerationInput,
+    Prompt, Role, Stop,
+    ChatCompletionFunctions,
+    ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
+    ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
+    ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
+    ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
+    ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
+    ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption,
+    FunctionName,
+};
+
+#[cfg(feature = "tokio")]
+use std::path::{Path, PathBuf};
+
+#[cfg(feature = "tokio")]
+use super::ImagesResponse;
 
 #[cfg(feature = "tokio")]
 use crate::download::{download_url, save_b64};
@@ -16,16 +31,10 @@ use crate::util::{create_file_part, create_all_dir};
 #[cfg(feature = "tokio")]
 use super::{
     AudioInput, AudioResponseFormat,
-    ChatCompletionFunctions,
-    ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
-    ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
-    ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
-    ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
-    ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
-    ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest,
+    CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
     CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
-    FunctionName, Image, ImageModel, ImageUrl,
+    Image, ImageModel, ImageUrl,
     ResponseFormat,
 };
 
@@ -159,6 +168,7 @@ impl Display for DallE2ImageSize {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl Display for ImageModel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -262,6 +272,7 @@ impl ImagesResponse {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl CreateSpeechResponse {
     pub async fn save<P: AsRef<Path>>(&self, file_path: P) -> Result<(), OpenAIError> {
         let dir = file_path.as_ref().parent();
@@ -529,7 +540,7 @@ impl From<String> for ChatCompletionRequestUserMessageContent {
 }
 
 impl From<Vec<ChatCompletionRequestMessageContentPart>>
-    for ChatCompletionRequestUserMessageContent
+for ChatCompletionRequestUserMessageContent
 {
     fn from(value: Vec<ChatCompletionRequestMessageContentPart>) -> Self {
         ChatCompletionRequestUserMessageContent::Array(value)
@@ -543,7 +554,7 @@ impl From<ChatCompletionRequestMessageContentPartText> for ChatCompletionRequest
 }
 
 impl From<ChatCompletionRequestMessageContentPartImage>
-    for ChatCompletionRequestMessageContentPart
+for ChatCompletionRequestMessageContentPart
 {
     fn from(value: ChatCompletionRequestMessageContentPartImage) -> Self {
         ChatCompletionRequestMessageContentPart::Image(value)
@@ -568,6 +579,7 @@ impl From<String> for ChatCompletionRequestMessageContentPartText {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl From<&str> for ImageUrl {
     fn from(value: &str) -> Self {
         Self {
@@ -577,6 +589,7 @@ impl From<&str> for ImageUrl {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl From<String> for ImageUrl {
     fn from(value: String) -> Self {
         Self {
