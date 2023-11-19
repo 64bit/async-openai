@@ -12,7 +12,7 @@ use super::{
     ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
     ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption,
-    FunctionName,
+    FunctionName, DallE2ImageSize, ImageModel, ImageUrl, ResponseFormat,
 };
 
 #[cfg(feature = "tokio")]
@@ -27,15 +27,13 @@ use crate::download::{download_url, save_b64};
 #[cfg(feature = "tokio")]
 use crate::util::{create_file_part, create_all_dir};
 
-// TODO: clean below
 #[cfg(feature = "tokio")]
 use super::{
     AudioInput, AudioResponseFormat,
     CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
-    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
-    Image, ImageModel, ImageUrl,
-    ResponseFormat,
+    CreateTranscriptionRequest, CreateTranslationRequest,
+    Image,
 };
 
 #[cfg(feature = "tokio")]
@@ -153,7 +151,6 @@ impl Display for ImageSize {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl Display for DallE2ImageSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(

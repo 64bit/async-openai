@@ -292,7 +292,6 @@ pub enum DallE2ImageSize {
     S1024x1024,
 }
 
-#[cfg(feature = "tokio")]
 #[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ResponseFormat {
