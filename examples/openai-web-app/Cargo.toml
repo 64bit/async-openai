@@ -1,5 +1,5 @@
 [package]
-name = "azure-openai-web-app"
+name = "openai-web-app"
 version = "0.1.0"
 edition = "2021"
 publish = false
