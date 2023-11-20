@@ -1,5 +1,6 @@
 use std::pin::Pin;
 
+use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
@@ -11,7 +12,7 @@ use crate::{
     file::Files,
     image::Images,
     moderation::Moderations,
-    Audio, Chat, Completions, Embeddings, FineTunes, Models,
+    Assistants, Audio, Chat, Completions, Embeddings, FineTunes, FineTuning, Models, Threads,
 };
 
 #[derive(Debug, Clone)]
@@ -53,7 +54,6 @@ impl<C: Config> Client<C> {
     }
 
     /// Exponential backoff for retrying [rate limited](https://platform.openai.com/docs/guides/rate-limits) requests.
-    /// Form submissions are not retried.
     pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
         self.backoff = backoff;
         self
@@ -77,6 +77,7 @@ impl<C: Config> Client<C> {
     }
 
     /// To call [Edits] group related APIs using this client.
+    #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn edits(&self) -> Edits<C> {
         Edits::new(self)
     }
@@ -97,8 +98,14 @@ impl<C: Config> Client<C> {
     }
 
     /// To call [FineTunes] group related APIs using this client.
+    #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn fine_tunes(&self) -> FineTunes<C> {
         FineTunes::new(self)
+    }
+
+    /// To call [FineTuning] group related APIs using this client.
+    pub fn fine_tuning(&self) -> FineTuning<C> {
+        FineTuning::new(self)
     }
 
     /// To call [Embeddings] group related APIs using this client.
@@ -111,19 +118,54 @@ impl<C: Config> Client<C> {
         Audio::new(self)
     }
 
+    /// To call [Assistants] group related APIs using this client.
+    pub fn assistants(&self) -> Assistants<C> {
+        Assistants::new(self)
+    }
+
+    /// To call [Threads] group related APIs using this client.
+    pub fn threads(&self) -> Threads<C> {
+        Threads::new(self)
+    }
+
+    pub fn config(&self) -> &C {
+        &self.config
+    }
+
     /// Make a GET request to {path} and deserialize the response body
     pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
     {
-        let request = self
-            .http_client
-            .get(self.config.url(path))
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .build()?;
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .get(self.config.url(path))
+                .query(&self.config.query())
+                .headers(self.config.headers())
+                .build()?)
+        };
 
-        self.execute(request).await
+        self.execute(request_maker).await
+    }
+
+    /// Make a GET request to {path} with given Query and deserialize the response body
+    pub(crate) async fn get_with_query<Q, O>(&self, path: &str, query: &Q) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+        Q: Serialize + ?Sized,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .get(self.config.url(path))
+                .query(&self.config.query())
+                .query(query)
+                .headers(self.config.headers())
+                .build()?)
+        };
+
+        self.execute(request_maker).await
     }
 
     /// Make a DELETE request to {path} and deserialize the response body
@@ -131,14 +173,34 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned,
     {
-        let request = self
-            .http_client
-            .delete(self.config.url(path))
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .build()?;
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .delete(self.config.url(path))
+                .query(&self.config.query())
+                .headers(self.config.headers())
+                .build()?)
+        };
 
-        self.execute(request).await
+        self.execute(request_maker).await
+    }
+
+    /// Make a POST request to {path} and return the response body
+    pub(crate) async fn post_raw<I>(&self, path: &str, request: I) -> Result<Bytes, OpenAIError>
+    where
+        I: Serialize,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .post(self.config.url(path))
+                .query(&self.config.query())
+                .headers(self.config.headers())
+                .json(&request)
+                .build()?)
+        };
+
+        self.execute_raw(request_maker).await
     }
 
     /// Make a POST request to {path} and deserialize the response body
@@ -147,117 +209,112 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned,
     {
-        let request = self
-            .http_client
-            .post(self.config.url(path))
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .json(&request)
-            .build()?;
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .post(self.config.url(path))
+                .query(&self.config.query())
+                .headers(self.config.headers())
+                .json(&request)
+                .build()?)
+        };
 
-        self.execute(request).await
+        self.execute(request_maker).await
     }
 
     /// POST a form at {path} and deserialize the response body
-    pub(crate) async fn post_form<O>(
-        &self,
-        path: &str,
-        form: reqwest::multipart::Form,
-    ) -> Result<O, OpenAIError>
+    pub(crate) async fn post_form<O, F>(&self, path: &str, form: F) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
+        reqwest::multipart::Form: async_convert::TryFrom<F, Error = OpenAIError>,
+        F: Clone,
     {
-        let request = self
-            .http_client
-            .post(self.config.url(path))
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .multipart(form)
-            .build()?;
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .post(self.config.url(path))
+                .query(&self.config.query())
+                .headers(self.config.headers())
+                .multipart(async_convert::TryInto::try_into(form.clone()).await?)
+                .build()?)
+        };
 
-        self.execute(request).await
+        self.execute(request_maker).await
     }
 
-    /// Deserialize response body from either error object or actual response object
-    async fn process_response<O>(&self, response: reqwest::Response) -> Result<O, OpenAIError>
+    /// Execute a HTTP request and retry on rate limit
+    ///
+    /// request_maker serves one purpose: to be able to create request again
+    /// to retry API call after getting rate limited. request_maker is async because
+    /// reqwest::multipart::Form is created by async calls to read files for uploads.
+    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
     where
-        O: DeserializeOwned,
-    {
-        let status = response.status();
-        let bytes = response.bytes().await?;
-
-        if !status.is_success() {
-            let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
-                .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
-
-            return Err(OpenAIError::ApiError(wrapped_error.error));
-        }
-
-        let response: O = serde_json::from_slice(bytes.as_ref())
-            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
-        Ok(response)
-    }
-
-    /// Execute any HTTP requests and retry on rate limit, except streaming ones as they cannot be cloned for retrying.
-    async fn execute<O>(&self, request: reqwest::Request) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
+        M: Fn() -> Fut,
+        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
     {
         let client = self.http_client.clone();
 
-        match request.try_clone() {
-            // Only clone-able requests can be retried
-            Some(request) => {
-                backoff::future::retry(self.backoff.clone(), || async {
-                    let response = client
-                        .execute(request.try_clone().unwrap())
-                        .await
-                        .map_err(OpenAIError::Reqwest)
-                        .map_err(backoff::Error::Permanent)?;
-
-                    let status = response.status();
-                    let bytes = response
-                        .bytes()
-                        .await
-                        .map_err(OpenAIError::Reqwest)
-                        .map_err(backoff::Error::Permanent)?;
-
-                    // Deserialize response body from either error object or actual response object
-                    if !status.is_success() {
-                        let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
-                            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
-                            .map_err(backoff::Error::Permanent)?;
-
-                        if status.as_u16() == 429
-                            // API returns 429 also when:
-                            // "You exceeded your current quota, please check your plan and billing details."
-                            && wrapped_error.error.r#type != "insufficient_quota"
-                        {
-                            // Rate limited retry...
-                            tracing::warn!("Rate limited: {}", wrapped_error.error.message);
-                            return Err(backoff::Error::Transient {
-                                err: OpenAIError::ApiError(wrapped_error.error),
-                                retry_after: None,
-                            });
-                        } else {
-                            return Err(backoff::Error::Permanent(OpenAIError::ApiError(
-                                wrapped_error.error,
-                            )));
-                        }
-                    }
-
-                    let response: O = serde_json::from_slice(bytes.as_ref())
-                        .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
-                        .map_err(backoff::Error::Permanent)?;
-                    Ok(response)
-                })
+        backoff::future::retry(self.backoff.clone(), || async {
+            let request = request_maker().await.map_err(backoff::Error::Permanent)?;
+            let response = client
+                .execute(request)
                 .await
+                .map_err(OpenAIError::Reqwest)
+                .map_err(backoff::Error::Permanent)?;
+
+            let status = response.status();
+            let bytes = response
+                .bytes()
+                .await
+                .map_err(OpenAIError::Reqwest)
+                .map_err(backoff::Error::Permanent)?;
+
+            // Deserialize response body from either error object or actual response object
+            if !status.is_success() {
+                let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
+                    .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
+                    .map_err(backoff::Error::Permanent)?;
+
+                if status.as_u16() == 429
+                    // API returns 429 also when:
+                    // "You exceeded your current quota, please check your plan and billing details."
+                    && wrapped_error.error.r#type != Some("insufficient_quota".to_string())
+                {
+                    // Rate limited retry...
+                    tracing::warn!("Rate limited: {}", wrapped_error.error.message);
+                    return Err(backoff::Error::Transient {
+                        err: OpenAIError::ApiError(wrapped_error.error),
+                        retry_after: None,
+                    });
+                } else {
+                    return Err(backoff::Error::Permanent(OpenAIError::ApiError(
+                        wrapped_error.error,
+                    )));
+                }
             }
-            None => {
-                let response = client.execute(request).await?;
-                self.process_response(response).await
-            }
-        }
+
+            Ok(bytes)
+        })
+        .await
+    }
+
+    /// Execute a HTTP request and retry on rate limit
+    ///
+    /// request_maker serves one purpose: to be able to create request again
+    /// to retry API call after getting rate limited. request_maker is async because
+    /// reqwest::multipart::Form is created by async calls to read files for uploads.
+    async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+        M: Fn() -> Fut,
+        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+    {
+        let bytes = self.execute_raw(request_maker).await?;
+
+        let response: O = serde_json::from_slice(bytes.as_ref())
+            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+
+        Ok(response)
     }
 
     /// Make HTTP POST request to receive SSE
