@@ -1,6 +1,6 @@
 use async_openai::{
-    types::{CreateMessageRequestArgs, CreateRunRequestArgs, CreateThreadRequestArgs, CreateThreadAndRunRequestArgs, CreateThreadAndRunRequest, CreateChatCompletionRequestArgs, ChatCompletionRequestSystemMessageArgs, Role, RunStatus, MessageContent, MessageContentTextObject, CreateAssistantRequestArgs},
-    Client, config::OpenAIConfig,
+    types::{CreateMessageRequestArgs, CreateRunRequestArgs, CreateThreadRequestArgs, RunStatus, MessageContent, CreateAssistantRequestArgs},
+    Client,
 };
 use std::error::Error;
 
@@ -16,31 +16,37 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let thread = client.threads().create(thread_request.clone()).await?;
 
     //ask the user for the name of the assistant
-    println!("enter the name of your assistant");
+    println!("--- Enter the name of your assistant");
     //get user input
     let mut assistant_name = String::new();
     std::io::stdin().read_line(&mut assistant_name).unwrap();
 
     //ask the user for the instruction set for the assistant
-    println!("enter the instruction set for your new assistant");
+    println!("--- Enter the instruction set for your new assistant");
     //get user input
     let mut instructions = String::new();
     std::io::stdin().read_line(&mut instructions).unwrap();
+    
+    //create the assistant
     let assistant_request = CreateAssistantRequestArgs::default()
         .name(&assistant_name)
         .instructions(&instructions)
         .model("gpt-3.5-turbo-1106")
         .build()?;
-
     let assistant = client.assistants().create(assistant_request).await?;
     //get the id of the assistant
     let assistant_id = &assistant.id;
 
     loop{
-        println!("How can I help you?");
+        println!("--- How can I help you?");
         //get user input
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).unwrap();
+
+        //break out of the loop if the user enters exit()
+        if input.trim() == "exit()" {
+            break;
+        }   
 
         //create a message for the thread
         let message = CreateMessageRequestArgs::default()
@@ -49,7 +55,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .build()?;
 
         //attach message to the thread
-        let message_obj = client
+        let _message_obj = client
             .threads()
             .messages(&thread.id)
             .create(message)
@@ -81,7 +87,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     // once the run is completed we
                     // get the response from the run
                     // which will be the first message
-                    //in the thread
+                    // in the thread
 
                     //retrieve the response from the run
                     let response = client
@@ -108,38 +114,41 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         MessageContent::ImageFile(_) => panic!("imaged are not supported in the terminal"),
                     };
                     //print the text
-                    println!("Response: {}", text);
+                    println!("--- Response: {}", text);
+                    println!("");
 
                 }
                 RunStatus::Failed => {
                     awaiting_response = false;
-                    println!("Run Failed: {:#?}", run);
+                    println!("--- Run Failed: {:#?}", run);
                 }
                 RunStatus::Queued => {
-                    println!("Run Queued");
+                    println!("--- Run Queued");
                 },
                 RunStatus::Cancelling => {
-                    println!("Run Cancelling");
+                    println!("--- Run Cancelling");
                 },
                 RunStatus::Cancelled => {
-                    println!("Run Cancelled");
+                    println!("--- Run Cancelled");
                 },
                 RunStatus::Expired => {
-                    println!("Run Expired");
+                    println!("--- Run Expired");
                 },
                 RunStatus::RequiresAction => {
-                    println!("Run Requires Action");
+                    println!("--- Run Requires Action");
                 },
                 RunStatus::InProgress => {
-                    println!("Waiting for response...");
-                },
-                _ => {
-                    println!("Waiting for response...");
+                    println!("--- Waiting for response...");
                 }
             }
             //wait for 1 second before checking the status again
             std::thread::sleep(std::time::Duration::from_secs(1));
         }
     }
+
+    //once we have broken from the main loop we can delete the assistant and thread
+    client.assistants().delete(assistant_id).await?;
+    client.threads().delete(&thread.id).await?;
+
     Ok(())
 }
