@@ -393,7 +393,7 @@ pub struct ImagesResponse {
     pub data: Vec<std::sync::Arc<Image>>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum InputSource {
     Path { path: PathBuf },
     Bytes { filename: String, bytes: Bytes },

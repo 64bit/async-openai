@@ -104,35 +104,6 @@ impl Default for InputSource {
     }
 }
 
-impl PartialEq for InputSource {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (InputSource::Path { path: path1 }, InputSource::Path { path: path2 }) => path1 == path2,
-            (InputSource::Bytes { filename: filename1, bytes: bytes1 }, InputSource::Bytes { filename: filename2, bytes: bytes2 }) => (filename1, bytes1) == (filename2, bytes2),
-            (InputSource::VecU8 { filename: filename1, vec: vec1 }, InputSource::VecU8 { filename: filename2, vec: vec2 }) => (filename1, vec1) == (filename2, vec2),
-            _ => false,
-        }
-    }
-}
-
-impl Clone for InputSource {
-    fn clone(&self) -> Self {
-        match self {
-            InputSource::Path { path } => InputSource::Path {
-                path: path.clone(),
-            },
-            InputSource::Bytes { filename, bytes } => InputSource::Bytes {
-                filename: filename.clone(),
-                bytes: bytes.clone(),
-            },
-            InputSource::VecU8 { filename, vec } => InputSource::VecU8 {
-                filename: filename.clone(),
-                vec: vec.clone(),
-            },
-        }
-    }
-}
-
 macro_rules! impl_input {
     ($for_typ:ty) => {
         impl $for_typ {
