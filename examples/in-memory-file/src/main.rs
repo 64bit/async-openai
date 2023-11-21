@@ -5,14 +5,18 @@ use async_openai::types::AudioInput;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let file_contents = fs::read("./audio/A Message From Sir David Attenborough A Perfect Planet BBC Earth_320kbps.mp3")?;
+    let filename = "A Message From Sir David Attenborough A Perfect Planet BBC Earth_320kbps.mp3".to_string();
+    let file_contents = fs::read(format!("./audio/{}", filename))?;
+
     let bytes = bytes::Bytes::from(file_contents);
 
+    // To pass in in-memory files, you can pass either bytes::Bytes or vec[u8] to AudioInputs, FileInputs, and ImageInputs.
+    let audio_input = AudioInput::from_bytes(filename, bytes);
+
     let client = Client::new();
-    let filename = "A Message From Sir David Attenborough A Perfect Planet BBC Earth_320kbps.mp3".to_string();
     // Credits and Source for audio: https://www.youtube.com/watch?v=oQnDVqGIv4s
     let request = CreateTranscriptionRequestArgs::default()
-        .file(AudioInput::from_bytes(filename, bytes))
+        .file(audio_input)
         .model("whisper-1")
         .build()?;
 
