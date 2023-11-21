@@ -147,7 +147,7 @@ pub struct ListRunsResponse {
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
 pub struct SubmitToolOutputsRunRequest {
     /// A list of tools for which the outputs are being submitted.
-    pub tools_outputs: Vec<ToolsOutputs>,
+    pub tool_outputs: Vec<ToolsOutputs>,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
