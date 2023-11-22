@@ -836,7 +836,8 @@ pub struct Hyperparameters {
     ///
     /// "auto" decides the optimal number of epochs based on the size of the dataset.
     /// If setting the number manually, we support any number between 1 and 50 epochs.
-    pub n_epochs: NEpochs,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub n_epochs: Option<NEpochs>,
 }
 
 #[derive(Debug, Serialize, Clone, Default, Builder, PartialEq)]
