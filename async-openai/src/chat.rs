@@ -2,7 +2,7 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::{
-        ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse,
+        CreateChatCompletionRequest, CreateChatCompletionResponse, ChatCompletionResponseStream
     },
     Client,
 };
@@ -31,6 +31,7 @@ impl<'c, C: Config> Chat<'c, C> {
         }
         self.client.post("/chat/completions", request).await
     }
+
 
     /// Creates a completion for the chat message
     ///

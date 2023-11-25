@@ -43,6 +43,12 @@
 //!
 //! ```
 //!
+//! ## Wasm Support
+//!
+//! Currently, `wasm32-unknown-unknown` target is support through feature flag `wasm`. To use this feature flag, you need to disable default features by add `default-features = false` under `async-openai` dependency to your `Cargo.toml` file.
+//!
+//! Unsupported APIs with `wasm` feature are those that requires file upload/download, i.e. media endpoints. Chat, completion, finetuning and other endpoints are supported.
+//!
 //! ## Making requests
 //!
 //!```
@@ -76,22 +82,40 @@
 //! ## Examples
 //! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //!
+//!
+//! ## Feature Flags
+//!
+//! - `wasm`: Enables support for `wasm32-unknown-unknown` target
+//!   - Disabling tokio support and backoff retries.
+//!   - _Now_ at the cost of disabling all media related functionalities (audio transcription, image generation, etc.).
+//!   - _Help wanted_ to re-enable media related functionalities and backoff retries.
+//! - `backoff`: Enables backoff retries for all requests.
+//!   - Enabled by default.
+//!   - Disabling this feature will disable all retries.
+//! - `tokio`: Enables support for `tokio` runtime.
+//!   - Enabled by default.
+//!   - _Now_ disabling this feature will disable all media related functionalities.
+
 mod assistant_files;
 mod assistants;
+#[cfg(feature = "tokio")]
 mod audio;
 mod chat;
 mod client;
 mod completion;
 pub mod config;
+#[cfg(feature = "tokio")]
 mod download;
 #[deprecated(since = "0.15.0", note = "By OpenAI")]
 mod edit;
 mod embedding;
 pub mod error;
+#[cfg(feature = "tokio")]
 mod file;
 #[deprecated(since = "0.15.0", note = "By OpenAI")]
 mod fine_tune;
 mod fine_tuning;
+#[cfg(feature = "tokio")]
 mod image;
 mod message_files;
 mod messages;
@@ -101,19 +125,23 @@ mod runs;
 mod steps;
 mod threads;
 pub mod types;
+#[cfg(feature = "tokio")]
 mod util;
 
 pub use assistant_files::AssistantFiles;
 pub use assistants::Assistants;
+#[cfg(feature = "tokio")]
 pub use audio::Audio;
 pub use chat::Chat;
 pub use client::Client;
 pub use completion::Completions;
 pub use edit::Edits;
 pub use embedding::Embeddings;
+#[cfg(feature = "tokio")]
 pub use file::Files;
 pub use fine_tune::FineTunes;
 pub use fine_tuning::FineTuning;
+#[cfg(feature = "tokio")]
 pub use image::Images;
 pub use message_files::MessageFiles;
 pub use messages::Messages;

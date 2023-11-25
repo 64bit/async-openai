@@ -1,27 +1,43 @@
-use std::{
-    fmt::Display,
-    path::{Path, PathBuf},
-};
+use std::fmt::Display;
 
-use crate::{
-    download::{download_url, save_b64},
-    error::OpenAIError,
-    util::{create_all_dir, create_file_part},
-};
-
+use crate::error::OpenAIError;
 use super::{
-    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, ChatCompletionFunctions,
+    ChatCompletionFunctionCall,
+    EmbeddingInput, ModerationInput,
+    Prompt, Role, Stop,
+    ChatCompletionFunctions,
     ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
     ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
     ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
     ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
     ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
-    ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
-    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
-    FileInput, FunctionName, Image, ImageInput, ImageModel, ImageSize, ImageUrl, ImagesResponse,
-    ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption,
+    FunctionName, DallE2ImageSize, ImageModel, ImageUrl, ResponseFormat,
 };
+
+#[cfg(feature = "tokio")]
+use std::path::{Path, PathBuf};
+
+#[cfg(feature = "tokio")]
+use super::ImagesResponse;
+
+#[cfg(feature = "tokio")]
+use crate::download::{download_url, save_b64};
+
+#[cfg(feature = "tokio")]
+use crate::util::{create_file_part, create_all_dir};
+
+#[cfg(feature = "tokio")]
+use super::{
+    AudioInput, AudioResponseFormat,
+    CreateFileRequest,
+    CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
+    CreateTranscriptionRequest, CreateTranslationRequest,
+    Image,
+};
+
+#[cfg(feature = "tokio")]
+use super::{FileInput, ImageInput, ImageSize};
 
 macro_rules! impl_from {
     ($from_typ:ty, $to_typ:ty) => {
@@ -111,10 +127,14 @@ macro_rules! file_path_input {
     };
 }
 
+#[cfg(feature = "tokio")]
 file_path_input!(ImageInput);
+#[cfg(feature = "tokio")]
 file_path_input!(FileInput);
+#[cfg(feature = "tokio")]
 file_path_input!(AudioInput);
 
+#[cfg(feature = "tokio")]
 impl Display for ImageSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -145,6 +165,7 @@ impl Display for DallE2ImageSize {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl Display for ImageModel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -159,6 +180,7 @@ impl Display for ImageModel {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl Display for ResponseFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -172,6 +194,7 @@ impl Display for ResponseFormat {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl Display for AudioResponseFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -188,6 +211,7 @@ impl Display for AudioResponseFormat {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl Display for Role {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -204,6 +228,7 @@ impl Display for Role {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl ImagesResponse {
     /// Save each image in a dedicated Tokio task and return paths to saved files.
     /// For [ResponseFormat::Url] each file is downloaded in dedicated Tokio task.
@@ -244,6 +269,7 @@ impl ImagesResponse {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl CreateSpeechResponse {
     pub async fn save<P: AsRef<Path>>(&self, file_path: P) -> Result<(), OpenAIError> {
         let dir = file_path.as_ref().parent();
@@ -260,6 +286,7 @@ impl CreateSpeechResponse {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl Image {
     async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<PathBuf, OpenAIError> {
         match self {
@@ -510,7 +537,7 @@ impl From<String> for ChatCompletionRequestUserMessageContent {
 }
 
 impl From<Vec<ChatCompletionRequestMessageContentPart>>
-    for ChatCompletionRequestUserMessageContent
+for ChatCompletionRequestUserMessageContent
 {
     fn from(value: Vec<ChatCompletionRequestMessageContentPart>) -> Self {
         ChatCompletionRequestUserMessageContent::Array(value)
@@ -524,7 +551,7 @@ impl From<ChatCompletionRequestMessageContentPartText> for ChatCompletionRequest
 }
 
 impl From<ChatCompletionRequestMessageContentPartImage>
-    for ChatCompletionRequestMessageContentPart
+for ChatCompletionRequestMessageContentPart
 {
     fn from(value: ChatCompletionRequestMessageContentPartImage) -> Self {
         ChatCompletionRequestMessageContentPart::Image(value)
@@ -549,6 +576,7 @@ impl From<String> for ChatCompletionRequestMessageContentPartText {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl From<&str> for ImageUrl {
     fn from(value: &str) -> Self {
         Self {
@@ -558,6 +586,7 @@ impl From<&str> for ImageUrl {
     }
 }
 
+#[cfg(feature = "tokio")]
 impl From<String> for ImageUrl {
     fn from(value: String) -> Self {
         Self {
@@ -569,6 +598,7 @@ impl From<String> for ImageUrl {
 
 // start: types to multipart from
 
+#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -595,6 +625,7 @@ impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::
     }
 }
 
+#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -621,6 +652,7 @@ impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Fo
     }
 }
 
+#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -663,6 +695,7 @@ impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form
     }
 }
 
+#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -698,6 +731,7 @@ impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart:
     }
 }
 
+#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;

@@ -2,7 +2,7 @@ use crate::{
     client::Client,
     config::Config,
     error::OpenAIError,
-    types::{CompletionResponseStream, CreateCompletionRequest, CreateCompletionResponse},
+    types::{CreateCompletionRequest, CreateCompletionResponse, CompletionResponseStream},
 };
 
 /// Given a prompt, the model will return one or more predicted completions,
@@ -32,6 +32,7 @@ impl<'c, C: Config> Completions<'c, C> {
         }
         self.client.post("/completions", request).await
     }
+
 
     /// Creates a completion request for the provided prompt and parameters
     ///

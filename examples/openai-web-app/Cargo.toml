@@ -1,0 +1,15 @@
+[package]
+name = "openai-web-app"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dioxus = "~0.4"
+dioxus-web = "~0.4"
+futures = "0.3.28"
+async-openai = { path = "../../async-openai", default-features = false, features = ["wasm"] }
+console_log = "1.0"
+log = "0.4"

@@ -1,9 +1,11 @@
-use std::{collections::HashMap, path::PathBuf, pin::Pin};
+use std::collections::HashMap;
+#[cfg(feature = "tokio")]
+use std::path::PathBuf;
 
 use bytes::Bytes;
 use derive_builder::Builder;
-use futures::Stream;
 use serde::{Deserialize, Serialize};
+use crate::client::OpenAIEventStream;
 
 use crate::error::OpenAIError;
 
@@ -219,8 +221,7 @@ pub struct CreateCompletionResponse {
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
-pub type CompletionResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>> + Send>>;
+pub type CompletionResponseStream = OpenAIEventStream<CreateCompletionResponse>;
 
 #[derive(Debug, Clone, Serialize, Default, Builder, PartialEq)]
 #[builder(name = "CreateEditRequestArgs")]
@@ -264,6 +265,7 @@ pub struct CreateEditResponse {
     pub usage: CompletionUsage,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Default, Debug, Serialize, Clone, Copy, PartialEq)]
 pub enum ImageSize {
     #[serde(rename = "256x256")]
@@ -326,6 +328,7 @@ pub enum ImageStyle {
     Natural,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Clone, Serialize, Default, Builder, PartialEq)]
 #[builder(name = "CreateImageRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -371,6 +374,7 @@ pub struct CreateImageRequest {
     pub user: Option<String>,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(untagged)]
 pub enum Image {
@@ -386,17 +390,20 @@ pub enum Image {
     },
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ImagesResponse {
     pub created: u32,
     pub data: Vec<std::sync::Arc<Image>>,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct ImageInput {
     pub path: PathBuf,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Clone, Default, Builder, PartialEq)]
 #[builder(name = "CreateImageEditRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -429,6 +436,7 @@ pub struct CreateImageEditRequest {
     pub user: Option<String>,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateImageVariationRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -581,11 +589,13 @@ pub struct CreateModerationResponse {
     pub results: Vec<ContentModerationResult>,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct FileInput {
     pub path: PathBuf,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateFileRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -605,12 +615,14 @@ pub struct CreateFileRequest {
     pub purpose: String,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct ListFilesResponse {
     pub object: String,
     pub data: Vec<OpenAIFile>,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct DeleteFileResponse {
     pub id: String,
@@ -816,8 +828,7 @@ pub struct ListFineTuneEventsStreamResponse {
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
-pub type FineTuneEventsResponseStream =
-    Pin<Box<dyn Stream<Item = Result<ListFineTuneEventsStreamResponse, OpenAIError>> + Send>>;
+pub type FineTuneEventsResponseStream = OpenAIEventStream<ListFineTuneEventsStreamResponse>;
 
 //// Start Fine Tuning
 
@@ -1521,8 +1532,7 @@ pub struct CreateChatCompletionResponse {
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
-pub type ChatCompletionResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateChatCompletionStreamResponse, OpenAIError>> + Send>>;
+pub type ChatCompletionResponseStream = OpenAIEventStream<CreateChatCompletionStreamResponse>;
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct FunctionCallStream {
@@ -1586,11 +1596,13 @@ pub struct CreateChatCompletionStreamResponse {
     pub object: String,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct AudioInput {
     pub path: PathBuf,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum AudioResponseFormat {
@@ -1638,6 +1650,7 @@ pub enum SpeechModel {
     Other(String),
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Clone, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateTranscriptionRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -1664,6 +1677,7 @@ pub struct CreateTranscriptionRequest {
     pub language: Option<String>,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct CreateTranscriptionResponse {
     pub text: String,
@@ -1694,6 +1708,7 @@ pub struct CreateSpeechRequest {
     pub speed: Option<f32>, // default: 1.0
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Clone, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateTranslationRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -1717,11 +1732,13 @@ pub struct CreateTranslationRequest {
     pub temperature: Option<f32>, // default: 0
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateTranslationResponse {
     pub text: String,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Clone)]
 pub struct CreateSpeechResponse {
     pub bytes: Bytes,

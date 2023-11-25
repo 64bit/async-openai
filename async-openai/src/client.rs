@@ -1,18 +1,23 @@
+use std::future;
+use std::marker::PhantomData;
 use std::pin::Pin;
+use std::task::{Context, Poll};
+use pin_project_lite::pin_project;
 
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
+use futures::stream::Filter;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
+use crate::{config::{Config, OpenAIConfig}, error::{map_deserialization_error, OpenAIError, WrappedError}, moderation::Moderations, Chat, Completions, Embeddings, Models, FineTunes, FineTuning, Assistants, Threads};
+
+#[cfg(feature = "tokio")]
 use crate::{
-    config::{Config, OpenAIConfig},
     edit::Edits,
-    error::{map_deserialization_error, OpenAIError, WrappedError},
     file::Files,
     image::Images,
-    moderation::Moderations,
-    Assistants, Audio, Chat, Completions, Embeddings, FineTunes, FineTuning, Models, Threads,
+    Audio,
 };
 
 #[derive(Debug, Clone)]
@@ -21,6 +26,7 @@ use crate::{
 pub struct Client<C: Config> {
     http_client: reqwest::Client,
     config: C,
+    #[cfg(feature = "backoff")]
     backoff: backoff::ExponentialBackoff,
 }
 
@@ -30,6 +36,7 @@ impl Client<OpenAIConfig> {
         Self {
             http_client: reqwest::Client::new(),
             config: OpenAIConfig::default(),
+            #[cfg(feature = "backoff")]
             backoff: Default::default(),
         }
     }
@@ -41,6 +48,7 @@ impl<C: Config> Client<C> {
         Self {
             http_client: reqwest::Client::new(),
             config,
+            #[cfg(feature = "backoff")]
             backoff: Default::default(),
         }
     }
@@ -53,6 +61,7 @@ impl<C: Config> Client<C> {
         self
     }
 
+    #[cfg(feature = "backoff")]
     /// Exponential backoff for retrying [rate limited](https://platform.openai.com/docs/guides/rate-limits) requests.
     pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
         self.backoff = backoff;
@@ -76,12 +85,14 @@ impl<C: Config> Client<C> {
         Chat::new(self)
     }
 
+    #[cfg(feature = "tokio")]
     /// To call [Edits] group related APIs using this client.
     #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn edits(&self) -> Edits<C> {
         Edits::new(self)
     }
 
+    #[cfg(feature = "tokio")]
     /// To call [Images] group related APIs using this client.
     pub fn images(&self) -> Images<C> {
         Images::new(self)
@@ -92,6 +103,7 @@ impl<C: Config> Client<C> {
         Moderations::new(self)
     }
 
+    #[cfg(feature = "tokio")]
     /// To call [Files] group related APIs using this client.
     pub fn files(&self) -> Files<C> {
         Files::new(self)
@@ -113,6 +125,7 @@ impl<C: Config> Client<C> {
         Embeddings::new(self)
     }
 
+    #[cfg(feature = "tokio")]
     /// To call [Audio] group related APIs using this client.
     pub fn audio(&self) -> Audio<C> {
         Audio::new(self)
@@ -242,6 +255,7 @@ impl<C: Config> Client<C> {
         self.execute(request_maker).await
     }
 
+    #[cfg(feature = "backoff")]
     /// Execute a HTTP request and retry on rate limit
     ///
     /// request_maker serves one purpose: to be able to create request again
@@ -298,6 +312,52 @@ impl<C: Config> Client<C> {
         .await
     }
 
+    #[cfg(not(feature = "backoff"))]
+    /// Execute a HTTP request and retry on rate limit
+    ///
+    /// request_maker serves one purpose: to be able to create request again
+    /// to retry API call after getting rate limited. request_maker is async because
+    /// reqwest::multipart::Form is created by async calls to read files for uploads.
+    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
+        where
+            M: Fn() -> Fut,
+            Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+    {
+        let client = self.http_client.clone();
+
+        let request = request_maker().await?;
+        let response = client
+            .execute(request)
+            .await
+            .map_err(OpenAIError::Reqwest)?;
+
+        let status = response.status();
+        let bytes = response
+            .bytes()
+            .await
+            .map_err(OpenAIError::Reqwest)?;
+
+        // Deserialize response body from either error object or actual response object
+        if !status.is_success() {
+            let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
+                .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+
+            if status.as_u16() == 429
+                // API returns 429 also when:
+                // "You exceeded your current quota, please check your plan and billing details."
+                && wrapped_error.error.r#type != Some("insufficient_quota".to_string())
+            {
+                // Rate limited retry...
+                tracing::warn!("Rate limited: {}", wrapped_error.error.message);
+                return Err(OpenAIError::ApiError(wrapped_error.error));
+            } else {
+                return Err(OpenAIError::ApiError(wrapped_error.error));
+            }
+        }
+
+        Ok(bytes)
+    }
+
     /// Execute a HTTP request and retry on rate limit
     ///
     /// request_maker serves one purpose: to be able to create request again
@@ -322,7 +382,7 @@ impl<C: Config> Client<C> {
         &self,
         path: &str,
         request: I,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    ) -> OpenAIEventStream<O>
     where
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
@@ -336,7 +396,7 @@ impl<C: Config> Client<C> {
             .eventsource()
             .unwrap();
 
-        stream(event_source).await
+        OpenAIEventStream::new(event_source)
     }
 
     /// Make HTTP GET request to receive SSE
@@ -344,7 +404,7 @@ impl<C: Config> Client<C> {
         &self,
         path: &str,
         query: &Q,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    ) -> OpenAIEventStream<O>
     where
         Q: Serialize + ?Sized,
         O: DeserializeOwned + std::marker::Send + 'static,
@@ -358,52 +418,62 @@ impl<C: Config> Client<C> {
             .eventsource()
             .unwrap();
 
-        stream(event_source).await
+        OpenAIEventStream::new(event_source)
     }
 }
 
-/// Request which responds with SSE.
-/// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-pub(crate) async fn stream<O>(
-    mut event_source: EventSource,
-) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
-where
-    O: DeserializeOwned + std::marker::Send + 'static,
-{
-    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+pin_project! {
+    /// Request which responds with SSE.
+    /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
+    pub struct OpenAIEventStream<O> {
+        #[pin]
+        stream: Filter<EventSource, future::Ready<bool>, fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>>,
+        _phantom_data: PhantomData<O>
+    }
+}
 
-    tokio::spawn(async move {
-        while let Some(ev) = event_source.next().await {
-            match ev {
-                Err(e) => {
-                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
-                        // rx dropped
-                        break;
+impl<O> OpenAIEventStream<O> {
+    pub(crate) fn new(event_source: EventSource) -> Self {
+        Self {
+            stream: event_source.filter(|result|
+                // filter out the first event which is always Event::Open
+                future::ready(!(result.is_ok()&&result.as_ref().unwrap().eq(&Event::Open)))
+            ),
+            _phantom_data: PhantomData
+        }
+    }
+}
+
+impl<O: DeserializeOwned + std::marker::Send + 'static> Stream for OpenAIEventStream<O> {
+    type Item = Result<O, OpenAIError>;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let this = self.project();
+        let stream: Pin<&mut _> = this.stream;
+        match stream.poll_next(cx) {
+            Poll::Ready(response) => {
+                match response {
+                    None => Poll::Ready(None), // end of the stream
+                    Some(result) => match result {
+                        Ok(event) => match event {
+                            Event::Open => unreachable!(), // it has been filtered out
+                            Event::Message(message) => {
+                                if message.data == "[DONE]" {
+                                    Poll::Ready(None)  // end of the stream, defined by OpenAI
+                                } else {
+                                    // deserialize the data
+                                    match serde_json::from_str::<O>(&message.data) {
+                                        Err(e) => Poll::Ready(Some(Err(map_deserialization_error(e, &message.data.as_bytes())))),
+                                        Ok(output) => Poll::Ready(Some(Ok(output))),
+                                    }
+                                }
+                            }
+                        }
+                        Err(e) => Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
                     }
                 }
-                Ok(event) => match event {
-                    Event::Message(message) => {
-                        if message.data == "[DONE]" {
-                            break;
-                        }
-
-                        let response = match serde_json::from_str::<O>(&message.data) {
-                            Err(e) => Err(map_deserialization_error(e, &message.data.as_bytes())),
-                            Ok(output) => Ok(output),
-                        };
-
-                        if let Err(_e) = tx.send(response) {
-                            // rx dropped
-                            break;
-                        }
-                    }
-                    Event::Open => continue,
-                },
             }
+            Poll::Pending => Poll::Pending
         }
-
-        event_source.close();
-    });
-
-    Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+    }
 }

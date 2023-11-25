@@ -4,6 +4,7 @@ use futures::StreamExt;
 use async_openai::types::{CompletionResponseStream, CreateCompletionRequestArgs};
 use async_openai::Client;
 
+#[cfg(feature = "tokio")]
 #[tokio::test]
 async fn boxed_future_test() {
     fn interpret_bool(token_stream: &mut CompletionResponseStream) -> BoxFuture<'_, bool> {
