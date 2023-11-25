@@ -36,7 +36,7 @@
   - [x] Microsoft Azure OpenAI Service
   - [x] Models
   - [x] Moderations
-  - [x] WASM support (experimental and only available in `experiments` branch)
+  - [x] WASM support (experimental and only available in [`experiments`](https://github.com/64bit/async-openai/tree/experiments) branch)
 - Support SSE streaming on available APIs
 - All requests including form submissions (except SSE streaming) are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits) by the API server.
 - Ergonomic builder pattern for all request objects.
