@@ -109,6 +109,9 @@ Thank you for your time to contribute and improve the project, I'd be happy to h
 
 A good starting point would be existing [open issues](https://github.com/64bit/async-openai/issues).
 
+## Complimentary Crates
+- [openai-func-enums](https://github.com/frankfralick/openai-func-enums) provides procedural macros that make it easier to use this library with OpenAI API's tool calling feature. It also provides derive macros you can add to existing [clap](https://github.com/clap-rs/clap) application subcommands for natural language use of command line tools. It also supports openai's [parallel tool calls](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling) and allows you to choose between running multiple tool calls concurrently or own their own OS threads. 
+
 
 ## License
 
