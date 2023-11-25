@@ -7,7 +7,11 @@ use crate::{
     download::{download_url, save_b64},
     error::OpenAIError,
     util::{create_all_dir, create_file_part},
+    types::InputSource,
 };
+
+use bytes::Bytes;
+use reqwest::Body;
 
 use super::{
     AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, ChatCompletionFunctions,
@@ -91,29 +95,45 @@ impl_default!(Prompt);
 impl_default!(ModerationInput);
 impl_default!(EmbeddingInput);
 
-macro_rules! file_path_input {
+
+impl Default for InputSource {
+    fn default() -> Self {
+        InputSource::Path {
+            path: PathBuf::new(),
+        }
+    }
+}
+
+macro_rules! impl_input {
     ($for_typ:ty) => {
         impl $for_typ {
-            pub fn new<P: AsRef<Path>>(path: P) -> Self {
+            pub fn from_bytes(filename: String, bytes: Bytes) -> Self {
                 Self {
-                    path: PathBuf::from(path.as_ref()),
+                    source: InputSource::Bytes { filename, bytes },
+                }
+            }
+
+            pub fn from_vec_u8(filename: String, vec: Vec<u8>) -> Self {
+                Self {
+                    source: InputSource::VecU8 { filename, vec },
                 }
             }
         }
 
         impl<P: AsRef<Path>> From<P> for $for_typ {
             fn from(path: P) -> Self {
+                let path_buf = path.as_ref().to_path_buf();
                 Self {
-                    path: PathBuf::from(path.as_ref()),
+                    source: InputSource::Path { path: path_buf },
                 }
             }
         }
     };
 }
 
-file_path_input!(ImageInput);
-file_path_input!(FileInput);
-file_path_input!(AudioInput);
+impl_input!(AudioInput);
+impl_input!(FileInput);
+impl_input!(ImageInput);
 
 impl Display for ImageSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -574,7 +594,7 @@ impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::
     type Error = OpenAIError;
 
     async fn try_from(request: CreateTranscriptionRequest) -> Result<Self, Self::Error> {
-        let audio_part = create_file_part(&request.file.path).await?;
+        let audio_part = create_file_part(request.file.source).await?;
 
         let mut form = reqwest::multipart::Form::new()
             .part("file", audio_part)
@@ -600,7 +620,7 @@ impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Fo
     type Error = OpenAIError;
 
     async fn try_from(request: CreateTranslationRequest) -> Result<Self, Self::Error> {
-        let audio_part = create_file_part(&request.file.path).await?;
+        let audio_part = create_file_part(request.file.source).await?;
 
         let mut form = reqwest::multipart::Form::new()
             .part("file", audio_part)
@@ -626,14 +646,14 @@ impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form
     type Error = OpenAIError;
 
     async fn try_from(request: CreateImageEditRequest) -> Result<Self, Self::Error> {
-        let image_part = create_file_part(&request.image.path).await?;
+        let image_part = create_file_part(request.image.source).await?;
 
         let mut form = reqwest::multipart::Form::new()
             .part("image", image_part)
             .text("prompt", request.prompt);
 
         if let Some(mask) = request.mask {
-            let mask_part = create_file_part(&mask.path).await?;
+            let mask_part = create_file_part(mask.source).await?;
             form = form.part("mask", mask_part);
         }
 
@@ -668,7 +688,7 @@ impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart:
     type Error = OpenAIError;
 
     async fn try_from(request: CreateImageVariationRequest) -> Result<Self, Self::Error> {
-        let image_part = create_file_part(&request.image.path).await?;
+        let image_part = create_file_part(request.image.source).await?;
 
         let mut form = reqwest::multipart::Form::new().part("image", image_part);
 
@@ -703,7 +723,7 @@ impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateFileRequest) -> Result<Self, Self::Error> {
-        let file_part = create_file_part(&request.file.path).await?;
+        let file_part = create_file_part(request.file.source).await?;
         let form = reqwest::multipart::Form::new()
             .part("file", file_part)
             .text("purpose", request.purpose);

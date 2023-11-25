@@ -3,6 +3,7 @@ use std::{collections::HashMap, path::PathBuf, pin::Pin};
 use bytes::Bytes;
 use derive_builder::Builder;
 use futures::Stream;
+use reqwest::{Body};
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
@@ -392,9 +393,16 @@ pub struct ImagesResponse {
     pub data: Vec<std::sync::Arc<Image>>,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum InputSource {
+    Path { path: PathBuf },
+    Bytes { filename: String, bytes: Bytes },
+    VecU8 { filename: String, vec: Vec<u8> },
+}
+
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct ImageInput {
-    pub path: PathBuf,
+    pub source: InputSource,
 }
 
 #[derive(Debug, Clone, Default, Builder, PartialEq)]
@@ -583,7 +591,7 @@ pub struct CreateModerationResponse {
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct FileInput {
-    pub path: PathBuf,
+    pub source: InputSource,
 }
 
 #[derive(Debug, Default, Clone, Builder, PartialEq)]
@@ -1597,7 +1605,7 @@ pub struct CreateChatCompletionStreamResponse {
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct AudioInput {
-    pub path: PathBuf,
+    pub source: InputSource,
 }
 
 #[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
