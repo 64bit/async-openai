@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-#[cfg(feature = "tokio")]
+#[cfg(not(feature = "wasm"))]
 use std::path::PathBuf;
 
 use bytes::Bytes;
@@ -265,7 +265,6 @@ pub struct CreateEditResponse {
     pub usage: CompletionUsage,
 }
 
-#[cfg(feature = "tokio")]
 #[derive(Default, Debug, Serialize, Clone, Copy, PartialEq)]
 pub enum ImageSize {
     #[serde(rename = "256x256")]
@@ -328,7 +327,6 @@ pub enum ImageStyle {
     Natural,
 }
 
-#[cfg(feature = "tokio")]
 #[derive(Debug, Clone, Serialize, Default, Builder, PartialEq)]
 #[builder(name = "CreateImageRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -374,7 +372,6 @@ pub struct CreateImageRequest {
     pub user: Option<String>,
 }
 
-#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(untagged)]
 pub enum Image {
@@ -390,26 +387,33 @@ pub enum Image {
     },
 }
 
-#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ImagesResponse {
     pub created: u32,
     pub data: Vec<std::sync::Arc<Image>>,
 }
 
-#[cfg(feature = "tokio")]
-#[derive(Debug, Default, Clone, PartialEq)]
-pub struct ImageInput {
-    pub path: PathBuf,
+#[derive(Debug, Clone, PartialEq)]
+pub enum InputSource {
+    #[cfg(not(feature = "wasm"))]
+    Path { path: PathBuf },
+    Bytes { filename: String, bytes: Bytes },
+    VecU8 { filename: String, vec: Vec<u8> },
 }
 
-#[cfg(feature = "tokio")]
-#[derive(Debug, Clone, Default, Builder, PartialEq)]
-#[builder(name = "CreateImageEditRequestArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct ImageInput {
+    pub source: InputSource,
+}
+
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), builder(name = "CreateImageEditRequestArgs"))]
+#[cfg_attr(not(feature = "wasm"), builder(pattern = "mutable"))]
+#[cfg_attr(not(feature = "wasm"), builder(setter(into, strip_option), default))]
+#[cfg_attr(not(feature = "wasm"), builder(derive(Debug)))]
+#[cfg_attr(not(feature = "wasm"), builder(build_fn(error = "OpenAIError")))]
 pub struct CreateImageEditRequest {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
     pub image: ImageInput,
@@ -436,13 +440,13 @@ pub struct CreateImageEditRequest {
     pub user: Option<String>,
 }
 
-#[cfg(feature = "tokio")]
-#[derive(Debug, Default, Clone, Builder, PartialEq)]
-#[builder(name = "CreateImageVariationRequestArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Debug, Clone,  PartialEq)]
+#[cfg_attr(not(feature = "wasm"), builder(name = "CreateImageVariationRequestArgs"))]
+#[cfg_attr(not(feature = "wasm"), builder(pattern = "mutable"))]
+#[cfg_attr(not(feature = "wasm"), builder(setter(into, strip_option), default))]
+#[cfg_attr(not(feature = "wasm"), builder(derive(Debug)))]
+#[cfg_attr(not(feature = "wasm"), builder(build_fn(error = "OpenAIError")))]
 pub struct CreateImageVariationRequest {
     /// The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and square.
     pub image: ImageInput,
@@ -589,19 +593,19 @@ pub struct CreateModerationResponse {
     pub results: Vec<ContentModerationResult>,
 }
 
-#[cfg(feature = "tokio")]
-#[derive(Debug, Default, Clone, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FileInput {
-    pub path: PathBuf,
+    pub source: InputSource,
 }
 
-#[cfg(feature = "tokio")]
-#[derive(Debug, Default, Clone, Builder, PartialEq)]
-#[builder(name = "CreateFileRequestArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), builder(name = "CreateFileRequestArgs"))]
+#[cfg_attr(not(feature = "wasm"), builder(pattern = "mutable"))]
+#[cfg_attr(not(feature = "wasm"), builder(setter(into, strip_option), default))]
+#[cfg_attr(not(feature = "wasm"), builder(derive(Debug)))]
+#[cfg_attr(not(feature = "wasm"), builder(build_fn(error = "OpenAIError")))]
 pub struct CreateFileRequest {
     /// The file object to be uploaded.
     ///
@@ -615,14 +619,12 @@ pub struct CreateFileRequest {
     pub purpose: String,
 }
 
-#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct ListFilesResponse {
     pub object: String,
     pub data: Vec<OpenAIFile>,
 }
 
-#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct DeleteFileResponse {
     pub id: String,
@@ -1115,6 +1117,9 @@ pub struct ChatCompletionRequestSystemMessage {
     /// The role of the messages author, in this case `system`.
     #[builder(default = "Role::System")]
     pub role: Role,
+    /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
@@ -1193,6 +1198,9 @@ pub struct ChatCompletionRequestUserMessage {
     /// The role of the messages author, in this case `user`.
     #[builder(default = "Role::User")]
     pub role: Role,
+    /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
@@ -1207,6 +1215,9 @@ pub struct ChatCompletionRequestAssistantMessage {
     /// The role of the messages author, in this case `assistant`.
     #[builder(default = "Role::Assistant")]
     pub role: Role,
+    /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_calls: Option<Vec<ChatCompletionMessageToolCall>>,
     /// Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model.
@@ -1368,6 +1379,7 @@ pub struct ChatCompletionNamedToolChoice {
 
 /// `none` is the default when no functions are present. `auto` is the default if functions are present.
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
 pub enum ChatCompletionToolChoiceOption {
     #[default]
     None,
@@ -1596,13 +1608,12 @@ pub struct CreateChatCompletionStreamResponse {
     pub object: String,
 }
 
-#[cfg(feature = "tokio")]
-#[derive(Debug, Default, Clone, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AudioInput {
-    pub path: PathBuf,
+    pub source: InputSource,
 }
 
-#[cfg(feature = "tokio")]
 #[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum AudioResponseFormat {
@@ -1650,13 +1661,13 @@ pub enum SpeechModel {
     Other(String),
 }
 
-#[cfg(feature = "tokio")]
-#[derive(Clone, Default, Debug, Builder, PartialEq)]
-#[builder(name = "CreateTranscriptionRequestArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), builder(name = "CreateTranscriptionRequestArgs"))]
+#[cfg_attr(not(feature = "wasm"), builder(pattern = "mutable"))]
+#[cfg_attr(not(feature = "wasm"), builder(setter(into, strip_option), default))]
+#[cfg_attr(not(feature = "wasm"), builder(derive(Debug)))]
+#[cfg_attr(not(feature = "wasm"), builder(build_fn(error = "OpenAIError")))]
 pub struct CreateTranscriptionRequest {
     /// The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
     pub file: AudioInput,
@@ -1677,18 +1688,17 @@ pub struct CreateTranscriptionRequest {
     pub language: Option<String>,
 }
 
-#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct CreateTranscriptionResponse {
     pub text: String,
 }
 
 #[derive(Clone, Default, Debug, Builder, PartialEq, Serialize)]
-#[builder(name = "CreateSpeechRequestArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(not(feature = "wasm"), builder(name = "CreateSpeechRequestArgs"))]
+#[cfg_attr(not(feature = "wasm"), builder(pattern = "mutable"))]
+#[cfg_attr(not(feature = "wasm"), builder(setter(into, strip_option), default))]
+#[cfg_attr(not(feature = "wasm"), builder(derive(Debug)))]
+#[cfg_attr(not(feature = "wasm"), builder(build_fn(error = "OpenAIError")))]
 pub struct CreateSpeechRequest {
     /// The text to generate audio for. The maximum length is 4096 characters.
     pub input: String,
@@ -1708,13 +1718,13 @@ pub struct CreateSpeechRequest {
     pub speed: Option<f32>, // default: 1.0
 }
 
-#[cfg(feature = "tokio")]
-#[derive(Clone, Default, Debug, Builder, PartialEq)]
-#[builder(name = "CreateTranslationRequestArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), builder(name = "CreateTranslationRequestArgs"))]
+#[cfg_attr(not(feature = "wasm"), builder(pattern = "mutable"))]
+#[cfg_attr(not(feature = "wasm"), builder(setter(into, strip_option), default))]
+#[cfg_attr(not(feature = "wasm"), builder(derive(Debug)))]
+#[cfg_attr(not(feature = "wasm"), builder(build_fn(error = "OpenAIError")))]
 pub struct CreateTranslationRequest {
     /// The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
     pub file: AudioInput,
@@ -1732,13 +1742,11 @@ pub struct CreateTranslationRequest {
     pub temperature: Option<f32>, // default: 0
 }
 
-#[cfg(feature = "tokio")]
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateTranslationResponse {
     pub text: String,
 }
 
-#[cfg(feature = "tokio")]
 #[derive(Debug, Clone)]
 pub struct CreateSpeechResponse {
     pub bytes: Bytes,
