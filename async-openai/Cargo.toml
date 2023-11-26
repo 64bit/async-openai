@@ -1,12 +1,12 @@
 [package]
 name = "async-openai"
-version = "0.16.3"
+version = "0.17.1"
 authors = [
     "Himanshu Neema"
 ]
 categories = ["api-bindings", "web-programming", "asynchronous"]
 keywords = ["openai", "async", "openapi", "ai"]
-description = "Async bindings for OpenAI REST API based on OpenAPI spec"
+description = "Rust library for OpenAI"
 edition = "2021"
 rust-version = "1.65"
 license = "MIT"

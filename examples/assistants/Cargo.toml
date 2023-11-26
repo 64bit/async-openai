@@ -7,4 +7,3 @@ publish = false
 [dependencies]
 async-openai = {path = "../../async-openai"}
 tokio = { version = "1.33.0", features = ["full"] }
-tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
