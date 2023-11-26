@@ -1374,6 +1374,7 @@ pub struct ChatCompletionNamedToolChoice {
 
 /// `none` is the default when no functions are present. `auto` is the default if functions are present.
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
 pub enum ChatCompletionToolChoiceOption {
     #[default]
     None,
