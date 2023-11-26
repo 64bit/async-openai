@@ -10,15 +10,14 @@ use futures::stream::Filter;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{config::{Config, OpenAIConfig}, error::{map_deserialization_error, OpenAIError, WrappedError}, moderation::Moderations, Chat, Completions, Embeddings, Models, FineTunes, FineTuning, Assistants, Threads};
-
-#[cfg(feature = "tokio")]
 use crate::{
+    config::{Config, OpenAIConfig},
+    error::{map_deserialization_error, OpenAIError, WrappedError},
+    moderation::Moderations,
     edit::Edits,
     file::Files,
     image::Images,
-    Audio,
-};
+    Chat, Completions, Embeddings, Models, FineTunes, FineTuning, Assistants, Threads, Audio};
 
 #[derive(Debug, Clone)]
 /// Client is a container for config, backoff and http_client
@@ -85,14 +84,12 @@ impl<C: Config> Client<C> {
         Chat::new(self)
     }
 
-    #[cfg(feature = "tokio")]
     /// To call [Edits] group related APIs using this client.
     #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn edits(&self) -> Edits<C> {
         Edits::new(self)
     }
 
-    #[cfg(feature = "tokio")]
     /// To call [Images] group related APIs using this client.
     pub fn images(&self) -> Images<C> {
         Images::new(self)
@@ -103,7 +100,6 @@ impl<C: Config> Client<C> {
         Moderations::new(self)
     }
 
-    #[cfg(feature = "tokio")]
     /// To call [Files] group related APIs using this client.
     pub fn files(&self) -> Files<C> {
         Files::new(self)
@@ -125,7 +121,6 @@ impl<C: Config> Client<C> {
         Embeddings::new(self)
     }
 
-    #[cfg(feature = "tokio")]
     /// To call [Audio] group related APIs using this client.
     pub fn audio(&self) -> Audio<C> {
         Audio::new(self)

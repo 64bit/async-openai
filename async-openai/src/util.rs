@@ -1,12 +1,16 @@
+#[cfg(not(feature = "wasm"))]
 use std::path::Path;
 
 use reqwest::Body;
+#[cfg(feature = "tokio")]
 use tokio::fs::File;
+#[cfg(feature = "tokio")]
 use tokio_util::codec::{BytesCodec, FramedRead};
 
 use crate::error::OpenAIError;
 use crate::types::InputSource;
 
+#[cfg(all(not(feature = "wasm"), feature = "tokio"))]
 pub(crate) async fn file_stream_body(source: InputSource) -> Result<Body, OpenAIError> {
     let body = match source {
         InputSource::Path{ path } => {
@@ -26,6 +30,7 @@ pub(crate) async fn create_file_part(
     source: InputSource,
 ) -> Result<reqwest::multipart::Part, OpenAIError> {
     let (stream, file_name) = match source {
+        #[cfg(all(not(feature = "wasm"), feature = "tokio"))]
         InputSource::Path{ path } => {
             let file_name = path.file_name()
                 .ok_or_else(|| OpenAIError::FileReadError(format!("cannot extract file name from {}", path.display())))?
@@ -51,6 +56,7 @@ pub(crate) async fn create_file_part(
     Ok(file_part)
 }
 
+#[cfg(not(feature = "wasm"))]
 pub(crate) fn create_all_dir<P: AsRef<Path>>(dir: P) -> Result<(), OpenAIError> {
     let exists = match Path::try_exists(dir.as_ref()) {
         Ok(exists) => exists,

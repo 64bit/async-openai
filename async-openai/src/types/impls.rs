@@ -1,8 +1,9 @@
 use std::fmt::Display;
 use bytes::Bytes;
-use reqwest::Body;
 
 use crate::error::OpenAIError;
+use crate::types::InputSource;
+use crate::util::create_file_part;
 
 use super::{
     ChatCompletionFunctionCall,
@@ -15,35 +16,22 @@ use super::{
     ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
     ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption,
-    FunctionName, DallE2ImageSize, ImageModel, ImageUrl, ResponseFormat,
-};
-
-#[cfg(feature = "tokio")]
-use std::path::{Path, PathBuf};
-
-#[cfg(feature = "tokio")]
-use super::ImagesResponse;
-
-#[cfg(feature = "tokio")]
-use crate::download::{download_url, save_b64};
-
-#[cfg(feature = "tokio")]
-use crate::types::InputSource;
-
-#[cfg(feature = "tokio")]
-use crate::util::{create_file_part, create_all_dir};
-
-#[cfg(feature = "tokio")]
-use super::{
+    FunctionName, DallE2ImageSize, ImageModel, ImageUrl, ResponseFormat, ImagesResponse,
     AudioInput, AudioResponseFormat,
     CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
     CreateTranscriptionRequest, CreateTranslationRequest,
-    Image,
+    Image, FileInput, ImageInput, ImageSize
 };
 
-#[cfg(feature = "tokio")]
-use super::{FileInput, ImageInput, ImageSize};
+#[cfg(not(feature = "wasm"))]
+use std::path::{Path, PathBuf};
+
+#[cfg(all(not(feature = "wasm"), feature = "tokio"))]
+use crate::download::{download_url, save_b64};
+
+#[cfg(not(feature = "wasm"))]
+use crate::util::create_all_dir;
 
 macro_rules! impl_from {
     ($from_typ:ty, $to_typ:ty) => {
@@ -113,7 +101,7 @@ impl_default!(Prompt);
 impl_default!(ModerationInput);
 impl_default!(EmbeddingInput);
 
-#[cfg(feature = "tokio")]
+#[cfg(not(feature = "wasm"))]
 impl Default for InputSource {
     fn default() -> Self {
         InputSource::Path {
@@ -138,6 +126,7 @@ macro_rules! impl_input {
             }
         }
 
+        #[cfg(not(feature = "wasm"))]
         impl<P: AsRef<Path>> From<P> for $for_typ {
             fn from(path: P) -> Self {
                 let path_buf = path.as_ref().to_path_buf();
@@ -149,14 +138,10 @@ macro_rules! impl_input {
     };
 }
 
-#[cfg(feature = "tokio")]
 impl_input!(AudioInput);
-#[cfg(feature = "tokio")]
 impl_input!(FileInput);
-#[cfg(feature = "tokio")]
 impl_input!(ImageInput);
 
-#[cfg(feature = "tokio")]
 impl Display for ImageSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -187,7 +172,6 @@ impl Display for DallE2ImageSize {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl Display for ImageModel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -202,7 +186,6 @@ impl Display for ImageModel {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl Display for ResponseFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -216,7 +199,6 @@ impl Display for ResponseFormat {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl Display for AudioResponseFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -233,7 +215,6 @@ impl Display for AudioResponseFormat {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl Display for Role {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -250,7 +231,7 @@ impl Display for Role {
     }
 }
 
-#[cfg(feature = "tokio")]
+#[cfg(all(not(feature = "wasm"), feature = "tokio"))]
 impl ImagesResponse {
     /// Save each image in a dedicated Tokio task and return paths to saved files.
     /// For [ResponseFormat::Url] each file is downloaded in dedicated Tokio task.
@@ -291,7 +272,7 @@ impl ImagesResponse {
     }
 }
 
-#[cfg(feature = "tokio")]
+#[cfg(all(not(feature = "wasm"), feature = "tokio"))]
 impl CreateSpeechResponse {
     pub async fn save<P: AsRef<Path>>(&self, file_path: P) -> Result<(), OpenAIError> {
         let dir = file_path.as_ref().parent();
@@ -308,7 +289,7 @@ impl CreateSpeechResponse {
     }
 }
 
-#[cfg(feature = "tokio")]
+#[cfg(all(not(feature = "wasm"), feature = "tokio"))]
 impl Image {
     async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<PathBuf, OpenAIError> {
         match self {
@@ -598,7 +579,6 @@ impl From<String> for ChatCompletionRequestMessageContentPartText {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl From<&str> for ImageUrl {
     fn from(value: &str) -> Self {
         Self {
@@ -608,7 +588,6 @@ impl From<&str> for ImageUrl {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl From<String> for ImageUrl {
     fn from(value: String) -> Self {
         Self {
@@ -620,7 +599,6 @@ impl From<String> for ImageUrl {
 
 // start: types to multipart from
 
-#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -647,7 +625,6 @@ impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::
     }
 }
 
-#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -674,7 +651,6 @@ impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Fo
     }
 }
 
-#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -717,7 +693,6 @@ impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form
     }
 }
 
-#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -753,7 +728,6 @@ impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart:
     }
 }
 
-#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
