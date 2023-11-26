@@ -236,7 +236,7 @@ impl Client {
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .multipart(async_convert::TryInto::try_into(form.clone()).await?)
+                .multipart(async_convert::TryFrom::try_from(form.clone()).await?)
                 .build()?)
         };
 
