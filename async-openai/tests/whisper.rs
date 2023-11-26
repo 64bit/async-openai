@@ -30,7 +30,7 @@ async fn transcribe_sendable_test() {
 }
 
 #[tokio::test]
-async fn translate() {
+async fn translate_test() {
     let client = Client::new();
 
     let request = CreateTranslationRequestArgs::default().build().unwrap();
