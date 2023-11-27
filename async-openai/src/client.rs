@@ -223,7 +223,7 @@ impl<C: Config> Client<C> {
     }
 
     /// POST a form at {path} and deserialize the response body
-    pub async fn post_form<O, F>(&self, path: &str, form: F) -> Result<O, OpenAIError>
+    pub(crate) async fn post_form<O, F>(&self, path: &str, form: F) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
         reqwest::multipart::Form: async_convert::TryFrom<F, Error = OpenAIError>,
@@ -240,6 +240,25 @@ impl<C: Config> Client<C> {
         };
 
         self.execute(request_maker).await
+    }
+
+    /// POST a form at {path} and return Bytes
+    pub(crate) async fn post_form_return_bytes<F>(&self, path: &str, form: F) -> Result<Bytes, OpenAIError>
+        where
+            reqwest::multipart::Form: async_convert::TryFrom<F, Error=OpenAIError>,
+            F: Clone,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .post(self.config.url(path))
+                .query(&self.config.query())
+                .headers(self.config.headers())
+                .multipart(async_convert::TryFrom::try_from(form.clone()).await?)
+                .build()?)
+        };
+
+        self.execute_raw(request_maker).await
     }
 
     /// Execute a HTTP request and retry on rate limit

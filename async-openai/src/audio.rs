@@ -7,6 +7,7 @@ use crate::{
     },
     Client,
 };
+use crate::types::AudioResponseFormat;
 
 /// Turn audio into text
 /// Related guide: [Speech to text](https://platform.openai.com/docs/guides/speech-to-text)
@@ -24,6 +25,29 @@ impl<'c, C: Config> Audio<'c, C> {
         &self,
         request: CreateTranscriptionRequest,
     ) -> Result<CreateTranscriptionResponse, OpenAIError> {
+        let request_format = request.response_format.unwrap_or(AudioResponseFormat::Json);
+        let mut is_json = false;
+        match request_format {
+            AudioResponseFormat::Json => {
+                is_json = true;
+            }
+            AudioResponseFormat::Text => {}
+            AudioResponseFormat::Srt => {}
+            AudioResponseFormat::VerboseJson => {
+                is_json = true;
+            }
+            AudioResponseFormat::Vtt => {}
+        }
+
+        if !is_json {
+            let bytes = self.client.post_form_return_bytes("/audio/transcriptions", request).await?;
+            let text = String::from_utf8_lossy(&bytes[..]);
+            let response = CreateTranscriptionResponse {
+                text: text.to_string(),
+            };
+            return Ok(response);
+        }
+
         self.client
             .post_form("/audio/transcriptions", request)
             .await
