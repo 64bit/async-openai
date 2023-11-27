@@ -223,7 +223,7 @@ impl<C: Config> Client<C> {
     }
 
     /// POST a form at {path} and deserialize the response body
-    pub(crate) async fn post_form<O, F>(&self, path: &str, form: F) -> Result<O, OpenAIError>
+    pub async fn post_form<O, F>(&self, path: &str, form: F) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
         reqwest::multipart::Form: async_convert::TryFrom<F, Error = OpenAIError>,
