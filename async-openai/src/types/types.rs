@@ -3,7 +3,7 @@ use std::{collections::HashMap, path::PathBuf, pin::Pin};
 use bytes::Bytes;
 use derive_builder::Builder;
 use futures::Stream;
-use reqwest::{Body};
+use reqwest::Body;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
@@ -1594,14 +1594,14 @@ pub struct CreateChatCompletionStreamResponse {
     pub choices: Vec<ChatCompletionResponseStreamMessage>,
 
     /// The Unix timestamp (in seconds) of when the chat completion was created. Each chunk has the same timestamp.
-    pub created: u32,
+    pub created: Option<u32>,
     /// The model to generate the completion.
     pub model: String,
     /// This fingerprint represents the backend configuration that the model runs with.
     /// Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism.
     pub system_fingerprint: Option<String>,
     /// The object type, which is always `chat.completion.chunk`.
-    pub object: String,
+    pub object: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
