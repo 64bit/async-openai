@@ -18,6 +18,8 @@ repository = "https://github.com/64bit/async-openai"
 default = ["rustls"]
 # Enable rustls for TLS support
 rustls = ["reqwest/rustls-tls-native-roots"]
+# Enable rustls and webpki-roots
+rustls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
 # Enable native-tls for TLS support
 native-tls = ["reqwest/native-tls"]
 # Remove dependency on OpenSSL
