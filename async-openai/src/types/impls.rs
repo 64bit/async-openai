@@ -6,8 +6,8 @@ use std::{
 use crate::{
     download::{download_url, save_b64},
     error::OpenAIError,
-    util::{create_all_dir, create_file_part},
     types::InputSource,
+    util::{create_all_dir, create_file_part},
 };
 
 use bytes::Bytes;
@@ -27,32 +27,45 @@ use super::{
     ModerationInput, Prompt, ResponseFormat, Role, Stop,
 };
 
+/// for `impl_from!(T, Enum)`, implements
+/// - `From<T>`
+/// - `From<Vec<T>>`
+/// - `From<&Vec<T>>`
+/// - `From<[T; N]>`
+/// - `From<&[T; N]>`
+///
+/// for `T: Into<String>` and `Enum` having variants `String(String)` and `StringArray(Vec<String>)`
 macro_rules! impl_from {
     ($from_typ:ty, $to_typ:ty) => {
+        // From
         impl From<$from_typ> for $to_typ {
             fn from(value: $from_typ) -> Self {
                 <$to_typ>::String(value.into())
             }
         }
 
+        // From<Vec<T>> -> StringArray variant
         impl From<Vec<$from_typ>> for $to_typ {
             fn from(value: Vec<$from_typ>) -> Self {
                 <$to_typ>::StringArray(value.iter().map(|v| v.to_string()).collect())
             }
         }
 
+        // From<&Vec<T>> -> StringArray variant
         impl From<&Vec<$from_typ>> for $to_typ {
             fn from(value: &Vec<$from_typ>) -> Self {
                 <$to_typ>::StringArray(value.iter().map(|v| v.to_string()).collect())
             }
         }
 
+        // From<[T; N]> -> StringArray variant
         impl<const N: usize> From<[$from_typ; N]> for $to_typ {
             fn from(value: [$from_typ; N]) -> Self {
                 <$to_typ>::StringArray(value.into_iter().map(|v| v.to_string()).collect())
             }
         }
 
+        // From<&[T; N]> -> StringArray variatn
         impl<const N: usize> From<&[$from_typ; N]> for $to_typ {
             fn from(value: &[$from_typ; N]) -> Self {
                 <$to_typ>::StringArray(value.into_iter().map(|v| v.to_string()).collect())
@@ -94,7 +107,6 @@ macro_rules! impl_default {
 impl_default!(Prompt);
 impl_default!(ModerationInput);
 impl_default!(EmbeddingInput);
-
 
 impl Default for InputSource {
     fn default() -> Self {
