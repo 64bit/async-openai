@@ -37,7 +37,7 @@ use super::{
 /// for `T: Into<String>` and `Enum` having variants `String(String)` and `StringArray(Vec<String>)`
 macro_rules! impl_from {
     ($from_typ:ty, $to_typ:ty) => {
-        // From
+        // From<T> -> String variant
         impl From<$from_typ> for $to_typ {
             fn from(value: $from_typ) -> Self {
                 <$to_typ>::String(value.into())
