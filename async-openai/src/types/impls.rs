@@ -117,6 +117,14 @@ impl Default for InputSource {
     }
 }
 
+/// for `impl_input!(Struct)` where
+/// ```
+/// Struct {
+///     source: InputSource
+/// }
+/// ```
+/// implements methods `from_bytes` and `from_vec_u8`,
+/// and `From<P>` for `P: AsRef<Path>`
 macro_rules! impl_input {
     ($for_typ:ty) => {
         impl $for_typ {
