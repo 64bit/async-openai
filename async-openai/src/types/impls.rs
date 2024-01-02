@@ -94,6 +94,7 @@ impl_from!(&str, EmbeddingInput);
 impl_from!(String, EmbeddingInput);
 impl_from!(&String, EmbeddingInput);
 
+/// for `impl_default!(Enum)`, implements `Default` for `Enum` as `Enum::String("")` where `Enum` has `String` variant
 macro_rules! impl_default {
     ($for_typ:ty) => {
         impl Default for $for_typ {
