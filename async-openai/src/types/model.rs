@@ -18,3 +18,10 @@ pub struct ListModelResponse {
     pub object: String,
     pub data: Vec<Model>,
 }
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct DeleteModelResponse {
+    pub id: String,
+    pub object: String,
+    pub deleted: bool,
+}

@@ -204,13 +204,6 @@ pub struct CreateCompletionResponse {
 pub type CompletionResponseStream =
     Pin<Box<dyn Stream<Item = Result<CreateCompletionResponse, OpenAIError>> + Send>>;
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
-pub struct DeleteModelResponse {
-    pub id: String,
-    pub object: String,
-    pub deleted: bool,
-}
-
 #[derive(Debug, Serialize, Clone, PartialEq)]
 #[serde(untagged)]
 pub enum EmbeddingInput {
