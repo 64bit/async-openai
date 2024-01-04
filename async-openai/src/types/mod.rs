@@ -3,6 +3,8 @@
 mod assistant;
 mod assistant_file;
 mod assistant_impls;
+mod audio;
+mod common;
 mod message;
 mod message_file;
 mod model;
@@ -12,6 +14,8 @@ mod thread;
 
 pub use assistant::*;
 pub use assistant_file::*;
+pub use audio::*;
+pub use common::*;
 pub use message::*;
 pub use message_file::*;
 pub use model::*;
