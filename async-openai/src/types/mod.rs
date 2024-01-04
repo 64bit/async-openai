@@ -6,6 +6,7 @@ mod assistant_impls;
 mod audio;
 mod chat;
 mod common;
+mod completion;
 mod edit;
 mod embedding;
 mod file;
@@ -25,6 +26,7 @@ pub use assistant_file::*;
 pub use audio::*;
 pub use chat::*;
 pub use common::*;
+pub use completion::*;
 pub use edit::*;
 pub use embedding::*;
 pub use file::*;
@@ -40,9 +42,7 @@ pub use step::*;
 pub use thread::*;
 
 mod impls;
-mod types;
 use derive_builder::UninitializedFieldError;
-pub use types::*;
 
 use crate::error::OpenAIError;
 
