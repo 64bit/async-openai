@@ -11,7 +11,6 @@ use crate::{
 };
 
 use bytes::Bytes;
-use reqwest::Body;
 
 use super::{
     AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, ChatCompletionFunctions,
@@ -546,7 +545,7 @@ impl From<&str> for ChatCompletionRequestUserMessageContent {
 
 impl From<String> for ChatCompletionRequestUserMessageContent {
     fn from(value: String) -> Self {
-        ChatCompletionRequestUserMessageContent::Text(value.into())
+        ChatCompletionRequestUserMessageContent::Text(value)
     }
 }
 
@@ -602,7 +601,7 @@ impl From<&str> for ImageUrl {
 impl From<String> for ImageUrl {
     fn from(value: String) -> Self {
         Self {
-            url: value.into(),
+            url: value,
             detail: Default::default(),
         }
     }
