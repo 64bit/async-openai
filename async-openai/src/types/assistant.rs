@@ -3,7 +3,9 @@ use std::collections::HashMap;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::{error::OpenAIError, types::ChatCompletionFunctions};
+use crate::error::OpenAIError;
+
+use super::FunctionObject;
 
 /// Represents an `assistant` that can call the model and use tools.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -46,7 +48,7 @@ pub struct AssistantToolsRetrieval {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct AssistantToolsFunction {
     pub r#type: String,
-    pub function: ChatCompletionFunctions,
+    pub function: FunctionObject,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -106,6 +108,7 @@ pub struct ModifyAssistantRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tools: Option<Vec<AssistantTools>>,
 
+    /// A list of [File](https://platform.openai.com/docs/api-reference/files) IDs attached to this assistant. There can be a maximum of 20 files attached to the assistant. Files are ordered by their creation date in ascending order. If a file was previously attached to the list but does not show up in the list, it will be deleted from the assistant.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub file_ids: Option<Vec<String>>,
 

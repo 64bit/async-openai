@@ -103,7 +103,7 @@ pub struct CompletionUsage {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestSystemMessage {
     /// The contents of the system message.
-    pub content: Option<String>,
+    pub content: String,
     /// The role of the messages author, in this case `system`.
     #[builder(default = "Role::System")]
     pub role: Role,
@@ -142,7 +142,7 @@ pub enum ImageUrlDetail {
 pub struct ImageUrl {
     /// Either a URL of the image or the base64 encoded image data.
     pub url: String,
-    /// Specifies the detail level of the image.
+    /// Specifies the detail level of the image. Learn more in the [Vision guide](https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding).
     pub detail: ImageUrlDetail,
 }
 
@@ -184,7 +184,7 @@ pub enum ChatCompletionRequestUserMessageContent {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestUserMessage {
     /// The contents of the user message.
-    pub content: Option<ChatCompletionRequestUserMessageContent>,
+    pub content: ChatCompletionRequestUserMessageContent,
     /// The role of the messages author, in this case `user`.
     #[builder(default = "Role::User")]
     pub role: Role,
@@ -228,7 +228,7 @@ pub struct ChatCompletionRequestToolMessage {
     #[builder(default = "Role::Tool")]
     pub role: Role,
     /// The contents of the tool message.
-    pub content: Option<String>,
+    pub content: String,
     pub tool_call_id: String,
 }
 
@@ -292,20 +292,36 @@ pub struct ChatCompletionResponseMessage {
 #[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
+#[deprecated]
 pub struct ChatCompletionFunctions {
     /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
     pub name: String,
     /// A description of what the function does, used by the model to choose when and how to call the function.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    /// The parameters the functions accepts, described as a JSON Schema object.
-    /// See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples,
-    /// and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for
-    /// documentation about the format.
+    /// The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://platform.openai.com/docs/guides/text-generation/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
     ///
-    /// To describe a function that accepts no parameters, provide the
-    /// value `{\"type\": \"object\", \"properties\": {}}`.
+    /// Omitting `parameters` defines a function with an empty parameter list.
     pub parameters: serde_json::Value,
+}
+
+#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[builder(name = "FunctionObjectArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct FunctionObject {
+    /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
+    pub name: String,
+    /// A description of what the function does, used by the model to choose when and how to call the function.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://platform.openai.com/docs/guides/text-generation/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
+    ///
+    /// Omitting `parameters` defines a function with an empty parameter list.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parameters: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
@@ -344,7 +360,7 @@ pub enum ChatCompletionToolType {
 pub struct ChatCompletionTool {
     #[builder(default = "ChatCompletionToolType::Function")]
     pub r#type: ChatCompletionToolType,
-    pub function: ChatCompletionFunctions,
+    pub function: FunctionObject,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
@@ -407,13 +423,21 @@ pub struct CreateChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logit_bias: Option<HashMap<String, serde_json::Value>>, // default: null
 
-    /// The maximum number of [tokens](https://platform.openai.com/tokenizer) to generate in the chat completion.
+    /// Whether to return log probabilities of the output tokens or not. If true, returns the log probabilities of each output token returned in the `content` of `message`. This option is currently not available on the `gpt-4-vision-preview` model.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub logprobs: Option<bool>,
+
+    /// An integer between 0 and 5 specifying the number of most likely tokens to return at each token position, each with an associated log probability. `logprobs` must be set to `true` if this parameter is used.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub top_logprobs: Option<u8>,
+
+    /// The maximum number of [tokens](https://platform.openai.com/tokenizer) that can be generated in the chat completion.
     ///
-    /// The total length of input tokens and generated tokens is limited by the model's context length. [Example Python code](https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb) for counting tokens.
+    /// The total length of input tokens and generated tokens is limited by the model's context length. [Example Python code](https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken) for counting tokens.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_tokens: Option<u16>,
 
-    /// How many chat completion choices to generate for each input message.
+    /// How many chat completion choices to generate for each input message. Note that you will be charged based on the number of generated tokens across all of the choices. Keep `n` as `1` to minimize costs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub n: Option<u8>, // min:1, max: 128, default: 1
 
@@ -423,11 +447,11 @@ pub struct CreateChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub presence_penalty: Option<f32>, // min: -2.0, max: 2.0, default 0
 
-    /// An object specifying the format that the model must output.
+    /// An object specifying the format that the model must output. Compatible with `gpt-4-1106-preview` and `gpt-3.5-turbo-1106`.
     ///
     /// Setting to `{ "type": "json_object" }` enables JSON mode, which guarantees the message the model generates is valid JSON.
     ///
-    /// **Important:** when using JSON mode, you **must** also instruct the model to produce JSON yourself via a system or user message. Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in increased latency and appearance of a "stuck" request. Also note that the message content may be partially cut off if `finish_reason="length"`, which indicates the generation exceeded `max_tokens` or the conversation exceeded the max context length.
+    /// **Important:** when using JSON mode, you **must** also instruct the model to produce JSON yourself via a system or user message. Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in a long-running and seemingly "stuck" request. Also note that the message content may be partially cut off if `finish_reason="length"`, which indicates the generation exceeded `max_tokens` or the conversation exceeded the max context length.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<ChatCompletionResponseFormat>,
 
@@ -501,6 +525,34 @@ pub enum FinishReason {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct TopLogprobs {
+    /// The token.
+    pub token: String,
+    /// The log probability of this token.
+    pub logprob: f32,
+    /// A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token.
+    pub bytes: Option<Vec<u8>>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct ChatCompletionTokenLogprob {
+    /// The token.
+    pub token: String,
+    /// The log probability of this token.
+    pub logprob: f32,
+    /// A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token.
+    pub bytes: Option<Vec<u8>>,
+    ///  List of the most likely tokens and their log probability, at this token position. In rare cases, there may be fewer than the number of requested `top_logprobs` returned.
+    pub top_logprobs: Vec<TopLogprobs>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct ChatChoiceLogprobs {
+    /// A list of message content tokens with log probability information.
+    pub content: Option<Vec<ChatCompletionTokenLogprob>>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ChatChoice {
     /// The index of the choice in the list of choices.
     pub index: u32,
@@ -510,6 +562,8 @@ pub struct ChatChoice {
     /// `content_filter` if content was omitted due to a flag from our content filters,
     /// `tool_calls` if the model called a tool, or `function_call` (deprecated) if the model called a function.
     pub finish_reason: Option<FinishReason>,
+    /// Log probability information for the choice.
+    pub logprobs: Option<ChatChoiceLogprobs>,
 }
 
 /// Represents a chat completion response returned by model, based on the provided input.
@@ -573,11 +627,13 @@ pub struct ChatCompletionStreamResponseDelta {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct ChatCompletionResponseStreamMessage {
+pub struct ChatChoiceStream {
     /// The index of the choice in the list of choices.
     pub index: u32,
     pub delta: ChatCompletionStreamResponseDelta,
     pub finish_reason: Option<FinishReason>,
+    /// Log probability information for the choice.
+    pub logprobs: Option<ChatChoiceLogprobs>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -586,7 +642,7 @@ pub struct CreateChatCompletionStreamResponse {
     /// A unique identifier for the chat completion. Each chunk has the same ID.
     pub id: String,
     /// A list of chat completion choices. Can be more than one if `n` is greater than 1.
-    pub choices: Vec<ChatCompletionResponseStreamMessage>,
+    pub choices: Vec<ChatChoiceStream>,
 
     /// The Unix timestamp (in seconds) of when the chat completion was created. Each chunk has the same timestamp.
     pub created: u32,

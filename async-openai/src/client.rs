@@ -388,7 +388,7 @@ where
                         }
 
                         let response = match serde_json::from_str::<O>(&message.data) {
-                            Err(e) => Err(map_deserialization_error(e, &message.data.as_bytes())),
+                            Err(e) => Err(map_deserialization_error(e, message.data.as_bytes())),
                             Ok(output) => Ok(output),
                         };
 

@@ -101,7 +101,7 @@ pub struct CreateSpeechRequest {
     /// One of the available [TTS models](https://platform.openai.com/docs/models/tts): `tts-1` or `tts-1-hd`
     pub model: SpeechModel,
 
-    /// The voice to use when generating the audio. Supported voices are `alloy`, `echo`, `fable`, `onyx`, `nova`, and `shimmer`.
+    /// The voice to use when generating the audio. Supported voices are `alloy`, `echo`, `fable`, `onyx`, `nova`, and `shimmer`. Previews of the voices are available in the [Text to speech guide](https://platform.openai.com/docs/guides/text-to-speech/voice-options).
     pub voice: Voice,
 
     /// The format to audio in. Supported formats are mp3, opus, aac, and flac.

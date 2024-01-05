@@ -607,6 +607,12 @@ impl From<String> for ImageUrl {
     }
 }
 
+impl Default for ChatCompletionRequestUserMessageContent {
+    fn default() -> Self {
+        ChatCompletionRequestUserMessageContent::Text("".into())
+    }
+}
+
 // start: types to multipart from
 
 #[async_convert::async_trait]
