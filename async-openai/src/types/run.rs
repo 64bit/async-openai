@@ -120,8 +120,11 @@ pub struct CreateRunRequest {
     /// The ID of the [Model](https://platform.openai.com/docs/api-reference/models) to be used to execute this run. If a value is provided here, it will override the model associated with the assistant. If not, the model associated with the assistant will be used.
     pub model: Option<String>,
 
-    /// Override the default system message of the assistant. This is useful for modifying the behavior on a per-run basis.
+    /// Overrides the [instructions](https://platform.openai.com/docs/api-reference/assistants/createAssistant) of the assistant. This is useful for modifying the behavior on a per-run basis.
     pub instructions: Option<String>,
+
+    /// Appends additional instructions at the end of the instructions for the run. This is useful for modifying the behavior on a per-run basis without overriding other instructions.
+    pub additional_instructions: Option<String>,
 
     /// Override the tools the assistant can use for this run. This is useful for modifying the behavior on a per-run basis.
     pub tools: Option<Vec<AssistantTools>>,
