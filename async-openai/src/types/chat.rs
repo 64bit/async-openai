@@ -525,6 +525,34 @@ pub enum FinishReason {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct TopLogprobs {
+    /// The token.
+    pub token: String,
+    /// The log probability of this token.
+    pub logprob: f32,
+    /// A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token.
+    pub bytes: Option<Vec<u8>>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct ChatCompletionTokenLogprob {
+    /// The token.
+    pub token: String,
+    /// The log probability of this token.
+    pub logprob: f32,
+    /// A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token.
+    pub bytes: Option<Vec<u8>>,
+    ///  List of the most likely tokens and their log probability, at this token position. In rare cases, there may be fewer than the number of requested `top_logprobs` returned.
+    pub top_logprobs: Vec<TopLogprobs>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct ChatChoiceLogprobs {
+    /// A list of message content tokens with log probability information.
+    pub content: Option<Vec<ChatCompletionTokenLogprob>>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ChatChoice {
     /// The index of the choice in the list of choices.
     pub index: u32,
@@ -534,6 +562,8 @@ pub struct ChatChoice {
     /// `content_filter` if content was omitted due to a flag from our content filters,
     /// `tool_calls` if the model called a tool, or `function_call` (deprecated) if the model called a function.
     pub finish_reason: Option<FinishReason>,
+    /// Log probability information for the choice.
+    pub logprobs: Option<ChatChoiceLogprobs>,
 }
 
 /// Represents a chat completion response returned by model, based on the provided input.
@@ -597,11 +627,13 @@ pub struct ChatCompletionStreamResponseDelta {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct ChatCompletionResponseStreamMessage {
+pub struct ChatChoiceStream {
     /// The index of the choice in the list of choices.
     pub index: u32,
     pub delta: ChatCompletionStreamResponseDelta,
     pub finish_reason: Option<FinishReason>,
+    /// Log probability information for the choice.
+    pub logprobs: Option<ChatChoiceLogprobs>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -610,7 +642,7 @@ pub struct CreateChatCompletionStreamResponse {
     /// A unique identifier for the chat completion. Each chunk has the same ID.
     pub id: String,
     /// A list of chat completion choices. Can be more than one if `n` is greater than 1.
-    pub choices: Vec<ChatCompletionResponseStreamMessage>,
+    pub choices: Vec<ChatChoiceStream>,
 
     /// The Unix timestamp (in seconds) of when the chat completion was created. Each chunk has the same timestamp.
     pub created: u32,
