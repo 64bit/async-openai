@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -25,8 +27,11 @@ impl<'c, C: Config> Files<'c, C> {
     }
 
     /// Returns a list of files that belong to the user's organization.
-    pub async fn list(&self) -> Result<ListFilesResponse, OpenAIError> {
-        self.client.get("/files").await
+    pub async fn list<Q>(&self, query: &Q) -> Result<ListFilesResponse, OpenAIError>
+    where
+        Q: Serialize + ?Sized,
+    {
+        self.client.get_with_query("/files", query).await
     }
 
     /// Returns information about a specific file.
