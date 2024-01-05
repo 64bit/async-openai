@@ -103,7 +103,7 @@ pub struct CompletionUsage {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestSystemMessage {
     /// The contents of the system message.
-    pub content: Option<String>,
+    pub content: String,
     /// The role of the messages author, in this case `system`.
     #[builder(default = "Role::System")]
     pub role: Role,
@@ -142,7 +142,7 @@ pub enum ImageUrlDetail {
 pub struct ImageUrl {
     /// Either a URL of the image or the base64 encoded image data.
     pub url: String,
-    /// Specifies the detail level of the image.
+    /// Specifies the detail level of the image. Learn more in the [Vision guide](https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding).
     pub detail: ImageUrlDetail,
 }
 
@@ -184,7 +184,7 @@ pub enum ChatCompletionRequestUserMessageContent {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestUserMessage {
     /// The contents of the user message.
-    pub content: Option<ChatCompletionRequestUserMessageContent>,
+    pub content: ChatCompletionRequestUserMessageContent,
     /// The role of the messages author, in this case `user`.
     #[builder(default = "Role::User")]
     pub role: Role,
@@ -228,7 +228,7 @@ pub struct ChatCompletionRequestToolMessage {
     #[builder(default = "Role::Tool")]
     pub role: Role,
     /// The contents of the tool message.
-    pub content: Option<String>,
+    pub content: String,
     pub tool_call_id: String,
 }
 
