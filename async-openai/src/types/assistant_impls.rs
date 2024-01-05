@@ -1,6 +1,9 @@
 use crate::types::ChatCompletionFunctions;
 
-use super::{AssistantTools, AssistantToolsCode, AssistantToolsFunction, AssistantToolsRetrieval};
+use super::{
+    AssistantTools, AssistantToolsCode, AssistantToolsFunction, AssistantToolsRetrieval,
+    FunctionObject,
+};
 
 impl From<AssistantToolsCode> for AssistantTools {
     fn from(value: AssistantToolsCode) -> Self {
@@ -45,8 +48,8 @@ impl Default for AssistantToolsFunction {
     }
 }
 
-impl From<ChatCompletionFunctions> for AssistantToolsFunction {
-    fn from(value: ChatCompletionFunctions) -> Self {
+impl From<FunctionObject> for AssistantToolsFunction {
+    fn from(value: FunctionObject) -> Self {
         Self {
             r#type: "function".into(),
             function: value,
@@ -54,8 +57,8 @@ impl From<ChatCompletionFunctions> for AssistantToolsFunction {
     }
 }
 
-impl From<ChatCompletionFunctions> for AssistantTools {
-    fn from(value: ChatCompletionFunctions) -> Self {
+impl From<FunctionObject> for AssistantTools {
+    fn from(value: FunctionObject) -> Self {
         Self::Function(value.into())
     }
 }

@@ -3,7 +3,9 @@ use std::collections::HashMap;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::{error::OpenAIError, types::ChatCompletionFunctions};
+use crate::error::OpenAIError;
+
+use super::FunctionObject;
 
 /// Represents an `assistant` that can call the model and use tools.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -46,7 +48,7 @@ pub struct AssistantToolsRetrieval {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct AssistantToolsFunction {
     pub r#type: String,
-    pub function: ChatCompletionFunctions,
+    pub function: FunctionObject,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
