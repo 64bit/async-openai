@@ -160,11 +160,11 @@ pub struct RunStepDetailsToolCallsFunctionObject {
     /// The type of tool call. This is always going to be `function` for this type of tool call.
     pub r#type: String,
     /// he definition of the function that was called.
-    pub function: FunctionObject,
+    pub function: RunStepFunctionObject,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-pub struct FunctionObject {
+pub struct RunStepFunctionObject {
     /// The name of the function.
     pub name: String,
     /// The arguments passed to the function.
