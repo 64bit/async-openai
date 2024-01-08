@@ -5,8 +5,6 @@ use crate::error::OpenAIError;
 use crate::types::InputSource;
 use crate::util::create_file_part;
 
-use bytes::Bytes;
-
 use super::{
     ChatCompletionFunctionCall,
     EmbeddingInput, ModerationInput,
