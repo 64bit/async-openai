@@ -1,8 +1,6 @@
-use std::pin::Pin;
-
 use derive_builder::Builder;
-use futures::Stream;
 use serde::{Deserialize, Serialize};
+use crate::client::OpenAIEventStream;
 
 use crate::error::OpenAIError;
 
@@ -171,5 +169,4 @@ pub struct ListFineTuneEventsStreamResponse {
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
-pub type FineTuneEventsResponseStream =
-    Pin<Box<dyn Stream<Item = Result<ListFineTuneEventsStreamResponse, OpenAIError>> + Send>>;
+pub type FineTuneEventsResponseStream = OpenAIEventStream<ListFineTuneEventsStreamResponse>;

@@ -1,8 +1,8 @@
-use std::{collections::HashMap, pin::Pin};
+use std::collections::HashMap;
 
 use derive_builder::Builder;
-use futures::Stream;
 use serde::{Deserialize, Serialize};
+use crate::client::OpenAIEventStream;
 
 use crate::error::OpenAIError;
 
@@ -588,8 +588,7 @@ pub struct CreateChatCompletionResponse {
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
-pub type ChatCompletionResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateChatCompletionStreamResponse, OpenAIError>> + Send>>;
+pub type ChatCompletionResponseStream = OpenAIEventStream<CreateChatCompletionStreamResponse>;
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct FunctionCallStream {
