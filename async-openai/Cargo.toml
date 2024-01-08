@@ -1,6 +1,6 @@
 [package]
 name = "async-openai"
-version = "0.17.1"
+version = "0.18.0"
 authors = [
     "Himanshu Neema"
 ]
@@ -24,6 +24,8 @@ tokio = ["backoff/tokio", "dep:tokio", "tokio-util", "tokio-stream", "backoff"]
 backoff = ["dep:backoff"]
 # Enable rustls for TLS support
 rustls = ["reqwest/rustls-tls-native-roots"]
+# Enable rustls and webpki-roots
+rustls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
 # Enable native-tls for TLS support
 native-tls = ["reqwest/native-tls"]
 # Remove dependency on OpenSSL

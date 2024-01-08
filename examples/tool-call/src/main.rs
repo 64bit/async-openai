@@ -5,11 +5,9 @@ use async_openai::types::{
     ChatCompletionMessageToolCall, ChatCompletionRequestAssistantMessageArgs,
     ChatCompletionRequestMessage, ChatCompletionRequestToolMessageArgs,
     ChatCompletionRequestUserMessageArgs, ChatCompletionToolArgs, ChatCompletionToolType,
+    FunctionObjectArgs,
 };
-use async_openai::{
-    types::{ChatCompletionFunctionsArgs, CreateChatCompletionRequestArgs},
-    Client,
-};
+use async_openai::{types::CreateChatCompletionRequestArgs, Client};
 use futures::StreamExt;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
@@ -30,7 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .tools(vec![ChatCompletionToolArgs::default()
             .r#type(ChatCompletionToolType::Function)
             .function(
-                ChatCompletionFunctionsArgs::default()
+                FunctionObjectArgs::default()
                     .name("get_current_weather")
                     .description("Get the current weather in a given location")
                     .parameters(json!({
