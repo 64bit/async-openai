@@ -5,17 +5,19 @@ use crate::error::OpenAIError;
 
 use super::InputSource;
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), derive(Default))]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FileInput {
     pub source: InputSource,
 }
 
-#[derive(Debug, Default, Clone, Builder, PartialEq)]
-#[builder(name = "CreateFileRequestArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), builder(name = "CreateFileRequestArgs"))]
+#[cfg_attr(not(feature = "wasm"), builder(pattern = "mutable"))]
+#[cfg_attr(not(feature = "wasm"), builder(setter(into, strip_option), default))]
+#[cfg_attr(not(feature = "wasm"), builder(derive(Debug)))]
+#[cfg_attr(not(feature = "wasm"), builder(build_fn(error = "OpenAIError")))]
 pub struct CreateFileRequest {
     /// The file object to be uploaded.
     ///

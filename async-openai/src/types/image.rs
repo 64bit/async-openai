@@ -133,17 +133,19 @@ pub struct ImagesResponse {
     pub data: Vec<std::sync::Arc<Image>>,
 }
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), derive(Default))]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ImageInput {
     pub source: InputSource,
 }
 
-#[derive(Debug, Clone, Default, Builder, PartialEq)]
-#[builder(name = "CreateImageEditRequestArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), builder(name = "CreateImageEditRequestArgs"))]
+#[cfg_attr(not(feature = "wasm"), builder(pattern = "mutable"))]
+#[cfg_attr(not(feature = "wasm"), builder(setter(into, strip_option), default))]
+#[cfg_attr(not(feature = "wasm"), builder(derive(Debug)))]
+#[cfg_attr(not(feature = "wasm"), builder(build_fn(error = "OpenAIError")))]
 pub struct CreateImageEditRequest {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
     pub image: ImageInput,
@@ -170,12 +172,13 @@ pub struct CreateImageEditRequest {
     pub user: Option<String>,
 }
 
-#[derive(Debug, Default, Clone, Builder, PartialEq)]
-#[builder(name = "CreateImageVariationRequestArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Debug, Clone,  PartialEq)]
+#[cfg_attr(not(feature = "wasm"), builder(name = "CreateImageVariationRequestArgs"))]
+#[cfg_attr(not(feature = "wasm"), builder(pattern = "mutable"))]
+#[cfg_attr(not(feature = "wasm"), builder(setter(into, strip_option), default))]
+#[cfg_attr(not(feature = "wasm"), builder(derive(Debug)))]
+#[cfg_attr(not(feature = "wasm"), builder(build_fn(error = "OpenAIError")))]
 pub struct CreateImageVariationRequest {
     /// The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and square.
     pub image: ImageInput,

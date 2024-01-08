@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 use super::InputSource;
 use crate::error::OpenAIError;
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), derive(Default))]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AudioInput {
     pub source: InputSource,
 }
@@ -57,12 +58,13 @@ pub enum SpeechModel {
     Other(String),
 }
 
-#[derive(Clone, Default, Debug, Builder, PartialEq)]
-#[builder(name = "CreateTranscriptionRequestArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), builder(name = "CreateTranscriptionRequestArgs"))]
+#[cfg_attr(not(feature = "wasm"), builder(pattern = "mutable"))]
+#[cfg_attr(not(feature = "wasm"), builder(setter(into, strip_option), default))]
+#[cfg_attr(not(feature = "wasm"), builder(derive(Debug)))]
+#[cfg_attr(not(feature = "wasm"), builder(build_fn(error = "OpenAIError")))]
 pub struct CreateTranscriptionRequest {
     /// The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
     pub file: AudioInput,
@@ -113,12 +115,13 @@ pub struct CreateSpeechRequest {
     pub speed: Option<f32>, // default: 1.0
 }
 
-#[derive(Clone, Default, Debug, Builder, PartialEq)]
-#[builder(name = "CreateTranslationRequestArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(not(feature = "wasm"), builder(name = "CreateTranslationRequestArgs"))]
+#[cfg_attr(not(feature = "wasm"), builder(pattern = "mutable"))]
+#[cfg_attr(not(feature = "wasm"), builder(setter(into, strip_option), default))]
+#[cfg_attr(not(feature = "wasm"), builder(derive(Debug)))]
+#[cfg_attr(not(feature = "wasm"), builder(build_fn(error = "OpenAIError")))]
 pub struct CreateTranslationRequest {
     /// The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
     pub file: AudioInput,
