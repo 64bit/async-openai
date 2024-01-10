@@ -1,0 +1,27 @@
+[package]
+name = "cloudflare-wasm-worker"
+version = "0.1.0"
+edition = "2021"
+
+# https://github.com/rustwasm/wasm-pack/issues/1247
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+worker = "0.0.18"
+serde = { version = "1.0", features = ["derive"] }
+
+[dependencies.async-openai]
+git = "https://github.com/64bit/async-openai.git"
+branch = "experiments"
+version = "0.18.0"
+default-features = false
+features = ["wasm"]
+
+[profile.release]
+lto = true
+strip = true
+codegen-units = 1
