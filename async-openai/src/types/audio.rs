@@ -1,6 +1,8 @@
 use bytes::Bytes;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
+use futures::Stream;
+use std::{pin::Pin};
 
 use super::InputSource;
 use crate::error::OpenAIError;
@@ -145,3 +147,6 @@ pub struct CreateTranslationResponse {
 pub struct CreateSpeechResponse {
     pub bytes: Bytes,
 }
+
+pub type SpeechResponseStream =
+    Pin<Box<dyn Stream<Item = Result<CreateSpeechResponse, OpenAIError>> + Send>>;

@@ -339,6 +339,29 @@ impl<C: Config> Client<C> {
         stream(event_source).await
     }
 
+    /// Make HTTP POST request to receive raw bytes for a stream based endpoint
+    pub(crate) async fn post_raw_stream<I>(
+        &self,
+        path: &str,
+        request: I,
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<Bytes, OpenAIError>> + Send>>, OpenAIError>
+    where
+        I: Serialize,
+    {
+        let response = self
+            .http_client
+            .post(self.config.url(path))
+            .query(&self.config.query())
+            .headers(self.config.headers())
+            .json(&request)
+            .send()
+            .await
+            .map_err(OpenAIError::Reqwest)?;
+
+        let stream = response.bytes_stream().map(|item| item.map_err(OpenAIError::Reqwest));
+        Ok(Box::pin(stream))
+    }
+
     /// Make HTTP GET request to receive SSE
     pub(crate) async fn get_stream<Q, O>(
         &self,

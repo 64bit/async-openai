@@ -1,9 +1,12 @@
+use futures::{stream::StreamExt, Stream};
+use std::pin::Pin;
 use crate::{
     config::Config,
     error::OpenAIError,
     types::{
         CreateSpeechRequest, CreateSpeechResponse, CreateTranscriptionRequest,
         CreateTranscriptionResponse, CreateTranslationRequest, CreateTranslationResponse,
+        SpeechResponseStream
     },
     Client,
 };
@@ -45,5 +48,17 @@ impl<'c, C: Config> Audio<'c, C> {
         let bytes = self.client.post_raw("/audio/speech", request).await?;
 
         Ok(CreateSpeechResponse { bytes })
+    }
+
+    /// Generates audio from the input text.
+    pub async fn speech_stream(
+        &self,
+        request: CreateSpeechRequest,
+    ) -> Result<SpeechResponseStream, OpenAIError> {
+
+        let stream = Box::pin(self.client.post_raw_stream("/audio/speech", request)
+            .await?
+            .map(|stream_item| stream_item.map(|b| CreateSpeechResponse { bytes: b })));
+        Ok(stream)
     }
 }

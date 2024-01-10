@@ -1,0 +1,11 @@
+[package]
+name = "audio-speech-stream"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+async-openai = {path = "../../async-openai"}
+tokio = { version = "1.25.0", features = ["full"] }
+futures = "0.3.26"
+bytes = "1.5.0"
