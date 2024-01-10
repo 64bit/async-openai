@@ -59,6 +59,7 @@ impl<'c, C: Config> Audio<'c, C> {
         let stream = Box::pin(self.client.post_raw_stream("/audio/speech", request)
             .await?
             .map(|stream_item| stream_item.map(|b| CreateSpeechResponse { bytes: b })));
+
         Ok(stream)
     }
 }

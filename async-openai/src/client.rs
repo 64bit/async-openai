@@ -359,6 +359,7 @@ impl<C: Config> Client<C> {
             .map_err(OpenAIError::Reqwest)?;
 
         let stream = response.bytes_stream().map(|item| item.map_err(OpenAIError::Reqwest));
+
         Ok(Box::pin(stream))
     }
 
