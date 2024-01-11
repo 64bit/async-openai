@@ -263,39 +263,86 @@ impl<C: Config> Client<C> {
                 .map_err(backoff::Error::Permanent)?;
 
             let status = response.status();
+
+            let response = Self::map_http_status_err_retry_engine(response).await?;
+
             let bytes = response
                 .bytes()
                 .await
                 .map_err(OpenAIError::Reqwest)
                 .map_err(backoff::Error::Permanent)?;
 
-            // Deserialize response body from either error object or actual response object
-            if !status.is_success() {
-                let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
-                    .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
-                    .map_err(backoff::Error::Permanent)?;
-
-                if status.as_u16() == 429
-                    // API returns 429 also when:
-                    // "You exceeded your current quota, please check your plan and billing details."
-                    && wrapped_error.error.r#type != Some("insufficient_quota".to_string())
-                {
-                    // Rate limited retry...
-                    tracing::warn!("Rate limited: {}", wrapped_error.error.message);
-                    return Err(backoff::Error::Transient {
-                        err: OpenAIError::ApiError(wrapped_error.error),
-                        retry_after: None,
-                    });
-                } else {
-                    return Err(backoff::Error::Permanent(OpenAIError::ApiError(
-                        wrapped_error.error,
-                    )));
-                }
-            }
-
             Ok(bytes)
         })
         .await
+    }
+
+    async fn map_http_status_err_retry_engine(response: reqwest::Response) -> Result<reqwest::Response, backoff::Error<OpenAIError>> {
+
+        let status = response.status();
+
+        if !status.is_success() {
+            // Retrieving the bytes will effectively retrieve the entire body
+            // This is ok to do because we know that we did not get a success response
+            let bytes = response
+                .bytes()
+                .await
+                .map_err(OpenAIError::Reqwest)
+                .map_err(backoff::Error::Permanent)?;
+
+            let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
+                .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
+                .map_err(backoff::Error::Permanent)?;
+
+            if status.as_u16() == 429
+                // API returns 429 also when:
+                // "You exceeded your current quota, please check your plan and billing details."
+                && wrapped_error.error.r#type != Some("insufficient_quota".to_string())
+            {
+                // Rate limited retry...
+                tracing::warn!("Rate limited: {}", wrapped_error.error.message);
+                return Err(backoff::Error::Transient {
+                    err: OpenAIError::ApiError(wrapped_error.error),
+                    retry_after: None,
+                });
+            } else {
+                return Err(backoff::Error::Permanent(OpenAIError::ApiError(
+                    wrapped_error.error,
+                )));
+            }
+        }
+
+        Ok(response) 
+    }
+
+    /// Execute a HTTP request and retry on rate limit
+    async fn execute_raw_stream<M, Fut>(&self, request_maker: M) -> Result<Pin<Box<dyn Stream<Item = Result<Bytes, OpenAIError>> + Send>>, OpenAIError>
+    where
+        M: Fn() -> Fut,
+        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+    {
+        let client = self.http_client.clone();
+
+        backoff::future::retry(self.backoff.clone(), || async {
+            let request = request_maker().await.map_err(backoff::Error::Permanent)?;
+            let response = client
+                .execute(request)
+                .await
+                .map_err(OpenAIError::Reqwest)
+                .map_err(backoff::Error::Permanent)?;
+
+            let status = response.status();
+
+            let response = Self::map_http_status_err_retry_engine(response).await?;
+
+            let bytes_stream = response
+                .bytes_stream()
+                .map(|item| item
+                    .map_err(OpenAIError::Reqwest)
+                );
+
+            Ok(Box::pin(bytes_stream) as Pin<Box<dyn Stream<Item = Result<Bytes, OpenAIError>> + Send>>)
+        }).await
     }
 
     /// Execute a HTTP request and retry on rate limit
@@ -348,19 +395,19 @@ impl<C: Config> Client<C> {
     where
         I: Serialize,
     {
-        let response = self
-            .http_client
-            .post(self.config.url(path))
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .json(&request)
-            .send()
-            .await
-            .map_err(OpenAIError::Reqwest)?;
+        let request_maker = || async {
+            Ok(
+                self
+                .http_client
+                .post(self.config.url(path))
+                .query(&self.config.query())
+                .headers(self.config.headers())
+                .json(&request)
+                .build()?
+            )
+        };
 
-        let stream = response.bytes_stream().map(|item| item.map_err(OpenAIError::Reqwest));
-
-        Ok(Box::pin(stream))
+        self.execute_raw_stream(request_maker).await
     }
 
     /// Make HTTP GET request to receive SSE
