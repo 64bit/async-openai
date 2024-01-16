@@ -22,7 +22,7 @@ impl<'c, C: Config> Chat<'c, C> {
     /// Creates a model response for the given chat conversation.
     pub async fn create(
         &self,
-        request: CreateChatCompletionRequest,
+        request: &CreateChatCompletionRequest,
     ) -> Result<CreateChatCompletionResponse, OpenAIError> {
         if request.stream.is_some() && request.stream.unwrap() {
             return Err(OpenAIError::InvalidArgument(
