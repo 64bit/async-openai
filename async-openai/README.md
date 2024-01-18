@@ -116,6 +116,7 @@ To maintain quality of the project, a minimum of the following is a must for cod
 - **Documented**: Primary source of doc comments is description field from OpenAPI spec.
 - **Tested**: Examples are primary means of testing and should continue to work. For new features supporting example is required.
 - **Scope**: Keep scope limited to APIs available in official documents such as [API Reference](https://platform.openai.com/docs/api-reference) or [OpenAPI spec](https://github.com/openai/openai-openapi/). Other LLMs or AI Providers offer OpenAI-compatible APIs, yet they may not always have full parity. In such cases, the OpenAI spec takes precedence.
+- **Consistency**: Keep code style consistent across all the "APIs" that library exposes; it creates a great developer experience.
 
 This project adheres to [Rust code of conduct](https://www.rust-lang.org/policies/code-of-conduct)
 
