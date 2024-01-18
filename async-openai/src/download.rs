@@ -42,18 +42,12 @@ pub(crate) async fn download_url<P: AsRef<Path>>(
 
     tokio::fs::create_dir_all(dir.as_path())
         .await
-        .map_err(|e| {
-            OpenAIError::FileSaveError(format!("{}, dir: {}", e.to_string(), dir.display()))
-        })?;
+        .map_err(|e| OpenAIError::FileSaveError(format!("{}, dir: {}", e, dir.display())))?;
 
     tokio::fs::write(
         file_path.as_path(),
         response.bytes().await.map_err(|e| {
-            OpenAIError::FileSaveError(format!(
-                "{}, file path: {}",
-                e.to_string(),
-                file_path.display()
-            ))
+            OpenAIError::FileSaveError(format!("{}, file path: {}", e, file_path.display()))
         })?,
     )
     .await
@@ -80,9 +74,7 @@ pub(crate) async fn save_b64<P: AsRef<Path>>(b64: &str, dir: P) -> Result<PathBu
             .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?,
     )
     .await
-    .map_err(|e| {
-        OpenAIError::FileSaveError(format!("{}, path: {}", e.to_string(), path.display()))
-    })?;
+    .map_err(|e| OpenAIError::FileSaveError(format!("{}, path: {}", e, path.display())))?;
 
     Ok(path)
 }

@@ -8,7 +8,7 @@ use crate::{
 
 /// Given a list of messages comprising a conversation, the model will return a response.
 ///
-/// Related guide: [Chat completions](https://platform.openai.com/docs/guides/gpt)
+/// Related guide: [Chat completions](https://platform.openai.com//docs/guides/text-generation)
 pub struct Chat<'c> {
     client: &'c Client,
 }
