@@ -118,7 +118,7 @@ To maintain quality of the project, a minimum of the following is a must for cod
 - **Scope**: Keep scope limited to APIs available in official documents such as [API Reference](https://platform.openai.com/docs/api-reference) or [OpenAPI spec](https://github.com/openai/openai-openapi/). Other LLMs or AI Providers offer OpenAI-compatible APIs, yet they may not always have full parity. In such cases, the OpenAI spec takes precedence.
 - **Consistency**: Keep code style consistent across all the "APIs" that library exposes; it creates a great developer experience.
 
-This project adheres to [Rust code of conduct](https://www.rust-lang.org/policies/code-of-conduct)
+This project adheres to [Rust Code of Conduct](https://www.rust-lang.org/policies/code-of-conduct)
 
 ## Complimentary Crates
 - [openai-func-enums](https://github.com/frankfralick/openai-func-enums) provides procedural macros that make it easier to use this library with OpenAI API's tool calling feature. It also provides derive macros you can add to existing [clap](https://github.com/clap-rs/clap) application subcommands for natural language use of command line tools. It also supports openai's [parallel tool calls](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling) and allows you to choose between running multiple tool calls concurrently or own their own OS threads.
