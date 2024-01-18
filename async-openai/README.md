@@ -106,9 +106,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 ## Contributing
 
-Thank you for your time to contribute and improve the project, I'd be happy to have you!
+Thank you for taking the time to contribute and improve the project. I'd be happy to have you!
 
-A good starting point would be existing [open issues](https://github.com/64bit/async-openai/issues).
+All forms of contributions, such as new features requests, bug fixes, issues, documentation, testing, comments, [examples](../examples) etc. are welcome.
+
+A good starting point would be to look at existing [open issues](https://github.com/64bit/async-openai/issues).
+
+To maintain quality of the project, a minimum of the following is a must for code contribution:
+- **Documented**: Primary source of doc comments is description field from OpenAPI spec.
+- **Tested**: Examples are primary means of testing and should continue to work. For new features supporting example is required.
+- **Scope**: Keep scope limited to APIs available in official documents such as [API Reference](https://platform.openai.com/docs/api-reference) or [OpenAPI spec](https://github.com/openai/openai-openapi/). Other LLMs or AI Providers offer OpenAI-compatible APIs, yet they may not always have full parity. In such cases, the OpenAI spec takes precedence.
+- **Consistency**: Keep code style consistent across all the "APIs" that library exposes; it creates a great developer experience.
+
+This project adheres to [Rust Code of Conduct](https://www.rust-lang.org/policies/code-of-conduct)
 
 ## Complimentary Crates
 - [openai-func-enums](https://github.com/frankfralick/openai-func-enums) provides procedural macros that make it easier to use this library with OpenAI API's tool calling feature. It also provides derive macros you can add to existing [clap](https://github.com/clap-rs/clap) application subcommands for natural language use of command line tools. It also supports openai's [parallel tool calls](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling) and allows you to choose between running multiple tool calls concurrently or own their own OS threads.
