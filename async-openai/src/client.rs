@@ -1,5 +1,5 @@
 use std::pin::Pin;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
@@ -21,7 +21,7 @@ use crate::{
 /// used to make API calls.
 pub struct Client {
     http_client: reqwest::Client,
-    config: Rc<dyn Config>,
+    config: Arc<dyn Config>,
     backoff: backoff::ExponentialBackoff,
 }
 
@@ -30,7 +30,7 @@ impl Client {
     pub fn new() -> Self {
         Self {
             http_client: reqwest::Client::new(),
-            config: Rc::new(OpenAIConfig::default()),
+            config: Arc::new(OpenAIConfig::default()),
             backoff: Default::default(),
         }
     }
@@ -41,7 +41,7 @@ impl Client {
     pub fn with_config<C: Config>(config: C) -> Self {
         Self {
             http_client: reqwest::Client::new(),
-            config: Rc::new(config),
+            config: Arc::new(config),
             backoff: Default::default(),
         }
     }
@@ -129,7 +129,7 @@ impl Client {
         Threads::new(self)
     }
 
-    pub fn config(&self) -> &Rc<dyn Config> {
+    pub fn config(&self) -> &Arc<dyn Config> {
         &self.config
     }
 
