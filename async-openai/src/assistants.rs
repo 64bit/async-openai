@@ -1,7 +1,6 @@
 use serde::Serialize;
 
 use crate::{
-    config::Config,
     error::OpenAIError,
     types::{
         AssistantObject, CreateAssistantRequest, DeleteAssistantResponse, ListAssistantsResponse,
@@ -13,17 +12,17 @@ use crate::{
 /// Build assistants that can call models and use tools to perform tasks.
 ///
 /// [Get started with the Assistants API](https://platform.openai.com/docs/assistants)
-pub struct Assistants<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct Assistants<'c> {
+    client: &'c Client,
 }
 
-impl<'c, C: Config> Assistants<'c, C> {
-    pub fn new(client: &'c Client<C>) -> Self {
+impl<'c> Assistants<'c> {
+    pub fn new(client: &'c Client) -> Self {
         Self { client }
     }
 
     /// Assistant [AssistantFiles] API group
-    pub fn files(&self, assistant_id: &str) -> AssistantFiles<C> {
+    pub fn files(&self, assistant_id: &str) -> AssistantFiles {
         AssistantFiles::new(self.client, assistant_id)
     }
 

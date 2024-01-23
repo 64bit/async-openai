@@ -8,7 +8,7 @@ use async_openai::{
 use clap::{arg, Command};
 
 // TODO: Constructive error handling
-async fn data(paths: Vec<&PathBuf>, client: Client<OpenAIConfig>) {
+async fn data(paths: Vec<&PathBuf>, client: Client) {
     if paths.len() > 2 {
         println!("pls provide the trainning file path and optionally a validation file path")
     } else {
@@ -59,7 +59,7 @@ async fn data(paths: Vec<&PathBuf>, client: Client<OpenAIConfig>) {
     }
 }
 
-async fn retrieve(job_id: String, client: Client<OpenAIConfig>) {
+async fn retrieve(job_id: String, client: Client) {
     let ss = client.fine_tunes().retrieve(&job_id).await.unwrap();
 
     if let Some(ft_model) = ss.fine_tuned_model {
@@ -69,7 +69,7 @@ async fn retrieve(job_id: String, client: Client<OpenAIConfig>) {
     }
 }
 
-async fn completion(model: String, prompt: String, client: Client<OpenAIConfig>) {
+async fn completion(model: String, prompt: String, client: Client) {
     let request = CreateCompletionRequestArgs::default()
         .model(model)
         .prompt(prompt)

@@ -1,6 +1,5 @@
 use crate::{
     client::Client,
-    config::Config,
     error::OpenAIError,
     types::{CompletionResponseStream, CreateCompletionRequest, CreateCompletionResponse},
 };
@@ -11,12 +10,13 @@ use crate::{
 /// [Learn more](https://platform.openai.com/docs/deprecations/2023-07-06-gpt-and-embeddings)
 ///
 /// Related guide: [Legacy Completions](https://platform.openai.com/docs/guides/gpt/completions-api)
-pub struct Completions<'c, C: Config> {
-    client: &'c Client<C>,
+
+pub struct Completions<'c> {
+    client: &'c Client,
 }
 
-impl<'c, C: Config> Completions<'c, C> {
-    pub fn new(client: &'c Client<C>) -> Self {
+impl<'c> Completions<'c> {
+    pub fn new(client: &'c Client) -> Self {
         Self { client }
     }
 

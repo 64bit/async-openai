@@ -9,7 +9,7 @@ use async_openai::{
     Client,
 };
 
-async fn chat_completion_example(client: &Client<AzureConfig>) -> Result<(), Box<dyn Error>> {
+async fn chat_completion_example(client: &Client) -> Result<(), Box<dyn Error>> {
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u16)
         .model("gpt-3.5-turbo")
@@ -60,7 +60,7 @@ async fn chat_completion_example(client: &Client<AzureConfig>) -> Result<(), Box
 //     Ok(())
 // }
 
-async fn embedding_example(client: &Client<AzureConfig>) -> Result<(), Box<dyn Error>> {
+async fn embedding_example(client: &Client) -> Result<(), Box<dyn Error>> {
     let request = CreateEmbeddingRequestArgs::default()
         .model("text-embedding-ada-002")
         .input("Why do programmers hate nature? It has too many bugs.")

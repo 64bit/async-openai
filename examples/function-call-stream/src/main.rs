@@ -82,7 +82,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 }
 
 async fn call_fn(
-    client: &Client<OpenAIConfig>,
+    client: &Client,
     name: &str,
     args: &str,
 ) -> Result<(), Box<dyn Error>> {
