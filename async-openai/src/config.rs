@@ -12,7 +12,9 @@ pub const OPENAI_ORGANIZATION_HEADER: &str = "OpenAI-Organization";
 /// Calls to the Assistants API require that you pass a Beta header
 pub const OPENAI_BETA_HEADER: &str = "OpenAI-Beta";
 
-pub trait BaseConfig: 'static + Debug + Send + Sync {
+/// [crate::Client] relies on this for every API call on OpenAI
+/// or Azure OpenAI service
+pub trait Config: 'static + Debug + Send + Sync {
     fn headers(&self) -> HeaderMap;
     fn url(&self, path: &str) -> String;
     fn query(&self) -> Vec<(&str, &str)>;
@@ -20,18 +22,6 @@ pub trait BaseConfig: 'static + Debug + Send + Sync {
     fn api_base(&self) -> &str;
 
     fn api_key(&self) -> &Secret<String>;
-}
-
-/// [crate::Client] relies on this for every API call on OpenAI
-/// or Azure OpenAI service
-pub trait Config<Extra = ()>: BaseConfig {
-    fn extra_configs(&self) -> &Extra;
-}
-
-impl<T: BaseConfig> Config<()> for T {
-    fn extra_configs(&self) -> &() {
-        &()
-    }
 }
 
 /// Configuration for OpenAI API
@@ -84,7 +74,7 @@ impl OpenAIConfig {
     }
 }
 
-impl BaseConfig for OpenAIConfig {
+impl Config for OpenAIConfig {
     fn headers(&self) -> HeaderMap {
         let mut headers = HeaderMap::new();
         if !self.org_id.is_empty() {
@@ -177,7 +167,7 @@ impl AzureConfig {
     }
 }
 
-impl BaseConfig for AzureConfig {
+impl Config for AzureConfig {
     fn headers(&self) -> HeaderMap {
         let mut headers = HeaderMap::new();
 
