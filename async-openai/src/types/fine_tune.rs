@@ -1,6 +1,6 @@
 use derive_builder::Builder;
-use serde::{Deserialize, Serialize};
 use crate::client::OpenAIEventStream;
+use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 

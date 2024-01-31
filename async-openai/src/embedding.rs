@@ -30,6 +30,7 @@ impl<'c, C: Config> Embeddings<'c, C> {
 #[cfg(test)]
 mod tests {
     use crate::{types::CreateEmbeddingRequestArgs, Client};
+    use crate::types::{CreateEmbeddingResponse, Embedding};
 
     #[tokio::test]
     async fn test_embedding_string() {
@@ -104,5 +105,26 @@ mod tests {
         let response = client.embeddings().create(request).await;
 
         assert!(response.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_embedding_with_reduced_dimensions() {
+        let client = Client::new();
+        let dimensions = 256u32;
+        let request = CreateEmbeddingRequestArgs::default()
+            .model("text-embedding-3-small")
+            .input("The food was delicious and the waiter...")
+            .dimensions(dimensions)
+            .build()
+            .unwrap();
+
+        let response = client.embeddings().create(request).await;
+
+        assert!(response.is_ok());
+
+        let CreateEmbeddingResponse { mut data, ..} = response.unwrap();
+        assert_eq!(data.len(), 1);
+        let Embedding { embedding, .. } = data.pop().unwrap();
+        assert_eq!(embedding.len(), dimensions as usize);
     }
 }
