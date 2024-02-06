@@ -637,6 +637,11 @@ impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::
         if let Some(temperature) = request.temperature {
             form = form.text("temperature", temperature.to_string())
         }
+
+        if let Some(language) = request.language {
+            form = form.text("language", language);
+        }
+
         Ok(form)
     }
 }
