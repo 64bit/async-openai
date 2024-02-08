@@ -66,13 +66,13 @@ pub struct Embedding {
 
 /// Represents an base64-encoded embedding vector returned by embedding endpoint.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct Base64Embedding {
+pub(crate) struct Base64Embedding {
     /// The index of the embedding in the list of embeddings.
-    pub index: u32,
+    pub(crate) index: u32,
     /// The object type, which is always "embedding".
-    pub object: String,
+    pub(crate) object: String,
     /// The embedding vector, encoded in base64.
-    pub embedding: String,
+    pub(crate) embedding: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
