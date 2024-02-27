@@ -20,14 +20,14 @@ impl<'c, C: Config> Images<'c, C> {
     }
 
     /// Creates an image given a prompt.
-    pub async fn create(&self, request: CreateImageRequest) -> Result<ImagesResponse, OpenAIError> {
+    pub async fn create(&self, request: &CreateImageRequest) -> Result<ImagesResponse, OpenAIError> {
         self.client.post("/images/generations", request).await
     }
 
     /// Creates an edited or extended image given an original image and a prompt.
     pub async fn create_edit(
         &self,
-        request: CreateImageEditRequest,
+        request: &CreateImageEditRequest,
     ) -> Result<ImagesResponse, OpenAIError> {
         self.client.post_form("/images/edits", request).await
     }
@@ -35,7 +35,7 @@ impl<'c, C: Config> Images<'c, C> {
     /// Creates a variation of a given image.
     pub async fn create_variation(
         &self,
-        request: CreateImageVariationRequest,
+        request: &CreateImageVariationRequest,
     ) -> Result<ImagesResponse, OpenAIError> {
         self.client.post_form("/images/variations", request).await
     }

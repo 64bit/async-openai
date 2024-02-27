@@ -33,7 +33,7 @@ impl<'c, C: Config> Runs<'c, C> {
     }
 
     /// Create a run.
-    pub async fn create(&self, request: CreateRunRequest) -> Result<RunObject, OpenAIError> {
+    pub async fn create(&self, request: &CreateRunRequest) -> Result<RunObject, OpenAIError> {
         self.client
             .post(&format!("/threads/{}/runs", self.thread_id), request)
             .await
@@ -50,7 +50,7 @@ impl<'c, C: Config> Runs<'c, C> {
     pub async fn update(
         &self,
         run_id: &str,
-        request: ModifyRunRequest,
+        request: &ModifyRunRequest,
     ) -> Result<RunObject, OpenAIError> {
         self.client
             .post(
@@ -74,7 +74,7 @@ impl<'c, C: Config> Runs<'c, C> {
     pub async fn submit_tool_outputs(
         &self,
         run_id: &str,
-        request: SubmitToolOutputsRunRequest,
+        request: &SubmitToolOutputsRunRequest,
     ) -> Result<RunObject, OpenAIError> {
         self.client
             .post(
@@ -92,7 +92,7 @@ impl<'c, C: Config> Runs<'c, C> {
         self.client
             .post(
                 &format!("/threads/{}/runs/{run_id}/cancel", self.thread_id),
-                (),
+                &(),
             )
             .await
     }

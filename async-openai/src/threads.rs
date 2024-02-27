@@ -33,13 +33,13 @@ impl<'c, C: Config> Threads<'c, C> {
     /// Create a thread and run it in one request.
     pub async fn create_and_run(
         &self,
-        request: CreateThreadAndRunRequest,
+        request: &CreateThreadAndRunRequest,
     ) -> Result<RunObject, OpenAIError> {
         self.client.post("/threads/runs", request).await
     }
 
     /// Create a thread.
-    pub async fn create(&self, request: CreateThreadRequest) -> Result<ThreadObject, OpenAIError> {
+    pub async fn create(&self, request: &CreateThreadRequest) -> Result<ThreadObject, OpenAIError> {
         self.client.post("/threads", request).await
     }
 
@@ -52,7 +52,7 @@ impl<'c, C: Config> Threads<'c, C> {
     pub async fn update(
         &self,
         thread_id: &str,
-        request: ModifyThreadRequest,
+        request: &ModifyThreadRequest,
     ) -> Result<ThreadObject, OpenAIError> {
         self.client
             .post(&format!("/threads/{thread_id}"), request)

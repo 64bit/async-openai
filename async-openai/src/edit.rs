@@ -19,7 +19,7 @@ impl<'c, C: Config> Edits<'c, C> {
     /// Creates a new edit for the provided input, instruction, and parameters
     pub async fn create(
         &self,
-        request: CreateEditRequest,
+        request: &CreateEditRequest,
     ) -> Result<CreateEditResponse, OpenAIError> {
         self.client.post("/edits", request).await
     }

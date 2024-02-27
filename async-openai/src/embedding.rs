@@ -21,7 +21,7 @@ impl<'c, C: Config> Embeddings<'c, C> {
     /// Creates an embedding vector representing the input text.
     pub async fn create(
         &self,
-        request: CreateEmbeddingRequest,
+        request: &CreateEmbeddingRequest,
     ) -> Result<CreateEmbeddingResponse, OpenAIError> {
         self.client.post("/embeddings", request).await
     }

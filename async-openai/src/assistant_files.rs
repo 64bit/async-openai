@@ -27,7 +27,7 @@ impl<'c, C: Config> AssistantFiles<'c, C> {
     /// Create an assistant file by attaching a [File](https://platform.openai.com/docs/api-reference/files) to an [assistant](https://platform.openai.com/docs/api-reference/assistants).
     pub async fn create(
         &self,
-        request: CreateAssistantFileRequest,
+        request: &CreateAssistantFileRequest,
     ) -> Result<AssistantFileObject, OpenAIError> {
         self.client
             .post(&format!("/assistants/{}/files", self.assistant_id), request)

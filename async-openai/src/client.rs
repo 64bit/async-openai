@@ -186,7 +186,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a POST request to {path} and return the response body
-    pub(crate) async fn post_raw<I>(&self, path: &str, request: I) -> Result<Bytes, OpenAIError>
+    pub(crate) async fn post_raw<I>(&self, path: &str, request: &I) -> Result<Bytes, OpenAIError>
     where
         I: Serialize,
     {
@@ -204,7 +204,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a POST request to {path} and deserialize the response body
-    pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
+    pub(crate) async fn post<I, O>(&self, path: &str, request: &I) -> Result<O, OpenAIError>
     where
         I: Serialize,
         O: DeserializeOwned,
@@ -215,7 +215,7 @@ impl<C: Config> Client<C> {
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .json(&request)
+                .json(request)
                 .build()?)
         };
 
@@ -321,7 +321,7 @@ impl<C: Config> Client<C> {
     pub(crate) async fn post_stream<I, O>(
         &self,
         path: &str,
-        request: I,
+        request: &I,
     ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
     where
         I: Serialize,

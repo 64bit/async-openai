@@ -25,7 +25,7 @@ impl<'c, C: Config> FineTunes<'c, C> {
     /// Response includes details of the enqueued job including job status and the name of the fine-tuned models once complete.
     ///
     /// [Learn more about Fine-tuning](https://platform.openai.com/docs/guides/fine-tuning)
-    pub async fn create(&self, request: CreateFineTuneRequest) -> Result<FineTune, OpenAIError> {
+    pub async fn create(&self, request: &CreateFineTuneRequest) -> Result<FineTune, OpenAIError> {
         self.client.post("/fine-tunes", request).await
     }
 
@@ -46,7 +46,7 @@ impl<'c, C: Config> FineTunes<'c, C> {
     /// Immediately cancel a fine-tune job.
     pub async fn cancel(&self, fine_tune_id: &str) -> Result<FineTune, OpenAIError> {
         self.client
-            .post(format!("/fine-tunes/{fine_tune_id}/cancel").as_str(), ())
+            .post(format!("/fine-tunes/{fine_tune_id}/cancel").as_str(), &())
             .await
     }
 

@@ -23,7 +23,7 @@ impl<'c, C: Config> Completions<'c, C> {
     /// Creates a completion for the provided prompt and parameters
     pub async fn create(
         &self,
-        request: CreateCompletionRequest,
+        request: &CreateCompletionRequest,
     ) -> Result<CreateCompletionResponse, OpenAIError> {
         if request.stream.is_some() && request.stream.unwrap() {
             return Err(OpenAIError::InvalidArgument(
@@ -42,7 +42,7 @@ impl<'c, C: Config> Completions<'c, C> {
     /// [CompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
     pub async fn create_stream(
         &self,
-        mut request: CreateCompletionRequest,
+        mut request: &CreateCompletionRequest,
     ) -> Result<CompletionResponseStream, OpenAIError> {
         if request.stream.is_some() && !request.stream.unwrap() {
             return Err(OpenAIError::InvalidArgument(
