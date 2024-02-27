@@ -30,7 +30,7 @@ impl<'c, C: Config> Assistants<'c, C> {
     /// Create an assistant with a model and instructions.
     pub async fn create(
         &self,
-        request: CreateAssistantRequest,
+        request: &CreateAssistantRequest,
     ) -> Result<AssistantObject, OpenAIError> {
         self.client.post("/assistants", request).await
     }
@@ -46,7 +46,7 @@ impl<'c, C: Config> Assistants<'c, C> {
     pub async fn update(
         &self,
         assistant_id: &str,
-        request: ModifyAssistantRequest,
+        request: &ModifyAssistantRequest,
     ) -> Result<AssistantObject, OpenAIError> {
         self.client
             .post(&format!("/assistants/{assistant_id}"), request)

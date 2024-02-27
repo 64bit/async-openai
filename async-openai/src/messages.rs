@@ -30,7 +30,7 @@ impl<'c, C: Config> Messages<'c, C> {
     /// Create a message.
     pub async fn create(
         &self,
-        request: CreateMessageRequest,
+        request: &CreateMessageRequest,
     ) -> Result<MessageObject, OpenAIError> {
         self.client
             .post(&format!("/threads/{}/messages", self.thread_id), request)
@@ -51,7 +51,7 @@ impl<'c, C: Config> Messages<'c, C> {
     pub async fn update(
         &self,
         message_id: &str,
-        request: ModifyMessageRequest,
+        request: &ModifyMessageRequest,
     ) -> Result<MessageObject, OpenAIError> {
         self.client
             .post(

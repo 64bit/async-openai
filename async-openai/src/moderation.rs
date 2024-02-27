@@ -20,7 +20,7 @@ impl<'c, C: Config> Moderations<'c, C> {
     /// Classifies if text violates OpenAI's Content Policy
     pub async fn create(
         &self,
-        request: CreateModerationRequest,
+        request: &CreateModerationRequest,
     ) -> Result<CreateModerationResponse, OpenAIError> {
         self.client.post("/moderations", request).await
     }

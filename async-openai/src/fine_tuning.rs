@@ -29,7 +29,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
     /// [Learn more about Fine-tuning](https://platform.openai.com/docs/guides/fine-tuning)
     pub async fn create(
         &self,
-        request: CreateFineTuningJobRequest,
+        request: &CreateFineTuningJobRequest,
     ) -> Result<FineTuningJob, OpenAIError> {
         self.client.post("/fine_tuning/jobs", request).await
     }
@@ -59,7 +59,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
         self.client
             .post(
                 format!("/fine_tuning/jobs/{fine_tuning_job_id}/cancel").as_str(),
-                (),
+                &(),
             )
             .await
     }

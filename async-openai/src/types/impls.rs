@@ -619,7 +619,7 @@ impl Default for ChatCompletionRequestUserMessageContent {
 impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
-    async fn try_from(request: CreateTranscriptionRequest) -> Result<Self, Self::Error> {
+    async fn try_from(request: &CreateTranscriptionRequest) -> Result<Self, Self::Error> {
         let audio_part = create_file_part(request.file.source).await?;
 
         let mut form = reqwest::multipart::Form::new()
@@ -650,7 +650,7 @@ impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::
 impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
-    async fn try_from(request: CreateTranslationRequest) -> Result<Self, Self::Error> {
+    async fn try_from(request: &CreateTranslationRequest) -> Result<Self, Self::Error> {
         let audio_part = create_file_part(request.file.source).await?;
 
         let mut form = reqwest::multipart::Form::new()
@@ -676,7 +676,7 @@ impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Fo
 impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
-    async fn try_from(request: CreateImageEditRequest) -> Result<Self, Self::Error> {
+    async fn try_from(request: &CreateImageEditRequest) -> Result<Self, Self::Error> {
         let image_part = create_file_part(request.image.source).await?;
 
         let mut form = reqwest::multipart::Form::new()
@@ -718,7 +718,7 @@ impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form
 impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
-    async fn try_from(request: CreateImageVariationRequest) -> Result<Self, Self::Error> {
+    async fn try_from(request: &CreateImageVariationRequest) -> Result<Self, Self::Error> {
         let image_part = create_file_part(request.image.source).await?;
 
         let mut form = reqwest::multipart::Form::new().part("image", image_part);
@@ -750,10 +750,10 @@ impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart:
 }
 
 #[async_convert::async_trait]
-impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
+impl<'a> async_convert::TryFrom<&'a CreateFileRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
-    async fn try_from(request: CreateFileRequest) -> Result<Self, Self::Error> {
+    async fn try_from(request: &'a CreateFileRequest) -> Result<Self, Self::Error> {
         let file_part = create_file_part(request.file.source).await?;
         let form = reqwest::multipart::Form::new()
             .part("file", file_part)

@@ -22,7 +22,7 @@ impl<'c, C: Config> Audio<'c, C> {
     /// Transcribes audio into the input language.
     pub async fn transcribe(
         &self,
-        request: CreateTranscriptionRequest,
+        request: &CreateTranscriptionRequest,
     ) -> Result<CreateTranscriptionResponse, OpenAIError> {
         self.client
             .post_form("/audio/transcriptions", request)
@@ -32,7 +32,7 @@ impl<'c, C: Config> Audio<'c, C> {
     /// Translates audio into into English.
     pub async fn translate(
         &self,
-        request: CreateTranslationRequest,
+        request: &CreateTranslationRequest,
     ) -> Result<CreateTranslationResponse, OpenAIError> {
         self.client.post_form("/audio/translations", request).await
     }
@@ -40,7 +40,7 @@ impl<'c, C: Config> Audio<'c, C> {
     /// Generates audio from the input text.
     pub async fn speech(
         &self,
-        request: CreateSpeechRequest,
+        request: &CreateSpeechRequest,
     ) -> Result<CreateSpeechResponse, OpenAIError> {
         let bytes = self.client.post_raw("/audio/speech", request).await?;
 
