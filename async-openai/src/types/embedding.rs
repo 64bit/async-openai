@@ -47,9 +47,9 @@ pub struct CreateEmbeddingRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 
-    /// The number of dimensions the resulting output embeddings should have. Only supported in text-embedding-3 and later models.
+    /// The number of dimensions the resulting output embeddings should have. Only supported in `text-embedding-3` and later models.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub dimensions: Option<u32>
+    pub dimensions: Option<u32>,
 }
 
 /// Represents an embedding vector returned by embedding endpoint.

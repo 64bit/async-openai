@@ -1,5 +1,3 @@
-use crate::types::ChatCompletionFunctions;
-
 use super::{
     AssistantTools, AssistantToolsCode, AssistantToolsFunction, AssistantToolsRetrieval,
     FunctionObject,

@@ -24,14 +24,12 @@
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
   - [x] Assistants (Beta)
-  - [x] Audio (Whisper/TTS)
+  - [x] Audio
   - [x] Chat
   - [x] Completions (Legacy)
-  - [x] Edits (Deprecated)
   - [x] Embeddings
   - [x] Files
   - [x] Fine-Tuning
-  - [x] Fine-Tunes (Deprecated)
   - [x] Images
   - [x] Microsoft Azure OpenAI Service
   - [x] Models
@@ -113,7 +111,7 @@ All forms of contributions, such as new features requests, bug fixes, issues, do
 A good starting point would be to look at existing [open issues](https://github.com/64bit/async-openai/issues).
 
 To maintain quality of the project, a minimum of the following is a must for code contribution:
-- **Documented**: Primary source of doc comments is description field from OpenAPI spec.
+- **Names & Documentation**: All struct names, field names and doc comments are from OpenAPI spec. Nested objects in spec without names leaves room for making appropriate name.
 - **Tested**: Examples are primary means of testing and should continue to work. For new features supporting example is required.
 - **Scope**: Keep scope limited to APIs available in official documents such as [API Reference](https://platform.openai.com/docs/api-reference) or [OpenAPI spec](https://github.com/openai/openai-openapi/). Other LLMs or AI Providers offer OpenAI-compatible APIs, yet they may not always have full parity. In such cases, the OpenAI spec takes precedence.
 - **Consistency**: Keep code style consistent across all the "APIs" that library exposes; it creates a great developer experience.
