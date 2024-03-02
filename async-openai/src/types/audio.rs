@@ -22,13 +22,15 @@ pub enum AudioResponseFormat {
 }
 
 #[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "lowercase")]
 pub enum SpeechResponseFormat {
     #[default]
     Mp3,
     Opus,
     Aac,
     Flac,
+    Pcm,
+    Wav,
 }
 
 #[derive(Debug, Default, Serialize, Clone, PartialEq)]
@@ -57,6 +59,14 @@ pub enum SpeechModel {
     Other(String),
 }
 
+#[derive(Debug, Default, Serialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum TimestampGranularity {
+    Word,
+    #[default]
+    Segment,
+}
+
 #[derive(Clone, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateTranscriptionRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -81,6 +91,9 @@ pub struct CreateTranscriptionRequest {
 
     /// The language of the input audio. Supplying the input language in [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format will improve accuracy and latency.
     pub language: Option<String>,
+
+    ///  The timestamp granularities to populate for this transcription. Any of these options: `word`, or `segment`. Note: There is no additional latency for segment timestamps, but generating word timestamps incurs additional latency.
+    pub timestamp_granularities: Option<Vec<TimestampGranularity>>,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
@@ -104,7 +117,10 @@ pub struct CreateSpeechRequest {
     /// The voice to use when generating the audio. Supported voices are `alloy`, `echo`, `fable`, `onyx`, `nova`, and `shimmer`. Previews of the voices are available in the [Text to speech guide](https://platform.openai.com/docs/guides/text-to-speech/voice-options).
     pub voice: Voice,
 
-    /// The format to audio in. Supported formats are mp3, opus, aac, and flac.
+    /// The format to return audio in.
+    /// Supported formats are `mp3`, `opus`, `aac`, `flac`, `pcm`, and `wav`.
+    ///
+    /// The `pcm` audio format, similar to `wav` but without a header, utilizes a 24kHz sample rate, mono channel, and 16-bit depth in signed little-endian format.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<SpeechResponseFormat>,
 

@@ -55,6 +55,19 @@ pub struct RunStepObject {
     pub completed_at: Option<i32>,
 
     pub metadata: Option<HashMap<String, serde_json::Value>>,
+
+    /// Usage statistics related to the run step. This value will be `null` while the run step's status is `in_progress`.
+    pub usage: Option<RunStepCompletionUsage>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepCompletionUsage {
+    /// Number of completion tokens used over the course of the run step.
+    pub completion_tokens: u32,
+    /// Number of prompt tokens used over the course of the run step.
+    pub prompt_tokens: u32,
+    /// Total number of tokens used (prompt + completion).
+    pub total_tokens: u32,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]

@@ -53,9 +53,8 @@ pub struct RunObject {
     /// The list of [File](https://platform.openai.com/docs/api-reference/files) IDs the [assistant](/docs/api-reference/assistants) used for this run.
     pub file_ids: Vec<String>,
 
-    /// Usage information for the [run](https://platform.openai.com/docs/api-reference/runs/step-object#runs/object-usage).
-    /// Usage information is available when the run reaches a terminal state.
-    pub usage: Option<RunUsage>,
+    /// Usage statistics related to the run. This value will be `null` if the run is not in a terminal state (i.e. `in_progress`, `queued`, etc.).
+    pub usage: Option<RunCompletionUsage>,
 
     pub metadata: Option<HashMap<String, serde_json::Value>>,
 }
@@ -112,11 +111,13 @@ pub enum LastErrorCode {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub struct RunUsage {
-    pub completion_tokens: usize,
-    pub prompt_tokens: usize,
-    pub total_tokens: usize,
+pub struct RunCompletionUsage {
+    /// Number of completion tokens used over the course of the run.
+    pub completion_tokens: u32,
+    /// Number of prompt tokens used over the course of the run.
+    pub prompt_tokens: u32,
+    /// Total number of tokens used (prompt + completion).
+    pub total_tokens: u32,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
