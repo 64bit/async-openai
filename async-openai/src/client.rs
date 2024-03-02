@@ -35,6 +35,19 @@ impl Client<OpenAIConfig> {
 }
 
 impl<C: Config> Client<C> {
+    /// Create client with a custom HTTP client, OpenAI config, and backoff.
+    pub fn build(
+        http_client: reqwest::Client,
+        config: C,
+        backoff: backoff::ExponentialBackoff,
+    ) -> Self {
+        Self {
+            http_client,
+            config,
+            backoff,
+        }
+    }
+
     /// Create client with [OpenAIConfig] or [crate::config::AzureConfig]
     pub fn with_config(config: C) -> Self {
         Self {
