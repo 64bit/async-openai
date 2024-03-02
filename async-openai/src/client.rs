@@ -7,7 +7,6 @@ use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
     config::{Config, OpenAIConfig},
-    edit::Edits,
     error::{map_deserialization_error, OpenAIError, WrappedError},
     file::Files,
     image::Images,
@@ -74,12 +73,6 @@ impl<C: Config> Client<C> {
     /// To call [Chat] group related APIs using this client.
     pub fn chat(&self) -> Chat<C> {
         Chat::new(self)
-    }
-
-    /// To call [Edits] group related APIs using this client.
-    #[deprecated(since = "0.15.0", note = "By OpenAI")]
-    pub fn edits(&self) -> Edits<C> {
-        Edits::new(self)
     }
 
     /// To call [Images] group related APIs using this client.

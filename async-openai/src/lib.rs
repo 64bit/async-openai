@@ -84,8 +84,6 @@ mod client;
 mod completion;
 pub mod config;
 mod download;
-#[deprecated(since = "0.15.0", note = "By OpenAI")]
-mod edit;
 mod embedding;
 pub mod error;
 mod file;
@@ -109,7 +107,6 @@ pub use audio::Audio;
 pub use chat::Chat;
 pub use client::Client;
 pub use completion::Completions;
-pub use edit::Edits;
 pub use embedding::Embeddings;
 pub use file::Files;
 pub use fine_tune::FineTunes;
