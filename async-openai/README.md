@@ -30,7 +30,6 @@
   - [x] Embeddings
   - [x] Files
   - [x] Fine-Tuning
-  - [x] Fine-Tunes (Deprecated)
   - [x] Images
   - [x] Microsoft Azure OpenAI Service
   - [x] Models
