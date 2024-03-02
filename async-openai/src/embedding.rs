@@ -29,8 +29,8 @@ impl<'c, C: Config> Embeddings<'c, C> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{types::CreateEmbeddingRequestArgs, Client};
     use crate::types::{CreateEmbeddingResponse, Embedding};
+    use crate::{types::CreateEmbeddingRequestArgs, Client};
 
     #[tokio::test]
     async fn test_embedding_string() {
@@ -122,7 +122,7 @@ mod tests {
 
         assert!(response.is_ok());
 
-        let CreateEmbeddingResponse { mut data, ..} = response.unwrap();
+        let CreateEmbeddingResponse { mut data, .. } = response.unwrap();
         assert_eq!(data.len(), 1);
         let Embedding { embedding, .. } = data.pop().unwrap();
         assert_eq!(embedding.len(), dimensions as usize);

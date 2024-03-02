@@ -1,5 +1,3 @@
-
-
 use super::{
     AssistantTools, AssistantToolsCode, AssistantToolsFunction, AssistantToolsRetrieval,
     FunctionObject,
