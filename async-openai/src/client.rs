@@ -2,6 +2,7 @@ use std::pin::Pin;
 
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
+use reqwest::StatusCode;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -21,6 +22,12 @@ pub struct Client<C: Config> {
     http_client: reqwest::Client,
     config: C,
     backoff: backoff::ExponentialBackoff,
+}
+
+impl Default for Client<OpenAIConfig> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Client<OpenAIConfig> {
@@ -275,21 +282,31 @@ impl<C: Config> Client<C> {
                     .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
                     .map_err(backoff::Error::Permanent)?;
 
-                if status.as_u16() == 429
-                    // API returns 429 also when:
-                    // "You exceeded your current quota, please check your plan and billing details."
-                    && wrapped_error.error.r#type != Some("insufficient_quota".to_string())
-                {
-                    // Rate limited retry...
-                    tracing::warn!("Rate limited: {}", wrapped_error.error.message);
-                    return Err(backoff::Error::Transient {
-                        err: OpenAIError::ApiError(wrapped_error.error),
-                        retry_after: None,
-                    });
-                } else {
-                    return Err(backoff::Error::Permanent(OpenAIError::ApiError(
-                        wrapped_error.error,
-                    )));
+                match status {
+                    StatusCode::TOO_MANY_REQUESTS
+                        if wrapped_error.error.r#type == Some("insufficient_quota".to_string()) =>
+                    {
+                        return Err(backoff::Error::Permanent(OpenAIError::ApiError(
+                            wrapped_error.error,
+                        )));
+                    }
+                    StatusCode::TOO_MANY_REQUESTS => {
+                        return Err(backoff::Error::Transient {
+                            err: OpenAIError::ApiError(wrapped_error.error),
+                            retry_after: None,
+                        });
+                    }
+                    StatusCode::GATEWAY_TIMEOUT => {
+                        return Err(backoff::Error::Transient {
+                            err: OpenAIError::ApiError(wrapped_error.error),
+                            retry_after: None,
+                        });
+                    }
+                    _ => {
+                        return Err(backoff::Error::Permanent(OpenAIError::ApiError(
+                            wrapped_error.error,
+                        )));
+                    }
                 }
             }
 
