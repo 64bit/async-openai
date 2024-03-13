@@ -12,9 +12,6 @@ pub enum OpenAIError {
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: {0}")]
     JSONDeserialize(serde_json::Error),
-    /// Error when decoding base64-encoded value
-    #[error("failed to decode base64-encoded value: {0}")]
-    Base64Decode(#[from] base64::DecodeError),
     /// Error on the client side when saving file to file system
     #[error("failed to save file: {0}")]
     FileSaveError(String),
