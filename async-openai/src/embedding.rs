@@ -188,14 +188,8 @@ mod tests {
             .create_base64(b64_request)
             .await
             .unwrap();
-        let b64_embedding: Embedding = b64_response
-            .data
-            .into_iter()
-            .next()
-            .unwrap()
-            .try_into()
-            .unwrap();
-        let b64_embedding = b64_embedding.embedding;
+        let b64_embedding = b64_response.data.into_iter().next().unwrap().embedding;
+        let b64_embedding: Vec<f32> = b64_embedding.into();
 
         let request = CreateEmbeddingRequestArgs::default()
             .model(MODEL)
@@ -203,8 +197,7 @@ mod tests {
             .build()
             .unwrap();
         let response = client.embeddings().create(request).await.unwrap();
-        let embedding = response.data.into_iter().next().unwrap();
-        let embedding = embedding.embedding;
+        let embedding = response.data.into_iter().next().unwrap().embedding;
 
         assert_eq!(b64_embedding.len(), embedding.len());
         for (b64, normal) in b64_embedding.iter().zip(embedding.iter()) {

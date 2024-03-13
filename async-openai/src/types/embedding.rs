@@ -65,33 +65,30 @@ pub struct Embedding {
     pub embedding: Vec<f32>,
 }
 
-/// Represents an base64-encoded embedding vector returned by embedding endpoint.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub(crate) struct Base64Embedding {
-    /// The index of the embedding in the list of embeddings.
-    pub(crate) index: u32,
-    /// The object type, which is always "embedding".
-    pub(crate) object: String,
-    /// The embedding vector, encoded in base64.
-    pub(crate) embedding: String,
+pub struct Base64EmbeddingVector(pub String);
+
+impl From<Base64EmbeddingVector> for Vec<f32> {
+    fn from(value: Base64EmbeddingVector) -> Self {
+        let bytes = general_purpose::STANDARD
+            .decode(value.0)
+            .expect("openai base64 encoding to be valid");
+        let chunks = bytes.chunks_exact(4);
+        chunks
+            .map(|chunk| f32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]))
+            .collect()
+    }
 }
 
-impl TryFrom<Base64Embedding> for Embedding {
-    type Error = OpenAIError;
-
-    fn try_from(embedding: Base64Embedding) -> Result<Self, Self::Error> {
-        let bytes = general_purpose::STANDARD.decode(embedding.embedding)?;
-        let chunks = bytes.chunks_exact(4);
-        debug_assert!(chunks.remainder().len() == 0);
-        let floats = chunks
-            .map(|chunk| f32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]))
-            .collect();
-        Ok(Embedding {
-            index: embedding.index,
-            object: embedding.object,
-            embedding: floats,
-        })
-    }
+/// Represents an base64-encoded embedding vector returned by embedding endpoint.
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct Base64Embedding {
+    /// The index of the embedding in the list of embeddings.
+    pub index: u32,
+    /// The object type, which is always "embedding".
+    pub object: String,
+    /// The embedding vector, encoded in base64.
+    pub embedding: Base64EmbeddingVector,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
