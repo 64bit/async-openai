@@ -135,7 +135,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
             //wait for 1 second before checking the status again
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
         }
     }
 
