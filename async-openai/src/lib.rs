@@ -78,6 +78,7 @@
 //!
 mod assistant_files;
 mod assistants;
+mod async_convert;
 mod audio;
 mod chat;
 mod client;

@@ -6,6 +6,7 @@ use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
+    async_convert,
     config::{Config, OpenAIConfig},
     edit::Edits,
     error::{map_deserialization_error, OpenAIError, WrappedError},

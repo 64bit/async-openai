@@ -4,6 +4,7 @@ use std::{
 };
 
 use crate::{
+    async_convert,
     download::{download_url, save_b64},
     error::OpenAIError,
     types::InputSource,

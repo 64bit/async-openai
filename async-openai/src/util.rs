@@ -9,14 +9,18 @@ use crate::types::InputSource;
 
 pub(crate) async fn file_stream_body(source: InputSource) -> Result<Body, OpenAIError> {
     let body = match source {
-        InputSource::Path{ path } => {
+        InputSource::Path { path } => {
             let file = File::open(path)
                 .await
                 .map_err(|e| OpenAIError::FileReadError(e.to_string()))?;
             let stream = FramedRead::new(file, BytesCodec::new());
             Body::wrap_stream(stream)
         }
-        _ => return Err(OpenAIError::FileReadError("Cannot create stream from non-file source".to_string())),
+        _ => {
+            return Err(OpenAIError::FileReadError(
+                "Cannot create stream from non-file source".to_string(),
+            ))
+        }
     };
     Ok(body)
 }
@@ -26,21 +30,26 @@ pub(crate) async fn create_file_part(
     source: InputSource,
 ) -> Result<reqwest::multipart::Part, OpenAIError> {
     let (stream, file_name) = match source {
-        InputSource::Path{ path } => {
-            let file_name = path.file_name()
-                .ok_or_else(|| OpenAIError::FileReadError(format!("cannot extract file name from {}", path.display())))?
+        InputSource::Path { path } => {
+            let file_name = path
+                .file_name()
+                .ok_or_else(|| {
+                    OpenAIError::FileReadError(format!(
+                        "cannot extract file name from {}",
+                        path.display()
+                    ))
+                })?
                 .to_str()
                 .unwrap()
                 .to_string();
 
-            (file_stream_body(InputSource::Path{ path }).await?, file_name)
+            (
+                file_stream_body(InputSource::Path { path }).await?,
+                file_name,
+            )
         }
-        InputSource::Bytes{ filename, bytes } => {
-            (Body::from(bytes), filename)
-        }
-        InputSource::VecU8{ filename, vec } => {
-            (Body::from(vec), filename)
-        }
+        InputSource::Bytes { filename, bytes } => (Body::from(bytes), filename),
+        InputSource::VecU8 { filename, vec } => (Body::from(vec), filename),
     };
 
     let file_part = reqwest::multipart::Part::stream(stream)
