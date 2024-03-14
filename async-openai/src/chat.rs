@@ -39,7 +39,7 @@ impl<'c, C: Config> Chat<'c, C> {
     /// [ChatCompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
     pub async fn create_stream(
         &self,
-        mut request: &CreateChatCompletionRequest,
+        request: &mut CreateChatCompletionRequest,
     ) -> Result<ChatCompletionResponseStream, OpenAIError> {
         if request.stream.is_some() && !request.stream.unwrap() {
             return Err(OpenAIError::InvalidArgument(

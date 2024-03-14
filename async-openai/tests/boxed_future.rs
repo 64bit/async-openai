@@ -8,35 +8,43 @@ use async_openai::Client;
 async fn boxed_future_test() {
     fn interpret_bool(token_stream: &mut CompletionResponseStream) -> BoxFuture<'_, bool> {
         async move {
-            while let Some(response) = token_stream.next().await {
-                match response {
-                    Ok(response) => {
-                        let token_str = &response.choices[0].text.trim();
+            // collect all responses from the stream
+            let mut response = String::new();
+            while let Some(next_token) = token_stream.next().await {
+                match next_token {
+                    Ok(next_token) => {
+                        let token_str = &next_token.choices[0].text.trim();
                         if !token_str.is_empty() {
-                            return token_str.contains("yes") || token_str.contains("Yes");
+                            response.push_str(token_str);
+                            response.push_str(" ");
                         }
                     }
                     Err(e) => eprintln!("Error: {e}"),
                 }
             }
-            false
+            println!("Response: {}", response);
+            return response.contains("yes") || response.contains("Yes");
         }
         .boxed()
     }
 
     let client = Client::new();
 
-    let request = CreateCompletionRequestArgs::default()
-        .model("text-babbage-001")
+    let mut request = CreateCompletionRequestArgs::default()
+        .model("davinci-002")
         .n(1)
-        .prompt("does 2 and 2 add to four? (yes/no):\n")
+        .prompt("yes no yes no yes no")
         .stream(true)
         .logprobs(3)
         .max_tokens(64_u16)
         .build()
         .unwrap();
 
-    let mut stream = client.completions().create_stream(request).await.unwrap();
+    let mut stream = client
+        .completions()
+        .create_stream(&mut request)
+        .await
+        .unwrap();
 
     let result = interpret_bool(&mut stream).await;
     assert!(result);

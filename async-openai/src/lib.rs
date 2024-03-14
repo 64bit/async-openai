@@ -56,7 +56,7 @@
 //! // Create request using builder pattern
 //! // Every request struct has companion builder struct with same name + Args suffix
 //! let request = CreateCompletionRequestArgs::default()
-//!     .model("text-davinci-003")
+//!     .model("davinci-002")
 //!     .prompt("Tell me the recipe of alfredo pasta")
 //!     .max_tokens(40_u16)
 //!     .build()
@@ -65,7 +65,7 @@
 //! // Call API
 //! let response = client
 //!     .completions()      // Get the API "group" (completions, images, etc.) from the client
-//!     .create(request)    // Make the API call in that "group"
+//!     .create(&request)    // Make the API call in that "group"
 //!     .await
 //!     .unwrap();
 //!

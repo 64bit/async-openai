@@ -76,7 +76,7 @@ mod tests {
             .build()
             .unwrap();
 
-        let openai_file = client.files().create(request).await.unwrap();
+        let openai_file = client.files().create(&request).await.unwrap();
 
         assert_eq!(openai_file.bytes, 135);
         assert_eq!(openai_file.filename, "test.jsonl");

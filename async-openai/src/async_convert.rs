@@ -38,28 +38,6 @@
 //! [`async_trait`](https://doc.rust-lang.org/std/convert/trait.TryFrom.html)
 //! crate. This is an experiment, but we'll likely want to extend `async-std`
 //! with this at some point too.
-//!
-//! # Examples
-//!
-//! ```
-//! use async_convert::{async_trait, TryFrom};
-//!
-//! struct GreaterThanZero(i32);
-//!
-//! #[async_trait]
-//! impl TryFrom<i32> for GreaterThanZero {
-//!     type Error = &'static str;
-//!
-//!     async fn try_from(value: i32) -> Result<Self, Self::Error> {
-//!         // pretend we're actually doing async IO here instead.
-//!         if value <= 0 {
-//!             Err("GreaterThanZero only accepts value superior than zero!")
-//!         } else {
-//!             Ok(GreaterThanZero(value))
-//!         }
-//!     }
-//! }
-//! ```
 
 #![forbid(unsafe_code, future_incompatible, rust_2018_idioms)]
 #![deny(missing_debug_implementations, nonstandard_style)]
@@ -93,7 +71,9 @@ pub trait TryFrom<T>: Sized {
     type Error;
 
     /// Performs the conversion.
-    async fn try_from(value: T) -> Result<Self, Self::Error>;
+    async fn try_from(value: T) -> Result<Self, Self::Error>
+    where
+        T: 'async_trait;
 }
 
 /// An attempted conversion that consumes `self`, which may or may not be

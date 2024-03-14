@@ -119,8 +119,8 @@ impl Default for InputSource {
 
 /// for `impl_input!(Struct)` where
 /// ```
-/// Struct {
-///     source: InputSource
+/// struct Struct {
+///     source: async_openai::types::InputSource
 /// }
 /// ```
 /// implements methods `from_bytes` and `from_vec_u8`,
@@ -617,18 +617,49 @@ impl Default for ChatCompletionRequestUserMessageContent {
 // start: types to multipart from
 
 #[async_convert::async_trait]
-impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
+impl<'a> async_convert::TryFrom<&'a CreateTranscriptionRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
-    async fn try_from(request: &CreateTranscriptionRequest) -> Result<Self, Self::Error> {
-        let audio_part = create_file_part(request.file.source).await?;
+    async fn try_from(request: &'a CreateTranscriptionRequest) -> Result<Self, Self::Error> {
+        let audio_part = create_file_part(request.file.source.clone()).await?;
 
         let mut form = reqwest::multipart::Form::new()
             .part("file", audio_part)
-            .text("model", request.model);
+            .text("model", request.model.clone());
 
-        if let Some(prompt) = request.prompt {
-            form = form.text("prompt", prompt);
+        if let Some(prompt) = &request.prompt {
+            form = form.text("prompt", prompt.clone());
+        }
+
+        if let Some(response_format) = request.response_format {
+            form = form.text("response_format", response_format.to_string())
+        }
+
+        if let Some(temperature) = &request.temperature {
+            form = form.text("temperature", temperature.to_string())
+        }
+
+        if let Some(language) = &request.language {
+            form = form.text("language", language.clone());
+        }
+
+        Ok(form)
+    }
+}
+
+#[async_convert::async_trait]
+impl<'a> async_convert::TryFrom<&'a CreateTranslationRequest> for reqwest::multipart::Form {
+    type Error = OpenAIError;
+
+    async fn try_from(request: &'a CreateTranslationRequest) -> Result<Self, Self::Error> {
+        let audio_part = create_file_part(request.file.source.clone()).await?;
+
+        let mut form = reqwest::multipart::Form::new()
+            .part("file", audio_part)
+            .text("model", request.model.clone());
+
+        if let Some(prompt) = &request.prompt {
+            form = form.text("prompt", prompt.clone());
         }
 
         if let Some(response_format) = request.response_format {
@@ -638,58 +669,27 @@ impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::
         if let Some(temperature) = request.temperature {
             form = form.text("temperature", temperature.to_string())
         }
-
-        if let Some(language) = request.language {
-            form = form.text("language", language);
-        }
-
         Ok(form)
     }
 }
 
 #[async_convert::async_trait]
-impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Form {
+impl<'a> async_convert::TryFrom<&'a CreateImageEditRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
-    async fn try_from(request: &CreateTranslationRequest) -> Result<Self, Self::Error> {
-        let audio_part = create_file_part(request.file.source).await?;
-
-        let mut form = reqwest::multipart::Form::new()
-            .part("file", audio_part)
-            .text("model", request.model);
-
-        if let Some(prompt) = request.prompt {
-            form = form.text("prompt", prompt);
-        }
-
-        if let Some(response_format) = request.response_format {
-            form = form.text("response_format", response_format.to_string())
-        }
-
-        if let Some(temperature) = request.temperature {
-            form = form.text("temperature", temperature.to_string())
-        }
-        Ok(form)
-    }
-}
-
-#[async_convert::async_trait]
-impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
-    type Error = OpenAIError;
-
-    async fn try_from(request: &CreateImageEditRequest) -> Result<Self, Self::Error> {
-        let image_part = create_file_part(request.image.source).await?;
+    async fn try_from(request: &'a CreateImageEditRequest) -> Result<Self, Self::Error> {
+        let image_part = create_file_part(request.image.source.clone()).await?;
 
         let mut form = reqwest::multipart::Form::new()
             .part("image", image_part)
-            .text("prompt", request.prompt);
+            .text("prompt", request.prompt.clone());
 
-        if let Some(mask) = request.mask {
-            let mask_part = create_file_part(mask.source).await?;
+        if let Some(mask) = &request.mask {
+            let mask_part = create_file_part(mask.source.clone()).await?;
             form = form.part("mask", mask_part);
         }
 
-        if let Some(model) = request.model {
+        if let Some(model) = &request.model {
             form = form.text("model", model.to_string())
         }
 
@@ -709,22 +709,22 @@ impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form
         }
 
         if request.user.is_some() {
-            form = form.text("user", request.user.unwrap())
+            form = form.text("user", request.user.clone().unwrap())
         }
         Ok(form)
     }
 }
 
 #[async_convert::async_trait]
-impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart::Form {
+impl<'a> async_convert::TryFrom<&'a CreateImageVariationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
-    async fn try_from(request: &CreateImageVariationRequest) -> Result<Self, Self::Error> {
-        let image_part = create_file_part(request.image.source).await?;
+    async fn try_from(request: &'a CreateImageVariationRequest) -> Result<Self, Self::Error> {
+        let image_part = create_file_part(request.image.source.clone()).await?;
 
         let mut form = reqwest::multipart::Form::new().part("image", image_part);
 
-        if let Some(model) = request.model {
+        if let Some(model) = &request.model {
             form = form.text("model", model.to_string())
         }
 
@@ -744,7 +744,7 @@ impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart:
         }
 
         if request.user.is_some() {
-            form = form.text("user", request.user.unwrap())
+            form = form.text("user", request.user.clone().unwrap())
         }
         Ok(form)
     }
@@ -755,10 +755,10 @@ impl<'a> async_convert::TryFrom<&'a CreateFileRequest> for reqwest::multipart::F
     type Error = OpenAIError;
 
     async fn try_from(request: &'a CreateFileRequest) -> Result<Self, Self::Error> {
-        let file_part = create_file_part(request.file.source).await?;
+        let file_part = create_file_part(request.file.source.clone()).await?;
         let form = reqwest::multipart::Form::new()
             .part("file", file_part)
-            .text("purpose", request.purpose);
+            .text("purpose", request.purpose.clone());
         Ok(form)
     }
 }

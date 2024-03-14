@@ -42,7 +42,7 @@ mod tests {
             .build()
             .unwrap();
 
-        let response = client.embeddings().create(request).await;
+        let response = client.embeddings().create(&request).await;
 
         assert!(response.is_ok());
     }
@@ -57,7 +57,7 @@ mod tests {
             .build()
             .unwrap();
 
-        let response = client.embeddings().create(request).await;
+        let response = client.embeddings().create(&request).await;
 
         assert!(response.is_ok());
     }
@@ -72,7 +72,7 @@ mod tests {
             .build()
             .unwrap();
 
-        let response = client.embeddings().create(request).await;
+        let response = client.embeddings().create(&request).await;
 
         assert!(response.is_ok());
     }
@@ -87,7 +87,7 @@ mod tests {
             .build()
             .unwrap();
 
-        let response = client.embeddings().create(request).await;
+        let response = client.embeddings().create(&request).await;
 
         assert!(response.is_ok());
     }
@@ -102,7 +102,7 @@ mod tests {
             .build()
             .unwrap();
 
-        let response = client.embeddings().create(request).await;
+        let response = client.embeddings().create(&request).await;
 
         assert!(response.is_ok());
     }
@@ -118,7 +118,7 @@ mod tests {
             .build()
             .unwrap();
 
-        let response = client.embeddings().create(request).await;
+        let response = client.embeddings().create(&request).await;
 
         assert!(response.is_ok());
 
