@@ -98,7 +98,84 @@ pub struct CreateTranscriptionRequest {
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct CreateTranscriptionResponse {
+    /// Transcribed text.
     pub text: String,
+
+    /// If [`CreateTranscriptionRequestArgs::response_format`] is set to
+    /// [`AudioResponseFormat::VerboseJson`], this field will be populated with
+    /// the name of the language detected in the audio.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language: Option<String>,
+
+    /// If [`CreateTranscriptionRequestArgs::response_format`] is set to
+    /// [`AudioResponseFormat::VerboseJson`], this field will be populated with
+    /// the duration of the audio in seconds.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub duration: Option<f32>,
+
+    /// If [`CreateTranscriptionRequestArgs::response_format`] is set to
+    /// [`AudioResponseFormat::VerboseJson`] and
+    /// [`CreateTranscriptionRequestArgs::timestamp_granularities`] contains
+    /// [`TimestampGranularity::Word`], this field will be populated with the
+    /// word-level information.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub words: Option<Vec<CreateTranscriptionResponseWord>>,
+
+    /// If [`CreateTranscriptionRequestArgs::response_format`] is set to
+    /// [`AudioResponseFormat::VerboseJson`] and
+    /// [`CreateTranscriptionRequestArgs::timestamp_granularities`] contains
+    /// [`TimestampGranularity::Segment`], this field will be populated with the
+    /// segment-level information.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub segments: Option<Vec<CreateTranscriptionResponseSegment>>,
+
+    #[serde(flatten)]
+    pub extra: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct CreateTranscriptionResponseWord {
+    /// The word.
+    pub word: String,
+
+    /// The start time of the word in seconds.
+    pub start: f32,
+
+    /// The end time of the word in seconds.
+    pub end: f32,
+}
+
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct CreateTranscriptionResponseSegment {
+    /// Unique identifier of the segment.
+    pub id: i32,
+
+    // Seek offset of the segment.
+    pub seek: i32,
+
+    /// Start time of the segment in seconds.
+    pub start: f32,
+
+    /// End time of the segment in seconds.
+    pub end: f32,
+
+    /// Transcribed text of the segment.
+    pub text: String,
+
+    /// Token IDs.
+    pub tokens: Vec<i32>,
+
+    /// Temperature parameter used for generating the segment.
+    pub temperature: f32,
+
+    /// Average log probability of the segment.
+    pub avg_logprob: f32,
+
+    /// Compression ratio of the segment.
+    pub compression_ratio: f32,
+
+    /// Probability of no speech in the segment.
+    pub no_speech_prob: f32,
 }
 
 #[derive(Clone, Default, Debug, Builder, PartialEq, Serialize)]
