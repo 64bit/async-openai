@@ -1,0 +1,11 @@
+[package]
+name = "vision-chat"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+async-openai = { path = "../../async-openai" }
+serde_json = "1.0.114"
+tokio = { version = "1.36.0", features = ["full"] }
