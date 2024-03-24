@@ -96,57 +96,50 @@ pub struct CreateTranscriptionRequest {
     pub timestamp_granularities: Option<Vec<TimestampGranularity>>,
 }
 
+/// Represents a transcription response returned by model, based on the provided
+/// input.
 #[derive(Debug, Deserialize, Clone, Serialize)]
-pub struct CreateTranscriptionResponse {
-    /// Transcribed text.
+pub struct CreateTranscriptionResponseJson {
+    /// The transcribed text.
+    pub text: String,
+}
+
+/// Represents a verbose json transcription response returned by model, based on
+/// the provided input.
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct CreateTranscriptionResponseVerboseJson {
+    /// The language of the input audio.
+    pub language: String,
+
+    /// The duration of the input audio.
+    pub duration: f32,
+
+    /// The transcribed text.
     pub text: String,
 
-    /// If [`CreateTranscriptionRequestArgs::response_format`] is set to
-    /// [`AudioResponseFormat::VerboseJson`], this field will be populated with
-    /// the name of the language detected in the audio.
+    /// Extracted words and their corresponding timestamps.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub language: Option<String>,
+    pub words: Option<Vec<TranscriptionWord>>,
 
-    /// If [`CreateTranscriptionRequestArgs::response_format`] is set to
-    /// [`AudioResponseFormat::VerboseJson`], this field will be populated with
-    /// the duration of the audio in seconds.
+    /// Segments of the transcribed text and their corresponding details.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub duration: Option<f32>,
-
-    /// If [`CreateTranscriptionRequestArgs::response_format`] is set to
-    /// [`AudioResponseFormat::VerboseJson`] and
-    /// [`CreateTranscriptionRequestArgs::timestamp_granularities`] contains
-    /// [`TimestampGranularity::Word`], this field will be populated with the
-    /// word-level information.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub words: Option<Vec<CreateTranscriptionResponseWord>>,
-
-    /// If [`CreateTranscriptionRequestArgs::response_format`] is set to
-    /// [`AudioResponseFormat::VerboseJson`] and
-    /// [`CreateTranscriptionRequestArgs::timestamp_granularities`] contains
-    /// [`TimestampGranularity::Segment`], this field will be populated with the
-    /// segment-level information.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub segments: Option<Vec<CreateTranscriptionResponseSegment>>,
-
-    #[serde(flatten)]
-    pub extra: Option<serde_json::Value>,
+    pub segments: Option<Vec<TranscriptionSegment>>,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
-pub struct CreateTranscriptionResponseWord {
-    /// The word.
+pub struct TranscriptionWord {
+    /// The text content of the word.
     pub word: String,
 
-    /// The start time of the word in seconds.
+    /// Start time of the word in seconds.
     pub start: f32,
 
-    /// The end time of the word in seconds.
+    /// End time of the word in seconds.
     pub end: f32,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
-pub struct CreateTranscriptionResponseSegment {
+pub struct TranscriptionSegment {
     /// Unique identifier of the segment.
     pub id: i32,
 
@@ -159,22 +152,25 @@ pub struct CreateTranscriptionResponseSegment {
     /// End time of the segment in seconds.
     pub end: f32,
 
-    /// Transcribed text of the segment.
+    /// Text content of the segment.
     pub text: String,
 
-    /// Token IDs.
+    /// Array of token IDs for the text content.
     pub tokens: Vec<i32>,
 
     /// Temperature parameter used for generating the segment.
     pub temperature: f32,
 
-    /// Average log probability of the segment.
+    /// Average logprob of the segment. If the value is lower than -1, consider
+    /// the logprobs failed.
     pub avg_logprob: f32,
 
-    /// Compression ratio of the segment.
+    /// Compression ratio of the segment. If the value is greater than 2.4,
+    /// consider the compression failed.
     pub compression_ratio: f32,
 
-    /// Probability of no speech in the segment.
+    /// Probability of no speech in the segment. If the value is higher than 1.0
+    /// and the `avg_logprob` is below -1, consider this segment silent.
     pub no_speech_prob: f32,
 }
 
