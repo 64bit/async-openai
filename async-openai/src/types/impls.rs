@@ -23,7 +23,7 @@ use super::{
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
     CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
     FileInput, FunctionName, Image, ImageInput, ImageModel, ImageSize, ImageUrl, ImagesResponse,
-    ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    ModerationInput, Prompt, ResponseFormat, Role, Stop, TimestampGranularity,
 };
 
 /// for `impl_from!(T, Enum)`, implements
@@ -223,6 +223,19 @@ impl Display for AudioResponseFormat {
                 AudioResponseFormat::Text => "text",
                 AudioResponseFormat::VerboseJson => "verbose_json",
                 AudioResponseFormat::Vtt => "vtt",
+            }
+        )
+    }
+}
+
+impl Display for TimestampGranularity {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                TimestampGranularity::Word => "word",
+                TimestampGranularity::Segment => "segment",
             }
         )
     }
@@ -640,6 +653,12 @@ impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::
 
         if let Some(language) = request.language {
             form = form.text("language", language);
+        }
+
+        if let Some(timestamp_granularities) = request.timestamp_granularities {
+            for tg in timestamp_granularities {
+                form = form.text("timestamp_granularities[]", tg.to_string());
+            }
         }
 
         Ok(form)

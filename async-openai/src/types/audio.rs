@@ -96,9 +96,82 @@ pub struct CreateTranscriptionRequest {
     pub timestamp_granularities: Option<Vec<TimestampGranularity>>,
 }
 
+/// Represents a transcription response returned by model, based on the provided
+/// input.
 #[derive(Debug, Deserialize, Clone, Serialize)]
-pub struct CreateTranscriptionResponse {
+pub struct CreateTranscriptionResponseJson {
+    /// The transcribed text.
     pub text: String,
+}
+
+/// Represents a verbose json transcription response returned by model, based on
+/// the provided input.
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct CreateTranscriptionResponseVerboseJson {
+    /// The language of the input audio.
+    pub language: String,
+
+    /// The duration of the input audio.
+    pub duration: f32,
+
+    /// The transcribed text.
+    pub text: String,
+
+    /// Extracted words and their corresponding timestamps.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub words: Option<Vec<TranscriptionWord>>,
+
+    /// Segments of the transcribed text and their corresponding details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub segments: Option<Vec<TranscriptionSegment>>,
+}
+
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct TranscriptionWord {
+    /// The text content of the word.
+    pub word: String,
+
+    /// Start time of the word in seconds.
+    pub start: f32,
+
+    /// End time of the word in seconds.
+    pub end: f32,
+}
+
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct TranscriptionSegment {
+    /// Unique identifier of the segment.
+    pub id: i32,
+
+    // Seek offset of the segment.
+    pub seek: i32,
+
+    /// Start time of the segment in seconds.
+    pub start: f32,
+
+    /// End time of the segment in seconds.
+    pub end: f32,
+
+    /// Text content of the segment.
+    pub text: String,
+
+    /// Array of token IDs for the text content.
+    pub tokens: Vec<i32>,
+
+    /// Temperature parameter used for generating the segment.
+    pub temperature: f32,
+
+    /// Average logprob of the segment. If the value is lower than -1, consider
+    /// the logprobs failed.
+    pub avg_logprob: f32,
+
+    /// Compression ratio of the segment. If the value is greater than 2.4,
+    /// consider the compression failed.
+    pub compression_ratio: f32,
+
+    /// Probability of no speech in the segment. If the value is higher than 1.0
+    /// and the `avg_logprob` is below -1, consider this segment silent.
+    pub no_speech_prob: f32,
 }
 
 #[derive(Clone, Default, Debug, Builder, PartialEq, Serialize)]
