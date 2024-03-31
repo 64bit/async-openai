@@ -117,7 +117,7 @@ impl Default for InputSource {
 }
 
 /// for `impl_input!(Struct)` where
-/// ```
+/// ```text
 /// Struct {
 ///     source: InputSource
 /// }

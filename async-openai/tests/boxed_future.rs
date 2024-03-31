@@ -27,7 +27,7 @@ async fn boxed_future_test() {
     let client = Client::new();
 
     let request = CreateCompletionRequestArgs::default()
-        .model("text-babbage-001")
+        .model("gpt-3.5-turbo-instruct")
         .n(1)
         .prompt("does 2 and 2 add to four? (yes/no):\n")
         .stream(true)
