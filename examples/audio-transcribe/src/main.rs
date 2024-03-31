@@ -1,6 +1,6 @@
 use async_openai::{
     types::{AudioResponseFormat, CreateTranscriptionRequestArgs, TimestampGranularity},
-    Client
+    Client,
 };
 use std::error::Error;
 
@@ -36,7 +36,10 @@ async fn transcribe_verbose_json() -> Result<(), Box<dyn Error>> {
         )
         .model("whisper-1")
         .response_format(AudioResponseFormat::VerboseJson)
-        .timestamp_granularities(vec![TimestampGranularity::Word, TimestampGranularity::Segment])
+        .timestamp_granularities(vec![
+            TimestampGranularity::Word,
+            TimestampGranularity::Segment,
+        ])
         .build()?;
 
     let response = client.audio().transcribe_verbose_json(request).await?;

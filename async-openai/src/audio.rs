@@ -5,7 +5,8 @@ use crate::{
     error::OpenAIError,
     types::{
         CreateSpeechRequest, CreateSpeechResponse, CreateTranscriptionRequest,
-        CreateTranscriptionResponseJson, CreateTranscriptionResponseVerboseJson, CreateTranslationRequest, CreateTranslationResponse,
+        CreateTranscriptionResponseJson, CreateTranscriptionResponseVerboseJson,
+        CreateTranslationRequest, CreateTranslationResponse,
     },
     Client,
 };
