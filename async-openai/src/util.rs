@@ -73,3 +73,42 @@ pub(crate) fn create_all_dir<P: AsRef<Path>>(dir: P) -> Result<(), OpenAIError> 
 
     Ok(())
 }
+
+/// Formatter for serializing JSON with non-ASCII characters escaped.
+pub(crate) struct EscapeNonAscii;
+
+impl serde_json::ser::Formatter for EscapeNonAscii {
+    fn write_string_fragment<W: ?Sized + std::io::Write>(
+        &mut self,
+        writer: &mut W,
+        fragment: &str,
+    ) -> std::io::Result<()> {
+        for ch in fragment.chars() {
+            if ch.is_ascii() {
+                writer.write_all(ch.encode_utf8(&mut [0; 4]).as_bytes())?;
+            } else {
+                let mut buf = [0; 2];
+                let escape = ch.encode_utf16(&mut buf);
+                if escape.len() == 1 {
+                    write!(writer, "\\u{:04x}", escape[0])?;
+                } else {
+                    write!(writer, "\\u{:04x}\\u{:04x}", escape[0], escape[1])?;
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+/// Serialize the given value to JSON with non-ASCII characters escaped.
+pub(crate) fn escape_non_ascii_json<T: serde::Serialize>(
+    value: &T,
+) -> Result<Vec<u8>, OpenAIError> {
+    let mut writer = Vec::with_capacity(128);
+    let formatter = EscapeNonAscii;
+    let mut ser = serde_json::Serializer::with_formatter(&mut writer, formatter);
+    value
+        .serialize(&mut ser)
+        .map_err(|err| OpenAIError::InvalidArgument(format!("{err:#}")))?;
+    Ok(writer)
+}

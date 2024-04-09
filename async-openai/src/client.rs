@@ -2,6 +2,7 @@ use std::pin::Pin;
 
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
+use reqwest::header::{HeaderValue, CONTENT_TYPE};
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -11,6 +12,7 @@ use crate::{
     file::Files,
     image::Images,
     moderation::Moderations,
+    util::escape_non_ascii_json,
     Assistants, Audio, Batches, Chat, Completions, Embeddings, FineTuning, Models, Threads,
     VectorStores,
 };
@@ -207,7 +209,8 @@ impl<C: Config> Client<C> {
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .json(&request)
+                .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
+                .body(escape_non_ascii_json(&request)?)
                 .build()?)
         };
 
@@ -226,7 +229,8 @@ impl<C: Config> Client<C> {
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .json(&request)
+                .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
+                .body(escape_non_ascii_json(&request)?)
                 .build()?)
         };
 
