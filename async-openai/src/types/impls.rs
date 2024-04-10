@@ -125,11 +125,13 @@ impl_default!(Prompt);
 impl_default!(ModerationInput);
 impl_default!(EmbeddingInput);
 
-#[cfg(not(feature = "wasm"))]
 impl Default for InputSource {
     fn default() -> Self {
-        InputSource::Path {
-            path: PathBuf::new(),
+        const EMPTY_STR: String = String::new();
+        const EMPTY_VEC: Vec<u8> = Vec::new();
+        InputSource::VecU8 {
+            filename: EMPTY_STR,
+            vec: EMPTY_VEC,
         }
     }
 }
