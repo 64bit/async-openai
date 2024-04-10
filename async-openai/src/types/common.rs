@@ -1,3 +1,4 @@
+#[cfg(not(feature = "wasm"))]
 use std::path::PathBuf;
 
 use bytes::Bytes;

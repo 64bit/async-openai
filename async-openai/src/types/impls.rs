@@ -1,9 +1,18 @@
 use std::fmt::Display;
 use bytes::Bytes;
 
-use crate::error::OpenAIError;
-use crate::types::InputSource;
-use crate::util::create_file_part;
+use crate::{
+    error::OpenAIError,
+    types::InputSource,
+    util::create_file_part,
+};
+
+#[cfg(not(feature = "wasm"))]
+use super::{
+    ImagesResponse,
+    CreateSpeechResponse,
+    Image,
+};
 
 use super::{
     ChatCompletionFunctionCall,
@@ -16,12 +25,13 @@ use super::{
     ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
     ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption,
-    FunctionName, DallE2ImageSize, ImageModel, ImageUrl, ResponseFormat, ImagesResponse,
+    FunctionName, DallE2ImageSize, ImageModel,
     AudioInput, AudioResponseFormat,
     CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
+    CreateImageEditRequest, CreateImageVariationRequest,
     CreateTranscriptionRequest, CreateTranslationRequest,
-    Image, FileInput, ImageInput, ImageSize
+    FileInput, ImageInput, ImageSize, ImageUrl,
+    ResponseFormat, TimestampGranularity,
 };
 
 #[cfg(not(feature = "wasm"))]
@@ -115,17 +125,19 @@ impl_default!(Prompt);
 impl_default!(ModerationInput);
 impl_default!(EmbeddingInput);
 
-#[cfg(not(feature = "wasm"))]
 impl Default for InputSource {
     fn default() -> Self {
-        InputSource::Path {
-            path: PathBuf::new(),
+        const EMPTY_STR: String = String::new();
+        const EMPTY_VEC: Vec<u8> = Vec::new();
+        InputSource::VecU8 {
+            filename: EMPTY_STR,
+            vec: EMPTY_VEC,
         }
     }
 }
 
 /// for `impl_input!(Struct)` where
-/// ```
+/// ```text
 /// Struct {
 ///     source: InputSource
 /// }
@@ -232,6 +244,19 @@ impl Display for AudioResponseFormat {
                 AudioResponseFormat::Text => "text",
                 AudioResponseFormat::VerboseJson => "verbose_json",
                 AudioResponseFormat::Vtt => "vtt",
+            }
+        )
+    }
+}
+
+impl Display for TimestampGranularity {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                TimestampGranularity::Word => "word",
+                TimestampGranularity::Segment => "segment",
             }
         )
     }
@@ -562,7 +587,7 @@ impl From<String> for ChatCompletionRequestUserMessageContent {
 }
 
 impl From<Vec<ChatCompletionRequestMessageContentPart>>
-    for ChatCompletionRequestUserMessageContent
+for ChatCompletionRequestUserMessageContent
 {
     fn from(value: Vec<ChatCompletionRequestMessageContentPart>) -> Self {
         ChatCompletionRequestUserMessageContent::Array(value)
@@ -576,7 +601,7 @@ impl From<ChatCompletionRequestMessageContentPartText> for ChatCompletionRequest
 }
 
 impl From<ChatCompletionRequestMessageContentPartImage>
-    for ChatCompletionRequestMessageContentPart
+for ChatCompletionRequestMessageContentPart
 {
     fn from(value: ChatCompletionRequestMessageContentPartImage) -> Self {
         ChatCompletionRequestMessageContentPart::Image(value)
@@ -649,6 +674,17 @@ impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::
         if let Some(temperature) = request.temperature {
             form = form.text("temperature", temperature.to_string())
         }
+
+        if let Some(language) = request.language {
+            form = form.text("language", language);
+        }
+
+        if let Some(timestamp_granularities) = request.timestamp_granularities {
+            for tg in timestamp_granularities {
+                form = form.text("timestamp_granularities[]", tg.to_string());
+            }
+        }
+
         Ok(form)
     }
 }

@@ -49,9 +49,7 @@
 //!
 //! Enabling `wasm` will disable:
 //! * retries
-//! * Default impls and derives for file-related structs. For example, [`crate::types::CreateImageEditRequest`].
-//!     * Because builder pattern depends on `Default` trait, builders for file-related structs are also disabled. You need to explicitly construct structs that are related to files.
-//! * File-related operations are disabled. For example, saving an audio file. You need to manage file operations yourself via web APIs.
+//! * file saving: You need to manage file operations yourself via web APIs.
 //!
 //! ## Making requests
 //!
@@ -66,7 +64,7 @@
 //! // Create request using builder pattern
 //! // Every request struct has companion builder struct with same name + Args suffix
 //! let request = CreateCompletionRequestArgs::default()
-//!     .model("text-davinci-003")
+//!     .model("gpt-3.5-turbo-instruct")
 //!     .prompt("Tell me the recipe of alfredo pasta")
 //!     .max_tokens(40_u16)
 //!     .build()
@@ -108,13 +106,9 @@ mod completion;
 pub mod config;
 #[cfg(not(feature = "wasm"))]
 mod download;
-#[deprecated(since = "0.15.0", note = "By OpenAI")]
-mod edit;
 mod embedding;
 pub mod error;
 mod file;
-#[deprecated(since = "0.15.0", note = "By OpenAI")]
-mod fine_tune;
 mod fine_tuning;
 mod image;
 mod message_files;
@@ -133,10 +127,8 @@ pub use audio::Audio;
 pub use chat::Chat;
 pub use client::Client;
 pub use completion::Completions;
-pub use edit::Edits;
 pub use embedding::Embeddings;
 pub use file::Files;
-pub use fine_tune::FineTunes;
 pub use fine_tuning::FineTuning;
 pub use image::Images;
 pub use message_files::MessageFiles;

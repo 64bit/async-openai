@@ -55,6 +55,7 @@ impl<'c, C: Config> Files<'c, C> {
 }
 
 #[cfg(test)]
+#[cfg(not(feature = "wasm"))]
 mod tests {
     use crate::{types::CreateFileRequestArgs, Client};
 

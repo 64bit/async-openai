@@ -1,23 +1,22 @@
 use derive_builder::Builder;
+
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
 use super::InputSource;
 
-#[cfg_attr(not(feature = "wasm"), derive(Default))]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct FileInput {
     pub source: InputSource,
 }
 
-#[cfg_attr(not(feature = "wasm"), derive(Default, Builder))]
-#[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(not(feature = "wasm"), builder(name = "CreateFileRequestArgs"))]
-#[cfg_attr(not(feature = "wasm"), builder(pattern = "mutable"))]
-#[cfg_attr(not(feature = "wasm"), builder(setter(into, strip_option), default))]
-#[cfg_attr(not(feature = "wasm"), builder(derive(Debug)))]
-#[cfg_attr(not(feature = "wasm"), builder(build_fn(error = "OpenAIError")))]
+#[derive(Debug, Clone, PartialEq, Default, Builder)]
+#[builder(name = "CreateFileRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateFileRequest {
     /// The file object to be uploaded.
     ///

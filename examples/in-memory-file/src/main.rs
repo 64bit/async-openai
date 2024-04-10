@@ -1,11 +1,12 @@
+use async_openai::types::AudioInput;
 use async_openai::{types::CreateTranscriptionRequestArgs, Client};
 use std::error::Error;
 use std::fs;
-use async_openai::types::AudioInput;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let filename = "A Message From Sir David Attenborough A Perfect Planet BBC Earth_320kbps.mp3".to_string();
+    let filename =
+        "A Message From Sir David Attenborough A Perfect Planet BBC Earth_320kbps.mp3".to_string();
     let file_contents = fs::read(format!("./audio/{}", filename))?;
 
     let bytes = bytes::Bytes::from(file_contents);

@@ -11,7 +11,7 @@ wasm-opt = false
 crate-type = ["cdylib"]
 
 [dependencies]
-worker = "0.0.18"
+worker = "0.1.0"
 serde = { version = "1.0", features = ["derive"] }
 
 [dependencies.async-openai]
