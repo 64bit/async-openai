@@ -2,13 +2,10 @@ use std::fmt::Display;
 use bytes::Bytes;
 
 use crate::{
-    download::{download_url, save_b64},
     error::OpenAIError,
     types::InputSource,
-    util::{create_all_dir, create_file_part},
+    util::create_file_part,
 };
-
-use bytes::Bytes;
 
 use super::{
     ChatCompletionFunctionCall,
@@ -21,13 +18,13 @@ use super::{
     ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
     ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption,
-    FunctionName, DallE2ImageSize, ImageModel, ImageUrl, ResponseFormat, ImagesResponse,
+    FunctionName, DallE2ImageSize, ImageModel, ImagesResponse,
     AudioInput, AudioResponseFormat,
     CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
-    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
-    FileInput, FunctionName, Image, ImageInput, ImageModel, ImageSize, ImageUrl, ImagesResponse,
-    ModerationInput, Prompt, ResponseFormat, Role, Stop, TimestampGranularity,
+    CreateTranscriptionRequest, CreateTranslationRequest,
+    FileInput, Image, ImageInput, ImageSize, ImageUrl,
+    ResponseFormat, TimestampGranularity,
 };
 
 #[cfg(not(feature = "wasm"))]
@@ -581,7 +578,7 @@ impl From<String> for ChatCompletionRequestUserMessageContent {
 }
 
 impl From<Vec<ChatCompletionRequestMessageContentPart>>
-    for ChatCompletionRequestUserMessageContent
+for ChatCompletionRequestUserMessageContent
 {
     fn from(value: Vec<ChatCompletionRequestMessageContentPart>) -> Self {
         ChatCompletionRequestUserMessageContent::Array(value)
@@ -595,7 +592,7 @@ impl From<ChatCompletionRequestMessageContentPartText> for ChatCompletionRequest
 }
 
 impl From<ChatCompletionRequestMessageContentPartImage>
-    for ChatCompletionRequestMessageContentPart
+for ChatCompletionRequestMessageContentPart
 {
     fn from(value: ChatCompletionRequestMessageContentPartImage) -> Self {
         ChatCompletionRequestMessageContentPart::Image(value)

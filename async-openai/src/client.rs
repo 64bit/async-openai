@@ -14,10 +14,8 @@ use crate::{
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, OpenAIError, WrappedError},
     moderation::Moderations,
-    error::{map_deserialization_error, OpenAIError, WrappedError},
     file::Files,
     image::Images,
-    moderation::Moderations,
     Assistants, Audio, Chat, Completions, Embeddings, FineTuning, Models, Threads,
 };
 
@@ -48,11 +46,13 @@ impl<C: Config> Client<C> {
     pub fn build(
         http_client: reqwest::Client,
         config: C,
+        #[cfg(feature = "backoff")]
         backoff: backoff::ExponentialBackoff,
     ) -> Self {
         Self {
             http_client,
             config,
+            #[cfg(feature = "backoff")]
             backoff,
         }
     }
