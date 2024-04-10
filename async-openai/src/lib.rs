@@ -49,9 +49,7 @@
 //!
 //! Enabling `wasm` will disable:
 //! * retries
-//! * Default impls and derives for file-related structs. For example, [`crate::types::CreateImageEditRequest`].
-//!     * Because builder pattern depends on `Default` trait, builders for file-related structs are also disabled. You need to explicitly construct structs that are related to files.
-//! * File-related operations are disabled. For example, saving an audio file. You need to manage file operations yourself via web APIs.
+//! * file saving: You need to manage file operations yourself via web APIs.
 //!
 //! ## Making requests
 //!
