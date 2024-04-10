@@ -6,7 +6,7 @@ use async_openai::types::{
     ChatCompletionRequestFunctionMessageArgs, ChatCompletionRequestUserMessageArgs, FinishReason,
 };
 use async_openai::{
-    types::{ChatCompletionFunctionsArgs, CreateChatCompletionRequestArgs, Role},
+    types::{ChatCompletionFunctionsArgs, CreateChatCompletionRequestArgs},
     Client,
 };
 

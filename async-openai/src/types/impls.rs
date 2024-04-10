@@ -1,9 +1,14 @@
 use std::fmt::Display;
 use bytes::Bytes;
 
-use crate::error::OpenAIError;
-use crate::types::InputSource;
-use crate::util::create_file_part;
+use crate::{
+    download::{download_url, save_b64},
+    error::OpenAIError,
+    types::InputSource,
+    util::{create_all_dir, create_file_part},
+};
+
+use bytes::Bytes;
 
 use super::{
     ChatCompletionFunctionCall,
@@ -20,8 +25,9 @@ use super::{
     AudioInput, AudioResponseFormat,
     CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
-    CreateTranscriptionRequest, CreateTranslationRequest,
-    Image, FileInput, ImageInput, ImageSize
+    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
+    FileInput, FunctionName, Image, ImageInput, ImageModel, ImageSize, ImageUrl, ImagesResponse,
+    ModerationInput, Prompt, ResponseFormat, Role, Stop, TimestampGranularity,
 };
 
 #[cfg(not(feature = "wasm"))]
@@ -125,7 +131,7 @@ impl Default for InputSource {
 }
 
 /// for `impl_input!(Struct)` where
-/// ```
+/// ```text
 /// Struct {
 ///     source: InputSource
 /// }
@@ -232,6 +238,19 @@ impl Display for AudioResponseFormat {
                 AudioResponseFormat::Text => "text",
                 AudioResponseFormat::VerboseJson => "verbose_json",
                 AudioResponseFormat::Vtt => "vtt",
+            }
+        )
+    }
+}
+
+impl Display for TimestampGranularity {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                TimestampGranularity::Word => "word",
+                TimestampGranularity::Segment => "segment",
             }
         )
     }
@@ -649,6 +668,17 @@ impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::
         if let Some(temperature) = request.temperature {
             form = form.text("temperature", temperature.to_string())
         }
+
+        if let Some(language) = request.language {
+            form = form.text("language", language);
+        }
+
+        if let Some(timestamp_granularities) = request.timestamp_granularities {
+            for tg in timestamp_granularities {
+                form = form.text("timestamp_granularities[]", tg.to_string());
+            }
+        }
+
         Ok(form)
     }
 }

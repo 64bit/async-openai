@@ -14,10 +14,12 @@ use crate::{
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, OpenAIError, WrappedError},
     moderation::Moderations,
-    edit::Edits,
+    error::{map_deserialization_error, OpenAIError, WrappedError},
     file::Files,
     image::Images,
-    Chat, Completions, Embeddings, Models, FineTunes, FineTuning, Assistants, Threads, Audio};
+    moderation::Moderations,
+    Assistants, Audio, Chat, Completions, Embeddings, FineTuning, Models, Threads,
+};
 
 #[derive(Debug, Clone)]
 /// Client is a container for config, backoff and http_client
@@ -42,6 +44,19 @@ impl Client<OpenAIConfig> {
 }
 
 impl<C: Config> Client<C> {
+    /// Create client with a custom HTTP client, OpenAI config, and backoff.
+    pub fn build(
+        http_client: reqwest::Client,
+        config: C,
+        backoff: backoff::ExponentialBackoff,
+    ) -> Self {
+        Self {
+            http_client,
+            config,
+            backoff,
+        }
+    }
+
     /// Create client with [OpenAIConfig] or [crate::config::AzureConfig]
     pub fn with_config(config: C) -> Self {
         Self {
@@ -84,12 +99,6 @@ impl<C: Config> Client<C> {
         Chat::new(self)
     }
 
-    /// To call [Edits] group related APIs using this client.
-    #[deprecated(since = "0.15.0", note = "By OpenAI")]
-    pub fn edits(&self) -> Edits<C> {
-        Edits::new(self)
-    }
-
     /// To call [Images] group related APIs using this client.
     pub fn images(&self) -> Images<C> {
         Images::new(self)
@@ -103,12 +112,6 @@ impl<C: Config> Client<C> {
     /// To call [Files] group related APIs using this client.
     pub fn files(&self) -> Files<C> {
         Files::new(self)
-    }
-
-    /// To call [FineTunes] group related APIs using this client.
-    #[deprecated(since = "0.15.0", note = "By OpenAI")]
-    pub fn fine_tunes(&self) -> FineTunes<C> {
-        FineTunes::new(self)
     }
 
     /// To call [FineTuning] group related APIs using this client.
@@ -228,6 +231,25 @@ impl<C: Config> Client<C> {
         };
 
         self.execute(request_maker).await
+    }
+
+    /// POST a form at {path} and return the response body
+    pub(crate) async fn post_form_raw<F>(&self, path: &str, form: F) -> Result<Bytes, OpenAIError>
+    where
+        reqwest::multipart::Form: async_convert::TryFrom<F, Error = OpenAIError>,
+        F: Clone,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .post(self.config.url(path))
+                .query(&self.config.query())
+                .headers(self.config.headers())
+                .multipart(async_convert::TryFrom::try_from(form.clone()).await?)
+                .build()?)
+        };
+
+        self.execute_raw(request_maker).await
     }
 
     /// POST a form at {path} and deserialize the response body
