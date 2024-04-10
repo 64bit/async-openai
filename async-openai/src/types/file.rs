@@ -1,6 +1,9 @@
+#[cfg(not(feature = "wasm"))]
 use derive_builder::Builder;
+
 use serde::{Deserialize, Serialize};
 
+#[cfg(not(feature = "wasm"))]
 use crate::error::OpenAIError;
 
 use super::InputSource;

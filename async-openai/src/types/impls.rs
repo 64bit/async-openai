@@ -7,6 +7,13 @@ use crate::{
     util::create_file_part,
 };
 
+#[cfg(not(feature = "wasm"))]
+use super::{
+    ImagesResponse,
+    CreateSpeechResponse,
+    Image,
+};
+
 use super::{
     ChatCompletionFunctionCall,
     EmbeddingInput, ModerationInput,
@@ -18,12 +25,12 @@ use super::{
     ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
     ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption,
-    FunctionName, DallE2ImageSize, ImageModel, ImagesResponse,
+    FunctionName, DallE2ImageSize, ImageModel,
     AudioInput, AudioResponseFormat,
     CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
+    CreateImageEditRequest, CreateImageVariationRequest,
     CreateTranscriptionRequest, CreateTranslationRequest,
-    FileInput, Image, ImageInput, ImageSize, ImageUrl,
+    FileInput, ImageInput, ImageSize, ImageUrl,
     ResponseFormat, TimestampGranularity,
 };
 
