@@ -5,8 +5,10 @@ use serde::Deserialize;
 
 /// Default v1 API base url
 pub const OPENAI_API_BASE: &str = "https://api.openai.com/v1";
-/// Name for organization header
+/// Organization header
 pub const OPENAI_ORGANIZATION_HEADER: &str = "OpenAI-Organization";
+/// Project header
+pub const OPENAI_PROJECT_HEADER: &str = "OpenAI-Project";
 
 /// Calls to the Assistants API require that you pass a Beta header
 pub const OPENAI_BETA_HEADER: &str = "OpenAI-Beta";
@@ -30,6 +32,7 @@ pub struct OpenAIConfig {
     api_base: String,
     api_key: Secret<String>,
     org_id: String,
+    project_id: String,
 }
 
 impl Default for OpenAIConfig {
@@ -40,6 +43,7 @@ impl Default for OpenAIConfig {
                 .unwrap_or_else(|_| "".to_string())
                 .into(),
             org_id: Default::default(),
+            project_id: Default::default(),
         }
     }
 }
@@ -53,6 +57,12 @@ impl OpenAIConfig {
     /// To use a different organization id other than default
     pub fn with_org_id<S: Into<String>>(mut self, org_id: S) -> Self {
         self.org_id = org_id.into();
+        self
+    }
+
+    /// Non default project id
+    pub fn with_project_id<S: Into<String>>(mut self, project_id: S) -> Self {
+        self.project_id = project_id.into();
         self
     }
 
@@ -80,6 +90,13 @@ impl Config for OpenAIConfig {
             headers.insert(
                 OPENAI_ORGANIZATION_HEADER,
                 self.org_id.as_str().parse().unwrap(),
+            );
+        }
+
+        if !self.project_id.is_empty() {
+            headers.insert(
+                OPENAI_PROJECT_HEADER,
+                self.project_id.as_str().parse().unwrap(),
             );
         }
 
