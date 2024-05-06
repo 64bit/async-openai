@@ -145,6 +145,15 @@ pub struct ListFineTuningJobEventsResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ListFineTuningJobCheckpointsResponse {
+    pub data: Vec<FineTuningJobCheckpoint>,
+    pub object: String,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
+    pub has_more: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum Level {
     Info,
@@ -160,4 +169,34 @@ pub struct FineTuningJobEvent {
     pub level: Level,
     pub message: String,
     pub object: String,
+}
+
+/// The `fine_tuning.job.checkpoint` object represents a model checkpoint for a fine-tuning job that is ready to use.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct FineTuningJobCheckpoint {
+    /// The checkpoint identifier, which can be referenced in the API endpoints.
+    pub id: String,
+    /// The Unix timestamp (in seconds) for when the checkpoint was created.
+    pub created_at: u32,
+    /// The name of the fine-tuned checkpoint model that is created.
+    pub fine_tuned_model_checkpoint: String,
+    /// The step number that the checkpoint was created at.
+    pub step_number: u32,
+    /// Metrics at the step number during the fine-tuning job.
+    pub metrics: FineTuningJobCheckpointMetrics,
+    /// The name of the fine-tuning job that this checkpoint was created from.
+    pub fine_tuning_job_id: String,
+    /// The object type, which is always "fine_tuning.job.checkpoint".
+    pub object: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct FineTuningJobCheckpointMetrics {
+    pub step: u32,
+    pub train_loss: f32,
+    pub train_mean_token_accuracy: f32,
+    pub valid_loss: f32,
+    pub valid_mean_token_accuracy: f32,
+    pub full_valid_loss: f32,
+    pub full_valid_mean_token_accuracy: f32,
 }
