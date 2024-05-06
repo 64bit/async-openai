@@ -226,8 +226,21 @@ pub struct CreateTranslationRequest {
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
-pub struct CreateTranslationResponse {
+pub struct CreateTranslationResponseJson {
     pub text: String,
+}
+
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct CreateTranslationResponseVerboseJson {
+    /// The language of the output translation (always `english`).
+    pub language: String,
+    /// The duration of the input audio.
+    pub duration: String,
+    /// The translated text.
+    pub text: String,
+    /// Segments of the translated text and their corresponding details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub segments: Option<Vec<TranscriptionSegment>>,
 }
 
 #[derive(Debug, Clone)]
