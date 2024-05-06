@@ -98,6 +98,7 @@ mod steps;
 mod threads;
 pub mod types;
 mod util;
+mod vector_stores;
 
 pub use assistant_files::AssistantFiles;
 pub use assistants::Assistants;
@@ -116,3 +117,4 @@ pub use moderation::Moderations;
 pub use runs::Runs;
 pub use steps::Steps;
 pub use threads::Threads;
+pub use vector_stores::VectorStores;

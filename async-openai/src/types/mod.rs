@@ -18,6 +18,7 @@ mod moderation;
 mod run;
 mod step;
 mod thread;
+mod vector_store;
 
 pub use assistant::*;
 pub use assistant_file::*;
@@ -36,6 +37,7 @@ pub use moderation::*;
 pub use run::*;
 pub use step::*;
 pub use thread::*;
+pub use vector_store::*;
 
 mod impls;
 use derive_builder::UninitializedFieldError;
