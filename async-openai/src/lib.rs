@@ -79,6 +79,7 @@
 mod assistant_files;
 mod assistants;
 mod audio;
+mod batches;
 mod chat;
 mod client;
 mod completion;
@@ -105,6 +106,7 @@ mod vector_stores;
 pub use assistant_files::AssistantFiles;
 pub use assistants::Assistants;
 pub use audio::Audio;
+pub use batches::Batches;
 pub use chat::Chat;
 pub use client::Client;
 pub use completion::Completions;
