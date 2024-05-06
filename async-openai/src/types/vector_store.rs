@@ -113,3 +113,73 @@ pub struct UpdateVectorStoreRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<serde_json::Value>,
 }
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct ListVectorStoreFilesResponse {
+    pub object: String,
+    pub data: Vec<VectorStoreFileObject>,
+    pub first_id: String,
+    pub last_id: String,
+    pub has_more: bool,
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct VectorStoreFileObject {
+    /// The identifier, which can be referenced in API endpoints.
+    pub id: String,
+    /// The object type, which is always `vector_store.file`.
+    pub object: String,
+    /// The total vector store usage in bytes. Note that this may be different from the original file size.
+    pub usage_bytes: u64,
+    /// The Unix timestamp (in seconds) for when the vector store file was created.
+    pub created_at: u32,
+    /// The ID of the [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) that the [File](https://platform.openai.com/docs/api-reference/files) is attached to.
+    pub vector_store_id: String,
+    /// The status of the vector store file, which can be either `in_progress`, `completed`, `cancelled`, or `failed`. The status `completed` indicates that the vector store file is ready for use.
+    pub status: VectorStoreFileStatus,
+    /// The last error associated with this vector store file. Will be `null` if there are no errors.
+    pub last_error: Option<VectorStoreFileError>,
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum VectorStoreFileStatus {
+    InProgress,
+    Completed,
+    Cancelled,
+    Failed,
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct VectorStoreFileError {
+    pub code: VectorStoreFileErrorCode,
+    /// A human-readable description of the error.
+    pub message: String,
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum VectorStoreFileErrorCode {
+    InternalError,
+    FileNotFound,
+    ParsingError,
+    UnhandledMimeType,
+}
+
+#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
+#[builder(name = "CreateVectorStoreFileRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateVectorStoreFileRequest {
+    /// A [File](https://platform.openai.com/docs/api-reference/files) ID that the vector store should use. Useful for tools like `file_search` that can access files.
+    pub file_id: String,
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct DeleteVectorStoreFileResponse {
+    pub id: String,
+    pub object: String,
+    pub deleted: bool,
+}

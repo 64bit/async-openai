@@ -7,7 +7,7 @@ use crate::{
         CreateVectorStoreRequest, DeleteVectorStoreResponse, ListVectorStoresResponse,
         UpdateVectorStoreRequest, VectorStoreObject,
     },
-    Client,
+    Client, VectorStoreFiles,
 };
 
 pub struct VectorStores<'c, C: Config> {
@@ -17,6 +17,11 @@ pub struct VectorStores<'c, C: Config> {
 impl<'c, C: Config> VectorStores<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
         Self { client }
+    }
+
+    /// [VectorStoreFiles] API group
+    pub fn files(&self, vector_store_id: &str) -> VectorStoreFiles<C> {
+        VectorStoreFiles::new(self.client, vector_store_id)
     }
 
     /// Create a vector store.
