@@ -183,3 +183,53 @@ pub struct DeleteVectorStoreFileResponse {
     pub object: String,
     pub deleted: bool,
 }
+
+#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
+#[builder(name = "CreateVectorStoreFileBatchRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateVectorStoreFileBatchRequest {
+    /// A list of [File](https://platform.openai.com/docs/api-reference/files) IDs that the vector store should use. Useful for tools like `file_search` that can access files.
+    pub file_ids: Vec<String>, // minItems: 1, maxItems: 500
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum VectorStoreFileBatchStatus {
+    InProgress,
+    Completed,
+    Cancelled,
+    Failed,
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct VectorStoreFileBatchCounts {
+    /// The number of files that are currently being processed.
+    pub in_progress: u32,
+    /// The number of files that have been successfully processed.
+    pub completed: u32,
+    /// The number of files that have failed to process.
+    pub failed: u32,
+    /// The number of files that were cancelled.
+    pub cancelled: u32,
+    /// The total number of files.
+    pub total: u32,
+}
+
+///  A batch of files attached to a vector store.
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct VectorStoreFileBatchObject {
+    /// The identifier, which can be referenced in API endpoints.
+    pub id: String,
+    /// The object type, which is always `vector_store.file_batch`.
+    pub object: String,
+    /// The Unix timestamp (in seconds) for when the vector store files batch was created.
+    pub created_at: u32,
+    /// The ID of the [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) that the [File](https://platform.openai.com/docs/api-reference/files) is attached to.
+    pub vector_store_id: String,
+    /// The status of the vector store files batch, which can be either `in_progress`, `completed`, `cancelled` or `failed`.
+    pub status: VectorStoreFileBatchStatus,
+    pub file_counts: VectorStoreFileBatchCounts,
+}

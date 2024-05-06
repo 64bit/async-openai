@@ -7,6 +7,7 @@ use crate::{
         CreateVectorStoreRequest, DeleteVectorStoreResponse, ListVectorStoresResponse,
         UpdateVectorStoreRequest, VectorStoreObject,
     },
+    vector_store_file_batches::VectorStoreFileBatches,
     Client, VectorStoreFiles,
 };
 
@@ -22,6 +23,11 @@ impl<'c, C: Config> VectorStores<'c, C> {
     /// [VectorStoreFiles] API group
     pub fn files(&self, vector_store_id: &str) -> VectorStoreFiles<C> {
         VectorStoreFiles::new(self.client, vector_store_id)
+    }
+
+    /// [VectorStoreFileBatches] API group
+    pub fn file_batches(&self, vector_store_id: &str) -> VectorStoreFileBatches<C> {
+        VectorStoreFileBatches::new(self.client, vector_store_id)
     }
 
     /// Create a vector store.
