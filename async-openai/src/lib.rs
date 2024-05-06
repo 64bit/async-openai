@@ -119,5 +119,6 @@ pub use moderation::Moderations;
 pub use runs::Runs;
 pub use steps::Steps;
 pub use threads::Threads;
+pub use vector_store_file_batches::VectorStoreFileBatches;
 pub use vector_store_files::VectorStoreFiles;
 pub use vector_stores::VectorStores;
