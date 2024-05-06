@@ -5,7 +5,7 @@ use crate::{
     Client,
 };
 
-/// Given a input text, outputs if the model classifies it as violating OpenAI's content policy.
+/// Given some input text, outputs if the model classifies it as potentially harmful across several categories.
 ///
 /// Related guide: [Moderations](https://platform.openai.com/docs/guides/moderation)
 pub struct Moderations<'c, C: Config> {
@@ -17,7 +17,7 @@ impl<'c, C: Config> Moderations<'c, C> {
         Self { client }
     }
 
-    /// Classifies if text violates OpenAI's Content Policy
+    /// Classifies if text is potentially harmful.
     pub async fn create(
         &self,
         request: CreateModerationRequest,
