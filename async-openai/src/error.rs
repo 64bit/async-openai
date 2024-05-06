@@ -32,8 +32,8 @@ pub enum OpenAIError {
 pub struct ApiError {
     pub message: String,
     pub r#type: Option<String>,
-    pub param: Option<serde_json::Value>,
-    pub code: Option<serde_json::Value>,
+    pub param: Option<String>,
+    pub code: Option<String>,
 }
 
 /// Wrapper to deserialize the error object nested in "error" JSON key
