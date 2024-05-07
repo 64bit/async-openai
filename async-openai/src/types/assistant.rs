@@ -90,7 +90,9 @@ pub struct AssistantObject {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub enum AssistantsApiResponseFormatOption {
     #[default]
+    #[serde(rename = "auto")]
     Auto,
+    #[serde(rename = "none")]
     None,
     #[serde(untagged)]
     Format(AssistantsApiResponseFormat),
