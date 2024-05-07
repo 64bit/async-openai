@@ -27,7 +27,7 @@ pub struct BatchRequest {
     pub metadata: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Default)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, Default)]
 pub enum BatchEndpoint {
     #[default]
     #[serde(rename = "/v1/chat/completions")]
@@ -134,4 +134,51 @@ pub struct ListBatchesResponse {
     pub last_id: Option<String>,
     pub has_more: bool,
     pub object: String,
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "UPPERCASE")]
+pub enum BatchRequestInputMethod {
+    POST,
+}
+
+/// The per-line object of the batch input file
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct BatchRequestInput {
+    /// A developer-provided per-request id that will be used to match outputs to inputs. Must be unique for each request in a batch.
+    pub custom_id: String,
+    /// The HTTP method to be used for the request. Currently only `POST` is supported.
+    pub method: BatchRequestInputMethod,
+    /// The OpenAI API relative URL to be used for the request. Currently `/v1/chat/completions` and `/v1/embeddings` are supported.
+    pub url: BatchEndpoint,
+    pub body: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct BatchRequestOutputResponse {
+    /// The HTTP status code of the response
+    pub status_code: u16,
+    /// An unique identifier for the OpenAI API request. Please include this request ID when contacting support.
+    pub request_id: String,
+    /// The JSON body of the response
+    pub body: serde_json::Value,
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct BatchRequestOutputError {
+    /// A machine-readable error code.
+    pub code: String,
+    /// A human-readable error message.
+    pub message: String,
+}
+
+/// The per-line object of the batch output and error files
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct BatchRequestOutput {
+    pub id: String,
+    /// A developer-provided per-request id that will be used to match outputs to inputs.
+    pub custom_id: String,
+    pub response: Option<BatchRequestOutputResponse>,
+    ///  For requests that failed with a non-HTTP error, this will contain more information on the cause of the failure.
+    pub error: Option<BatchRequestOutputError>,
 }
