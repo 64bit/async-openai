@@ -5,11 +5,37 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
+use super::{AssistantToolsCode, AssistantToolsFileSearch};
+
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum MessageRole {
     User,
     Assistant,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum MessageStatus {
+    InProgress,
+    Incomplete,
+    Completed,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum MessageIncompleteDetailsType {
+    ContentFilter,
+    MaxTokens,
+    RunCancelled,
+    RunExpired,
+    RunFailed,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct MessageIncompleteDetails {
+    /// The reason the message is incomplete.
+    pub reason: MessageIncompleteDetailsType,
 }
 
 ///  Represents a message within a [thread](https://platform.openai.com/docs/api-reference/threads).
@@ -23,6 +49,19 @@ pub struct MessageObject {
     pub created_at: i32,
     /// The [thread](https://platform.openai.com/docs/api-reference/threads) ID that this message belongs to.
     pub thread_id: String,
+
+    /// The status of the message, which can be either `in_progress`, `incomplete`, or `completed`.
+    pub status: MessageStatus,
+
+    /// On an incomplete message, details about why the message is incomplete.
+    pub incomplete_details: Option<MessageIncompleteDetails>,
+
+    /// The Unix timestamp (in seconds) for when the message was completed.
+    pub completed_at: Option<u32>,
+
+    /// The Unix timestamp (in seconds) for when the message was marked as incomplete.
+    pub incomplete_at: Option<u32>,
+
     /// The entity that produced the message. One of `user` or `assistant`.
     pub role: MessageRole,
 
@@ -32,13 +71,28 @@ pub struct MessageObject {
     /// If applicable, the ID of the [assistant](https://platform.openai.com/docs/api-reference/assistants) that authored this message.
     pub assistant_id: Option<String>,
 
-    /// If applicable, the ID of the [run](https://platform.openai.com/docs/api-reference/runs) associated with the authoring of this message.
+    /// The ID of the [run](https://platform.openai.com/docs/api-reference/runs) associated with the creation of this message. Value is `null` when messages are created manually using the create message or create thread endpoints.
     pub run_id: Option<String>,
 
-    /// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs that the assistant should use. Useful for tools like retrieval and code_interpreter that can access files. A maximum of 10 files can be attached to a message.
-    pub file_ids: Vec<String>,
+    /// A list of files attached to the message, and the tools they were added to.
+    pub attachments: Option<Vec<MessageAttachment>>,
 
     pub metadata: Option<HashMap<String, serde_json::Value>>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct MessageAttachment {
+    /// The ID of the file to attach to the message.
+    pub file_id: String,
+    /// The tools to add this file to.
+    pub tools: Vec<MessageAttachmentTool>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum MessageAttachmentTool {
+    Code(AssistantToolsCode),
+    FileSearch(AssistantToolsFileSearch),
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
