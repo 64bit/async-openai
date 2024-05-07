@@ -1,7 +1,7 @@
 use async_openai::{
     types::{
         CreateAssistantRequestArgs, CreateMessageRequestArgs, CreateRunRequestArgs,
-        CreateThreadRequestArgs, MessageContent, RunStatus,
+        CreateThreadRequestArgs, MessageContent, MessageRole, RunStatus,
     },
     Client,
 };
@@ -53,7 +53,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         //create a message for the thread
         let message = CreateMessageRequestArgs::default()
-            .role("user")
+            .role(MessageRole::User)
             .content(input.clone())
             .build()?;
 
