@@ -96,7 +96,7 @@ pub struct MessageCreation {
 pub struct RunStepDetailsToolCallsObject {
     /// Always `tool_calls`.
     pub r#type: String,
-    ///  An array of tool calls the run step was involved in. These can be associated with one of three types of tools: `code_interpreter`, `retrieval`, or `function`.
+    /// An array of tool calls the run step was involved in. These can be associated with one of three types of tools: `code_interpreter`, `file_search`, or `function`.
     pub tool_calls: Vec<RunStepDetailsToolCalls>,
 }
 
@@ -105,8 +105,7 @@ pub struct RunStepDetailsToolCallsObject {
 pub enum RunStepDetailsToolCalls {
     /// Details of the Code Interpreter tool call the run step was involved in.
     Code(RunStepDetailsToolCallsCodeObject),
-
-    Retrieval(RunStepDetailsToolCallsRetrievalObject),
+    FileSearch(RunStepDetailsToolCallsFileSearchObject),
     Function(RunStepDetailsToolCallsFunctionObject),
 }
 
@@ -156,14 +155,15 @@ pub struct RunStepDetailsToolCallsCodeOutputImageObject {
     pub image: ImageFile,
 }
 
+/// File search tool call
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-pub struct RunStepDetailsToolCallsRetrievalObject {
+pub struct RunStepDetailsToolCallsFileSearchObject {
     /// The ID of the tool call object.
     pub id: String,
-    /// The type of tool call. This is always going to be `retrieval` for this type of tool call.
+    /// The type of tool call. This is always going to be `file_search` for this type of tool call.
     pub r#type: String,
     /// For now, this is always going to be an empty object.
-    pub retrieval: HashMap<String, serde_json::Value>,
+    pub file_search: serde_json::Value,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
