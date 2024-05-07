@@ -52,7 +52,7 @@ pub struct MessageObject {
     pub thread_id: String,
 
     /// The status of the message, which can be either `in_progress`, `incomplete`, or `completed`.
-    pub status: MessageStatus,
+    pub status: Option<MessageStatus>,
 
     /// On an incomplete message, details about why the message is incomplete.
     pub incomplete_details: Option<MessageIncompleteDetails>,
