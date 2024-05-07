@@ -5,7 +5,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::{error::OpenAIError, types::FunctionCall};
 
-use super::AssistantTools;
+use super::{
+    AssistantTools, AssistantsApiResponseFormatOption, AssistantsApiToolChoiceOption,
+    CreateMessageRequest,
+};
 
 /// Represents an execution run on a [thread](https://platform.openai.com/docs/api-reference/threads).
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -42,6 +45,9 @@ pub struct RunObject {
     ///The Unix timestamp (in seconds) for when the run was completed.
     pub completed_at: Option<i32>,
 
+    /// Details on why the run is incomplete. Will be `null` if the run is not incomplete.
+    pub incomplete_details: Option<RunObjectIncompleteDetails>,
+
     /// The model that the [assistant](https://platform.openai.com/docs/api-reference/assistants) used for this run.
     pub model: String,
 
@@ -50,13 +56,60 @@ pub struct RunObject {
 
     /// The list of tools that the [assistant](https://platform.openai.com/docs/api-reference/assistants) used for this run.
     pub tools: Vec<AssistantTools>,
-    /// The list of [File](https://platform.openai.com/docs/api-reference/files) IDs the [assistant](/docs/api-reference/assistants) used for this run.
-    pub file_ids: Vec<String>,
+
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
 
     /// Usage statistics related to the run. This value will be `null` if the run is not in a terminal state (i.e. `in_progress`, `queued`, etc.).
     pub usage: Option<RunCompletionUsage>,
 
-    pub metadata: Option<HashMap<String, serde_json::Value>>,
+    /// The sampling temperature used for this run. If not set, defaults to 1.
+    pub temperature: Option<f32>,
+
+    /// The nucleus sampling value used for this run. If not set, defaults to 1.
+    pub top_p: Option<f32>,
+
+    /// The maximum number of prompt tokens specified to have been used over the course of the run.
+    pub max_prompt_tokens: Option<u32>,
+
+    /// The maximum number of completion tokens specified to have been used over the course of the run.
+    pub max_completion_tokens: Option<u32>,
+
+    /// Controls for how a thread will be truncated prior to the run. Use this to control the intial context window of the run.
+    pub truncation_strategy: Option<TruncationObject>,
+
+    pub tool_choice: Option<AssistantsApiToolChoiceOption>,
+
+    pub response_format: Option<AssistantsApiResponseFormatOption>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum TruncationObjectType {
+    #[default]
+    Auto,
+    LastMessages,
+}
+
+/// Thread Truncation Controls
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct TruncationObject {
+    /// The truncation strategy to use for the thread. The default is `auto`. If set to `last_messages`, the thread will be truncated to the n most recent messages in the thread. When set to `auto`, messages in the middle of the thread will be dropped to fit the context length of the model, `max_prompt_tokens`.
+    pub r#type: TruncationObjectType,
+    /// The number of most recent messages from the thread when constructing the context for the run.
+    pub last_messages: Option<u32>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunObjectIncompleteDetails {
+    /// The reason why the run is incomplete. This will point to which specific token limit was reached over the course of the run.
+    pub reason: RunObjectIncompleteDetailsReason,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum RunObjectIncompleteDetailsReason {
+    MaxCompletionTokens,
+    MaxPromptTokens,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -108,6 +161,7 @@ pub struct LastError {
 pub enum LastErrorCode {
     ServerError,
     RateLimitExceeded,
+    InvalidPrompt,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -139,10 +193,37 @@ pub struct CreateRunRequest {
     /// Appends additional instructions at the end of the instructions for the run. This is useful for modifying the behavior on a per-run basis without overriding other instructions.
     pub additional_instructions: Option<String>,
 
+    /// Adds additional messages to the thread before creating the run.
+    pub additional_messages: Option<Vec<CreateMessageRequest>>,
+
     /// Override the tools the assistant can use for this run. This is useful for modifying the behavior on a per-run basis.
     pub tools: Option<Vec<AssistantTools>>,
 
     pub metadata: Option<HashMap<String, serde_json::Value>>,
+
+    /// The sampling temperature used for this run. If not set, defaults to 1.
+    pub temperature: Option<f32>,
+
+    ///  An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
+    ///
+    /// We generally recommend altering this or temperature but not both.
+    pub top_p: Option<f32>,
+
+    /// If `true`, returns a stream of events that happen during the Run as server-sent events, terminating when the Run enters a terminal state with a `data: [DONE]` message.
+    pub stream: Option<bool>,
+
+    /// The maximum number of prompt tokens that may be used over the course of the run. The run will make a best effort to use only the number of prompt tokens specified, across multiple turns of the run. If the run exceeds the number of prompt tokens specified, the run will end with status `incomplete`. See `incomplete_details` for more info.
+    pub max_prompt_tokens: Option<u32>,
+
+    /// The maximum number of completion tokens that may be used over the course of the run. The run will make a best effort to use only the number of completion tokens specified, across multiple turns of the run. If the run exceeds the number of completion tokens specified, the run will end with status `incomplete`. See `incomplete_details` for more info.
+    pub max_completion_tokens: Option<u32>,
+
+    /// Controls for how a thread will be truncated prior to the run. Use this to control the intial context window of the run.
+    pub truncation_strategy: Option<TruncationObject>,
+
+    pub tool_choice: Option<AssistantsApiToolChoiceOption>,
+
+    pub response_format: Option<AssistantsApiResponseFormatOption>,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
@@ -164,6 +245,8 @@ pub struct ListRunsResponse {
 pub struct SubmitToolOutputsRunRequest {
     /// A list of tools for which the outputs are being submitted.
     pub tool_outputs: Vec<ToolsOutputs>,
+    /// If `true`, returns a stream of events that happen during the Run as server-sent events, terminating when the Run enters a terminal state with a `data: [DONE]` message.
+    pub stream: Option<bool>,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]

@@ -110,7 +110,7 @@ pub struct CategoryScore {
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ContentModerationResult {
-    /// Whether the content violates [OpenAI's usage policies](https://platform.openai.com/policies/usage-policies).
+    /// Whether any of the below categories are flagged.
     pub flagged: bool,
     /// A list of the categories, and whether they are flagged or not.
     pub categories: Category,
@@ -118,7 +118,7 @@ pub struct ContentModerationResult {
     pub category_scores: CategoryScore,
 }
 
-/// Represents policy compliance report by OpenAI's content moderation model against a given input.
+/// Represents if a given text input is potentially harmful.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct CreateModerationResponse {
     /// The unique identifier for the moderation request.

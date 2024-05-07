@@ -378,18 +378,20 @@ pub struct ChatCompletionNamedToolChoice {
     pub function: FunctionName,
 }
 
-/// Controls which (if any) function is called by the model.
-/// `none` means the model will not call a function and instead generates a message.
-/// `auto` means the model can pick between generating a message or calling a function.
-/// Specifying a particular function via `{"type: "function", "function": {"name": "my_function"}}` forces the model to call that function.
-
-/// `none` is the default when no functions are present. `auto` is the default if functions are present.
+/// Controls which (if any) tool is called by the model.
+/// `none` means the model will not call any tool and instead generates a message.
+/// `auto` means the model can pick between generating a message or calling one or more tools.
+/// `required` means the model must call one or more tools.
+/// Specifying a particular tool via `{"type": "function", "function": {"name": "my_function"}}` forces the model to call that tool.
+///
+/// `none` is the default when no tools are present. `auto` is the default if tools are present.present.
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ChatCompletionToolChoiceOption {
     #[default]
     None,
     Auto,
+    Required,
     #[serde(untagged)]
     Named(ChatCompletionNamedToolChoice),
 }
@@ -423,11 +425,11 @@ pub struct CreateChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logit_bias: Option<HashMap<String, serde_json::Value>>, // default: null
 
-    /// Whether to return log probabilities of the output tokens or not. If true, returns the log probabilities of each output token returned in the `content` of `message`. This option is currently not available on the `gpt-4-vision-preview` model.
+    /// Whether to return log probabilities of the output tokens or not. If true, returns the log probabilities of each output token returned in the `content` of `message`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logprobs: Option<bool>,
 
-    /// An integer between 0 and 5 specifying the number of most likely tokens to return at each token position, each with an associated log probability. `logprobs` must be set to `true` if this parameter is used.
+    /// An integer between 0 and 20 specifying the number of most likely tokens to return at each token position, each with an associated log probability. `logprobs` must be set to `true` if this parameter is used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub top_logprobs: Option<u8>,
 
@@ -488,7 +490,7 @@ pub struct CreateChatCompletionRequest {
     pub top_p: Option<f32>, // min: 0, max: 1, default: 1
 
     /// A list of tools the model may call. Currently, only functions are supported as a tool.
-    /// Use this to provide a list of functions the model may generate JSON inputs for.
+    /// Use this to provide a list of functions the model may generate JSON inputs for. A max of 128 functions are supported.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tools: Option<Vec<ChatCompletionTool>>,
 
@@ -538,7 +540,7 @@ pub struct TopLogprobs {
 pub struct ChatCompletionTokenLogprob {
     /// The token.
     pub token: String,
-    /// The log probability of this token.
+    /// The log probability of this token, if it is within the top 20 most likely tokens. Otherwise, the value `-9999.0` is used to signify that the token is very unlikely.
     pub logprob: f32,
     /// A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token.
     pub bytes: Option<Vec<u8>>,

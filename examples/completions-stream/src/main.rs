@@ -6,7 +6,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
 
     let request = CreateCompletionRequestArgs::default()
-        .model("text-davinci-003")
+        .model("gpt-3.5-turbo-instruct")
         .n(1)
         .prompt("Tell me a bedtime story about Optimus Prime and Bumblebee")
         .stream(true)

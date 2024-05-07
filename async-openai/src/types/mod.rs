@@ -4,6 +4,7 @@ mod assistant;
 mod assistant_file;
 mod assistant_impls;
 mod audio;
+mod batch;
 mod chat;
 mod common;
 mod completion;
@@ -18,10 +19,12 @@ mod moderation;
 mod run;
 mod step;
 mod thread;
+mod vector_store;
 
 pub use assistant::*;
 pub use assistant_file::*;
 pub use audio::*;
+pub use batch::*;
 pub use chat::*;
 pub use common::*;
 pub use completion::*;
@@ -36,6 +39,7 @@ pub use moderation::*;
 pub use run::*;
 pub use step::*;
 pub use thread::*;
+pub use vector_store::*;
 
 mod impls;
 use derive_builder::UninitializedFieldError;

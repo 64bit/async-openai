@@ -44,8 +44,6 @@ pub enum Voice {
     Onyx,
     Nova,
     Shimmer,
-    #[serde(untagged)]
-    Other(String),
 }
 
 #[derive(Debug, Default, Serialize, Clone, PartialEq)]
@@ -77,7 +75,7 @@ pub struct CreateTranscriptionRequest {
     /// The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
     pub file: AudioInput,
 
-    /// ID of the model to use. Only `whisper-1` is currently available.
+    /// ID of the model to use. Only `whisper-1` (which is powered by our open source Whisper V2 model) is currently available.
     pub model: String,
 
     /// An optional text to guide the model's style or continue a previous audio segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text/prompting) should match the audio language.
@@ -92,7 +90,7 @@ pub struct CreateTranscriptionRequest {
     /// The language of the input audio. Supplying the input language in [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format will improve accuracy and latency.
     pub language: Option<String>,
 
-    ///  The timestamp granularities to populate for this transcription. Any of these options: `word`, or `segment`. Note: There is no additional latency for segment timestamps, but generating word timestamps incurs additional latency.
+    /// The timestamp granularities to populate for this transcription. `response_format` must be set `verbose_json` to use timestamp granularities. Either or both of these options are supported: `word`, or `segment`. Note: There is no additional latency for segment timestamps, but generating word timestamps incurs additional latency.
     pub timestamp_granularities: Option<Vec<TimestampGranularity>>,
 }
 
@@ -190,10 +188,7 @@ pub struct CreateSpeechRequest {
     /// The voice to use when generating the audio. Supported voices are `alloy`, `echo`, `fable`, `onyx`, `nova`, and `shimmer`. Previews of the voices are available in the [Text to speech guide](https://platform.openai.com/docs/guides/text-to-speech/voice-options).
     pub voice: Voice,
 
-    /// The format to return audio in.
-    /// Supported formats are `mp3`, `opus`, `aac`, `flac`, `pcm`, and `wav`.
-    ///
-    /// The `pcm` audio format, similar to `wav` but without a header, utilizes a 24kHz sample rate, mono channel, and 16-bit depth in signed little-endian format.
+    /// The format to audio in. Supported formats are `mp3`, `opus`, `aac`, `flac`, `wav`, and `pcm`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<SpeechResponseFormat>,
 
@@ -212,7 +207,7 @@ pub struct CreateTranslationRequest {
     /// The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
     pub file: AudioInput,
 
-    /// ID of the model to use. Only `whisper-1` is currently available.
+    /// ID of the model to use. Only `whisper-1` (which is powered by our open source Whisper V2 model) is currently available.
     pub model: String,
 
     /// An optional text to guide the model's style or continue a previous audio segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text/prompting) should be in English.
@@ -226,8 +221,21 @@ pub struct CreateTranslationRequest {
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
-pub struct CreateTranslationResponse {
+pub struct CreateTranslationResponseJson {
     pub text: String,
+}
+
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct CreateTranslationResponseVerboseJson {
+    /// The language of the output translation (always `english`).
+    pub language: String,
+    /// The duration of the input audio.
+    pub duration: String,
+    /// The translated text.
+    pub text: String,
+    /// Segments of the translated text and their corresponding details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub segments: Option<Vec<TranscriptionSegment>>,
 }
 
 #[derive(Debug, Clone)]

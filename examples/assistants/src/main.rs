@@ -1,14 +1,23 @@
 use async_openai::{
     types::{
         CreateAssistantRequestArgs, CreateMessageRequestArgs, CreateRunRequestArgs,
-        CreateThreadRequestArgs, MessageContent, RunStatus,
+        CreateThreadRequestArgs, MessageContent, MessageRole, RunStatus,
     },
     Client,
 };
 use std::error::Error;
+use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    std::env::set_var("RUST_LOG", "ERROR");
+
+    // Setup tracing subscriber so that library can log the errors
+    tracing_subscriber::registry()
+        .with(fmt::layer())
+        .with(EnvFilter::from_default_env())
+        .init();
+
     let query = [("limit", "1")]; //limit the list responses to 1 message
 
     //create a client
@@ -53,7 +62,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         //create a message for the thread
         let message = CreateMessageRequestArgs::default()
-            .role("user")
+            .role(MessageRole::User)
             .content(input.clone())
             .build()?;
 

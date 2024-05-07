@@ -6,7 +6,8 @@ use crate::{
     types::{
         CreateSpeechRequest, CreateSpeechResponse, CreateTranscriptionRequest,
         CreateTranscriptionResponseJson, CreateTranscriptionResponseVerboseJson,
-        CreateTranslationRequest, CreateTranslationResponse,
+        CreateTranslationRequest, CreateTranslationResponseJson,
+        CreateTranslationResponseVerboseJson,
     },
     Client,
 };
@@ -52,11 +53,19 @@ impl<'c, C: Config> Audio<'c, C> {
             .await
     }
 
-    /// Translates audio into into English.
+    /// Translates audio into English.
     pub async fn translate(
         &self,
         request: CreateTranslationRequest,
-    ) -> Result<CreateTranslationResponse, OpenAIError> {
+    ) -> Result<CreateTranslationResponseJson, OpenAIError> {
+        self.client.post_form("/audio/translations", request).await
+    }
+
+    /// Translates audio into English.
+    pub async fn translate_verbose_json(
+        &self,
+        request: CreateTranslationRequest,
+    ) -> Result<CreateTranslationResponseVerboseJson, OpenAIError> {
         self.client.post_form("/audio/translations", request).await
     }
 

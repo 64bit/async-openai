@@ -1,5 +1,5 @@
 use super::{
-    AssistantTools, AssistantToolsCode, AssistantToolsFunction, AssistantToolsRetrieval,
+    AssistantTools, AssistantToolsCode, AssistantToolsFileSearch, AssistantToolsFunction,
     FunctionObject,
 };
 
@@ -9,9 +9,9 @@ impl From<AssistantToolsCode> for AssistantTools {
     }
 }
 
-impl From<AssistantToolsRetrieval> for AssistantTools {
-    fn from(value: AssistantToolsRetrieval) -> Self {
-        Self::Retrieval(value)
+impl From<AssistantToolsFileSearch> for AssistantTools {
+    fn from(value: AssistantToolsFileSearch) -> Self {
+        Self::FileSearch(value)
     }
 }
 
@@ -29,10 +29,10 @@ impl Default for AssistantToolsCode {
     }
 }
 
-impl Default for AssistantToolsRetrieval {
+impl Default for AssistantToolsFileSearch {
     fn default() -> Self {
         Self {
-            r#type: "retrieval".into(),
+            r#type: "file_search".into(),
         }
     }
 }

@@ -96,7 +96,7 @@ pub struct MessageCreation {
 pub struct RunStepDetailsToolCallsObject {
     /// Always `tool_calls`.
     pub r#type: String,
-    ///  An array of tool calls the run step was involved in. These can be associated with one of three types of tools: `code_interpreter`, `retrieval`, or `function`.
+    /// An array of tool calls the run step was involved in. These can be associated with one of three types of tools: `code_interpreter`, `file_search`, or `function`.
     pub tool_calls: Vec<RunStepDetailsToolCalls>,
 }
 
@@ -105,8 +105,7 @@ pub struct RunStepDetailsToolCallsObject {
 pub enum RunStepDetailsToolCalls {
     /// Details of the Code Interpreter tool call the run step was involved in.
     Code(RunStepDetailsToolCallsCodeObject),
-
-    Retrieval(RunStepDetailsToolCallsRetrievalObject),
+    FileSearch(RunStepDetailsToolCallsFileSearchObject),
     Function(RunStepDetailsToolCallsFunctionObject),
 }
 
@@ -156,14 +155,15 @@ pub struct RunStepDetailsToolCallsCodeOutputImageObject {
     pub image: ImageFile,
 }
 
+/// File search tool call
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-pub struct RunStepDetailsToolCallsRetrievalObject {
+pub struct RunStepDetailsToolCallsFileSearchObject {
     /// The ID of the tool call object.
     pub id: String,
-    /// The type of tool call. This is always going to be `retrieval` for this type of tool call.
+    /// The type of tool call. This is always going to be `file_search` for this type of tool call.
     pub r#type: String,
     /// For now, this is always going to be an empty object.
-    pub retrieval: HashMap<String, serde_json::Value>,
+    pub file_search: serde_json::Value,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -193,4 +193,127 @@ pub struct ListRunStepsResponse {
     pub first_id: Option<String>,
     pub last_id: Option<String>,
     pub has_more: bool,
+}
+
+/// Represents a run step delta i.e. any changed fields on a run step during streaming.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepDeltaObject {
+    /// The identifier of the run step, which can be referenced in API endpoints.
+    pub id: String,
+    /// The object type, which is always `thread.run.step.delta`.
+    pub object: String,
+    /// The delta containing the fields that have changed on the run step.
+    pub delta: RunStepDelta,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepDelta {
+    pub step_details: DeltaStepDetails,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum DeltaStepDetails {
+    MessageCreation(RunStepDeltaStepDetailsMessageCreationObject),
+    ToolCalls(RunStepDeltaStepDetailsToolCallsObject),
+}
+
+/// Details of the message creation by the run step.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepDeltaStepDetailsMessageCreationObject {
+    /// Always `message_creation`.
+    pub r#type: String,
+    pub message_creation: Option<MessageCreation>,
+}
+
+/// Details of the tool call.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepDeltaStepDetailsToolCallsObject {
+    /// Always `tool_calls`.
+    pub r#type: String,
+    /// An array of tool calls the run step was involved in. These can be associated with one of three types of tools: `code_interpreter`, `file_search`, or `function`.
+    pub tool_calls: Option<Vec<RunStepDeltaStepDetailsToolCalls>>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum RunStepDeltaStepDetailsToolCalls {
+    Code(RunStepDeltaStepDetailsToolCallsCodeObject),
+    FileSearch(RunStepDeltaStepDetailsToolCallsFileSearchObject),
+    Function(RunStepDeltaStepDetailsToolCallsFunctionObject),
+}
+
+/// Details of the Code Interpreter tool call the run step was involved in.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepDeltaStepDetailsToolCallsCodeObject {
+    /// The index of the tool call in the tool calls array.
+    pub index: u32,
+    /// The ID of the tool call.
+    pub id: Option<String>,
+    /// The type of tool call. This is always going to be `code_interpreter` for this type of tool call.
+    pub r#type: String,
+    /// The Code Interpreter tool call definition.
+    pub code_interpreter: Option<DeltaCodeInterpreter>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct DeltaCodeInterpreter {
+    /// The input to the Code Interpreter tool call.
+    pub input: String,
+    /// The outputs from the Code Interpreter tool call. Code Interpreter can output one or more items, including text (`logs`) or images (`image`). Each of these are represented by a different object type.
+    pub outputs: Vec<DeltaCodeInterpreterOutput>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum DeltaCodeInterpreterOutput {
+    Logs(RunStepDeltaStepDetailsToolCallsCodeOutputLogsObject),
+    Image(RunStepDeltaStepDetailsToolCallsCodeOutputImageObject),
+}
+
+/// Text output from the Code Interpreter tool call as part of a run step.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepDeltaStepDetailsToolCallsCodeOutputLogsObject {
+    /// The index of the output in the outputs array.
+    pub index: u32,
+    /// Always `logs`.
+    pub r#type: String,
+    /// The text output from the Code Interpreter tool call.
+    pub logs: Option<String>,
+}
+
+/// Code interpreter image output
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepDeltaStepDetailsToolCallsCodeOutputImageObject {
+    /// The index of the output in the outputs array.
+    pub index: u32,
+    /// Always `image`.
+    pub r#type: String,
+
+    pub image: Option<ImageFile>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepDeltaStepDetailsToolCallsFileSearchObject {
+    /// The index of the tool call in the tool calls array.
+    pub index: u32,
+    /// The ID of the tool call object.
+    pub id: Option<String>,
+    /// The type of tool call. This is always going to be `file_search` for this type of tool call.
+    pub r#type: String,
+    /// For now, this is always going to be an empty object.
+    pub file_search: Option<serde_json::Value>,
+}
+
+/// Function tool call
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepDeltaStepDetailsToolCallsFunctionObject {
+    /// The index of the tool call in the tool calls array.
+    pub index: u32,
+    /// The ID of the tool call object.
+    pub id: Option<String>,
+    /// The type of tool call. This is always going to be `function` for this type of tool call.
+    pub r#type: String,
+    /// The definition of the function that was called.
+    pub function: Option<RunStepFunctionObject>,
 }
