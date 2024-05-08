@@ -144,7 +144,7 @@ pub struct FileCitation {
     /// The ID of the specific File the citation is from.
     pub file_id: String,
     /// The specific quote in the file.
-    pub quote: String,
+    pub quote: Option<String>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
