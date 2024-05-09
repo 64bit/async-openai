@@ -36,7 +36,6 @@
   - [x] Microsoft Azure OpenAI Service
   - [x] Models
   - [x] Moderations
-  - [x] WASM support (experimental and only available in [`experiments`](https://github.com/64bit/async-openai/tree/experiments) branch)
 - Support SSE streaming on available APIs
 - All requests including form submissions (except SSE streaming) are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits) by the API server.
 - Ergonomic builder pattern for all request objects.
@@ -122,7 +121,7 @@ This project adheres to [Rust Code of Conduct](https://www.rust-lang.org/policie
 
 ## Complimentary Crates
 - [openai-func-enums](https://github.com/frankfralick/openai-func-enums) provides procedural macros that make it easier to use this library with OpenAI API's tool calling feature. It also provides derive macros you can add to existing [clap](https://github.com/clap-rs/clap) application subcommands for natural language use of command line tools. It also supports openai's [parallel tool calls](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling) and allows you to choose between running multiple tool calls concurrently or own their own OS threads.
-
+- [async-openai-wasm](https://github.com/ifsheldon/async-openai-wasm) provides WASM support.
 
 ## License
 
