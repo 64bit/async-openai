@@ -524,6 +524,9 @@ pub enum FinishReason {
     ToolCalls,
     ContentFilter,
     FunctionCall,
+    // In some cases like ollama openai endpoint, finish_reason property could be an empty string
+    #[serde(rename = "")]
+    Empty,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
