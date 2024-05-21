@@ -21,13 +21,17 @@ pub struct AssistantToolFileSearchResources {
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct AssistantToolResources {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub code_interpreter: Option<AssistantToolCodeInterpreterResources>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub file_search: Option<AssistantToolFileSearchResources>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct CreateAssistantToolResources {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub code_interpreter: Option<AssistantToolCodeInterpreterResources>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub file_search: Option<CreateAssistantToolFileSearchResources>,
 }
 
