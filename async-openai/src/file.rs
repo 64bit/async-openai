@@ -56,7 +56,10 @@ impl<'c, C: Config> Files<'c, C> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{types::CreateFileRequestArgs, Client};
+    use crate::{
+        types::{CreateFileRequestArgs, FilePurpose},
+        Client,
+    };
 
     #[tokio::test]
     async fn test_file_mod() {
@@ -72,7 +75,7 @@ mod tests {
 
         let request = CreateFileRequestArgs::default()
             .file(test_file_path)
-            .purpose("fine-tune")
+            .purpose(FilePurpose::FineTune)
             .build()
             .unwrap();
 

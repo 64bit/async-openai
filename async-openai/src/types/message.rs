@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-use super::{AssistantToolsCode, AssistantToolsFileSearch};
+use super::{AssistantToolsCode, AssistantToolsFileSearch, ImageDetail, ImageUrl};
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
@@ -101,6 +101,7 @@ pub enum MessageAttachmentTool {
 pub enum MessageContent {
     Text(MessageContentTextObject),
     ImageFile(MessageContentImageFileObject),
+    ImageUrl(MessageContentImageUrlObject),
 }
 
 /// The text content that is part of a message.
@@ -174,8 +175,17 @@ pub struct MessageContentImageFileObject {
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct ImageFile {
-    /// The [File](https://platform.openai.com/docs/api-reference/files) ID of the image in the message content.
+    /// The [File](https://platform.openai.com/docs/api-reference/files) ID of the image in the message content. Set `purpose="vision"` when uploading the File if you need to later display the file content.
     pub file_id: String,
+    /// Specifies the detail level of the image if specified by the user. `low` uses fewer tokens, you can opt in to high resolution using `high`.
+    pub detail: ImageDetail,
+}
+
+/// References an image URL in the content of a message.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct MessageContentImageUrlObject {
+    pub r#type: String,
+    pub image_url: ImageUrl,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
@@ -309,4 +319,14 @@ pub struct MessageDeltaContentImageFileObject {
     pub r#type: String,
 
     pub image_file: Option<ImageFile>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct MessageDeltaContentImageUrlObject {
+    /// The index of the content part in the message.
+    pub index: u32,
+    ///  Always `image_url`.
+    pub r#type: String,
+
+    pub image_url: Option<ImageUrl>,
 }

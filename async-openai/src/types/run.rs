@@ -25,7 +25,7 @@ pub struct RunObject {
     /// The ID of the [assistant](https://platform.openai.com/docs/api-reference/assistants) used for execution of this run.
     pub assistant_id: Option<String>,
 
-    /// The status of the run, which can be either `queued`, `in_progress`, `requires_action`, `cancelling`, `cancelled`, `failed`, `completed`, or `expired`.
+    /// The status of the run, which can be either `queued`, `in_progress`, `requires_action`, `cancelling`, `cancelled`, `failed`, `completed`, `incomplete`, or `expired`.
     pub status: RunStatus,
 
     /// Details on the action required to continue the run. Will be `null` if no action is required.
@@ -122,6 +122,7 @@ pub enum RunStatus {
     Cancelled,
     Failed,
     Completed,
+    Incomplete,
     Expired,
 }
 
@@ -150,7 +151,7 @@ pub struct RunToolCallObject {
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct LastError {
-    /// One of `server_error` or `rate_limit_exceeded`.
+    /// One of `server_error`, `rate_limit_exceeded`, or `invalid_prompt`.
     pub code: LastErrorCode,
     /// A human-readable description of the error.
     pub message: String,

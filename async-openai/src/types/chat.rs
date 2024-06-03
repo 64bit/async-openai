@@ -126,7 +126,7 @@ pub struct ChatCompletionRequestMessageContentPartText {
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum ImageUrlDetail {
+pub enum ImageDetail {
     #[default]
     Auto,
     Low,
@@ -143,7 +143,7 @@ pub struct ImageUrl {
     /// Either a URL of the image or the base64 encoded image data.
     pub url: String,
     /// Specifies the detail level of the image. Learn more in the [Vision guide](https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding).
-    pub detail: ImageUrlDetail,
+    pub detail: ImageDetail,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
@@ -474,6 +474,9 @@ pub struct CreateChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stream: Option<bool>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stream_options: Option<ChatCompletionStreamOptions>,
+
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random,
     /// while lower values like 0.2 will make it more focused and deterministic.
     ///
@@ -514,6 +517,13 @@ pub struct CreateChatCompletionRequest {
     #[deprecated]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub functions: Option<Vec<ChatCompletionFunctions>>,
+}
+
+/// Options for streaming response. Only set this when you set `stream: true`.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+pub struct ChatCompletionStreamOptions {
+    /// If set, an additional chunk will be streamed before the `data: [DONE]` message. The `usage` field on this chunk shows the token usage statistics for the entire request, and the `choices` field will always be an empty array. All other chunks will also include a `usage` field, but with a null value.
+    pub include_usage: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
@@ -643,7 +653,7 @@ pub struct ChatChoiceStream {
 pub struct CreateChatCompletionStreamResponse {
     /// A unique identifier for the chat completion. Each chunk has the same ID.
     pub id: String,
-    /// A list of chat completion choices. Can be more than one if `n` is greater than 1.
+    /// A list of chat completion choices. Can contain more than one elements if `n` is greater than 1. Can also be empty for the last chunk if you set `stream_options: {"include_usage": true}`.
     pub choices: Vec<ChatChoiceStream>,
 
     /// The Unix timestamp (in seconds) of when the chat completion was created. Each chunk has the same timestamp.
@@ -655,4 +665,8 @@ pub struct CreateChatCompletionStreamResponse {
     pub system_fingerprint: Option<String>,
     /// The object type, which is always `chat.completion.chunk`.
     pub object: String,
+
+    /// An optional field that will only be present when you set `stream_options: {"include_usage": true}` in your request.
+    /// When present, it contains a null value except for the last chunk which contains the token usage statistics for the entire request.
+    pub usage: Option<CompletionUsage>,
 }

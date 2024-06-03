@@ -36,6 +36,8 @@ pub enum BatchEndpoint {
     V1ChatCompletions,
     #[serde(rename = "/v1/embeddings")]
     V1Embeddings,
+    #[serde(rename = "/v1/completions")]
+    V1Completions,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Default)]
@@ -151,7 +153,7 @@ pub struct BatchRequestInput {
     pub custom_id: String,
     /// The HTTP method to be used for the request. Currently only `POST` is supported.
     pub method: BatchRequestInputMethod,
-    /// The OpenAI API relative URL to be used for the request. Currently `/v1/chat/completions` and `/v1/embeddings` are supported.
+    /// The OpenAI API relative URL to be used for the request. Currently `/v1/chat/completions`, `/v1/embeddings`, and `/v1/completions` are supported.
     pub url: BatchEndpoint,
     pub body: Option<serde_json::Value>,
 }

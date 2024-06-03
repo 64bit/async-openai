@@ -33,6 +33,7 @@ impl Default for AssistantToolsFileSearch {
     fn default() -> Self {
         Self {
             r#type: "file_search".into(),
+            file_search: None,
         }
     }
 }

@@ -22,8 +22,8 @@ use super::{
     ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
     CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
-    FileInput, FunctionName, Image, ImageInput, ImageModel, ImageSize, ImageUrl, ImagesResponse,
-    ModerationInput, Prompt, ResponseFormat, Role, Stop, TimestampGranularity,
+    FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageSize, ImageUrl,
+    ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role, Stop, TimestampGranularity,
 };
 
 /// for `impl_from!(T, Enum)`, implements
@@ -252,6 +252,21 @@ impl Display for Role {
                 Role::Assistant => "assistant",
                 Role::Function => "function",
                 Role::Tool => "tool",
+            }
+        )
+    }
+}
+
+impl Display for FilePurpose {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Assistants => "assistants",
+                Self::Batch => "batch",
+                Self::FineTune => "fine-tune",
+                Self::Vision => "vision",
             }
         )
     }
@@ -776,7 +791,7 @@ impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
         let file_part = create_file_part(request.file.source).await?;
         let form = reqwest::multipart::Form::new()
             .part("file", file_part)
-            .text("purpose", request.purpose);
+            .text("purpose", request.purpose.to_string());
         Ok(form)
     }
 }

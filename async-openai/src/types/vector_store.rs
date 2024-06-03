@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
+use super::StaticChunkingStrategy;
+
 #[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateVectorStoreRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -23,9 +25,23 @@ pub struct CreateVectorStoreRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after: Option<VectorStoreExpirationAfter>,
 
+    /// The chunking strategy used to chunk the file(s). If not set, will use the `auto` strategy. Only applicable if `file_ids` is non-empty.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chunking_strategy: Option<VectorStoreChunkingStrategy>,
+
     /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<HashMap<String, serde_json::Value>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
+#[serde(tag = "type")]
+pub enum VectorStoreChunkingStrategy {
+    /// The default strategy. This strategy currently uses a `max_chunk_size_tokens` of `800` and `chunk_overlap_tokens` of `400`.
+    #[default]
+    Auto,
+    ///
+    Static(StaticChunkingStrategy),
 }
 
 /// Vector store expiration policy
@@ -141,6 +157,8 @@ pub struct VectorStoreFileObject {
     pub status: VectorStoreFileStatus,
     /// The last error associated with this vector store file. Will be `null` if there are no errors.
     pub last_error: Option<VectorStoreFileError>,
+    /// The strategy used to chunk the file.
+    pub chunking_strategy: Option<VectorStoreFileObjectChunkingStrategy>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -168,6 +186,15 @@ pub enum VectorStoreFileErrorCode {
     UnhandledMimeType,
 }
 
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[serde(tag = "type")]
+#[serde(rename_all = "lowercase")]
+pub enum VectorStoreFileObjectChunkingStrategy {
+    /// This is returned when the chunking strategy is unknown. Typically, this is because the file was indexed before the `chunking_strategy` concept was introduced in the API.
+    Other,
+    Static(StaticChunkingStrategy),
+}
+
 #[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateVectorStoreFileRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -177,6 +204,7 @@ pub enum VectorStoreFileErrorCode {
 pub struct CreateVectorStoreFileRequest {
     /// A [File](https://platform.openai.com/docs/api-reference/files) ID that the vector store should use. Useful for tools like `file_search` that can access files.
     pub file_id: String,
+    pub chunking_strategy: Option<VectorStoreChunkingStrategy>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -195,6 +223,7 @@ pub struct DeleteVectorStoreFileResponse {
 pub struct CreateVectorStoreFileBatchRequest {
     /// A list of [File](https://platform.openai.com/docs/api-reference/files) IDs that the vector store should use. Useful for tools like `file_search` that can access files.
     pub file_ids: Vec<String>, // minItems: 1, maxItems: 500
+    pub chunking_strategy: Option<VectorStoreChunkingStrategy>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
