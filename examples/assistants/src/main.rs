@@ -112,7 +112,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     //get the text from the content
                     let text = match content {
                         MessageContent::Text(text) => text.text.value.clone(),
-                        MessageContent::ImageFile(_) => {
+                        MessageContent::ImageFile(_) | MessageContent::ImageUrl(_) => {
                             panic!("imaged are not supported in the terminal")
                         }
                     };
@@ -141,6 +141,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 }
                 RunStatus::InProgress => {
                     println!("--- Waiting for response...");
+                }
+                RunStatus::Incomplete => {
+                    println!("--- Run Incomplete");
                 }
             }
             //wait for 1 second before checking the status again
