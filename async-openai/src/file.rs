@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use serde::Serialize;
 
 use crate::{
@@ -51,9 +52,9 @@ impl<'c, C: Config> Files<'c, C> {
     }
 
     /// Returns the contents of the specified file
-    pub async fn retrieve_content(&self, file_id: &str) -> Result<String, OpenAIError> {
+    pub async fn content(&self, file_id: &str) -> Result<Bytes, OpenAIError> {
         self.client
-            .get(format!("/files/{file_id}/content").as_str())
+            .get_raw(format!("/files/{file_id}/content").as_str())
             .await
     }
 }

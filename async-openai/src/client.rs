@@ -196,6 +196,20 @@ impl<C: Config> Client<C> {
         self.execute(request_maker).await
     }
 
+    /// Make a GET request to {path} and return the response body
+    pub(crate) async fn get_raw(&self, path: &str) -> Result<Bytes, OpenAIError> {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .get(self.config.url(path))
+                .query(&self.config.query())
+                .headers(self.config.headers())
+                .build()?)
+        };
+
+        self.execute_raw(request_maker).await
+    }
+
     /// Make a POST request to {path} and return the response body
     pub(crate) async fn post_raw<I>(&self, path: &str, request: I) -> Result<Bytes, OpenAIError>
     where
@@ -370,7 +384,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP GET request to receive SSE
-    pub(crate) async fn get_stream<Q, O>(
+    pub(crate) async fn _get_stream<Q, O>(
         &self,
         path: &str,
         query: &Q,
