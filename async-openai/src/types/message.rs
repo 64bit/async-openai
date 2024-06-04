@@ -98,7 +98,8 @@ pub enum MessageAttachmentTool {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum MessageContent {
     Text(MessageContentTextObject),
     ImageFile(MessageContentImageFileObject),
@@ -108,8 +109,6 @@ pub enum MessageContent {
 /// The text content that is part of a message.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageContentTextObject {
-    /// Always `text`.
-    pub r#type: String,
     pub text: TextData,
 }
 
@@ -169,8 +168,6 @@ pub struct FilePath {
 /// References an image [File](https://platform.openai.com/docs/api-reference/files) in the content of a message.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageContentImageFileObject {
-    /// Always `image_file`.
-    pub r#type: String,
     pub image_file: ImageFile,
 }
 
@@ -185,15 +182,11 @@ pub struct ImageFile {
 /// References an image URL in the content of a message.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageContentImageUrlObject {
-    /// Always `image_url`
-    pub r#type: String,
     pub image_url: ImageUrl,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageRequestContentTextObject {
-    /// Always `text`
-    r#type: String,
     /// Text content to be sent to the model
     text: String,
 }
@@ -208,7 +201,8 @@ pub enum CreateMessageRequestContent {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum MessageContentInput {
     Text(MessageRequestContentTextObject),
     ImageFile(MessageContentImageFileObject),
