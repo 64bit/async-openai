@@ -48,7 +48,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .vector_stores()
         .create(CreateVectorStoreRequest {
             name: Some("Financial Statements".into()),
-            file_ids: Some(vec![openai_file.id]),
+            file_ids: Some(vec![openai_file.id.clone()]),
             ..Default::default()
         })
         .await?;
@@ -64,7 +64,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             ModifyAssistantRequest {
                 tool_resources: Some(
                     AssistantToolFileSearchResources {
-                        vector_store_ids: vec![vector_store.id],
+                        vector_store_ids: vec![vector_store.id.clone()],
                     }
                     .into(),
                 ),
@@ -94,7 +94,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .role(MessageRole::User)
         .content("What was the total annual profit of Uber and Lyft?")
         .attachments(vec![MessageAttachment {
-            file_id: message_file.id,
+            file_id: message_file.id.clone(),
             tools: vec![MessageAttachmentTool::FileSearch(
                 AssistantToolsFileSearch::default(),
             )],
@@ -191,6 +191,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // clean up
     client.threads().delete(&thread.id).await?;
+    client.vector_stores().delete(&vector_store.id).await?;
+    client.files().delete(&openai_file.id).await?;
+    client.files().delete(&message_file.id).await?;
     client.assistants().delete(&assistant.id).await?;
 
     Ok(())
