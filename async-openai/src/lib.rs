@@ -38,8 +38,8 @@
 //!
 //! let client = Client::with_config(config);
 //!
-//! // Note that Azure OpenAI service does not support all APIs and `async-openai`
-//! // doesn't restrict and still allows calls to all of the APIs as OpenAI.
+//! // Note that `async-openai` only implements OpenAI spec
+//! // and doesn't maintain parity with the spec of Azure OpenAI service.
 //!
 //! ```
 //!
