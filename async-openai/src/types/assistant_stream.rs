@@ -1,7 +1,7 @@
 use std::pin::Pin;
 
 use futures::Stream;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize};
 
 use crate::error::{ApiError, OpenAIError};
 

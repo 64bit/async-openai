@@ -23,7 +23,7 @@ use super::{
     CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
     CreateSpeechResponse, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
     EmbeddingInput, FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageSize,
-    ImageUrl, ImagesResponse, MessageContentInput, ModerationInput, Prompt, ResponseFormat, Role,
+    ImageUrl, ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role,
     Stop, TimestampGranularity,
 };
 
