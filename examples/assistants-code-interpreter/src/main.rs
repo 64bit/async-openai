@@ -4,7 +4,7 @@ use async_openai::{
     types::{
         AssistantToolCodeInterpreterResources, AssistantTools, CreateAssistantRequestArgs,
         CreateFileRequest, CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest,
-        FilePurpose, MessageContent, MessageRole, RunStatus,
+        FilePurpose, MessageContent, MessageContentTextAnnotations, MessageRole, RunStatus,
     },
     Client,
 };
@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let data_file = client
         .files()
         .create(CreateFileRequest {
-            file: "./data/CASTHPI.csv".into(),
+            file: "./input/CASTHPI.csv".into(),
             purpose: FilePurpose::Assistants,
         })
         .await?;
@@ -70,7 +70,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .create(create_run_request)
         .await?;
 
-    let mut generated_file_id: Option<String> = None;
+    let mut generated_file_ids: Vec<String> = vec![];
 
     // poll the status of run until its in a terminal state
     loop {
@@ -91,16 +91,26 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 let text_data = text.text;
                                 let annotations = text_data.annotations;
                                 println!("{}", text_data.value);
-                                println!("{annotations:?}");
+                                for annotation in annotations {
+                                    match annotation {
+                                        MessageContentTextAnnotations::FileCitation(object) => {
+                                            println!("annotation: file citation : {object:?}");
+                                        }
+                                        MessageContentTextAnnotations::FilePath(object) => {
+                                            println!("annotation: file path: {object:?}");
+                                            generated_file_ids.push(object.file_path.file_id);
+                                        }
+                                    }
+                                }
                             }
                             MessageContent::ImageFile(object) => {
                                 let file_id = object.image_file.file_id;
                                 println!("Retrieving image file_id: {}", file_id);
                                 let contents = client.files().content(&file_id).await?;
-                                let path = "./data/price_index_vs_year_graph.png";
+                                let path = "./output/price_index_vs_year_graph.png";
                                 tokio::fs::write(path, contents).await?;
                                 print!("Graph file: {path}");
-                                let generated_file_id = Some(file_id);
+                                generated_file_ids.push(file_id);
                             }
                             MessageContent::ImageUrl(object) => {
                                 eprintln!("Got Image URL instead: {object:?}");
@@ -150,7 +160,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // clean up
     client.threads().delete(&thread.id).await?;
     client.files().delete(&data_file.id).await?;
-    if let Some(file_id) = generated_file_id {
+    for file_id in generated_file_ids {
         client.files().delete(&file_id).await?;
     }
     client.assistants().delete(&assistant.id).await?;

@@ -2,9 +2,8 @@ use std::error::Error;
 
 use async_openai::{
     types::{
-        AssistantToolFileSearchResources, AssistantTools, AssistantToolsFileSearch,
-        CreateAssistantRequestArgs, CreateFileRequest, CreateMessageRequest,
-        CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest, CreateThreadRequestArgs,
+        AssistantToolFileSearchResources, AssistantToolsFileSearch, CreateAssistantRequestArgs,
+        CreateFileRequest, CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest,
         CreateVectorStoreRequest, FilePurpose, MessageAttachment, MessageAttachmentTool,
         MessageContent, MessageRole, ModifyAssistantRequest, RunStatus,
     },
@@ -37,7 +36,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let openai_file = client
         .files()
         .create(CreateFileRequest {
-            file: "./data/uber-10k.pdf".into(),
+            file: "./input/uber-10k.pdf".into(),
             purpose: FilePurpose::Assistants,
         })
         .await?;
@@ -83,7 +82,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let message_file = client
         .files()
         .create(CreateFileRequest {
-            file: "./data/lyft-10k.pdf".into(),
+            file: "./input/lyft-10k.pdf".into(),
             ..Default::default()
         })
         .await?;
@@ -175,7 +174,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 println!("> Run Requires Action");
             }
             RunStatus::InProgress => {
-                println!("> Waiting for response...");
+                println!("> In Progress ...");
             }
             RunStatus::Incomplete => {
                 println!("> Run Incomplete");
