@@ -1,0 +1,10 @@
+[package]
+name = "assistants-code-interpreter"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+async-openai = { path = "../../async-openai" }
+tokio = { version = "1.38.0", features = ["full"] }
+tracing-subscriber = { version =  "0.3.18",  features = ["env-filter"]}
