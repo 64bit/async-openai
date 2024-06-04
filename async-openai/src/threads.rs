@@ -2,8 +2,8 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::{
-        AssistantEventStream, CreateThreadAndRunRequest, CreateThreadRequest, DeleteThreadResponse,
-        ModifyThreadRequest, RunObject, ThreadObject,
+        AssistantEventStream, AssistantStreamEvent, CreateThreadAndRunRequest, CreateThreadRequest,
+        DeleteThreadResponse, ModifyThreadRequest, RunObject, ThreadObject,
     },
     Client, Messages, Runs,
 };
@@ -51,7 +51,10 @@ impl<'c, C: Config> Threads<'c, C> {
 
         request.stream = Some(true);
 
-        Ok(self.client.post_stream("/threads/runs", request).await)
+        Ok(self
+            .client
+            .post_stream_mapped_raw_events("/threads/runs", request, AssistantStreamEvent::try_from)
+            .await)
     }
 
     /// Create a thread.

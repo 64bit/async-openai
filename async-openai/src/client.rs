@@ -383,6 +383,28 @@ impl<C: Config> Client<C> {
         stream(event_source).await
     }
 
+    pub(crate) async fn post_stream_mapped_raw_events<I, O>(
+        &self,
+        path: &str,
+        request: I,
+        event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    where
+        I: Serialize,
+        O: DeserializeOwned + std::marker::Send + 'static,
+    {
+        let event_source = self
+            .http_client
+            .post(self.config.url(path))
+            .query(&self.config.query())
+            .headers(self.config.headers())
+            .json(&request)
+            .eventsource()
+            .unwrap();
+
+        stream_mapped_raw_events(event_source, event_mapper).await
+    }
+
     /// Make HTTP GET request to receive SSE
     pub(crate) async fn _get_stream<Q, O>(
         &self,
@@ -438,6 +460,54 @@ where
 
                         if let Err(_e) = tx.send(response) {
                             // rx dropped
+                            break;
+                        }
+                    }
+                    Event::Open => continue,
+                },
+            }
+        }
+
+        event_source.close();
+    });
+
+    Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+}
+
+pub(crate) async fn stream_mapped_raw_events<O>(
+    mut event_source: EventSource,
+    event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
+) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+where
+    O: DeserializeOwned + std::marker::Send + 'static,
+{
+    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+
+    tokio::spawn(async move {
+        while let Some(ev) = event_source.next().await {
+            match ev {
+                Err(e) => {
+                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
+                        // rx dropped
+                        break;
+                    }
+                }
+                Ok(event) => match event {
+                    Event::Message(message) => {
+                        let mut done = false;
+
+                        if message.data == "[DONE]" {
+                            done = true;
+                        }
+
+                        let response = event_mapper(message);
+
+                        if let Err(_e) = tx.send(response) {
+                            // rx dropped
+                            break;
+                        }
+
+                        if done {
                             break;
                         }
                     }

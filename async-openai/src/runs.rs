@@ -1,3 +1,4 @@
+use futures::{FutureExt, StreamExt};
 use serde::Serialize;
 
 use crate::{
@@ -5,8 +6,8 @@ use crate::{
     error::OpenAIError,
     steps::Steps,
     types::{
-        AssistantEventStream, CreateRunRequest, ListRunsResponse, ModifyRunRequest, RunObject,
-        SubmitToolOutputsRunRequest,
+        AssistantEventStream, AssistantStreamEvent, CreateRunRequest, ListRunsResponse,
+        ModifyRunRequest, RunObject, SubmitToolOutputsRunRequest,
     },
     Client,
 };
@@ -54,7 +55,11 @@ impl<'c, C: Config> Runs<'c, C> {
 
         Ok(self
             .client
-            .post_stream(&format!("/threads/{}/runs", self.thread_id), request)
+            .post_stream_mapped_raw_events(
+                &format!("/threads/{}/runs", self.thread_id),
+                request,
+                AssistantStreamEvent::try_from,
+            )
             .await)
     }
 
@@ -121,12 +126,13 @@ impl<'c, C: Config> Runs<'c, C> {
 
         Ok(self
             .client
-            .post_stream(
+            .post_stream_mapped_raw_events(
                 &format!(
                     "/threads/{}/runs/{run_id}/submit_tool_outputs",
                     self.thread_id
                 ),
                 request,
+                AssistantStreamEvent::try_from,
             )
             .await)
     }

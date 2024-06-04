@@ -28,7 +28,7 @@ pub enum OpenAIError {
 }
 
 /// OpenAI API returns error object on failure
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ApiError {
     pub message: String,
     pub r#type: Option<String>,

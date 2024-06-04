@@ -43,7 +43,7 @@ pub struct RunStepObject {
     pub last_error: Option<LastError>,
 
     ///The Unix timestamp (in seconds) for when the run step expired. A step is considered expired if the parent run is expired.
-    pub expired_at: Option<i32>,
+    pub expires_at: Option<i32>,
 
     /// The Unix timestamp (in seconds) for when the run step was cancelled.
     pub cancelled_at: Option<i32>,
@@ -72,7 +72,7 @@ pub struct RunStepCompletionUsage {
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 #[serde(tag = "type")]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum StepDetails {
     MessageCreation(RunStepDetailsMessageCreationObject),
     ToolCalls(RunStepDetailsToolCallsObject),
@@ -171,6 +171,16 @@ pub struct RunStepFunctionObject {
     pub name: String,
     /// The arguments passed to the function.
     pub arguments: String,
+    /// The output of the function. This will be `null` if the outputs have not been [submitted](https://platform.openai.com/docs/api-reference/runs/submitToolOutputs) yet.
+    pub output: Option<String>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepFunctionObjectDelta {
+    /// The name of the function.
+    pub name: Option<String>,
+    /// The arguments passed to the function.
+    pub arguments: Option<String>,
     /// The output of the function. This will be `null` if the outputs have not been [submitted](https://platform.openai.com/docs/api-reference/runs/submitToolOutputs) yet.
     pub output: Option<String>,
 }
@@ -293,5 +303,5 @@ pub struct RunStepDeltaStepDetailsToolCallsFunctionObject {
     /// The ID of the tool call object.
     pub id: Option<String>,
     /// The definition of the function that was called.
-    pub function: Option<RunStepFunctionObject>,
+    pub function: Option<RunStepFunctionObjectDelta>,
 }
