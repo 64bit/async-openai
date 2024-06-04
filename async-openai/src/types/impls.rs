@@ -23,7 +23,8 @@ use super::{
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
     CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
     FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageSize, ImageUrl,
-    ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role, Stop, TimestampGranularity,
+    ImagesResponse, MessageContentInput, ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    TimestampGranularity,
 };
 
 /// for `impl_from!(T, Enum)`, implements
@@ -635,9 +636,21 @@ impl From<String> for ImageUrl {
     }
 }
 
+impl From<String> for MessageContentInput {
+    fn from(value: String) -> Self {
+        Self::Content(value)
+    }
+}
+
 impl Default for ChatCompletionRequestUserMessageContent {
     fn default() -> Self {
         ChatCompletionRequestUserMessageContent::Text("".into())
+    }
+}
+
+impl Default for MessageContentInput {
+    fn default() -> Self {
+        Self::Content("".into())
     }
 }
 
