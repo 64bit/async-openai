@@ -23,8 +23,8 @@ use super::{
     CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
     CreateSpeechResponse, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
     EmbeddingInput, FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageSize,
-    ImageUrl, ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role,
-    Stop, TimestampGranularity,
+    ImageUrl, ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    TimestampGranularity,
 };
 
 /// for `impl_from!(T, Enum)`, implements
@@ -639,6 +639,12 @@ impl From<String> for ImageUrl {
 impl From<String> for CreateMessageRequestContent {
     fn from(value: String) -> Self {
         Self::Content(value)
+    }
+}
+
+impl From<&str> for CreateMessageRequestContent {
+    fn from(value: &str) -> Self {
+        Self::Content(value.to_string())
     }
 }
 

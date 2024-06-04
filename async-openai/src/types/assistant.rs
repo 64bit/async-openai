@@ -141,19 +141,11 @@ pub enum AssistantsApiResponseFormatType {
     JsonObject,
 }
 
-/// Code interpreter tool
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-pub struct AssistantToolsCode {
-    pub r#type: String,
-}
-
 /// Retrieval tool
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Default, Deserialize, PartialEq)]
 pub struct AssistantToolsFileSearch {
-    /// The type of tool being defined: `file_search`
-    pub r#type: String,
-
     /// Overrides for the file search tool.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub file_search: Option<AssistantToolsFileSearchOverrides>,
 }
 
@@ -166,16 +158,16 @@ pub struct AssistantToolsFileSearchOverrides {
 }
 
 /// Function tool
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Default, Deserialize, PartialEq)]
 pub struct AssistantToolsFunction {
-    pub r#type: String,
     pub function: FunctionObject,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum AssistantTools {
-    Code(AssistantToolsCode),
+    CodeInterpreter,
     FileSearch(AssistantToolsFileSearch),
     Function(AssistantToolsFunction),
 }

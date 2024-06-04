@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-use super::{AssistantToolsCode, AssistantToolsFileSearch, ImageDetail, ImageUrl};
+use super::{AssistantToolsFileSearch, ImageDetail, ImageUrl};
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
@@ -90,9 +90,10 @@ pub struct MessageAttachment {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum MessageAttachmentTool {
-    Code(AssistantToolsCode),
+    CodeInterpreter,
     FileSearch(AssistantToolsFileSearch),
 }
 
