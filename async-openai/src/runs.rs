@@ -5,7 +5,7 @@ use crate::{
     error::OpenAIError,
     steps::Steps,
     types::{
-        CreateRunRequest, ListRunsResponse, ModifyRunRequest, RunObject,
+        AssistantEventStream, CreateRunRequest, ListRunsResponse, ModifyRunRequest, RunObject,
         SubmitToolOutputsRunRequest,
     },
     Client,
@@ -37,6 +37,25 @@ impl<'c, C: Config> Runs<'c, C> {
         self.client
             .post(&format!("/threads/{}/runs", self.thread_id), request)
             .await
+    }
+
+    /// Create a run.
+    pub async fn create_stream(
+        &self,
+        mut request: CreateRunRequest,
+    ) -> Result<AssistantEventStream, OpenAIError> {
+        if request.stream.is_some() && !request.stream.unwrap() {
+            return Err(OpenAIError::InvalidArgument(
+                "When stream is false, use Runs::create".into(),
+            ));
+        }
+
+        request.stream = Some(true);
+
+        Ok(self
+            .client
+            .post_stream(&format!("/threads/{}/runs", self.thread_id), request)
+            .await)
     }
 
     /// Retrieves a run.
@@ -85,6 +104,31 @@ impl<'c, C: Config> Runs<'c, C> {
                 request,
             )
             .await
+    }
+
+    pub async fn submit_tool_outputs_stream(
+        &self,
+        run_id: &str,
+        mut request: SubmitToolOutputsRunRequest,
+    ) -> Result<AssistantEventStream, OpenAIError> {
+        if request.stream.is_some() && !request.stream.unwrap() {
+            return Err(OpenAIError::InvalidArgument(
+                "When stream is false, use Runs::submit_tool_outputs".into(),
+            ));
+        }
+
+        request.stream = Some(true);
+
+        Ok(self
+            .client
+            .post_stream(
+                &format!(
+                    "/threads/{}/runs/{run_id}/submit_tool_outputs",
+                    self.thread_id
+                ),
+                request,
+            )
+            .await)
     }
 
     /// Cancels a run that is `in_progress`

@@ -3,6 +3,7 @@
 mod assistant;
 mod assistant_file;
 mod assistant_impls;
+mod assistant_stream;
 mod audio;
 mod batch;
 mod chat;
@@ -23,6 +24,7 @@ mod vector_store;
 
 pub use assistant::*;
 pub use assistant_file::*;
+pub use assistant_stream::*;
 pub use audio::*;
 pub use batch::*;
 pub use chat::*;
