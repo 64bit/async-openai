@@ -120,7 +120,8 @@ pub struct TextData {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum MessageContentTextAnnotations {
     /// A citation within the message that points to a specific quote from a specific File associated with the assistant or the message. Generated when the assistant uses the "retrieval" tool to search files.
     FileCitation(MessageContentTextAnnotationsFileCitationObject),
@@ -131,8 +132,6 @@ pub enum MessageContentTextAnnotations {
 /// A citation within the message that points to a specific quote from a specific File associated with the assistant or the message. Generated when the assistant uses the "file_search" tool to search files.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageContentTextAnnotationsFileCitationObject {
-    /// Always `file_citation`.
-    pub r#type: String,
     /// The text in the message content that needs to be replaced.
     pub text: String,
     pub file_citation: FileCitation,
@@ -150,8 +149,6 @@ pub struct FileCitation {
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageContentTextAnnotationsFilePathObject {
-    /// Always `file_path`.
-    pub r#type: String,
     /// The text in the message content that needs to be replaced.
     pub text: String,
     pub file_path: FilePath,
@@ -271,9 +268,11 @@ pub struct MessageDelta {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum MessageDeltaContent {
     ImageFile(MessageDeltaContentImageFileObject),
+    ImageUrl(MessageDeltaContentImageUrlObject),
     Text(MessageDeltaContentTextObject),
 }
 
@@ -282,10 +281,7 @@ pub enum MessageDeltaContent {
 pub struct MessageDeltaContentTextObject {
     /// The index of the content part in the message.
     pub index: u32,
-    ///  Always `text`.
-    pub r#type: String,
-
-    pub text: MessageDeltaContentText,
+    pub text: Option<MessageDeltaContentText>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -296,7 +292,8 @@ pub struct MessageDeltaContentText {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum MessageDeltaContentTextAnnotations {
     FileCitation(MessageDeltaContentTextAnnotationsFileCitationObject),
     FilePath(MessageDeltaContentTextAnnotationsFilePathObject),
@@ -307,8 +304,6 @@ pub enum MessageDeltaContentTextAnnotations {
 pub struct MessageDeltaContentTextAnnotationsFileCitationObject {
     /// The index of the annotation in the text content part.
     pub index: u32,
-    /// Always `file_citation`.
-    pub r#type: String,
     /// The text in the message content that needs to be replaced.
     pub text: Option<String>,
     pub file_citation: Option<FileCitation>,
@@ -321,8 +316,6 @@ pub struct MessageDeltaContentTextAnnotationsFileCitationObject {
 pub struct MessageDeltaContentTextAnnotationsFilePathObject {
     /// The index of the annotation in the text content part.
     pub index: u32,
-    /// Always `file_path`.
-    pub r#type: String,
     /// The text in the message content that needs to be replaced.
     pub text: Option<String>,
     pub file_path: Option<FilePath>,
@@ -335,8 +328,6 @@ pub struct MessageDeltaContentTextAnnotationsFilePathObject {
 pub struct MessageDeltaContentImageFileObject {
     /// The index of the content part in the message.
     pub index: u32,
-    ///  Always `image_file`.
-    pub r#type: String,
 
     pub image_file: Option<ImageFile>,
 }
@@ -345,8 +336,6 @@ pub struct MessageDeltaContentImageFileObject {
 pub struct MessageDeltaContentImageUrlObject {
     /// The index of the content part in the message.
     pub index: u32,
-    ///  Always `image_url`.
-    pub r#type: String,
 
     pub image_url: Option<ImageUrl>,
 }
