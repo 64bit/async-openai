@@ -596,25 +596,19 @@ impl From<ChatCompletionRequestMessageContentPartImage>
     for ChatCompletionRequestMessageContentPart
 {
     fn from(value: ChatCompletionRequestMessageContentPartImage) -> Self {
-        ChatCompletionRequestMessageContentPart::Image(value)
+        ChatCompletionRequestMessageContentPart::ImageUrl(value)
     }
 }
 
 impl From<&str> for ChatCompletionRequestMessageContentPartText {
     fn from(value: &str) -> Self {
-        ChatCompletionRequestMessageContentPartText {
-            r#type: "text".into(),
-            text: value.into(),
-        }
+        ChatCompletionRequestMessageContentPartText { text: value.into() }
     }
 }
 
 impl From<String> for ChatCompletionRequestMessageContentPartText {
     fn from(value: String) -> Self {
-        ChatCompletionRequestMessageContentPartText {
-            r#type: "text".into(),
-            text: value,
-        }
+        ChatCompletionRequestMessageContentPartText { text: value }
     }
 }
 

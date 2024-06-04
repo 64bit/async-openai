@@ -104,9 +104,6 @@ pub struct CompletionUsage {
 pub struct ChatCompletionRequestSystemMessage {
     /// The contents of the system message.
     pub content: String,
-    /// The role of the messages author, in this case `system`.
-    #[builder(default = "Role::System")]
-    pub role: Role,
     /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -119,8 +116,6 @@ pub struct ChatCompletionRequestSystemMessage {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestMessageContentPartText {
-    #[builder(default = "\"text\".into()")]
-    pub r#type: String,
     pub text: String,
 }
 
@@ -153,16 +148,15 @@ pub struct ImageUrl {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestMessageContentPartImage {
-    #[builder(default = "\"image_url\".into()")]
-    pub r#type: String,
     pub image_url: ImageUrl,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum ChatCompletionRequestMessageContentPart {
     Text(ChatCompletionRequestMessageContentPartText),
-    Image(ChatCompletionRequestMessageContentPartImage),
+    ImageUrl(ChatCompletionRequestMessageContentPartImage),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -185,9 +179,6 @@ pub enum ChatCompletionRequestUserMessageContent {
 pub struct ChatCompletionRequestUserMessage {
     /// The contents of the user message.
     pub content: ChatCompletionRequestUserMessageContent,
-    /// The role of the messages author, in this case `user`.
-    #[builder(default = "Role::User")]
-    pub role: Role,
     /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -202,9 +193,6 @@ pub struct ChatCompletionRequestUserMessage {
 pub struct ChatCompletionRequestAssistantMessage {
     /// The contents of the assistant message.
     pub content: Option<String>,
-    /// The role of the messages author, in this case `assistant`.
-    #[builder(default = "Role::Assistant")]
-    pub role: Role,
     /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -224,9 +212,6 @@ pub struct ChatCompletionRequestAssistantMessage {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestToolMessage {
-    /// The role of the messages author, in this case `tool`.
-    #[builder(default = "Role::Tool")]
-    pub role: Role,
     /// The contents of the tool message.
     pub content: String,
     pub tool_call_id: String,
@@ -239,9 +224,6 @@ pub struct ChatCompletionRequestToolMessage {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestFunctionMessage {
-    /// The role of the messages author, in this case `function`.
-    #[builder(default = "Role::Function")]
-    pub role: Role,
     /// The return value from the function call, to return to the model.
     pub content: Option<String>,
     /// The name of the function to call.
@@ -249,7 +231,8 @@ pub struct ChatCompletionRequestFunctionMessage {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "role")]
+#[serde(rename_all = "lowercase")]
 pub enum ChatCompletionRequestMessage {
     System(ChatCompletionRequestSystemMessage),
     User(ChatCompletionRequestUserMessage),
@@ -504,15 +487,20 @@ pub struct CreateChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 
-    /// Controls how the model responds to function calls.
-    /// "none" means the model does not call a function, and responds to the end-user.
-    /// "auto" means the model can pick between an end-user or calling a function.
-    /// Specifying a particular function via `{"name":\ "my_function"}` forces the model to call that function.
-    /// "none" is the default when no functions are present. "auto" is the default if functions are present.
+    /// Deprecated in favor of `tool_choice`.
+    ///
+    /// Controls which (if any) function is called by the model.
+    /// `none` means the model will not call a function and instead generates a message.
+    /// `auto` means the model can pick between generating a message or calling a function.
+    /// Specifying a particular function via `{"name": "my_function"}` forces the model to call that function.
+    ///
+    /// `none` is the default when no functions are present. `auto` is the default if functions are present.
     #[deprecated]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub function_call: Option<ChatCompletionFunctionCall>,
 
+    /// Deprecated in favor of `tools`.
+    ///
     /// A list of functions the model may generate JSON inputs for.
     #[deprecated]
     #[serde(skip_serializing_if = "Option::is_none")]
