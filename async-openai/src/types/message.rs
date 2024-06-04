@@ -287,8 +287,8 @@ pub struct MessageDeltaContentTextObject {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageDeltaContentText {
     /// The data that makes up the text.
-    pub value: String,
-    pub annotations: Vec<MessageDeltaContentTextAnnotations>,
+    pub value: Option<String>,
+    pub annotations: Option<Vec<MessageDeltaContentTextAnnotations>>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
