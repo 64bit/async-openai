@@ -20,11 +20,11 @@ use super::{
     ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
     ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
-    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
-    FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageSize, ImageUrl,
-    ImagesResponse, MessageContentInput, ModerationInput, Prompt, ResponseFormat, Role, Stop,
-    TimestampGranularity,
+    CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
+    CreateSpeechResponse, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
+    EmbeddingInput, FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageSize,
+    ImageUrl, ImagesResponse, MessageContentInput, ModerationInput, Prompt, ResponseFormat, Role,
+    Stop, TimestampGranularity,
 };
 
 /// for `impl_from!(T, Enum)`, implements
@@ -636,7 +636,7 @@ impl From<String> for ImageUrl {
     }
 }
 
-impl From<String> for MessageContentInput {
+impl From<String> for CreateMessageRequestContent {
     fn from(value: String) -> Self {
         Self::Content(value)
     }
@@ -648,7 +648,7 @@ impl Default for ChatCompletionRequestUserMessageContent {
     }
 }
 
-impl Default for MessageContentInput {
+impl Default for CreateMessageRequestContent {
     fn default() -> Self {
         Self::Content("".into())
     }
