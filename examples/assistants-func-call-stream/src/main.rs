@@ -1,9 +1,11 @@
 use std::error::Error;
 
 use async_openai::{
+    config::OpenAIConfig,
     types::{
         AssistantStreamEvent, CreateAssistantRequestArgs, CreateMessageRequest, CreateRunRequest,
-        CreateThreadRequest, FunctionObject, MessageRole,
+        CreateThreadRequest, FunctionObject, MessageDeltaContent, MessageRole, RunObject,
+        SubmitToolOutputsRunRequest, ToolsOutputs,
     },
     Client,
 };
@@ -80,7 +82,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .create(CreateThreadRequest::default())
         .await?;
 
-    let message = client
+    let _message = client
         .threads()
         .messages(&thread.id)
         .create(CreateMessageRequest {
@@ -104,13 +106,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
         })
         .await?;
 
+    let mut task_handle = None;
+
     while let Some(event) = event_stream.next().await {
         match event {
             Ok(event) => match event {
-                AssistantStreamEvent::ThreadRunRequiresAction(action) => {
-                    println!("thread.run.requires_action: {action:?}");
+                AssistantStreamEvent::ThreadRunRequiresAction(run_object) => {
+                    println!("thread.run.requires_action: run_id:{}", run_object.id);
+                    let client = client.clone();
+                    task_handle = Some(tokio::spawn(async move {
+                        handle_requires_action(client, run_object).await
+                    }));
                 }
-                _ => println!("Event: {event:?}"),
+                _ => println!("\nEvent: {event:?}\n"),
             },
             Err(e) => {
                 eprintln!("Error: {e}");
@@ -118,9 +126,83 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
+    // wait for task to handle required action and submit tool outputs
+    if let Some(task_handle) = task_handle {
+        let _ = tokio::join!(task_handle);
+    }
+
     // clean up
     client.threads().delete(&thread.id).await?;
     client.assistants().delete(&assistant.id).await?;
+
+    Ok(())
+}
+
+async fn handle_requires_action(client: Client<OpenAIConfig>, run_object: RunObject) {
+    let mut tool_outputs: Vec<ToolsOutputs> = vec![];
+    if let Some(ref required_action) = run_object.required_action {
+        for tool in &required_action.submit_tool_outputs.tool_calls {
+            if tool.function.name == "get_current_temperature" {
+                tool_outputs.push(ToolsOutputs {
+                    tool_call_id: Some(tool.id.clone()),
+                    output: Some("57".into()),
+                })
+            }
+
+            if tool.function.name == "get_rain_probability" {
+                tool_outputs.push(ToolsOutputs {
+                    tool_call_id: Some(tool.id.clone()),
+                    output: Some("0.06".into()),
+                })
+            }
+        }
+
+        if let Err(e) = submit_tool_outputs(client, run_object, tool_outputs).await {
+            eprintln!("Error on submitting tool outputs: {e}");
+        }
+    }
+}
+
+async fn submit_tool_outputs(
+    client: Client<OpenAIConfig>,
+    run_object: RunObject,
+    tool_outputs: Vec<ToolsOutputs>,
+) -> Result<(), Box<dyn Error>> {
+    let mut event_stream = client
+        .threads()
+        .runs(&run_object.thread_id)
+        .submit_tool_outputs_stream(
+            &run_object.id,
+            SubmitToolOutputsRunRequest {
+                tool_outputs,
+                stream: Some(true),
+            },
+        )
+        .await?;
+
+    while let Some(event) = event_stream.next().await {
+        match event {
+            Ok(event) => {
+                if let AssistantStreamEvent::ThreadMessageDelta(delta) = event {
+                    if let Some(contents) = delta.delta.content {
+                        for content in contents {
+                            // only text is expected here and no images
+                            if let MessageDeltaContent::Text(text) = content {
+                                if let Some(text) = text.text {
+                                    if let Some(text) = text.value {
+                                        print!("{}", text);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                eprintln!("Error: {e}");
+            }
+        }
+    }
 
     Ok(())
 }
