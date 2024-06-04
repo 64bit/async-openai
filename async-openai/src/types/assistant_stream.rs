@@ -1,7 +1,7 @@
 use std::pin::Pin;
 
 use futures::Stream;
-use serde::{Deserialize};
+use serde::Deserialize;
 
 use crate::error::{ApiError, OpenAIError};
 
@@ -31,6 +31,7 @@ use super::{
 
 #[derive(Deserialize)]
 #[serde(tag = "event", content = "data")]
+#[non_exhaustive]
 pub enum AssistantStreamEvent {
     /// Occurs when a new [thread](https://platform.openai.com/docs/api-reference/threads/object) is created.
     #[serde(rename = "thread.created")]
