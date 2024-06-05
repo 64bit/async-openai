@@ -4,7 +4,7 @@ use async_openai::{
     types::{
         ChatCompletionRequestMessageContentPartImageArgs,
         ChatCompletionRequestMessageContentPartTextArgs, ChatCompletionRequestUserMessageArgs,
-        CreateChatCompletionRequestArgs, ImageUrlArgs, ImageUrlDetail,
+        CreateChatCompletionRequestArgs, ImageDetail, ImageUrlArgs,
     },
     Client,
 };
@@ -29,7 +29,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .image_url(
                         ImageUrlArgs::default()
                             .url(image_url)
-                            .detail(ImageUrlDetail::High)
+                            .detail(ImageDetail::High)
                             .build()?,
                     )
                     .build()?

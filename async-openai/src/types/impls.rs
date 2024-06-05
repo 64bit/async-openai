@@ -20,10 +20,11 @@ use super::{
     ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
     ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
-    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
-    FileInput, FunctionName, Image, ImageInput, ImageModel, ImageSize, ImageUrl, ImagesResponse,
-    ModerationInput, Prompt, ResponseFormat, Role, Stop, TimestampGranularity,
+    CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
+    CreateSpeechResponse, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
+    EmbeddingInput, FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageSize,
+    ImageUrl, ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    TimestampGranularity,
 };
 
 /// for `impl_from!(T, Enum)`, implements
@@ -252,6 +253,21 @@ impl Display for Role {
                 Role::Assistant => "assistant",
                 Role::Function => "function",
                 Role::Tool => "tool",
+            }
+        )
+    }
+}
+
+impl Display for FilePurpose {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Assistants => "assistants",
+                Self::Batch => "batch",
+                Self::FineTune => "fine-tune",
+                Self::Vision => "vision",
             }
         )
     }
@@ -580,25 +596,19 @@ impl From<ChatCompletionRequestMessageContentPartImage>
     for ChatCompletionRequestMessageContentPart
 {
     fn from(value: ChatCompletionRequestMessageContentPartImage) -> Self {
-        ChatCompletionRequestMessageContentPart::Image(value)
+        ChatCompletionRequestMessageContentPart::ImageUrl(value)
     }
 }
 
 impl From<&str> for ChatCompletionRequestMessageContentPartText {
     fn from(value: &str) -> Self {
-        ChatCompletionRequestMessageContentPartText {
-            r#type: "text".into(),
-            text: value.into(),
-        }
+        ChatCompletionRequestMessageContentPartText { text: value.into() }
     }
 }
 
 impl From<String> for ChatCompletionRequestMessageContentPartText {
     fn from(value: String) -> Self {
-        ChatCompletionRequestMessageContentPartText {
-            r#type: "text".into(),
-            text: value,
-        }
+        ChatCompletionRequestMessageContentPartText { text: value }
     }
 }
 
@@ -620,9 +630,27 @@ impl From<String> for ImageUrl {
     }
 }
 
+impl From<String> for CreateMessageRequestContent {
+    fn from(value: String) -> Self {
+        Self::Content(value)
+    }
+}
+
+impl From<&str> for CreateMessageRequestContent {
+    fn from(value: &str) -> Self {
+        Self::Content(value.to_string())
+    }
+}
+
 impl Default for ChatCompletionRequestUserMessageContent {
     fn default() -> Self {
         ChatCompletionRequestUserMessageContent::Text("".into())
+    }
+}
+
+impl Default for CreateMessageRequestContent {
+    fn default() -> Self {
+        Self::Content("".into())
     }
 }
 
@@ -776,7 +804,7 @@ impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
         let file_part = create_file_part(request.file.source).await?;
         let form = reqwest::multipart::Form::new()
             .part("file", file_part)
-            .text("purpose", request.purpose);
+            .text("purpose", request.purpose.to_string());
         Ok(form)
     }
 }

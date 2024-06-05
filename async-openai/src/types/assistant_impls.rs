@@ -1,13 +1,8 @@
 use super::{
-    AssistantTools, AssistantToolsCode, AssistantToolsFileSearch, AssistantToolsFunction,
-    FunctionObject,
+    AssistantToolCodeInterpreterResources, AssistantToolFileSearchResources,
+    AssistantToolResources, AssistantTools, AssistantToolsFileSearch, AssistantToolsFunction,
+    CreateAssistantToolFileSearchResources, CreateAssistantToolResources, FunctionObject,
 };
-
-impl From<AssistantToolsCode> for AssistantTools {
-    fn from(value: AssistantToolsCode) -> Self {
-        Self::Code(value)
-    }
-}
 
 impl From<AssistantToolsFileSearch> for AssistantTools {
     fn from(value: AssistantToolsFileSearch) -> Self {
@@ -21,42 +16,50 @@ impl From<AssistantToolsFunction> for AssistantTools {
     }
 }
 
-impl Default for AssistantToolsCode {
-    fn default() -> Self {
-        Self {
-            r#type: "code_interpreter".into(),
-        }
-    }
-}
-
-impl Default for AssistantToolsFileSearch {
-    fn default() -> Self {
-        Self {
-            r#type: "file_search".into(),
-        }
-    }
-}
-
-impl Default for AssistantToolsFunction {
-    fn default() -> Self {
-        Self {
-            r#type: "function".into(),
-            function: Default::default(),
-        }
-    }
-}
-
 impl From<FunctionObject> for AssistantToolsFunction {
     fn from(value: FunctionObject) -> Self {
-        Self {
-            r#type: "function".into(),
-            function: value,
-        }
+        Self { function: value }
     }
 }
 
 impl From<FunctionObject> for AssistantTools {
     fn from(value: FunctionObject) -> Self {
         Self::Function(value.into())
+    }
+}
+
+impl From<CreateAssistantToolFileSearchResources> for CreateAssistantToolResources {
+    fn from(value: CreateAssistantToolFileSearchResources) -> Self {
+        Self {
+            code_interpreter: None,
+            file_search: Some(value),
+        }
+    }
+}
+
+impl From<AssistantToolCodeInterpreterResources> for CreateAssistantToolResources {
+    fn from(value: AssistantToolCodeInterpreterResources) -> Self {
+        Self {
+            code_interpreter: Some(value),
+            file_search: None,
+        }
+    }
+}
+
+impl From<AssistantToolCodeInterpreterResources> for AssistantToolResources {
+    fn from(value: AssistantToolCodeInterpreterResources) -> Self {
+        Self {
+            code_interpreter: Some(value),
+            file_search: None,
+        }
+    }
+}
+
+impl From<AssistantToolFileSearchResources> for AssistantToolResources {
+    fn from(value: AssistantToolFileSearchResources) -> Self {
+        Self {
+            code_interpreter: None,
+            file_search: Some(value),
+        }
     }
 }

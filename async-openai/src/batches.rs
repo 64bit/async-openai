@@ -37,7 +37,7 @@ impl<'c, C: Config> Batches<'c, C> {
         self.client.get(&format!("/batches/{batch_id}")).await
     }
 
-    /// Cancels an in-progress batch.
+    /// Cancels an in-progress batch. The batch will be in status `cancelling` for up to 10 minutes, before changing to `cancelled`, where it will have partial results (if any) available in the output file.
     pub async fn cancel(&self, batch_id: &str) -> Result<Batch, OpenAIError> {
         self.client
             .post(

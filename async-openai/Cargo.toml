@@ -1,9 +1,7 @@
 [package]
 name = "async-openai"
 version = "0.21.0"
-authors = [
-    "Himanshu Neema"
-]
+authors = ["Himanshu Neema"]
 categories = ["api-bindings", "web-programming", "asynchronous"]
 keywords = ["openai", "async", "openapi", "ai"]
 description = "Rust library for OpenAI"
@@ -26,23 +24,28 @@ native-tls = ["reqwest/native-tls"]
 native-tls-vendored = ["reqwest/native-tls-vendored"]
 
 [dependencies]
-backoff = {version = "0.4.0", features = ["tokio"] }
-base64 = "0.22.0"
-futures = "0.3.26"
+backoff = { version = "0.4.0", features = ["tokio"] }
+base64 = "0.22.1"
+futures = "0.3.30"
 rand = "0.8.5"
-reqwest = { version = "0.12.0", features = ["json", "stream", "multipart"],default-features = false }
+reqwest = { version = "0.12.4", features = [
+    "json",
+    "stream",
+    "multipart",
+], default-features = false }
 reqwest-eventsource = "0.6.0"
-serde = { version = "1.0.152", features = ["derive", "rc"] }
-serde_json = "1.0.93"
-thiserror = "1.0.38"
-tokio = { version = "1.25.0", features = ["fs", "macros"] }
-tokio-stream = "0.1.11"
-tokio-util = { version = "0.7.7", features = ["codec", "io-util"] }
-tracing = "0.1.37"
+serde = { version = "1.0.203", features = ["derive", "rc"] }
+serde_json = "1.0.117"
+thiserror = "1.0.61"
+tokio = { version = "1.38.0", features = ["fs", "macros"] }
+tokio-stream = "0.1.15"
+tokio-util = { version = "0.7.11", features = ["codec", "io-util"] }
+tracing = "0.1.40"
 derive_builder = "0.20.0"
 async-convert = "1.0.0"
-secrecy = { version = "0.8.0", features=["serde"] }
-bytes = "1.5.0"
+secrecy = { version = "0.8.0", features = ["serde"] }
+bytes = "1.6.0"
+eventsource-stream = "0.2.3"
 
 [dev-dependencies]
-tokio-test = "0.4.2"
+tokio-test = "0.4.4"

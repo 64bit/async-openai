@@ -2,8 +2,8 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::{
-        CreateThreadAndRunRequest, CreateThreadRequest, DeleteThreadResponse, ModifyThreadRequest,
-        RunObject, ThreadObject,
+        AssistantEventStream, AssistantStreamEvent, CreateThreadAndRunRequest, CreateThreadRequest,
+        DeleteThreadResponse, ModifyThreadRequest, RunObject, ThreadObject,
     },
     Client, Messages, Runs,
 };
@@ -36,6 +36,25 @@ impl<'c, C: Config> Threads<'c, C> {
         request: CreateThreadAndRunRequest,
     ) -> Result<RunObject, OpenAIError> {
         self.client.post("/threads/runs", request).await
+    }
+
+    /// Create a thread and run it in one request (streaming).
+    pub async fn create_and_run_stream(
+        &self,
+        mut request: CreateThreadAndRunRequest,
+    ) -> Result<AssistantEventStream, OpenAIError> {
+        if request.stream.is_some() && !request.stream.unwrap() {
+            return Err(OpenAIError::InvalidArgument(
+                "When stream is false, use Threads::create_and_run".into(),
+            ));
+        }
+
+        request.stream = Some(true);
+
+        Ok(self
+            .client
+            .post_stream_mapped_raw_events("/threads/runs", request, AssistantStreamEvent::try_from)
+            .await)
     }
 
     /// Create a thread.

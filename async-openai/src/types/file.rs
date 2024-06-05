@@ -10,6 +10,15 @@ pub struct FileInput {
     pub source: InputSource,
 }
 
+#[derive(Debug, Default, Clone, PartialEq)]
+pub enum FilePurpose {
+    Assistants,
+    Batch,
+    #[default]
+    FineTune,
+    Vision,
+}
+
 #[derive(Debug, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateFileRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -17,16 +26,13 @@ pub struct FileInput {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateFileRequest {
-    /// The file object to be uploaded.
-    ///
-    /// If the `purpose` is set to "fine-tune", the file will be used for fine-tuning.
+    /// The File object (not file name) to be uploaded.
     pub file: FileInput,
 
     /// The intended purpose of the uploaded file.
     ///
-    /// Use "fine-tune" for [fine-tuning](https://platform.openai.com/docs/api-reference/fine-tuning).
-    /// This allows us to validate the format of the uploaded file is correct for fine-tuning.
-    pub purpose: String,
+    /// Use "assistants" for [Assistants](https://platform.openai.com/docs/api-reference/assistants) and [Message](https://platform.openai.com/docs/api-reference/messages) files, "vision" for Assistants image file inputs, "batch" for [Batch API](https://platform.openai.com/docs/guides/batch), and "fine-tune" for [Fine-tuning](https://platform.openai.com/docs/api-reference/fine-tuning).
+    pub purpose: FilePurpose,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -44,14 +50,20 @@ pub struct DeleteFileResponse {
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub enum OpenAIFilePurpose {
-    #[serde(rename = "fine-tune")]
-    FineTune,
-    #[serde(rename = "fine-tune-results")]
-    FineTuneResults,
     #[serde(rename = "assistants")]
     Assistants,
     #[serde(rename = "assistants_output")]
     AssistantsOutput,
+    #[serde(rename = "batch")]
+    Batch,
+    #[serde(rename = "batch_output")]
+    BatchOutput,
+    #[serde(rename = "fine-tune")]
+    FineTune,
+    #[serde(rename = "fine-tune-results")]
+    FineTuneResults,
+    #[serde(rename = "vision")]
+    Vision,
 }
 
 /// The `File` object represents a document that has been uploaded to OpenAI.
@@ -67,7 +79,7 @@ pub struct OpenAIFile {
     pub created_at: u32,
     /// The name of the file.
     pub filename: String,
-    /// The intended purpose of the file. Supported values are `fine-tune`, `fine-tune-results`, `assistants`, and `assistants_output`.
+    /// The intended purpose of the file. Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`, `fine-tune`, `fine-tune-results` and `vision`.
     pub purpose: OpenAIFilePurpose,
     /// Deprecated. The current status of the file, which can be either `uploaded`, `processed`, or `error`.
     #[deprecated]

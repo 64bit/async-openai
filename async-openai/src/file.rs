@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use serde::Serialize;
 
 use crate::{
@@ -17,9 +18,13 @@ impl<'c, C: Config> Files<'c, C> {
         Self { client }
     }
 
-    /// Upload a file that can be used across various endpoints. The size of all the files uploaded by one organization can be up to 100 GB.
+    /// Upload a file that can be used across various endpoints. Individual files can be up to 512 MB, and the size of all files uploaded by one organization can be up to 100 GB.
     ///
-    /// The size of individual files can be a maximum of 512 MB or 2 million tokens for Assistants. See the [Assistants Tools guide](https://platform.openai.com/docs/assistants/tools) to learn more about the types of files supported. The Fine-tuning API only supports `.jsonl` files.
+    /// The Assistants API supports files up to 2 million tokens and of specific file types. See the [Assistants Tools guide](https://platform.openai.com/docs/assistants/tools) for details.
+    ///
+    /// The Fine-tuning API only supports `.jsonl` files. The input also has certain required formats for fine-tuning [chat](https://platform.openai.com/docs/api-reference/fine-tuning/chat-input) or [completions](https://platform.openai.com/docs/api-reference/fine-tuning/completions-input) models.
+    ///
+    ///The Batch API only supports `.jsonl` files up to 100 MB in size. The input also has a specific required [format](https://platform.openai.com/docs/api-reference/batch/request-input).
     ///
     /// Please [contact us](https://help.openai.com/) if you need to increase these storage limits.
     pub async fn create(&self, request: CreateFileRequest) -> Result<OpenAIFile, OpenAIError> {
@@ -47,16 +52,19 @@ impl<'c, C: Config> Files<'c, C> {
     }
 
     /// Returns the contents of the specified file
-    pub async fn retrieve_content(&self, file_id: &str) -> Result<String, OpenAIError> {
+    pub async fn content(&self, file_id: &str) -> Result<Bytes, OpenAIError> {
         self.client
-            .get(format!("/files/{file_id}/content").as_str())
+            .get_raw(format!("/files/{file_id}/content").as_str())
             .await
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{types::CreateFileRequestArgs, Client};
+    use crate::{
+        types::{CreateFileRequestArgs, FilePurpose},
+        Client,
+    };
 
     #[tokio::test]
     async fn test_file_mod() {
@@ -72,7 +80,7 @@ mod tests {
 
         let request = CreateFileRequestArgs::default()
             .file(test_file_path)
-            .purpose("fine-tune")
+            .purpose(FilePurpose::FineTune)
             .build()
             .unwrap();
 

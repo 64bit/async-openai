@@ -43,7 +43,7 @@ pub struct RunStepObject {
     pub last_error: Option<LastError>,
 
     ///The Unix timestamp (in seconds) for when the run step expired. A step is considered expired if the parent run is expired.
-    pub expired_at: Option<i32>,
+    pub expires_at: Option<i32>,
 
     /// The Unix timestamp (in seconds) for when the run step was cancelled.
     pub cancelled_at: Option<i32>,
@@ -71,7 +71,8 @@ pub struct RunStepCompletionUsage {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum StepDetails {
     MessageCreation(RunStepDetailsMessageCreationObject),
     ToolCalls(RunStepDetailsToolCallsObject),
@@ -80,8 +81,6 @@ pub enum StepDetails {
 /// Details of the message creation by the run step.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct RunStepDetailsMessageCreationObject {
-    /// Always `message_creation`.
-    pub r#type: String,
     pub message_creation: MessageCreation,
 }
 
@@ -94,17 +93,16 @@ pub struct MessageCreation {
 /// Details of the tool call.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct RunStepDetailsToolCallsObject {
-    /// Always `tool_calls`.
-    pub r#type: String,
     /// An array of tool calls the run step was involved in. These can be associated with one of three types of tools: `code_interpreter`, `file_search`, or `function`.
     pub tool_calls: Vec<RunStepDetailsToolCalls>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum RunStepDetailsToolCalls {
     /// Details of the Code Interpreter tool call the run step was involved in.
-    Code(RunStepDetailsToolCallsCodeObject),
+    CodeInterpreter(RunStepDetailsToolCallsCodeObject),
     FileSearch(RunStepDetailsToolCallsFileSearchObject),
     Function(RunStepDetailsToolCallsFunctionObject),
 }
@@ -114,8 +112,6 @@ pub enum RunStepDetailsToolCalls {
 pub struct RunStepDetailsToolCallsCodeObject {
     /// The ID of the tool call.
     pub id: String,
-    /// The type of tool call. This is always going to be `code_interpreter` for this type of tool call.
-    pub r#type: String,
 
     /// The Code Interpreter tool call definition.
     pub code_interpreter: CodeInterpreter,
@@ -130,10 +126,11 @@ pub struct CodeInterpreter {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "lowercase")]
 pub enum CodeInterpreterOutput {
     /// Code interpreter log output
-    Log(RunStepDetailsToolCallsCodeOutputLogsObject),
+    Logs(RunStepDetailsToolCallsCodeOutputLogsObject),
     /// Code interpreter image output
     Image(RunStepDetailsToolCallsCodeOutputImageObject),
 }
@@ -141,16 +138,12 @@ pub enum CodeInterpreterOutput {
 /// Text output from the Code Interpreter tool call as part of a run step.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct RunStepDetailsToolCallsCodeOutputLogsObject {
-    /// Always `logs`.
-    pub r#type: String,
     /// The text output from the Code Interpreter tool call.
     pub logs: String,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct RunStepDetailsToolCallsCodeOutputImageObject {
-    ///  Always `image`.
-    pub r#type: String,
     /// The [file](https://platform.openai.com/docs/api-reference/files) ID of the image.
     pub image: ImageFile,
 }
@@ -160,8 +153,6 @@ pub struct RunStepDetailsToolCallsCodeOutputImageObject {
 pub struct RunStepDetailsToolCallsFileSearchObject {
     /// The ID of the tool call object.
     pub id: String,
-    /// The type of tool call. This is always going to be `file_search` for this type of tool call.
-    pub r#type: String,
     /// For now, this is always going to be an empty object.
     pub file_search: serde_json::Value,
 }
@@ -170,8 +161,6 @@ pub struct RunStepDetailsToolCallsFileSearchObject {
 pub struct RunStepDetailsToolCallsFunctionObject {
     /// The ID of the tool call object.
     pub id: String,
-    /// The type of tool call. This is always going to be `function` for this type of tool call.
-    pub r#type: String,
     /// he definition of the function that was called.
     pub function: RunStepFunctionObject,
 }
@@ -182,6 +171,16 @@ pub struct RunStepFunctionObject {
     pub name: String,
     /// The arguments passed to the function.
     pub arguments: String,
+    /// The output of the function. This will be `null` if the outputs have not been [submitted](https://platform.openai.com/docs/api-reference/runs/submitToolOutputs) yet.
+    pub output: Option<String>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepFunctionObjectDelta {
+    /// The name of the function.
+    pub name: Option<String>,
+    /// The arguments passed to the function.
+    pub arguments: Option<String>,
     /// The output of the function. This will be `null` if the outputs have not been [submitted](https://platform.openai.com/docs/api-reference/runs/submitToolOutputs) yet.
     pub output: Option<String>,
 }
@@ -212,7 +211,8 @@ pub struct RunStepDelta {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum DeltaStepDetails {
     MessageCreation(RunStepDeltaStepDetailsMessageCreationObject),
     ToolCalls(RunStepDeltaStepDetailsToolCallsObject),
@@ -221,24 +221,21 @@ pub enum DeltaStepDetails {
 /// Details of the message creation by the run step.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct RunStepDeltaStepDetailsMessageCreationObject {
-    /// Always `message_creation`.
-    pub r#type: String,
     pub message_creation: Option<MessageCreation>,
 }
 
 /// Details of the tool call.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct RunStepDeltaStepDetailsToolCallsObject {
-    /// Always `tool_calls`.
-    pub r#type: String,
     /// An array of tool calls the run step was involved in. These can be associated with one of three types of tools: `code_interpreter`, `file_search`, or `function`.
     pub tool_calls: Option<Vec<RunStepDeltaStepDetailsToolCalls>>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum RunStepDeltaStepDetailsToolCalls {
-    Code(RunStepDeltaStepDetailsToolCallsCodeObject),
+    CodeInterpreter(RunStepDeltaStepDetailsToolCallsCodeObject),
     FileSearch(RunStepDeltaStepDetailsToolCallsFileSearchObject),
     Function(RunStepDeltaStepDetailsToolCallsFunctionObject),
 }
@@ -250,8 +247,6 @@ pub struct RunStepDeltaStepDetailsToolCallsCodeObject {
     pub index: u32,
     /// The ID of the tool call.
     pub id: Option<String>,
-    /// The type of tool call. This is always going to be `code_interpreter` for this type of tool call.
-    pub r#type: String,
     /// The Code Interpreter tool call definition.
     pub code_interpreter: Option<DeltaCodeInterpreter>,
 }
@@ -259,13 +254,14 @@ pub struct RunStepDeltaStepDetailsToolCallsCodeObject {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct DeltaCodeInterpreter {
     /// The input to the Code Interpreter tool call.
-    pub input: String,
+    pub input: Option<String>,
     /// The outputs from the Code Interpreter tool call. Code Interpreter can output one or more items, including text (`logs`) or images (`image`). Each of these are represented by a different object type.
-    pub outputs: Vec<DeltaCodeInterpreterOutput>,
+    pub outputs: Option<Vec<DeltaCodeInterpreterOutput>>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "lowercase")]
 pub enum DeltaCodeInterpreterOutput {
     Logs(RunStepDeltaStepDetailsToolCallsCodeOutputLogsObject),
     Image(RunStepDeltaStepDetailsToolCallsCodeOutputImageObject),
@@ -276,8 +272,6 @@ pub enum DeltaCodeInterpreterOutput {
 pub struct RunStepDeltaStepDetailsToolCallsCodeOutputLogsObject {
     /// The index of the output in the outputs array.
     pub index: u32,
-    /// Always `logs`.
-    pub r#type: String,
     /// The text output from the Code Interpreter tool call.
     pub logs: Option<String>,
 }
@@ -287,8 +281,6 @@ pub struct RunStepDeltaStepDetailsToolCallsCodeOutputLogsObject {
 pub struct RunStepDeltaStepDetailsToolCallsCodeOutputImageObject {
     /// The index of the output in the outputs array.
     pub index: u32,
-    /// Always `image`.
-    pub r#type: String,
 
     pub image: Option<ImageFile>,
 }
@@ -299,8 +291,6 @@ pub struct RunStepDeltaStepDetailsToolCallsFileSearchObject {
     pub index: u32,
     /// The ID of the tool call object.
     pub id: Option<String>,
-    /// The type of tool call. This is always going to be `file_search` for this type of tool call.
-    pub r#type: String,
     /// For now, this is always going to be an empty object.
     pub file_search: Option<serde_json::Value>,
 }
@@ -312,8 +302,6 @@ pub struct RunStepDeltaStepDetailsToolCallsFunctionObject {
     pub index: u32,
     /// The ID of the tool call object.
     pub id: Option<String>,
-    /// The type of tool call. This is always going to be `function` for this type of tool call.
-    pub r#type: String,
     /// The definition of the function that was called.
-    pub function: Option<RunStepFunctionObject>,
+    pub function: Option<RunStepFunctionObjectDelta>,
 }

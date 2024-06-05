@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-use super::{AssistantToolsCode, AssistantToolsFileSearch};
+use super::{AssistantToolsFileSearch, ImageDetail, ImageUrl};
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
@@ -90,24 +90,25 @@ pub struct MessageAttachment {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum MessageAttachmentTool {
-    Code(AssistantToolsCode),
+    CodeInterpreter,
     FileSearch(AssistantToolsFileSearch),
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum MessageContent {
     Text(MessageContentTextObject),
     ImageFile(MessageContentImageFileObject),
+    ImageUrl(MessageContentImageUrlObject),
 }
 
 /// The text content that is part of a message.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageContentTextObject {
-    /// Always `text`.
-    pub r#type: String,
     pub text: TextData,
 }
 
@@ -119,7 +120,8 @@ pub struct TextData {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum MessageContentTextAnnotations {
     /// A citation within the message that points to a specific quote from a specific File associated with the assistant or the message. Generated when the assistant uses the "retrieval" tool to search files.
     FileCitation(MessageContentTextAnnotationsFileCitationObject),
@@ -130,8 +132,6 @@ pub enum MessageContentTextAnnotations {
 /// A citation within the message that points to a specific quote from a specific File associated with the assistant or the message. Generated when the assistant uses the "file_search" tool to search files.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageContentTextAnnotationsFileCitationObject {
-    /// Always `file_citation`.
-    pub r#type: String,
     /// The text in the message content that needs to be replaced.
     pub text: String,
     pub file_citation: FileCitation,
@@ -149,8 +149,6 @@ pub struct FileCitation {
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageContentTextAnnotationsFilePathObject {
-    /// Always `file_path`.
-    pub r#type: String,
     /// The text in the message content that needs to be replaced.
     pub text: String,
     pub file_path: FilePath,
@@ -167,17 +165,46 @@ pub struct FilePath {
 /// References an image [File](https://platform.openai.com/docs/api-reference/files) in the content of a message.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageContentImageFileObject {
-    /// Always `image_file`.
-    pub r#type: String,
     pub image_file: ImageFile,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct ImageFile {
-    /// The [File](https://platform.openai.com/docs/api-reference/files) ID of the image in the message content.
+    /// The [File](https://platform.openai.com/docs/api-reference/files) ID of the image in the message content. Set `purpose="vision"` when uploading the File if you need to later display the file content.
     pub file_id: String,
+    /// Specifies the detail level of the image if specified by the user. `low` uses fewer tokens, you can opt in to high resolution using `high`.
+    pub detail: Option<ImageDetail>,
 }
 
+/// References an image URL in the content of a message.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct MessageContentImageUrlObject {
+    pub image_url: ImageUrl,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct MessageRequestContentTextObject {
+    /// Text content to be sent to the model
+    text: String,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum CreateMessageRequestContent {
+    /// The text contents of the message.
+    Content(String),
+    /// An array of content parts with a defined type, each can be of type `text` or images can be passed with `image_url` or `image_file`. Image types are only supported on [Vision-compatible models](https://platform.openai.com/docs/models/overview).
+    ContentArray(Vec<MessageContentInput>),
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
+pub enum MessageContentInput {
+    Text(MessageRequestContentTextObject),
+    ImageFile(MessageContentImageFileObject),
+    ImageUrl(MessageContentImageUrlObject),
+}
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
 #[builder(name = "CreateMessageRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -190,7 +217,7 @@ pub struct CreateMessageRequest {
     /// - `assistant`: Indicates the message is generated by the assistant. Use this value to insert messages from the assistant into the conversation.
     pub role: MessageRole,
     /// The content of the message.
-    pub content: String,
+    pub content: CreateMessageRequestContent,
 
     /// A list of files attached to the message, and the tools they should be added to.
     pub attachments: Option<Vec<MessageAttachment>>,
@@ -241,9 +268,11 @@ pub struct MessageDelta {
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum MessageDeltaContent {
     ImageFile(MessageDeltaContentImageFileObject),
+    ImageUrl(MessageDeltaContentImageUrlObject),
     Text(MessageDeltaContentTextObject),
 }
 
@@ -252,21 +281,19 @@ pub enum MessageDeltaContent {
 pub struct MessageDeltaContentTextObject {
     /// The index of the content part in the message.
     pub index: u32,
-    ///  Always `text`.
-    pub r#type: String,
-
-    pub text: MessageDeltaContentText,
+    pub text: Option<MessageDeltaContentText>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageDeltaContentText {
     /// The data that makes up the text.
-    pub value: String,
-    pub annotations: Vec<MessageDeltaContentTextAnnotations>,
+    pub value: Option<String>,
+    pub annotations: Option<Vec<MessageDeltaContentTextAnnotations>>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum MessageDeltaContentTextAnnotations {
     FileCitation(MessageDeltaContentTextAnnotationsFileCitationObject),
     FilePath(MessageDeltaContentTextAnnotationsFilePathObject),
@@ -277,8 +304,6 @@ pub enum MessageDeltaContentTextAnnotations {
 pub struct MessageDeltaContentTextAnnotationsFileCitationObject {
     /// The index of the annotation in the text content part.
     pub index: u32,
-    /// Always `file_citation`.
-    pub r#type: String,
     /// The text in the message content that needs to be replaced.
     pub text: Option<String>,
     pub file_citation: Option<FileCitation>,
@@ -291,8 +316,6 @@ pub struct MessageDeltaContentTextAnnotationsFileCitationObject {
 pub struct MessageDeltaContentTextAnnotationsFilePathObject {
     /// The index of the annotation in the text content part.
     pub index: u32,
-    /// Always `file_path`.
-    pub r#type: String,
     /// The text in the message content that needs to be replaced.
     pub text: Option<String>,
     pub file_path: Option<FilePath>,
@@ -305,8 +328,14 @@ pub struct MessageDeltaContentTextAnnotationsFilePathObject {
 pub struct MessageDeltaContentImageFileObject {
     /// The index of the content part in the message.
     pub index: u32,
-    ///  Always `image_file`.
-    pub r#type: String,
 
     pub image_file: Option<ImageFile>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct MessageDeltaContentImageUrlObject {
+    /// The index of the content part in the message.
+    pub index: u32,
+
+    pub image_url: Option<ImageUrl>,
 }

@@ -47,8 +47,32 @@ pub struct CreateAssistantToolFileSearchResources {
 pub struct AssistantVectorStore {
     /// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs to add to the vector store. There can be a maximum of 10000 files in a vector store.
     pub file_ids: Vec<String>,
+
+    /// The chunking strategy used to chunk the file(s). If not set, will use the `auto` strategy.
+    pub chunking_strategy: Option<AssistantVectorStoreChunkingStrategy>,
+
     /// Set of 16 key-value pairs that can be attached to a vector store. This can be useful for storing additional information about the vector store in a structured format. Keys can be a maximum of 64 characters long and values can be a maxium of 512 characters long.
     pub metadata: Option<HashMap<String, serde_json::Value>>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
+#[serde(tag = "type")]
+pub enum AssistantVectorStoreChunkingStrategy {
+    /// The default strategy. This strategy currently uses a `max_chunk_size_tokens` of `800` and `chunk_overlap_tokens` of `400`.
+    #[default]
+    Auto,
+    Static(StaticChunkingStrategy),
+}
+
+/// Static Chunking Strategy
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
+pub struct StaticChunkingStrategy {
+    /// The maximum number of tokens in each chunk. The default value is `800`. The minimum value is `100` and the maximum value is `4096`.
+    max_chunk_size_tokens: u16,
+    /// The number of tokens that overlap between chunks. The default value is `400`.
+    ///
+    /// Note that the overlap must not exceed half of `max_chunk_size_tokens`.
+    chunk_overlap_tokens: u16,
 }
 
 /// Represents an `assistant` that can call the model and use tools.
@@ -86,7 +110,7 @@ pub struct AssistantObject {
     pub response_format: Option<AssistantsApiResponseFormatOption>,
 }
 
-/// Specifies the format that the model must output. Compatible with [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo) and all GPT-3.5 Turbo models since `gpt-3.5-turbo-1106`.
+/// Specifies the format that the model must output. Compatible with [GPT-4o](https://platform.openai.com/docs/models/gpt-4o), [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-turbo-and-gpt-4), and all GPT-3.5 Turbo models since `gpt-3.5-turbo-1106`.
 ///
 /// Setting to `{ "type": "json_object" }` enables JSON mode, which guarantees the message the model generates is valid JSON.
 ///
@@ -117,30 +141,33 @@ pub enum AssistantsApiResponseFormatType {
     JsonObject,
 }
 
-/// Code interpreter tool
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-pub struct AssistantToolsCode {
-    pub r#type: String,
+/// Retrieval tool
+#[derive(Clone, Serialize, Debug, Default, Deserialize, PartialEq)]
+pub struct AssistantToolsFileSearch {
+    /// Overrides for the file search tool.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub file_search: Option<AssistantToolsFileSearchOverrides>,
 }
 
-/// Retrieval tool
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-pub struct AssistantToolsFileSearch {
-    /// The type of tool being defined: `file_search`
-    pub r#type: String,
+pub struct AssistantToolsFileSearchOverrides {
+    ///  The maximum number of results the file search tool should output. The default is 20 for gpt-4* models and 5 for gpt-3.5-turbo. This number should be between 1 and 50 inclusive.
+    ///
+    //// Note that the file search tool may output fewer than `max_num_results` results. See the [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/number-of-chunks-returned) for more information.
+    pub max_num_results: u8,
 }
 
 /// Function tool
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Default, Deserialize, PartialEq)]
 pub struct AssistantToolsFunction {
-    pub r#type: String,
     pub function: FunctionObject,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-#[serde(untagged)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum AssistantTools {
-    Code(AssistantToolsCode),
+    CodeInterpreter,
     FileSearch(AssistantToolsFileSearch),
     Function(AssistantToolsFunction),
 }
