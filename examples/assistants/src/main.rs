@@ -113,7 +113,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     let text = match content {
                         MessageContent::Text(text) => text.text.value.clone(),
                         MessageContent::ImageFile(_) | MessageContent::ImageUrl(_) => {
-                            eprintln!("imaged are not expected in this example")
+                            panic!("imaged are not expected in this example");
                         }
                     };
                     //print the text
