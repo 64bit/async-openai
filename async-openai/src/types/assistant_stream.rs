@@ -13,7 +13,7 @@ use super::{
 ///
 /// Each event in a server-sent events stream has an `event` and `data` property:
 ///
-/// ```
+/// ```text
 /// event: thread.created
 /// data: {"id": "thread_123", "object": "thread", ...}
 /// ```
