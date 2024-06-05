@@ -100,7 +100,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     //retrieve the response from the run
                     let response = client.threads().messages(&thread.id).list(&query).await?;
                     //get the message id from the response
-                    let message_id = response.data.get(0).unwrap().id.clone();
+                    let message_id = response.data.first().unwrap().id.clone();
                     //get the message from the response
                     let message = client
                         .threads()
@@ -108,7 +108,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         .retrieve(&message_id)
                         .await?;
                     //get the content from the message
-                    let content = message.content.get(0).unwrap();
+                    let content = message.content.first().unwrap();
                     //get the text from the content
                     let text = match content {
                         MessageContent::Text(text) => text.text.value.clone(),
@@ -117,8 +117,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         }
                     };
                     //print the text
-                    println!("--- Response: {}", text);
-                    println!("");
+                    println!("--- Response: {}\n", text);
                 }
                 RunStatus::Failed => {
                     awaiting_response = false;
@@ -140,7 +139,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     println!("--- Run Requires Action");
                 }
                 RunStatus::InProgress => {
-                    println!("--- Waiting for response...");
+                    println!("--- In Progress ...");
                 }
                 RunStatus::Incomplete => {
                     println!("--- Run Incomplete");
