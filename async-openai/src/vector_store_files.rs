@@ -101,7 +101,7 @@ mod tests {
             .vector_stores()
             .create( CreateVectorStoreRequest {
                 file_ids: None,
-                name: String::from("meowww"),
+                name: None,
                 expires_after: None,
                 chunking_strategy: None,
                 metadata: None

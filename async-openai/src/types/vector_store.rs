@@ -18,7 +18,8 @@ pub struct CreateVectorStoreRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub file_ids: Option<Vec<String>>,
     /// The name of the vector store.
-    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
 
     /// The expiration policy for a vector store.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -62,7 +63,7 @@ pub struct VectorStoreObject {
     /// The Unix timestamp (in seconds) for when the vector store was created.
     pub created_at: u32,
     /// The name of the vector store.
-    pub name: String,
+    pub name: Option<String>,
     /// The total number of bytes used by the files in the vector store.
     pub usage_bytes: u64,
     pub file_counts: VectorStoreFileCounts,
