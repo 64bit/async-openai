@@ -94,9 +94,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .content("What was the total annual profit of Uber and Lyft?")
         .attachments(vec![MessageAttachment {
             file_id: message_file.id.clone(),
-            tools: vec![MessageAttachmentTool::FileSearch(
-                AssistantToolsFileSearch::default(),
-            )],
+            tools: vec![MessageAttachmentTool::FileSearch],
         }])
         .build()?;
 

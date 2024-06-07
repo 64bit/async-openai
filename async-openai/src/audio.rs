@@ -12,7 +12,7 @@ use crate::{
     Client,
 };
 
-/// Turn audio into text
+/// Turn audio into text or text into audio.
 /// Related guide: [Speech to text](https://platform.openai.com/docs/guides/speech-to-text)
 pub struct Audio<'c, C: Config> {
     client: &'c Client<C>,
