@@ -100,22 +100,13 @@ mod tests {
         let vector_store_handle = client
             .vector_stores()
             .create( CreateVectorStoreRequest {
-                file_ids: None,
+                file_ids: Some(vec![file_handle.id.clone()]),
                 name: None,
                 expires_after: None,
                 chunking_strategy: None,
                 metadata: None
             })
             .await?;
-
-        // Attach the file to the vector store
-        client
-            .vector_stores()
-            .files(&vector_store_handle.id)
-            .create(CreateVectorStoreFileRequest {
-                file_id: file_handle.id.clone(),
-                chunking_strategy: None
-            }).await?;
 
         // Delete the vector store
         client
