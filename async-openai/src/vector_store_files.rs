@@ -78,51 +78,55 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
 
 #[cfg(test)]
 mod tests {
+    use crate::types::{
+        CreateFileRequest, CreateVectorStoreFileRequest, CreateVectorStoreRequest, FileInput,
+        FilePurpose,
+    };
     use crate::Client;
-    use crate::types::{CreateFileRequest, CreateVectorStoreFileRequest, CreateVectorStoreRequest, FileInput, FilePurpose};
 
     #[tokio::test]
-    async fn vector_store_file_creation_and_deletion() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn vector_store_file_creation_and_deletion(
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let client = Client::new();
 
         // Create a file
         let file_handle = client
             .files()
-            .create( CreateFileRequest {
+            .create(CreateFileRequest {
                 file: FileInput::from_vec_u8(
                     String::from("meow.txt"),
-                    String::from(":3").into_bytes()
+                    String::from(":3").into_bytes(),
                 ),
-                purpose: FilePurpose::Assistants
-            }).await?;
+                purpose: FilePurpose::Assistants,
+            })
+            .await?;
 
         // Create a vector store
         let vector_store_handle = client
             .vector_stores()
-            .create( CreateVectorStoreRequest {
+            .create(CreateVectorStoreRequest {
                 file_ids: Some(vec![file_handle.id.clone()]),
                 name: None,
                 expires_after: None,
                 chunking_strategy: None,
-                metadata: None
+                metadata: None,
             })
             .await?;
-    let vector_store_file = client
-        .vector_stores()
-        .files(&vector_store_handle.id)
-        .retrieve(&file_handle.id)
-        .await?;
+        let vector_store_file = client
+            .vector_stores()
+            .files(&vector_store_handle.id)
+            .retrieve(&file_handle.id)
+            .await?;
 
-    assert_eq!(vector_store_file.id, file_handle.id);
+        assert_eq!(vector_store_file.id, file_handle.id);
         // Delete the vector store
         client
             .vector_stores()
-            .delete(&vector_store_handle.id).await?;
+            .delete(&vector_store_handle.id)
+            .await?;
 
         // Delete the file
-        client
-            .files()
-            .delete(&file_handle.id).await?;
+        client.files().delete(&file_handle.id).await?;
 
         Ok(())
     }

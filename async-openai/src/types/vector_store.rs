@@ -192,7 +192,9 @@ pub enum VectorStoreFileErrorCode {
 pub enum VectorStoreFileObjectChunkingStrategy {
     /// This is returned when the chunking strategy is unknown. Typically, this is because the file was indexed before the `chunking_strategy` concept was introduced in the API.
     Other,
-    Static{ r#static: StaticChunkingStrategy },
+    Static {
+        r#static: StaticChunkingStrategy,
+    },
 }
 
 #[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
