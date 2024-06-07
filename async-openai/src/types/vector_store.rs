@@ -63,7 +63,7 @@ pub struct VectorStoreObject {
     /// The Unix timestamp (in seconds) for when the vector store was created.
     pub created_at: u32,
     /// The name of the vector store.
-    pub name: String,
+    pub name: Option<String>,
     /// The total number of bytes used by the files in the vector store.
     pub usage_bytes: u64,
     pub file_counts: VectorStoreFileCounts,
@@ -192,7 +192,7 @@ pub enum VectorStoreFileErrorCode {
 pub enum VectorStoreFileObjectChunkingStrategy {
     /// This is returned when the chunking strategy is unknown. Typically, this is because the file was indexed before the `chunking_strategy` concept was introduced in the API.
     Other,
-    Static(StaticChunkingStrategy),
+    Static{ r#static: StaticChunkingStrategy },
 }
 
 #[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
