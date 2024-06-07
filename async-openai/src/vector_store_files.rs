@@ -107,7 +107,13 @@ mod tests {
                 metadata: None
             })
             .await?;
+    let vector_store_file = client
+        .vector_stores()
+        .files(&vector_store_handle.id)
+        .retrieve(&file_handle.id)
+        .await?;
 
+    assert_eq!(vector_store_file.id, file_handle.id);
         // Delete the vector store
         client
             .vector_stores()
