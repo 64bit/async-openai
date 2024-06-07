@@ -69,6 +69,16 @@ impl<'c, C: Config> Audio<'c, C> {
         self.client.post_form("/audio/translations", request).await
     }
 
+    /// Transcribes audio into the input language.
+    pub async fn translate_raw(
+        &self,
+        request: CreateTranslationRequest,
+    ) -> Result<Bytes, OpenAIError> {
+        self.client
+            .post_form_raw("/audio/translations", request)
+            .await
+    }
+
     /// Generates audio from the input text.
     pub async fn speech(
         &self,
