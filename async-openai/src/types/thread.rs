@@ -125,6 +125,10 @@ pub struct CreateThreadAndRunRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<AssistantsApiToolChoiceOption>,
 
+    /// Whether to enable [parallel function calling](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling) during tool use.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parallel_tool_calls: Option<bool>,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<AssistantsApiResponseFormatOption>,
 }
