@@ -11,7 +11,7 @@ use async_openai::{
 
 async fn chat_completion_example(client: &Client<AzureConfig>) -> Result<(), Box<dyn Error>> {
     let request = CreateChatCompletionRequestArgs::default()
-        .max_tokens(512u16)
+        .max_tokens(512u32)
         .model("gpt-3.5-turbo")
         .messages([
             ChatCompletionRequestSystemMessageArgs::default()
@@ -44,7 +44,7 @@ async fn chat_completion_example(client: &Client<AzureConfig>) -> Result<(), Box
 //         .n(1)
 //         .prompt("Tell me a short bedtime story about Optimus Prime and Bumblebee in Sir David Attenborough voice")
 //         .stream(true)
-//         .max_tokens(512_u16)
+//         .max_tokens(512_u32)
 //         .build()?;
 
 //     let mut stream = client.completions().create_stream(request).await?;

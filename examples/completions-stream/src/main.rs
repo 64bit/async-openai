@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .n(1)
         .prompt("Tell me a bedtime story about Optimus Prime and Bumblebee")
         .stream(true)
-        .max_tokens(1024_u16)
+        .max_tokens(1024_u32)
         .build()?;
 
     let mut stream = client.completions().create_stream(request).await?;

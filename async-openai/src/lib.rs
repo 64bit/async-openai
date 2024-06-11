@@ -58,7 +58,7 @@
 //! let request = CreateCompletionRequestArgs::default()
 //!     .model("gpt-3.5-turbo-instruct")
 //!     .prompt("Tell me the recipe of alfredo pasta")
-//!     .max_tokens(40_u16)
+//!     .max_tokens(40_u32)
 //!     .build()
 //!     .unwrap();
 //!
