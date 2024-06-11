@@ -18,7 +18,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let request = CreateChatCompletionRequestArgs::default()
         .model("gpt-4-vision-preview")
-        .max_tokens(300_u16)
+        .max_tokens(300_u32)
         .messages([ChatCompletionRequestUserMessageArgs::default()
             .content(vec![
                 ChatCompletionRequestMessageContentPartTextArgs::default()

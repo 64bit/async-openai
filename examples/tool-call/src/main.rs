@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let user_prompt = "What's the weather like in Boston and Atlanta?";
 
     let request = CreateChatCompletionRequestArgs::default()
-        .max_tokens(512u16)
+        .max_tokens(512u32)
         .model("gpt-4-1106-preview")
         .messages([ChatCompletionRequestUserMessageArgs::default()
             .content(user_prompt)
@@ -110,7 +110,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         messages.extend(tool_messages);
 
         let subsequent_request = CreateChatCompletionRequestArgs::default()
-            .max_tokens(512u16)
+            .max_tokens(512u32)
             .model("gpt-4-1106-preview")
             .messages(messages)
             .build()

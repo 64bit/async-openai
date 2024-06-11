@@ -11,7 +11,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let request = CreateChatCompletionRequestArgs::default()
         .model("gpt-3.5-turbo")
-        .max_tokens(512u16)
+        .max_tokens(512u32)
         .messages([ChatCompletionRequestUserMessageArgs::default()
             .content("Write a marketing blog praising and introducing Rust library async-openai")
             .build()?

@@ -32,7 +32,7 @@ async fn boxed_future_test() {
         .prompt("does 2 and 2 add to four? (yes/no):\n")
         .stream(true)
         .logprobs(3)
-        .max_tokens(64_u16)
+        .max_tokens(64_u32)
         .build()
         .unwrap();
 

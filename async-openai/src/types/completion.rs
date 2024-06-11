@@ -33,7 +33,7 @@ pub struct CreateCompletionRequest {
     ///
     /// The token count of your prompt plus `max_tokens` cannot exceed the model's context length. [Example Python code](https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken) for counting tokens.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_tokens: Option<u16>,
+    pub max_tokens: Option<u32>,
 
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
     ///
