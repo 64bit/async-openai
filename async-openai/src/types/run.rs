@@ -228,7 +228,8 @@ pub struct CreateRunRequest {
     pub tool_choice: Option<AssistantsApiToolChoiceOption>,
 
     /// Whether to enable [parallel function calling](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling) during tool use.
-    pub parallel_tool_calls: Option<bool>,
+    #[serde(default)]
+    pub parallel_tool_calls: bool,
 
     pub response_format: Option<AssistantsApiResponseFormatOption>,
 }
