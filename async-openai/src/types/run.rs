@@ -189,6 +189,7 @@ pub struct CreateRunRequest {
     pub assistant_id: String,
 
     /// The ID of the [Model](https://platform.openai.com/docs/api-reference/models) to be used to execute this run. If a value is provided here, it will override the model associated with the assistant. If not, the model associated with the assistant will be used.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
 
     /// Overrides the [instructions](https://platform.openai.com/docs/api-reference/assistants/createAssistant) of the assistant. This is useful for modifying the behavior on a per-run basis.
@@ -207,6 +208,7 @@ pub struct CreateRunRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tools: Option<Vec<AssistantTools>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<HashMap<String, serde_json::Value>>,
 
     /// The sampling temperature used for this run. If not set, defaults to 1.
