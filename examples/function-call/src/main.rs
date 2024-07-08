@@ -53,7 +53,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .create(request)
         .await?
         .choices
-        .get(0)
+        .first()
         .unwrap()
         .message
         .clone();

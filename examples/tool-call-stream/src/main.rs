@@ -63,7 +63,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         Mutex<Vec<(ChatCompletionMessageToolCall, Value)>>,
                     > = Arc::new(Mutex::new(Vec::new()));
                     if let Some(tool_calls) = chat_choice.delta.tool_calls {
-                        for (_i, tool_call_chunk) in tool_calls.into_iter().enumerate() {
+                        for tool_call_chunk in tool_calls.into_iter() {
                             let key = (chat_choice.index as i32, tool_call_chunk.index);
                             let states = tool_call_states.clone();
                             let tool_call_data = tool_call_chunk.clone();
@@ -228,7 +228,7 @@ async fn call_fn(name: &str, args: &str) -> Result<Value, Box<dyn std::error::Er
     let unit = function_args["unit"].as_str().unwrap_or("fahrenheit");
     let function = available_functions.get(name).unwrap();
     let function_response = function(location, unit);
-    return Ok(function_response);
+    Ok(function_response)
 }
 
 fn get_current_weather(location: &str, unit: &str) -> serde_json::Value {

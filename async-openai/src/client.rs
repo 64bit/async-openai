@@ -15,7 +15,7 @@ use crate::{
     VectorStores,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 /// Client is a container for config, backoff and http_client
 /// used to make API calls.
 pub struct Client<C: Config> {
@@ -27,11 +27,7 @@ pub struct Client<C: Config> {
 impl Client<OpenAIConfig> {
     /// Client with default [OpenAIConfig]
     pub fn new() -> Self {
-        Self {
-            http_client: reqwest::Client::new(),
-            config: OpenAIConfig::default(),
-            backoff: Default::default(),
-        }
+        Self::default()
     }
 }
 

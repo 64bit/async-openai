@@ -78,10 +78,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::{
-        CreateFileRequest, CreateVectorStoreFileRequest, CreateVectorStoreRequest, FileInput,
-        FilePurpose,
-    };
+    use crate::types::{CreateFileRequest, CreateVectorStoreRequest, FileInput, FilePurpose};
     use crate::Client;
 
     #[tokio::test]
