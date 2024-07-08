@@ -18,7 +18,7 @@ pub struct Hyperparameters {
     pub n_epochs: NEpochs,
 }
 
-#[derive(Debug, Serialize, Clone, Default, Builder, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default, Builder, PartialEq)]
 #[builder(name = "CreateFineTuningJobRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]

@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
+#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq, Deserialize)]
 #[builder(name = "BatchRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
@@ -40,7 +40,7 @@ pub enum BatchEndpoint {
     V1Completions,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Default)]
+#[derive(Debug, Clone, PartialEq, Serialize, Default, Deserialize)]
 pub enum BatchCompletionWindow {
     #[default]
     #[serde(rename = "24h")]

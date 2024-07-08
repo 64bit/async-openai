@@ -8,7 +8,7 @@ use crate::error::OpenAIError;
 
 use super::{ChatCompletionStreamOptions, Choice, CompletionUsage, Prompt, Stop};
 
-#[derive(Clone, Serialize, Default, Debug, Builder, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateCompletionRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
