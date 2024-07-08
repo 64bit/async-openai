@@ -7,7 +7,7 @@ pub enum OpenAIError {
     #[error("http error: {0}")]
     Reqwest(#[from] reqwest::Error),
     /// OpenAI returns error object with details of API call failure
-    #[error("{}", .0)]
+    #[error("{0}")]
     ApiError(ApiError),
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: {0}")]
