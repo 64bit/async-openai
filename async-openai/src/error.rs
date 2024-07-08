@@ -38,7 +38,7 @@ pub struct ApiError {
 
 impl std::fmt::Display for ApiError {
     /// If all fields are available, ApiError is formatted as:
-    /// `type: message (param: param) (code: code)`
+    /// `{type}: {message} (param: {param}) (code: {code})`
     /// Otherwise, missing fields will be ignored.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut parts = Vec::new();
