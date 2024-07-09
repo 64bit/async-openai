@@ -7,7 +7,7 @@ pub enum OpenAIError {
     #[error("http error: {0}")]
     Reqwest(#[from] reqwest::Error),
     /// OpenAI returns error object with details of API call failure
-    #[error("{:?}: {}", .0.r#type, .0.message)]
+    #[error("{0}")]
     ApiError(ApiError),
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: {0}")]
@@ -34,6 +34,31 @@ pub struct ApiError {
     pub r#type: Option<String>,
     pub param: Option<String>,
     pub code: Option<String>,
+}
+
+impl std::fmt::Display for ApiError {
+    /// If all fields are available, `ApiError` is formatted as:
+    /// `{type}: {message} (param: {param}) (code: {code})`
+    /// Otherwise, missing fields will be ignored.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut parts = Vec::new();
+
+        if let Some(r#type) = &self.r#type {
+            parts.push(format!("{}:", r#type));
+        }
+
+        parts.push(self.message.clone());
+
+        if let Some(param) = &self.param {
+            parts.push(format!("(param: {param})"));
+        }
+
+        if let Some(code) = &self.code {
+            parts.push(format!("(code: {code})"));
+        }
+
+        write!(f, "{}", parts.join(" "))
+    }
 }
 
 /// Wrapper to deserialize the error object nested in "error" JSON key
