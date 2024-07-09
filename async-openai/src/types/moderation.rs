@@ -3,14 +3,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-#[derive(Debug, Serialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum ModerationInput {
     String(String),
     StringArray(Vec<String>),
 }
 
-#[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Default, Clone, Copy, PartialEq, Deserialize)]
 pub enum TextModerationModel {
     #[default]
     #[serde(rename = "text-moderation-latest")]
@@ -19,7 +19,7 @@ pub enum TextModerationModel {
     Stable,
 }
 
-#[derive(Debug, Default, Clone, Serialize, Builder, PartialEq)]
+#[derive(Debug, Default, Clone, Serialize, Builder, PartialEq, Deserialize)]
 #[builder(name = "CreateModerationRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]

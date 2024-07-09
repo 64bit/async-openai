@@ -7,7 +7,7 @@ use crate::error::OpenAIError;
 
 use super::StaticChunkingStrategy;
 
-#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateVectorStoreRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
@@ -117,7 +117,7 @@ pub struct DeleteVectorStoreResponse {
     pub deleted: bool,
 }
 
-#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
 #[builder(name = "UpdateVectorStoreRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
@@ -197,7 +197,7 @@ pub enum VectorStoreFileObjectChunkingStrategy {
     },
 }
 
-#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateVectorStoreFileRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
@@ -216,7 +216,7 @@ pub struct DeleteVectorStoreFileResponse {
     pub deleted: bool,
 }
 
-#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
+#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq, Deserialize)]
 #[builder(name = "CreateVectorStoreFileBatchRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]

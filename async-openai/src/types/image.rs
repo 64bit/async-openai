@@ -5,7 +5,7 @@ use crate::error::OpenAIError;
 
 use super::InputSource;
 
-#[derive(Default, Debug, Serialize, Clone, Copy, PartialEq)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 pub enum ImageSize {
     #[serde(rename = "256x256")]
     S256x256,
@@ -20,7 +20,7 @@ pub enum ImageSize {
     S1024x1792,
 }
 
-#[derive(Default, Debug, Serialize, Clone, Copy, PartialEq)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 pub enum DallE2ImageSize {
     #[serde(rename = "256x256")]
     S256x256,
@@ -31,7 +31,7 @@ pub enum DallE2ImageSize {
     S1024x1024,
 }
 
-#[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ResponseFormat {
     #[default]
@@ -40,7 +40,7 @@ pub enum ResponseFormat {
     B64Json,
 }
 
-#[derive(Debug, Serialize, Default, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
 pub enum ImageModel {
     #[default]
     #[serde(rename = "dall-e-2")]
@@ -51,7 +51,7 @@ pub enum ImageModel {
     Other(String),
 }
 
-#[derive(Debug, Serialize, Default, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ImageQuality {
     #[default]
@@ -59,7 +59,7 @@ pub enum ImageQuality {
     HD,
 }
 
-#[derive(Debug, Serialize, Default, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ImageStyle {
     #[default]
@@ -67,7 +67,7 @@ pub enum ImageStyle {
     Natural,
 }
 
-#[derive(Debug, Clone, Serialize, Default, Builder, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, Builder, PartialEq)]
 #[builder(name = "CreateImageRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]

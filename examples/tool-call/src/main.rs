@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .create(request)
         .await?
         .choices
-        .get(0)
+        .first()
         .unwrap()
         .message
         .clone();
@@ -151,7 +151,7 @@ async fn call_fn(name: &str, args: &str) -> Result<Value, Box<dyn std::error::Er
     let unit = function_args["unit"].as_str().unwrap_or("fahrenheit");
     let function = available_functions.get(name).unwrap();
     let function_response = function(location, unit);
-    return Ok(function_response);
+    Ok(function_response)
 }
 
 fn get_current_weather(location: &str, unit: &str) -> serde_json::Value {
