@@ -34,6 +34,7 @@
   - [x] Images
   - [x] Models
   - [x] Moderations
+  - [ ] Uploads
 - SSE streaming on all available APIs
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
 - Ergonomic builder pattern for all request objects.
@@ -92,7 +93,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 ```
-`
+
 <div align="center">
   <img width="315" src="https://raw.githubusercontent.com/64bit/async-openai/assets/create-image/img-1.png" />
   <img width="315" src="https://raw.githubusercontent.com/64bit/async-openai/assets/create-image/img-2.png" />
