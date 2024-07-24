@@ -1,8 +1,11 @@
+use serde::Serialize;
+
 use crate::{
     client::Client,
     config::Config,
     error::OpenAIError,
     types::{CompletionResponseStream, CreateCompletionRequest, CreateCompletionResponse},
+    util::merge_objects,
 };
 
 /// Given a prompt, the model will return one or more predicted completions,
@@ -33,6 +36,26 @@ impl<'c, C: Config> Completions<'c, C> {
         self.client.post("/completions", request).await
     }
 
+    /// Same as [`create`] but with extra arguments.
+    pub async fn create_with_extras<E>(
+        &self,
+        request: CreateCompletionRequest,
+        extras: E,
+    ) -> Result<CreateCompletionResponse, OpenAIError>
+    where
+        E: Serialize,
+    {
+        if matches!(request.stream, Some(true)) {
+            return Err(OpenAIError::InvalidArgument(
+                "When stream is true, use Completion::create_stream".into(),
+            ));
+        }
+
+        let request = merge_objects(request, extras)?;
+
+        self.client.post("/completions", request).await
+    }
+
     /// Creates a completion request for the provided prompt and parameters
     ///
     /// Stream back partial progress. Tokens will be sent as data-only
@@ -51,6 +74,28 @@ impl<'c, C: Config> Completions<'c, C> {
         }
 
         request.stream = Some(true);
+
+        Ok(self.client.post_stream("/completions", request).await)
+    }
+
+    /// Same as [`create_stream`] but with extra arguments.
+    pub async fn create_stream_with_extras<E>(
+        &self,
+        mut request: CreateCompletionRequest,
+        extras: E,
+    ) -> Result<CompletionResponseStream, OpenAIError>
+    where
+        E: Serialize,
+    {
+        if matches!(request.stream, Some(false)) {
+            return Err(OpenAIError::InvalidArgument(
+                "When stream is false, use Completion::create".into(),
+            ));
+        }
+
+        request.stream = Some(true);
+
+        let request = merge_objects(request, extras)?;
 
         Ok(self.client.post_stream("/completions", request).await)
     }

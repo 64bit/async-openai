@@ -12,6 +12,12 @@ pub enum OpenAIError {
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: {0}")]
     JSONDeserialize(serde_json::Error),
+    /// Error when a type cannot be serialized
+    #[error("failed to serialize: {0}")]
+    JSONSerialize(serde_json::Error),
+    /// Error when extra args cannot be serialized into a JSON object
+    #[error("failed to serialize extras into JSON object")]
+    JSONSerializeNonObject,
     /// Error on the client side when saving file to file system
     #[error("failed to save file: {0}")]
     FileSaveError(String),

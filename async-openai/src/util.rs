@@ -1,6 +1,8 @@
 use std::path::Path;
 
 use reqwest::Body;
+use serde::Serialize;
+use serde_json::Value;
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
@@ -72,4 +74,26 @@ pub(crate) fn create_all_dir<P: AsRef<Path>>(dir: P) -> Result<(), OpenAIError> 
     }
 
     Ok(())
+}
+
+/// Serializes `a` and `b` and merges them returning the merged JSON object.
+pub(crate) fn merge_objects<A, B>(a: A, b: B) -> Result<Value, OpenAIError>
+where
+    A: Serialize,
+    B: Serialize,
+{
+    let mut a = serde_json::to_value(&a).map_err(OpenAIError::JSONSerialize)?;
+    let mut b = serde_json::to_value(&b).map_err(OpenAIError::JSONSerialize)?;
+
+    {
+        let a = a
+            .as_object_mut()
+            .ok_or(OpenAIError::JSONSerializeNonObject)?;
+        let b = b
+            .as_object_mut()
+            .ok_or(OpenAIError::JSONSerializeNonObject)?;
+        a.append(b);
+    }
+
+    Ok(a)
 }
