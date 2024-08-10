@@ -305,6 +305,10 @@ pub struct FunctionObject {
     /// Omitting `parameters` defines a function with an empty parameter list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<serde_json::Value>,
+
+    /// Set to 'true' to enable structured outputs. This will cause a more reliable function input. See the [release](https://openai.com/index/introducing-structured-outputs-in-the-api/).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub strict: Option<bool>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
