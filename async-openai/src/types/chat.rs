@@ -588,6 +588,8 @@ pub struct CreateChatCompletionResponse {
 
     /// The object type, which is always `chat.completion`.
     pub object: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub usage: Option<CompletionUsage>,
 }
 
