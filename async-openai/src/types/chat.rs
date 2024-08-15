@@ -667,5 +667,6 @@ pub struct CreateChatCompletionStreamResponse {
 
     /// An optional field that will only be present when you set `stream_options: {"include_usage": true}` in your request.
     /// When present, it contains a null value except for the last chunk which contains the token usage statistics for the entire request.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub usage: Option<CompletionUsage>,
 }
