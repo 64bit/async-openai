@@ -12,40 +12,23 @@ readme = "README.md"
 homepage = "https://github.com/64bit/async-openai"
 repository = "https://github.com/64bit/async-openai"
 
-[features]
-default = ["rustls"]
-# Enable rustls for TLS support
-rustls = ["reqwest/rustls-tls-native-roots"]
-# Enable rustls and webpki-roots
-rustls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
-# Enable native-tls for TLS support
-native-tls = ["reqwest/native-tls"]
-# Remove dependency on OpenSSL
-native-tls-vendored = ["reqwest/native-tls-vendored"]
-
 [dependencies]
 backoff = { version = "0.4.0", features = ["tokio"] }
 base64 = "0.22.1"
 futures = "0.3.30"
 rand = "0.8.5"
-reqwest = { version = "0.12.4", features = [
-    "json",
-    "stream",
-    "multipart",
-], default-features = false }
-reqwest-eventsource = "0.6.0"
 serde = { version = "1.0.203", features = ["derive", "rc"] }
 serde_json = "1.0.117"
 thiserror = "1.0.61"
 tokio = { version = "1.38.0", features = ["fs", "macros"] }
 tokio-stream = "0.1.15"
 tokio-util = { version = "0.7.11", features = ["codec", "io-util"] }
-tracing = "0.1.40"
 derive_builder = "0.20.0"
 async-convert = "1.0.0"
 secrecy = { version = "0.8.0", features = ["serde"] }
 bytes = "1.6.0"
 eventsource-stream = "0.2.3"
+hyper = "1.4.1"
 
 [dev-dependencies]
 tokio-test = "0.4.4"

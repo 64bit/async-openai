@@ -3,28 +3,20 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{
-    download::{download_url, save_b64},
-    error::OpenAIError,
-    types::InputSource,
-    util::{create_all_dir, create_file_part},
-};
+use crate::types::InputSource;
 
 use bytes::Bytes;
 
 use super::{
-    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, ChatCompletionFunctions,
-    ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
-    ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
-    ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
-    ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
-    ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
-    ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
-    CreateSpeechResponse, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
-    EmbeddingInput, FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageSize,
-    ImageUrl, ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role, Stop,
-    TimestampGranularity,
+    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, ChatCompletionNamedToolChoice,
+    ChatCompletionRequestAssistantMessage, ChatCompletionRequestFunctionMessage,
+    ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPart,
+    ChatCompletionRequestMessageContentPartImage, ChatCompletionRequestMessageContentPartText,
+    ChatCompletionRequestSystemMessage, ChatCompletionRequestToolMessage,
+    ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
+    ChatCompletionToolChoiceOption, CreateMessageRequestContent, DallE2ImageSize, EmbeddingInput,
+    FileInput, FilePurpose, FunctionName, ImageInput, ImageModel, ImageSize, ImageUrl,
+    ModerationInput, Prompt, ResponseFormat, Role, Stop, TimestampGranularity,
 };
 
 /// for `impl_from!(T, Enum)`, implements
@@ -273,71 +265,6 @@ impl Display for FilePurpose {
     }
 }
 
-impl ImagesResponse {
-    /// Save each image in a dedicated Tokio task and return paths to saved files.
-    /// For [ResponseFormat::Url] each file is downloaded in dedicated Tokio task.
-    pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<Vec<PathBuf>, OpenAIError> {
-        create_all_dir(dir.as_ref())?;
-
-        let mut handles = vec![];
-        for id in self.data.clone() {
-            let dir_buf = PathBuf::from(dir.as_ref());
-            handles.push(tokio::spawn(async move { id.save(dir_buf).await }));
-        }
-
-        let results = futures::future::join_all(handles).await;
-        let mut errors = vec![];
-        let mut paths = vec![];
-
-        for result in results {
-            match result {
-                Ok(inner) => match inner {
-                    Ok(path) => paths.push(path),
-                    Err(e) => errors.push(e),
-                },
-                Err(e) => errors.push(OpenAIError::FileSaveError(e.to_string())),
-            }
-        }
-
-        if errors.is_empty() {
-            Ok(paths)
-        } else {
-            Err(OpenAIError::FileSaveError(
-                errors
-                    .into_iter()
-                    .map(|e| e.to_string())
-                    .collect::<Vec<String>>()
-                    .join("; "),
-            ))
-        }
-    }
-}
-
-impl CreateSpeechResponse {
-    pub async fn save<P: AsRef<Path>>(&self, file_path: P) -> Result<(), OpenAIError> {
-        let dir = file_path.as_ref().parent();
-
-        if let Some(dir) = dir {
-            create_all_dir(dir)?;
-        }
-
-        tokio::fs::write(file_path, &self.bytes)
-            .await
-            .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
-
-        Ok(())
-    }
-}
-
-impl Image {
-    async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<PathBuf, OpenAIError> {
-        match self {
-            Image::Url { url, .. } => download_url(url, dir).await,
-            Image::B64Json { b64_json, .. } => save_b64(b64_json, dir).await,
-        }
-    }
-}
-
 macro_rules! impl_from_for_integer_array {
     ($from_typ:ty, $to_typ:ty) => {
         impl<const N: usize> From<[$from_typ; N]> for $to_typ {
@@ -526,16 +453,6 @@ impl From<String> for ChatCompletionToolChoiceOption {
     }
 }
 
-impl From<(String, serde_json::Value)> for ChatCompletionFunctions {
-    fn from(value: (String, serde_json::Value)) -> Self {
-        Self {
-            name: value.0,
-            description: None,
-            parameters: value.1,
-        }
-    }
-}
-
 impl From<ChatCompletionRequestUserMessage> for ChatCompletionRequestMessage {
     fn from(value: ChatCompletionRequestUserMessage) -> Self {
         Self::User(value)
@@ -653,160 +570,3 @@ impl Default for CreateMessageRequestContent {
         Self::Content("".into())
     }
 }
-
-// start: types to multipart from
-
-#[async_convert::async_trait]
-impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
-    type Error = OpenAIError;
-
-    async fn try_from(request: CreateTranscriptionRequest) -> Result<Self, Self::Error> {
-        let audio_part = create_file_part(request.file.source).await?;
-
-        let mut form = reqwest::multipart::Form::new()
-            .part("file", audio_part)
-            .text("model", request.model);
-
-        if let Some(prompt) = request.prompt {
-            form = form.text("prompt", prompt);
-        }
-
-        if let Some(response_format) = request.response_format {
-            form = form.text("response_format", response_format.to_string())
-        }
-
-        if let Some(temperature) = request.temperature {
-            form = form.text("temperature", temperature.to_string())
-        }
-
-        if let Some(language) = request.language {
-            form = form.text("language", language);
-        }
-
-        if let Some(timestamp_granularities) = request.timestamp_granularities {
-            for tg in timestamp_granularities {
-                form = form.text("timestamp_granularities[]", tg.to_string());
-            }
-        }
-
-        Ok(form)
-    }
-}
-
-#[async_convert::async_trait]
-impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Form {
-    type Error = OpenAIError;
-
-    async fn try_from(request: CreateTranslationRequest) -> Result<Self, Self::Error> {
-        let audio_part = create_file_part(request.file.source).await?;
-
-        let mut form = reqwest::multipart::Form::new()
-            .part("file", audio_part)
-            .text("model", request.model);
-
-        if let Some(prompt) = request.prompt {
-            form = form.text("prompt", prompt);
-        }
-
-        if let Some(response_format) = request.response_format {
-            form = form.text("response_format", response_format.to_string())
-        }
-
-        if let Some(temperature) = request.temperature {
-            form = form.text("temperature", temperature.to_string())
-        }
-        Ok(form)
-    }
-}
-
-#[async_convert::async_trait]
-impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
-    type Error = OpenAIError;
-
-    async fn try_from(request: CreateImageEditRequest) -> Result<Self, Self::Error> {
-        let image_part = create_file_part(request.image.source).await?;
-
-        let mut form = reqwest::multipart::Form::new()
-            .part("image", image_part)
-            .text("prompt", request.prompt);
-
-        if let Some(mask) = request.mask {
-            let mask_part = create_file_part(mask.source).await?;
-            form = form.part("mask", mask_part);
-        }
-
-        if let Some(model) = request.model {
-            form = form.text("model", model.to_string())
-        }
-
-        if request.n.is_some() {
-            form = form.text("n", request.n.unwrap().to_string())
-        }
-
-        if request.size.is_some() {
-            form = form.text("size", request.size.unwrap().to_string())
-        }
-
-        if request.response_format.is_some() {
-            form = form.text(
-                "response_format",
-                request.response_format.unwrap().to_string(),
-            )
-        }
-
-        if request.user.is_some() {
-            form = form.text("user", request.user.unwrap())
-        }
-        Ok(form)
-    }
-}
-
-#[async_convert::async_trait]
-impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart::Form {
-    type Error = OpenAIError;
-
-    async fn try_from(request: CreateImageVariationRequest) -> Result<Self, Self::Error> {
-        let image_part = create_file_part(request.image.source).await?;
-
-        let mut form = reqwest::multipart::Form::new().part("image", image_part);
-
-        if let Some(model) = request.model {
-            form = form.text("model", model.to_string())
-        }
-
-        if request.n.is_some() {
-            form = form.text("n", request.n.unwrap().to_string())
-        }
-
-        if request.size.is_some() {
-            form = form.text("size", request.size.unwrap().to_string())
-        }
-
-        if request.response_format.is_some() {
-            form = form.text(
-                "response_format",
-                request.response_format.unwrap().to_string(),
-            )
-        }
-
-        if request.user.is_some() {
-            form = form.text("user", request.user.unwrap())
-        }
-        Ok(form)
-    }
-}
-
-#[async_convert::async_trait]
-impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
-    type Error = OpenAIError;
-
-    async fn try_from(request: CreateFileRequest) -> Result<Self, Self::Error> {
-        let file_part = create_file_part(request.file.source).await?;
-        let form = reqwest::multipart::Form::new()
-            .part("file", file_part)
-            .text("purpose", request.purpose.to_string());
-        Ok(form)
-    }
-}
-
-// end: types to multipart form

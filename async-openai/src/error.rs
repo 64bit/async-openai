@@ -5,7 +5,7 @@ use serde::Deserialize;
 pub enum OpenAIError {
     /// Underlying error from reqwest library after an API call was made
     #[error("http error: {0}")]
-    Reqwest(#[from] reqwest::Error),
+    Reqwest(#[from] hyper::Error),
     /// OpenAI returns error object with details of API call failure
     #[error("{0}")]
     ApiError(ApiError),
@@ -61,16 +61,6 @@ impl std::fmt::Display for ApiError {
     }
 }
 
-/// Wrapper to deserialize the error object nested in "error" JSON key
-#[derive(Debug, Deserialize)]
-pub(crate) struct WrappedError {
-    pub(crate) error: ApiError,
-}
-
-pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> OpenAIError {
-    tracing::error!(
-        "failed deserialization of: {}",
-        String::from_utf8_lossy(bytes)
-    );
+pub(crate) fn map_deserialization_error(e: serde_json::Error, _bytes: &[u8]) -> OpenAIError {
     OpenAIError::JSONDeserialize(e)
 }
