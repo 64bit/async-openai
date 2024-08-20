@@ -13,22 +13,13 @@ homepage = "https://github.com/64bit/async-openai"
 repository = "https://github.com/64bit/async-openai"
 
 [dependencies]
-backoff = { version = "0.4.0", features = ["tokio"] }
 base64 = "0.22.1"
-futures = "0.3.30"
-rand = "0.8.5"
+futures = { version = "0.3.30", default-features = false }
 serde = { version = "1.0.203", features = ["derive", "rc"] }
 serde_json = "1.0.117"
 thiserror = "1.0.61"
-tokio = { version = "1.38.0", features = ["fs", "macros"] }
-tokio-stream = "0.1.15"
-tokio-util = { version = "0.7.11", features = ["codec", "io-util"] }
 derive_builder = "0.20.0"
-async-convert = "1.0.0"
 secrecy = { version = "0.8.0", features = ["serde"] }
 bytes = "1.6.0"
 eventsource-stream = "0.2.3"
 hyper = "1.4.1"
-
-[dev-dependencies]
-tokio-test = "0.4.4"
