@@ -308,23 +308,31 @@ pub struct FunctionObject {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum ChatCompletionResponseFormatType {
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ChatCompletionResponseFormat {
+    /// The type of response format being defined: `text`
     Text,
+    /// The type of response format being defined: `json_object`
     JsonObject,
+    /// The type of response format being defined: `json_schema`
+    JsonSchema {
+        json_schema: ChatCompletionResponseFormatJsonSchema,
+    },
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct ChatCompletionResponseFormat {
-    /// Setting to `json_object` enables JSON mode. This guarantees that the message the model generates is valid JSON.
-    ///
-    /// Note that your system prompt must still instruct the model to produce JSON, and to help ensure you don't forget,
-    /// the API will throw an error if the string `JSON` does not appear in your system message. Also note that the message
-    /// content may be partial (i.e. cut off) if `finish_reason="length"`, which indicates the generation
-    /// exceeded `max_tokens` or the conversation exceeded the max context length.
-    ///
-    /// Must be one of `text` or `json_object`.
-    pub r#type: ChatCompletionResponseFormatType,
+pub struct ChatCompletionResponseFormatJsonSchema {
+    /// A description of what the response format is for, used by the model to determine how to respond in the format.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// The name of the response format. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length
+    pub name: String,
+    /// The schema for the response format, described as a JSON Schema object.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub schema: Option<serde_json::Value>,
+    /// Whether to enable strict schema adherence when generating the output. If set to true, the model will always follow the exact schema defined in the `schema` field. Only a subset of JSON Schema is supported when `strict` is `true`. To learn more, read the [Structured Outputs guide](https://platform.openai.com/docs/guides/structured-outputs).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub strict: Option<bool>,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
@@ -377,6 +385,13 @@ pub enum ChatCompletionToolChoiceOption {
     Required,
     #[serde(untagged)]
     Named(ChatCompletionNamedToolChoice),
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum ServiceTier {
+    Auto,
+    Default,
 }
 
 #[derive(Clone, Serialize, Default, Debug, Builder, Deserialize, PartialEq)]
@@ -432,7 +447,9 @@ pub struct CreateChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub presence_penalty: Option<f32>, // min: -2.0, max: 2.0, default 0
 
-    /// An object specifying the format that the model must output. Compatible with [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo) and all GPT-3.5 Turbo models newer than `gpt-3.5-turbo-1106`.
+    /// An object specifying the format that the model must output. Compatible with [GPT-4o](https://platform.openai.com/docs/models/gpt-4o), [GPT-4o mini](https://platform.openai.com/docs/models/gpt-4o-mini), [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo) and all GPT-3.5 Turbo models newer than `gpt-3.5-turbo-1106`.
+    ///
+    /// Setting to `{ "type": "json_schema", "json_schema": {...} }` enables Structured Outputs which guarantees the model will match your supplied JSON schema. Learn more in the [Structured Outputs guide](https://platform.openai.com/docs/guides/structured-outputs).
     ///
     /// Setting to `{ "type": "json_object" }` enables JSON mode, which guarantees the message the model generates is valid JSON.
     ///
@@ -446,6 +463,14 @@ pub struct CreateChatCompletionRequest {
     /// Determinism is not guaranteed, and you should refer to the `system_fingerprint` response parameter to monitor changes in the backend.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub seed: Option<i64>,
+
+    /// Specifies the latency tier to use for processing the request. This parameter is relevant for customers subscribed to the scale tier service:
+    /// - If set to 'auto', the system will utilize scale tier credits until they are exhausted.
+    /// - If set to 'default', the request will be processed using the default service tier with a lower uptime SLA and no latency guarentee.
+    /// - When not set, the default behavior is 'auto'.
+    ///
+    /// When this parameter is set, the response body will include the `service_tier` utilized.
+    pub service_tier: Option<ServiceTier>,
 
     /// Up to 4 sequences where the API will stop generating further tokens.
     #[serde(skip_serializing_if = "Option::is_none")]
