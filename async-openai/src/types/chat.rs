@@ -310,19 +310,19 @@ pub struct FunctionObject {
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum ChatCompletionResponseFormat {
+pub enum ResponseFormat {
     /// The type of response format being defined: `text`
     Text,
     /// The type of response format being defined: `json_object`
     JsonObject,
     /// The type of response format being defined: `json_schema`
     JsonSchema {
-        json_schema: ChatCompletionResponseFormatJsonSchema,
+        json_schema: ResponseFormatJsonSchema,
     },
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct ChatCompletionResponseFormatJsonSchema {
+pub struct ResponseFormatJsonSchema {
     /// A description of what the response format is for, used by the model to determine how to respond in the format.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
@@ -463,7 +463,7 @@ pub struct CreateChatCompletionRequest {
     ///
     /// **Important:** when using JSON mode, you **must** also instruct the model to produce JSON yourself via a system or user message. Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in a long-running and seemingly "stuck" request. Also note that the message content may be partially cut off if `finish_reason="length"`, which indicates the generation exceeded `max_tokens` or the conversation exceeded the max context length.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub response_format: Option<ChatCompletionResponseFormat>,
+    pub response_format: Option<ResponseFormat>,
 
     ///  This feature is in Beta.
     /// If specified, our system will make a best effort to sample deterministically, such that repeated requests

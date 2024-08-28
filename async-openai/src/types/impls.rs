@@ -22,8 +22,8 @@ use super::{
     ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
     CreateSpeechResponse, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
-    EmbeddingInput, FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageSize,
-    ImageUrl, ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    EmbeddingInput, FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel,
+    ImageResponseFormat, ImageSize, ImageUrl, ImagesResponse, ModerationInput, Prompt, Role, Stop,
     TimestampGranularity,
 };
 
@@ -200,14 +200,14 @@ impl Display for ImageModel {
     }
 }
 
-impl Display for ResponseFormat {
+impl Display for ImageResponseFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
             "{}",
             match self {
-                ResponseFormat::Url => "url",
-                ResponseFormat::B64Json => "b64_json",
+                Self::Url => "url",
+                Self::B64Json => "b64_json",
             }
         )
     }
