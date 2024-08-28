@@ -13,7 +13,31 @@ pub enum NEpochs {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
+#[serde(untagged)]
+pub enum BatchSize {
+    BatchSize(u16),
+    #[default]
+    #[serde(rename = "auto")]
+    Auto,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
+#[serde(untagged)]
+pub enum LearningRateMultiplier {
+    LearningRateMultiplier(f32),
+    #[default]
+    #[serde(rename = "auto")]
+    Auto,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
 pub struct Hyperparameters {
+    /// Number of examples in each batch. A larger batch size means that model parameters
+    /// are updated less frequently, but with lower variance.
+    pub batch_size: BatchSize,
+    /// Scaling factor for the learning rate. A smaller learning rate may be useful to avoid
+    /// overfitting.
+    pub learning_rate_multiplier: LearningRateMultiplier,
     /// The number of epochs to train the model for. An epoch refers to one full cycle through the training dataset.
     pub n_epochs: NEpochs,
 }
@@ -46,7 +70,7 @@ pub struct CreateFineTuningJobRequest {
     /// A string of up to 18 characters that will be added to your fine-tuned model name.
     ///
     /// For example, a `suffix` of "custom-model-name" would produce a model name
-    /// like `ft:gpt-3.5-turbo:openai:custom-model-name:7p4lURel`.
+    /// like `ft:gpt-4o-mini:openai:custom-model-name:7p4lURel`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub suffix: Option<String>, // default: null, minLength:1, maxLength:40
 
