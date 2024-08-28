@@ -138,8 +138,28 @@ pub struct AssistantToolsFileSearch {
 pub struct AssistantToolsFileSearchOverrides {
     ///  The maximum number of results the file search tool should output. The default is 20 for gpt-4* models and 5 for gpt-3.5-turbo. This number should be between 1 and 50 inclusive.
     ///
-    //// Note that the file search tool may output fewer than `max_num_results` results. See the [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/number-of-chunks-returned) for more information.
-    pub max_num_results: u8,
+    //// Note that the file search tool may output fewer than `max_num_results` results. See the [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/customizing-file-search-settings) for more information.
+    pub max_num_results: Option<u8>,
+    pub ranking_options: Option<FileSearchRankingOptions>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub enum FileSearchRanker {
+    #[serde(rename = "auto")]
+    Auto,
+    #[serde(rename = "default_2024_08_21")]
+    Default2024_08_21,
+}
+
+/// The ranking options for the file search.
+///
+/// See the [file search tool documentation](/docs/assistants/tools/file-search/customizing-file-search-settings) for more information.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct FileSearchRankingOptions {
+    /// The ranker to use for the file search. If not specified will use the `auto` ranker.
+    pub ranker: Option<FileSearchRanker>,
+    /// The score threshold for the file search. All values must be a floating point number between 0 and 1.
+    pub score_threshold: Option<f32>,
 }
 
 /// Function tool
