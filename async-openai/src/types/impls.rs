@@ -567,6 +567,33 @@ impl From<ChatCompletionRequestToolMessage> for ChatCompletionRequestMessage {
     }
 }
 
+impl From<ChatCompletionRequestUserMessageContent> for ChatCompletionRequestUserMessage {
+    fn from(value: ChatCompletionRequestUserMessageContent) -> Self {
+        Self {
+            content: value,
+            name: None,
+        }
+    }
+}
+
+impl From<ChatCompletionRequestSystemMessageContent> for ChatCompletionRequestSystemMessage {
+    fn from(value: ChatCompletionRequestSystemMessageContent) -> Self {
+        Self {
+            content: value,
+            name: None,
+        }
+    }
+}
+
+impl From<ChatCompletionRequestAssistantMessageContent> for ChatCompletionRequestAssistantMessage {
+    fn from(value: ChatCompletionRequestAssistantMessageContent) -> Self {
+        Self {
+            content: Some(value),
+            ..Default::default()
+        }
+    }
+}
+
 impl From<&str> for ChatCompletionRequestUserMessageContent {
     fn from(value: &str) -> Self {
         ChatCompletionRequestUserMessageContent::Text(value.into())
@@ -612,6 +639,42 @@ impl From<&str> for ChatCompletionRequestToolMessageContent {
 impl From<String> for ChatCompletionRequestToolMessageContent {
     fn from(value: String) -> Self {
         ChatCompletionRequestToolMessageContent::Text(value)
+    }
+}
+
+impl From<&str> for ChatCompletionRequestUserMessage {
+    fn from(value: &str) -> Self {
+        ChatCompletionRequestUserMessageContent::Text(value.into()).into()
+    }
+}
+
+impl From<String> for ChatCompletionRequestUserMessage {
+    fn from(value: String) -> Self {
+        value.as_str().into()
+    }
+}
+
+impl From<&str> for ChatCompletionRequestSystemMessage {
+    fn from(value: &str) -> Self {
+        ChatCompletionRequestSystemMessageContent::Text(value.into()).into()
+    }
+}
+
+impl From<String> for ChatCompletionRequestSystemMessage {
+    fn from(value: String) -> Self {
+        value.as_str().into()
+    }
+}
+
+impl From<&str> for ChatCompletionRequestAssistantMessage {
+    fn from(value: &str) -> Self {
+        ChatCompletionRequestAssistantMessageContent::Text(value.into()).into()
+    }
+}
+
+impl From<String> for ChatCompletionRequestAssistantMessage {
+    fn from(value: String) -> Self {
+        value.as_str().into()
     }
 }
 
