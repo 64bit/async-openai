@@ -15,16 +15,17 @@ use bytes::Bytes;
 use super::{
     AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, ChatCompletionFunctions,
     ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
-    ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
-    ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
+    ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestFunctionMessage,
+    ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPartImage,
     ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
-    ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
-    ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
-    CreateSpeechResponse, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
-    EmbeddingInput, FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel,
-    ImageResponseFormat, ImageSize, ImageUrl, ImagesResponse, ModerationInput, Prompt, Role, Stop,
-    TimestampGranularity,
+    ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
+    ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
+    ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
+    ChatCompletionToolChoiceOption, CreateFileRequest, CreateImageEditRequest,
+    CreateImageVariationRequest, CreateMessageRequestContent, CreateSpeechResponse,
+    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
+    FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageResponseFormat,
+    ImageSize, ImageUrl, ImagesResponse, ModerationInput, Prompt, Role, Stop, TimestampGranularity,
 };
 
 /// for `impl_from!(T, Enum)`, implements
@@ -578,25 +579,63 @@ impl From<String> for ChatCompletionRequestUserMessageContent {
     }
 }
 
-impl From<Vec<ChatCompletionRequestMessageContentPart>>
+impl From<&str> for ChatCompletionRequestSystemMessageContent {
+    fn from(value: &str) -> Self {
+        ChatCompletionRequestSystemMessageContent::Text(value.into())
+    }
+}
+
+impl From<String> for ChatCompletionRequestSystemMessageContent {
+    fn from(value: String) -> Self {
+        ChatCompletionRequestSystemMessageContent::Text(value)
+    }
+}
+
+impl From<&str> for ChatCompletionRequestAssistantMessageContent {
+    fn from(value: &str) -> Self {
+        ChatCompletionRequestAssistantMessageContent::Text(value.into())
+    }
+}
+
+impl From<String> for ChatCompletionRequestAssistantMessageContent {
+    fn from(value: String) -> Self {
+        ChatCompletionRequestAssistantMessageContent::Text(value)
+    }
+}
+
+impl From<&str> for ChatCompletionRequestToolMessageContent {
+    fn from(value: &str) -> Self {
+        ChatCompletionRequestToolMessageContent::Text(value.into())
+    }
+}
+
+impl From<String> for ChatCompletionRequestToolMessageContent {
+    fn from(value: String) -> Self {
+        ChatCompletionRequestToolMessageContent::Text(value)
+    }
+}
+
+impl From<Vec<ChatCompletionRequestUserMessageContentPart>>
     for ChatCompletionRequestUserMessageContent
 {
-    fn from(value: Vec<ChatCompletionRequestMessageContentPart>) -> Self {
+    fn from(value: Vec<ChatCompletionRequestUserMessageContentPart>) -> Self {
         ChatCompletionRequestUserMessageContent::Array(value)
     }
 }
 
-impl From<ChatCompletionRequestMessageContentPartText> for ChatCompletionRequestMessageContentPart {
+impl From<ChatCompletionRequestMessageContentPartText>
+    for ChatCompletionRequestUserMessageContentPart
+{
     fn from(value: ChatCompletionRequestMessageContentPartText) -> Self {
-        ChatCompletionRequestMessageContentPart::Text(value)
+        ChatCompletionRequestUserMessageContentPart::Text(value)
     }
 }
 
 impl From<ChatCompletionRequestMessageContentPartImage>
-    for ChatCompletionRequestMessageContentPart
+    for ChatCompletionRequestUserMessageContentPart
 {
     fn from(value: ChatCompletionRequestMessageContentPartImage) -> Self {
-        ChatCompletionRequestMessageContentPart::ImageUrl(value)
+        ChatCompletionRequestUserMessageContentPart::ImageUrl(value)
     }
 }
 
@@ -651,6 +690,18 @@ impl Default for ChatCompletionRequestUserMessageContent {
 impl Default for CreateMessageRequestContent {
     fn default() -> Self {
         Self::Content("".into())
+    }
+}
+
+impl Default for ChatCompletionRequestSystemMessageContent {
+    fn default() -> Self {
+        ChatCompletionRequestSystemMessageContent::Text("".into())
+    }
+}
+
+impl Default for ChatCompletionRequestToolMessageContent {
+    fn default() -> Self {
+        ChatCompletionRequestToolMessageContent::Text("".into())
     }
 }
 
