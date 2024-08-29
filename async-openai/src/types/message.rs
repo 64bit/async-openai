@@ -104,6 +104,12 @@ pub enum MessageContent {
     Text(MessageContentTextObject),
     ImageFile(MessageContentImageFileObject),
     ImageUrl(MessageContentImageUrlObject),
+    Refusal(MessageContentRefusalObject),
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct MessageContentRefusalObject {
+    pub refusal: String,
 }
 
 /// The text content that is part of a message.
@@ -274,6 +280,14 @@ pub enum MessageDeltaContent {
     ImageFile(MessageDeltaContentImageFileObject),
     ImageUrl(MessageDeltaContentImageUrlObject),
     Text(MessageDeltaContentTextObject),
+    Refusal(MessageDeltaContentRefusalObject),
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct MessageDeltaContentRefusalObject {
+    /// The index of the refusal part in the message.
+    pub index: i32,
+    pub refusal: Option<String>,
 }
 
 /// The text content that is part of a message.
