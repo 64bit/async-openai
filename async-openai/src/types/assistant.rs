@@ -38,9 +38,9 @@ pub struct CreateAssistantToolResources {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct CreateAssistantToolFileSearchResources {
     ///  The [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) attached to this assistant. There can be a maximum of 1 vector store attached to the assistant.
-    pub vector_store_ids: Vec<String>,
+    pub vector_store_ids: Option<Vec<String>>,
     /// A helper to create a [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) with file_ids and attach it to this assistant. There can be a maximum of 1 vector store attached to the assistant.
-    pub vector_stores: Vec<AssistantVectorStore>,
+    pub vector_stores: Option<Vec<AssistantVectorStore>>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
