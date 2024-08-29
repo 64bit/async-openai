@@ -537,6 +537,8 @@ impl From<(String, serde_json::Value)> for ChatCompletionFunctions {
     }
 }
 
+// todo: write macro for bunch of same looking From trait implementations below
+
 impl From<ChatCompletionRequestUserMessage> for ChatCompletionRequestMessage {
     fn from(value: ChatCompletionRequestUserMessage) -> Self {
         Self::User(value)
