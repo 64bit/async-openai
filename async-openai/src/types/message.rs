@@ -191,7 +191,7 @@ pub struct MessageContentImageUrlObject {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageRequestContentTextObject {
     /// Text content to be sent to the model
-    text: String,
+    pub text: String,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
