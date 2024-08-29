@@ -184,6 +184,7 @@ pub enum VectorStoreFileErrorCode {
     FileNotFound,
     ParsingError,
     UnhandledMimeType,
+    UnsupportedFile,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
