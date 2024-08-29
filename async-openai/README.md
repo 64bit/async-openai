@@ -34,6 +34,7 @@
   - [x] Images
   - [x] Models
   - [x] Moderations
+  - [ ] Organizations | Administration
   - [ ] Uploads
 - SSE streaming on all available APIs
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
