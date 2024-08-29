@@ -36,10 +36,10 @@
   - [x] Moderations
   - [ ] Organizations | Administration
   - [ ] Uploads
-- SSE streaming on all available APIs
+- SSE streaming on available APIs
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
 - Ergonomic builder pattern for all request objects.
-- Microsoft Azure OpenAI Service (only APIs matching OpenAI spec)
+- Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec)
 
 ## Usage
 
