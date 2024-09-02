@@ -537,6 +537,7 @@ pub struct CreateChatCompletionRequest {
     /// - When not set, the default behavior is 'auto'.
     ///
     /// When this parameter is set, the response body will include the `service_tier` utilized.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub service_tier: Option<ServiceTier>,
 
     /// Up to 4 sequences where the API will stop generating further tokens.
