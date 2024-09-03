@@ -30,7 +30,7 @@ impl<'c, C: Config> Invites<'c, C> {
     /// Retrieves an invite.
     pub async fn retrieve(&self, invite_id: &str) -> Result<Invite, OpenAIError> {
         self.client
-            .get(format!("/organization/invites/{}", invite_id).as_str())
+            .get(format!("/organization/invites/{invite_id}").as_str())
             .await
     }
 
