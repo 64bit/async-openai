@@ -21,6 +21,7 @@ mod moderation;
 mod run;
 mod step;
 mod thread;
+mod users;
 mod vector_store;
 
 pub use assistant::*;
@@ -43,6 +44,7 @@ pub use moderation::*;
 pub use run::*;
 pub use step::*;
 pub use thread::*;
+pub use users::*;
 pub use vector_store::*;
 
 mod impls;
