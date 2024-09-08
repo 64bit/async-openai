@@ -40,10 +40,10 @@ pub struct ProjectListResponse {
 }
 
 /// The project create request payload.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder)]
 #[builder(name = "ProjectCreateRequestArgs")]
 #[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
+#[builder(setter(into, strip_option))]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 #[serde(rename_all = "snake_case")]
@@ -53,10 +53,10 @@ pub struct ProjectCreateRequest {
 }
 
 /// The project update request payload.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder)]
 #[builder(name = "ProjectUpdateRequestArgs")]
 #[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
+#[builder(setter(into, strip_option))]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 #[serde(rename_all = "snake_case")]
