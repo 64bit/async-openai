@@ -1,3 +1,5 @@
+use crate::types::OpenAIError;
+use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use super::OrganizationRole;
@@ -31,7 +33,12 @@ pub struct UserListResponse {
     has_more: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder)]
+#[builder(name = "ProjectCreateRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option))]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
 #[serde(rename_all = "snake_case")]
 pub struct UserRoleUpdateRequest {
     /// `owner` or `reader`
