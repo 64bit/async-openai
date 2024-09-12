@@ -66,25 +66,25 @@ pub enum AssistantStreamEvent {
     /// Occurs when a [run](https://platform.openai.com/docs/api-reference/runs/object) expires.
     #[serde(rename = "thread.run.expired")]
     ThreadRunExpired(RunObject),
-    /// Occurs when a [run step](https://platform.openai.com/docs/api-reference/runs/step-object) is created.
+    /// Occurs when a [run step](https://platform.openai.com/docs/api-reference/run-steps/step-object) is created.
     #[serde(rename = "thread.run.step.created")]
     ThreadRunStepCreated(RunStepObject),
-    /// Occurs when a [run step](https://platform.openai.com/docs/api-reference/runs/step-object) moves to an `in_progress` state.
+    /// Occurs when a [run step](https://platform.openai.com/docs/api-reference/run-steps/step-object) moves to an `in_progress` state.
     #[serde(rename = "thread.run.step.in_progress")]
     ThreadRunStepInProgress(RunStepObject),
-    /// Occurs when parts of a [run step](https://platform.openai.com/docs/api-reference/runs/step-object) are being streamed.
+    /// Occurs when parts of a [run step](https://platform.openai.com/docs/api-reference/run-steps/step-object) are being streamed.
     #[serde(rename = "thread.run.step.delta")]
     ThreadRunStepDelta(RunStepDeltaObject),
-    ///  Occurs when a [run step](https://platform.openai.com/docs/api-reference/runs/step-object) is completed.
+    ///  Occurs when a [run step](https://platform.openai.com/docs/api-reference/run-steps/step-object) is completed.
     #[serde(rename = "thread.run.step.completed")]
     ThreadRunStepCompleted(RunStepObject),
-    /// Occurs when a [run step](https://platform.openai.com/docs/api-reference/runs/step-object) fails.
+    /// Occurs when a [run step](https://platform.openai.com/docs/api-reference/run-steps/step-object) fails.
     #[serde(rename = "thread.run.step.failed")]
     ThreadRunStepFailed(RunStepObject),
-    /// Occurs when a [run step](https://platform.openai.com/docs/api-reference/runs/step-object) is cancelled.
+    /// Occurs when a [run step](https://platform.openai.com/docs/api-reference/run-steps/step-object) is cancelled.
     #[serde(rename = "thread.run.step.cancelled")]
     ThreadRunStepCancelled(RunStepObject),
-    /// Occurs when a [run step](https://platform.openai.com/docs/api-reference/runs/step-object) expires.
+    /// Occurs when a [run step](https://platform.openai.com/docs/api-reference/run-steps/step-object) expires.
     #[serde(rename = "thread.run.step.expired")]
     ThreadRunStepExpired(RunStepObject),
     /// Occurs when a [message](https://platform.openai.com/docs/api-reference/messages/object) is created.

@@ -1,5 +1,5 @@
 use async_openai::{
-    types::{CreateImageEditRequestArgs, DallE2ImageSize, ResponseFormat},
+    types::{CreateImageEditRequestArgs, DallE2ImageSize, ImageResponseFormat},
     Client,
 };
 use std::error::Error;
@@ -14,7 +14,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .prompt("A sunlit indoor lounge area with a duck in the pool")
         .n(1)
         .size(DallE2ImageSize::S1024x1024)
-        .response_format(ResponseFormat::Url)
+        .response_format(ImageResponseFormat::Url)
         .user("async-openai")
         .build()?;
 

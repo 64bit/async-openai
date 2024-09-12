@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use super::{ImageFile, LastError, RunStatus};
+use super::{FileSearchRankingOptions, ImageFile, LastError, RunStatus};
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
@@ -154,7 +154,34 @@ pub struct RunStepDetailsToolCallsFileSearchObject {
     /// The ID of the tool call object.
     pub id: String,
     /// For now, this is always going to be an empty object.
-    pub file_search: serde_json::Value,
+    pub file_search: RunStepDetailsToolCallsFileSearchObjectFileSearch,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepDetailsToolCallsFileSearchObjectFileSearch {
+    pub ranking_options: Option<FileSearchRankingOptions>,
+    /// The results of the file search.
+    pub results: Option<Vec<RunStepDetailsToolCallsFileSearchResultObject>>,
+}
+
+/// A result instance of the file search.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepDetailsToolCallsFileSearchResultObject {
+    /// The ID of the file that result was found in.
+    pub file_id: String,
+    /// The name of the file that result was found in.
+    pub file_name: String,
+    /// The score of the result. All values must be a floating point number between 0 and 1.
+    pub score: f32,
+    /// The content of the result that was found. The content is only included if requested via the include query parameter.
+    pub content: Option<Vec<RunStepDetailsToolCallsFileSearchResultObjectContent>>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct RunStepDetailsToolCallsFileSearchResultObjectContent {
+    // note: type is text hence omitted from struct
+    /// The text content of the file.
+    pub text: Option<String>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
