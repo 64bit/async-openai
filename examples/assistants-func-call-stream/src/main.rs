@@ -51,8 +51,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     },
                     "required": ["location", "unit"]
                 }
-            )),
-            strict: None,
+            ))
         }.into(),
 
         FunctionObject {
@@ -69,8 +68,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     },
                     "required": ["location"]
                 }
-            )),
-            strict: None,
+            ))
         }.into()
     ]).build()?;
 

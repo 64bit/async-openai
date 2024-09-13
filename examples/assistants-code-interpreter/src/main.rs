@@ -115,9 +115,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             MessageContent::ImageUrl(object) => {
                                 eprintln!("Got Image URL instead: {object:?}");
                             }
-                            MessageContent::Refusal(refusal) => {
-                                println!("{refusal:?}");
-                            }
                         }
                     }
                 }

@@ -1,5 +1,5 @@
 use async_openai::{
-    types::{CreateImageRequestArgs, ImageResponseFormat, ImageSize},
+    types::{CreateImageRequestArgs, ImageSize, ResponseFormat},
     Client,
 };
 use std::error::Error;
@@ -12,7 +12,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let request = CreateImageRequestArgs::default()
         .prompt("cats on sofa and carpet in living room")
         .n(2)
-        .response_format(ImageResponseFormat::Url)
+        .response_format(ResponseFormat::Url)
         .size(ImageSize::S256x256)
         .user("async-openai")
         .build()?;

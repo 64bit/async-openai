@@ -180,9 +180,10 @@ pub struct VectorStoreFileError {
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum VectorStoreFileErrorCode {
-    ServerError,
-    UnsupportedFile,
-    InvalidFile,
+    InternalError,
+    FileNotFound,
+    ParsingError,
+    UnhandledMimeType,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]

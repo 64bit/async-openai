@@ -84,33 +84,58 @@ impl OpenAIConfig {
 }
 
 impl Config for OpenAIConfig {
+    // fn headers(&self) -> HeaderMap {
+    //     let mut headers = HeaderMap::new();
+    //     if !self.org_id.is_empty() {
+    //         headers.insert(
+    //             OPENAI_ORGANIZATION_HEADER,
+    //             self.org_id.as_str().parse().unwrap(),
+    //         );
+    //     }
+
+    //     if !self.project_id.is_empty() {
+    //         headers.insert(
+    //             OPENAI_PROJECT_HEADER,
+    //             self.project_id.as_str().parse().unwrap(),
+    //         );
+    //     }
+
+    //     headers.insert(
+    //         AUTHORIZATION,
+    //         format!("Bearer {}", self.api_key.expose_secret())
+    //             .as_str()
+    //             .parse()
+    //             .unwrap(),
+    //     );
+
+    //     // hack for Assistants APIs
+    //     // Calls to the Assistants API require that you pass a Beta header
+    //     headers.insert(OPENAI_BETA_HEADER, "assistants=v2".parse().unwrap());
+
+    //     headers
+    // }
+
     fn headers(&self) -> HeaderMap {
         let mut headers = HeaderMap::new();
-        if !self.org_id.is_empty() {
-            headers.insert(
-                OPENAI_ORGANIZATION_HEADER,
-                self.org_id.as_str().parse().unwrap(),
-            );
+        // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijk0YjJjN2ViLTFmYjAtNGIyZi1iMDZiLTNkMDcxODBhZmMzZCJ9.DpEXT_ukfaykFm1-q8Pt21v_Drxi0q9Bo0fn2lz5sG0
+        let bearer_header_string = format!("Bearer {}", self.api_key.expose_secret());
+        let token_header_string = format!("token={}", self.api_key.expose_secret());
+        let custom_headers = vec![
+        ("Accept", "*/*"),
+        ("Accept-Language", "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"),
+        ("Authorization", bearer_header_string.as_str()),
+        ("Connection", "keep-alive"),
+        ("Content-Type", "application/json"),
+        ("Cookie", token_header_string.as_str()),
+        ("DNT", "1"),
+        ("Origin", "http://62.68.146.97:8080"),
+        ("Referer", "http://62.68.146.97:8080/"),
+        ("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"),
+        ];
+
+        for (key, value) in custom_headers {
+            headers.insert(key, value.parse().unwrap());
         }
-
-        if !self.project_id.is_empty() {
-            headers.insert(
-                OPENAI_PROJECT_HEADER,
-                self.project_id.as_str().parse().unwrap(),
-            );
-        }
-
-        headers.insert(
-            AUTHORIZATION,
-            format!("Bearer {}", self.api_key.expose_secret())
-                .as_str()
-                .parse()
-                .unwrap(),
-        );
-
-        // hack for Assistants APIs
-        // Calls to the Assistants API require that you pass a Beta header
-        headers.insert(OPENAI_BETA_HEADER, "assistants=v2".parse().unwrap());
 
         headers
     }

@@ -1,5 +1,5 @@
 use async_openai::{
-    types::{CreateImageVariationRequestArgs, DallE2ImageSize, ImageResponseFormat},
+    types::{CreateImageVariationRequestArgs, DallE2ImageSize, ResponseFormat},
     Client,
 };
 use std::error::Error;
@@ -12,7 +12,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .image("./images/cake.png")
         .n(1)
         .size(DallE2ImageSize::S512x512)
-        .response_format(ImageResponseFormat::Url)
+        .response_format(ResponseFormat::Url)
         .user("async-openai")
         .build()?;
 

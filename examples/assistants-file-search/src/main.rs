@@ -144,9 +144,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             MessageContent::ImageFile(_) | MessageContent::ImageUrl(_) => {
                                 eprintln!("Images not supported on terminal");
                             }
-                            MessageContent::Refusal(refusal) => {
-                                println!("{refusal:?}");
-                            }
                         }
                     }
                 }

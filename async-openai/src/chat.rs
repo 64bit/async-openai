@@ -47,8 +47,27 @@ impl<'c, C: Config> Chat<'c, C> {
             ));
         }
 
-        request.stream = Some(true);
+        // Добавляем недостающие поля в request
+        let mut req_json = serde_json::to_value(&request).unwrap();
+        let additional_fields = serde_json::json!({
+            "chat_id": "53f6fe83-3087-4ea9-a328-26a40dd9543a",
+            "id": "b0780fb9-8824-4ede-b233-226610a95a0d",
+            "session_id": "wkIeoXONhyglgGGaAAAN",
+            "stream": true,
+            "model": "normative_agent_pipeline_ragas"
+        });
 
-        Ok(self.client.post_stream("/chat/completions", request).await)
+        if let serde_json::Value::Object(ref mut map) = req_json {
+            if let serde_json::Value::Object(additional_map) = additional_fields {
+                map.extend(additional_map);
+            }
+        }
+
+        println!("{}", req_json);
+
+        Ok(self
+            .client
+            .post_stream("/api/chat/completions", req_json)
+            .await)
     }
 }
