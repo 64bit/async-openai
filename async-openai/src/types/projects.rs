@@ -26,6 +26,10 @@ pub struct Project {
     archived_at: Option<u32>,
     /// `active` or `archived`
     status: ProjectStatus,
+    /// A description of your business, project, or use case.
+    app_use_case: String,
+    /// Your business URL, or if you don't have one yet, a URL to your LinkedIn or other social media.
+    business_website: String,
 }
 
 /// A list of Project objects.
@@ -50,6 +54,10 @@ pub struct ProjectListResponse {
 pub struct ProjectCreateRequest {
     /// The friendly name of the project, this name appears in reports.
     name: String,
+    /// A description of your business, project, or use case.
+    app_use_case: Option<String>,
+    /// Your business URL, or if you don't have one yet, a URL to your LinkedIn or other social media.
+    business_website: Option<String>,
 }
 
 /// The project update request payload.
@@ -63,4 +71,8 @@ pub struct ProjectCreateRequest {
 pub struct ProjectUpdateRequest {
     /// The updated name of the project, this name appears in reports.
     name: String,
+    /// A description of your business, project, or use case.
+    app_use_case: Option<String>,
+    /// Your business URL, or if you don't have one yet, a URL to your LinkedIn or other social media.
+    business_website: Option<String>,
 }
