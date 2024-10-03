@@ -115,6 +115,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         MessageContent::ImageFile(_) | MessageContent::ImageUrl(_) => {
                             panic!("imaged are not expected in this example");
                         }
+                        MessageContent::Refusal(refusal) => refusal.refusal.clone(),
                     };
                     //print the text
                     println!("--- Response: {}\n", text);

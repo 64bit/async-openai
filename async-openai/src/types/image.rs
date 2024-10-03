@@ -33,7 +33,7 @@ pub enum DallE2ImageSize {
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum ResponseFormat {
+pub enum ImageResponseFormat {
     #[default]
     Url,
     #[serde(rename = "b64_json")]
@@ -93,7 +93,7 @@ pub struct CreateImageRequest {
 
     /// The format in which the generated images are returned. Must be one of `url` or `b64_json`. URLs are only valid for 60 minutes after the image has been generated.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub response_format: Option<ResponseFormat>,
+    pub response_format: Option<ImageResponseFormat>,
 
     /// The size of the generated images. Must be one of `256x256`, `512x512`, or `1024x1024` for `dall-e-2`.
     /// Must be one of `1024x1024`, `1792x1024`, or `1024x1792` for `dall-e-3` models.
@@ -164,7 +164,7 @@ pub struct CreateImageEditRequest {
     pub size: Option<DallE2ImageSize>,
 
     /// The format in which the generated images are returned. Must be one of `url` or `b64_json`.
-    pub response_format: Option<ResponseFormat>,
+    pub response_format: Option<ImageResponseFormat>,
 
     /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
     pub user: Option<String>,
@@ -190,7 +190,7 @@ pub struct CreateImageVariationRequest {
     pub size: Option<DallE2ImageSize>,
 
     /// The format in which the generated images are returned. Must be one of `url` or `b64_json`.
-    pub response_format: Option<ResponseFormat>,
+    pub response_format: Option<ImageResponseFormat>,
 
     /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
     pub user: Option<String>,

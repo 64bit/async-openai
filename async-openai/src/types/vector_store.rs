@@ -105,8 +105,8 @@ pub struct VectorStoreFileCounts {
 pub struct ListVectorStoresResponse {
     pub object: String,
     pub data: Vec<VectorStoreObject>,
-    pub first_id: String,
-    pub last_id: String,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
     pub has_more: bool,
 }
 
@@ -180,10 +180,9 @@ pub struct VectorStoreFileError {
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum VectorStoreFileErrorCode {
-    InternalError,
-    FileNotFound,
-    ParsingError,
-    UnhandledMimeType,
+    ServerError,
+    UnsupportedFile,
+    InvalidFile,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]

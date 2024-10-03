@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-use super::{FunctionName, FunctionObject};
+use super::{FunctionName, FunctionObject, ResponseFormat};
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct AssistantToolCodeInterpreterResources {
@@ -38,9 +38,9 @@ pub struct CreateAssistantToolResources {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct CreateAssistantToolFileSearchResources {
     ///  The [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) attached to this assistant. There can be a maximum of 1 vector store attached to the assistant.
-    pub vector_store_ids: Vec<String>,
+    pub vector_store_ids: Option<Vec<String>>,
     /// A helper to create a [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) with file_ids and attach it to this assistant. There can be a maximum of 1 vector store attached to the assistant.
-    pub vector_stores: Vec<AssistantVectorStore>,
+    pub vector_stores: Option<Vec<AssistantVectorStore>>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
@@ -112,6 +112,8 @@ pub struct AssistantObject {
 
 /// Specifies the format that the model must output. Compatible with [GPT-4o](https://platform.openai.com/docs/models/gpt-4o), [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-turbo-and-gpt-4), and all GPT-3.5 Turbo models since `gpt-3.5-turbo-1106`.
 ///
+/// Setting to `{ "type": "json_schema", "json_schema": {...} }` enables Structured Outputs which guarantees the model will match your supplied JSON schema. Learn more in the [Structured Outputs guide](https://platform.openai.com/docs/guides/structured-outputs).
+///
 /// Setting to `{ "type": "json_object" }` enables JSON mode, which guarantees the message the model generates is valid JSON.
 ///
 /// **Important:** when using JSON mode, you **must** also instruct the model to produce JSON yourself via a system or user message. Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in a long-running and seemingly "stuck" request. Also note that the message content may be partially cut off if `finish_reason="length"`, which indicates the generation exceeded `max_tokens` or the conversation exceeded the max context length.
@@ -120,25 +122,8 @@ pub enum AssistantsApiResponseFormatOption {
     #[default]
     #[serde(rename = "auto")]
     Auto,
-    #[serde(rename = "none")]
-    None,
     #[serde(untagged)]
-    Format(AssistantsApiResponseFormat),
-}
-
-/// An object describing the expected output of the model. If `json_object` only `function` type `tools` are allowed to be passed to the Run. If `text` the model can return text or any value needed.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
-pub struct AssistantsApiResponseFormat {
-    /// Must be one of `text` or `json_object`.
-    pub r#type: AssistantsApiResponseFormatType,
-}
-
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
-#[serde(rename_all = "snake_case")]
-pub enum AssistantsApiResponseFormatType {
-    #[default]
-    Text,
-    JsonObject,
+    Format(ResponseFormat),
 }
 
 /// Retrieval tool
@@ -153,8 +138,28 @@ pub struct AssistantToolsFileSearch {
 pub struct AssistantToolsFileSearchOverrides {
     ///  The maximum number of results the file search tool should output. The default is 20 for gpt-4* models and 5 for gpt-3.5-turbo. This number should be between 1 and 50 inclusive.
     ///
-    //// Note that the file search tool may output fewer than `max_num_results` results. See the [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/number-of-chunks-returned) for more information.
-    pub max_num_results: u8,
+    //// Note that the file search tool may output fewer than `max_num_results` results. See the [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search/customizing-file-search-settings) for more information.
+    pub max_num_results: Option<u8>,
+    pub ranking_options: Option<FileSearchRankingOptions>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub enum FileSearchRanker {
+    #[serde(rename = "auto")]
+    Auto,
+    #[serde(rename = "default_2024_08_21")]
+    Default2024_08_21,
+}
+
+/// The ranking options for the file search.
+///
+/// See the [file search tool documentation](/docs/assistants/tools/file-search/customizing-file-search-settings) for more information.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct FileSearchRankingOptions {
+    /// The ranker to use for the file search. If not specified will use the `auto` ranker.
+    pub ranker: Option<FileSearchRanker>,
+    /// The score threshold for the file search. All values must be a floating point number between 0 and 1.
+    pub score_threshold: Option<f32>,
 }
 
 /// Function tool
