@@ -482,7 +482,7 @@ pub struct CreateChatCompletionRequest {
     pub store: Option<bool>,
 
     /// Developer-defined tags and values used for filtering completions. 
-    /// #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<serde_json::Value>,
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
