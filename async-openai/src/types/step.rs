@@ -197,9 +197,18 @@ pub struct RunStepFunctionObject {
     /// The name of the function.
     pub name: String,
     /// The arguments passed to the function.
+    #[serde(deserialize_with = "deserialize_arguments_as_string")]
     pub arguments: String,
     /// The output of the function. This will be `null` if the outputs have not been [submitted](https://platform.openai.com/docs/api-reference/runs/submitToolOutputs) yet.
     pub output: Option<String>,
+}
+
+fn deserialize_arguments_as_string<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let value = serde_json::Value::deserialize(deserializer)?;
+    Ok(value.to_string())
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
