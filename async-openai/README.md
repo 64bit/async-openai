@@ -35,6 +35,7 @@
   - [x] Models
   - [x] Moderations
   - [ ] Organizations | Administration
+  - [x] Realtime API types (Beta)
   - [ ] Uploads
 - SSE streaming on available APIs
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
@@ -57,6 +58,11 @@ $Env:OPENAI_API_KEY='sk-...'
 
 - Visit [examples](https://github.com/64bit/async-openai/tree/main/examples) directory on how to use `async-openai`.
 - Visit [docs.rs/async-openai](https://docs.rs/async-openai) for docs.
+
+## Realtime API
+
+Only types for Realtime API are imlemented, and can be enabled with feature flag `realtime`
+These types may change when OpenAI releases official specs for them.
 
 ## Image Generation Example
 

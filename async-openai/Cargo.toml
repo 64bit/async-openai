@@ -22,6 +22,7 @@ rustls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
 native-tls = ["reqwest/native-tls"]
 # Remove dependency on OpenSSL
 native-tls-vendored = ["reqwest/native-tls-vendored"]
+realtime = ["dep:tokio-tungstenite"]
 
 [dependencies]
 backoff = { version = "0.4.0", features = ["tokio"] }
@@ -46,6 +47,11 @@ async-convert = "1.0.0"
 secrecy = { version = "0.8.0", features = ["serde"] }
 bytes = "1.6.0"
 eventsource-stream = "0.2.3"
+tokio-tungstenite = { version = "0.24.0", optional = true, default-features = false }
 
 [dev-dependencies]
 tokio-test = "0.4.4"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

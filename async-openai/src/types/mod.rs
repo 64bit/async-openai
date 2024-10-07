@@ -17,6 +17,9 @@ mod message;
 mod message_file;
 mod model;
 mod moderation;
+#[cfg_attr(docsrs, doc(cfg(feature = "realtime")))]
+#[cfg(feature = "realtime")]
+pub mod realtime;
 mod run;
 mod step;
 mod thread;
