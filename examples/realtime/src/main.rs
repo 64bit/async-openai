@@ -1,4 +1,4 @@
-use std::{error::Error, process::exit};
+use std::process::exit;
 
 use async_openai::types::realtime::{
     ConversationItemCreateEvent, Item, ResponseCreateEvent, ServerEvent,
