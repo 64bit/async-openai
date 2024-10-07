@@ -1,10 +1,12 @@
 ## Overview
 
-The example takes input from stdin and sends "conversation.item.create" client event with content of type "input_text"
+The example takes input from stdin, for every input two client events are sent:
+1.  "conversation.item.create" with content of type "input_text"
+2.  "response.create" 
 
 All the output happens on stderr, so conversation can be continued on stdin. To stop type "quit" and press enter.
 
-Code is baed on https://github.com/snapview/tokio-tungstenite/blob/master/examples/client.rs
+Code is based on https://github.com/snapview/tokio-tungstenite/blob/master/examples/client.rs
 
 ## Sample Output 
 
