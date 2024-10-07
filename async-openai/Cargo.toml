@@ -51,3 +51,7 @@ tokio-tungstenite = { version = "0.24.0", optional = true, default-features = fa
 
 [dev-dependencies]
 tokio-test = "0.4.4"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
