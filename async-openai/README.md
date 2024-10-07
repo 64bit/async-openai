@@ -61,7 +61,7 @@ $Env:OPENAI_API_KEY='sk-...'
 
 ## Realtime API
 
-Only types for Realtime API are imlemented, and can be enabled with feature flag `realtime`
+Only types for Realtime API are implemented, and can be enabled with feature flag `realtime`
 These types may change when OpenAI releases official specs for them.
 
 ## Image Generation Example
