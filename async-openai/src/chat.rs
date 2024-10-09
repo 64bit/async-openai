@@ -24,7 +24,7 @@ impl<'c, C: Config> Chat<'c, C> {
         &self,
         request: CreateChatCompletionRequest,
     ) -> Result<CreateChatCompletionResponse, OpenAIError> {
-        if request.stream.is_some() && request.stream.unwrap() {
+        if request.stream.is_some_and(|b| b) {
             return Err(OpenAIError::InvalidArgument(
                 "When stream is true, use Chat::create_stream".into(),
             ));
@@ -41,7 +41,7 @@ impl<'c, C: Config> Chat<'c, C> {
         &self,
         mut request: CreateChatCompletionRequest,
     ) -> Result<ChatCompletionResponseStream, OpenAIError> {
-        if request.stream.is_some() && !request.stream.unwrap() {
+        if request.stream.is_some_and(|b| !b) {
             return Err(OpenAIError::InvalidArgument(
                 "When stream is false, use Chat::create".into(),
             ));

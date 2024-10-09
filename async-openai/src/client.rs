@@ -225,7 +225,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a POST request to {path} and deserialize the response body
-    pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
+    pub async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
     where
         I: Serialize,
         O: DeserializeOwned,
@@ -358,7 +358,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP POST request to receive SSE
-    pub(crate) async fn post_stream<I, O>(
+    pub async fn post_stream<I, O>(
         &self,
         path: &str,
         request: I,
