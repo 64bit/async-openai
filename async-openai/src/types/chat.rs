@@ -459,9 +459,9 @@ pub enum ChatCompletionToolChoiceOption {
     None,
     Auto,
     Required,
+    NamedLlama(String),
     #[serde(untagged)]
-    Named(ChatCompletionNamedToolChoice),
-    NamedLlama(String)
+    Named(ChatCompletionNamedToolChoice)
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
