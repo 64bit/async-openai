@@ -41,7 +41,7 @@ thiserror = "1.0.61"
 tokio = { version = "1.38.0", features = ["fs", "macros"] }
 tokio-stream = "0.1.15"
 tokio-util = { version = "0.7.11", features = ["codec", "io-util"] }
-tracing = "0.1.40"
+tracing = { version = "0.1.40", features = ["log"] }
 derive_builder = "0.20.0"
 async-convert = "1.0.0"
 secrecy = { version = "0.8.0", features = ["serde"] }
