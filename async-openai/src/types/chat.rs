@@ -481,7 +481,7 @@ pub struct CreateChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub store: Option<bool>,
 
-    /// Developer-defined tags and values used for filtering completions.
+    /// Developer-defined tags and values used for filtering completions. 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<serde_json::Value>,
 
