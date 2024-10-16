@@ -1,9 +1,9 @@
-use std::pin::Pin;
+use std::{fmt::Display, pin::Pin};
 
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use crate::{
     config::{Config, OpenAIConfig},
@@ -225,7 +225,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a POST request to {path} and deserialize the response body
-    pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
+    pub async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
     where
         I: Serialize,
         O: DeserializeOwned,
@@ -358,14 +358,15 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP POST request to receive SSE
-    pub(crate) async fn post_stream<I, O>(
+    pub async fn post_stream<I, O, E >(
         &self,
         path: &str,
         request: I,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    ) -> Pin<Box<dyn Stream<Item = Result<O, E>> + Send>>
     where
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
+        E: Display + Send + From<serde_json::Error> + From<reqwest_eventsource::Error> + 'static,
     {
         let event_source = self
             .http_client
@@ -402,14 +403,15 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP GET request to receive SSE
-    pub(crate) async fn _get_stream<Q, O>(
+    pub(crate) async fn _get_stream<Q, O, E>(
         &self,
         path: &str,
         query: &Q,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    ) -> Pin<Box<dyn Stream<Item = Result<O, E>> + Send>>
     where
         Q: Serialize + ?Sized,
         O: DeserializeOwned + std::marker::Send + 'static,
+        E: Display + Send + From<serde_json::Error> + From<reqwest_eventsource::Error> + 'static,
     {
         let event_source = self
             .http_client
@@ -426,11 +428,12 @@ impl<C: Config> Client<C> {
 
 /// Request which responds with SSE.
 /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-pub(crate) async fn stream<O>(
+pub(crate) async fn stream<O, E>(
     mut event_source: EventSource,
-) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+) -> Pin<Box<dyn Stream<Item = Result<O, E>> + Send>>
 where
     O: DeserializeOwned + std::marker::Send + 'static,
+    E: Display + Send + From<serde_json::Error> + From<reqwest_eventsource::Error> + 'static,
 {
     let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
@@ -438,7 +441,7 @@ where
         while let Some(ev) = event_source.next().await {
             match ev {
                 Err(e) => {
-                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
+                    if let Err(_e) = tx.send(Err(Into::<E>::into(e))) {
                         // rx dropped
                         break;
                     }
@@ -450,7 +453,13 @@ where
                         }
 
                         let response = match serde_json::from_str::<O>(&message.data) {
-                            Err(e) => Err(map_deserialization_error(e, message.data.as_bytes())),
+                            Err(e) => {
+                                tracing::error!(
+                                    "failed deserialization of: {}",
+                                    String::from_utf8_lossy(message.data.as_bytes()),
+                                );
+                                Err(Into::<E>::into(e))
+                            },
                             Ok(output) => Ok(output),
                         };
 

@@ -67,10 +67,22 @@ pub(crate) struct WrappedError {
     pub(crate) error: ApiError,
 }
 
+impl From<serde_json::Error> for OpenAIError {
+    fn from(e: serde_json::Error) -> Self {
+        OpenAIError::JSONDeserialize(e)
+    }
+}
+
 pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> OpenAIError {
     tracing::error!(
         "failed deserialization of: {}",
         String::from_utf8_lossy(bytes)
     );
     OpenAIError::JSONDeserialize(e)
+}
+
+impl From<reqwest_eventsource::Error> for OpenAIError {
+    fn from(e: reqwest_eventsource::Error) -> Self {
+        OpenAIError::StreamError(e.to_string())
+    }
 }
