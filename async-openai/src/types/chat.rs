@@ -94,9 +94,11 @@ pub struct CompletionUsage {
     /// Total number of tokens used in the request (prompt + completion).
     pub total_tokens: u32,
     /// Breakdown of tokens used in the prompt.
-    pub prompt_tokens_details: PromptTokenDetails,
+    #[serde(default)]
+    pub prompt_tokens_details: Option<PromptTokenDetails>,
     /// Breakdown of tokens used in a completion.
-    pub completion_tokens_details: CompletionTokenDetails,
+    #[serde(default)]
+    pub completion_tokens_details: Option<CompletionTokenDetails>,
 }
 
 /// Breakdown of tokens used in a completion.
