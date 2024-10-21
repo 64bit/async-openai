@@ -1,0 +1,23 @@
+[package]
+name = "async-openai-macros"
+version = "0.1.0"
+authors = ["Jean-Sébastien Bour <jean-sebastien@bour.name>"]
+categories = ["api-bindings", "web-programming", "asynchronous"]
+keywords = ["openai", "async", "openapi", "ai"]
+description = "Procedural macros for async-openai"
+edition = "2021"
+rust-version = "1.70"
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/64bit/async-openai"
+repository = "https://github.com/64bit/async-openai"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+darling = "0.20"
+itertools = "0.13"
+proc-macro2 = "1"
+quote = "1"
+syn = "2"

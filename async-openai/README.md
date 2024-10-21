@@ -41,6 +41,7 @@
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
 - Ergonomic builder pattern for all request objects.
 - Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec)
+- Extensible to other providers via extension methods where you provide the request/response types
 
 ## Usage
 
@@ -107,6 +108,55 @@ async fn main() -> Result<(), Box<dyn Error>> {
   <br/>
   <sub>Scaled up for README, actual size 256x256</sub>
 </div>
+
+## Other providers
+
+Alternative OpenAI providers that provide the same endpoints, but with different requests/responses (e.g. Azure OpenAPI allows applying content filters on chat completion, and get the results as an additional field in the response), are supported through `_ext` methods (currently, only for the chat completion API) which allow you to "bring your own types":
+
+```rust
+use std::error::Error;
+
+use async_openai::{config::AzureConfig, types::RequestForStream, Client};
+use serde::{Deserialize, Serialize};
+
+#[derive(Default, Serialize)]
+struct AzureRequest {
+    specific_azure_field: String,
+    stream: Option<bool>,
+}
+
+impl RequestForStream for AzureRequest {
+    fn is_request_for_stream(&self) -> bool {
+        self.stream == Some(true)
+    }
+
+    fn set_request_for_stream(&mut self, stream: bool) {
+        self.stream = Some(stream)
+    }
+}
+
+#[derive(Deserialize)]
+struct AzureResponse {
+    specific_azure_result: String,
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    let client = Client::with_config(AzureConfig::new());
+
+    let request = AzureRequest::default();
+
+    let response: AzureResponse = client
+        .chat()
+        // Use the extensible method which allows you to bring your own types
+        .create_ext(request)
+        .await?;
+
+    println!("Specific azure result: {}", response.specific_azure_result);
+
+    Ok(())
+}
+```
 
 ## Contributing
 
