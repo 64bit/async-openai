@@ -40,7 +40,6 @@ pub enum VectorStoreChunkingStrategy {
     /// The default strategy. This strategy currently uses a `max_chunk_size_tokens` of `800` and `chunk_overlap_tokens` of `400`.
     #[default]
     Auto,
-    ///
     Static(StaticChunkingStrategy),
 }
 
@@ -105,8 +104,8 @@ pub struct VectorStoreFileCounts {
 pub struct ListVectorStoresResponse {
     pub object: String,
     pub data: Vec<VectorStoreObject>,
-    pub first_id: String,
-    pub last_id: String,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
     pub has_more: bool,
 }
 
