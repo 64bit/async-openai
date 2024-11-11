@@ -13,16 +13,20 @@ mod embedding;
 mod file;
 mod fine_tuning;
 mod image;
+mod invites;
 mod message;
 mod message_file;
 mod model;
 mod moderation;
+mod project_users;
+mod projects;
 #[cfg_attr(docsrs, doc(cfg(feature = "realtime")))]
 #[cfg(feature = "realtime")]
 pub mod realtime;
 mod run;
 mod step;
 mod thread;
+mod users;
 mod vector_store;
 
 pub use assistant::*;
@@ -37,13 +41,17 @@ pub use embedding::*;
 pub use file::*;
 pub use fine_tuning::*;
 pub use image::*;
+pub use invites::*;
 pub use message::*;
 pub use message_file::*;
 pub use model::*;
 pub use moderation::*;
+pub use project_users::*;
+pub use projects::*;
 pub use run::*;
 pub use step::*;
 pub use thread::*;
+pub use users::*;
 pub use vector_store::*;
 
 mod impls;
