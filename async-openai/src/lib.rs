@@ -76,6 +76,7 @@
 //! ## Examples
 //! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //!
+#![cfg_attr(docsrs, feature(doc_cfg))]
 mod assistant_files;
 mod assistants;
 mod audio;
