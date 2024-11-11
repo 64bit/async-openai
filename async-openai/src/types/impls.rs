@@ -13,8 +13,8 @@ use crate::{
 use bytes::Bytes;
 
 use super::{
-    AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, ChatCompletionFunctions,
-    ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
+    AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
+    ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
     ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestFunctionMessage,
     ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPartImage,
     ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
@@ -921,6 +921,17 @@ impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
         let form = reqwest::multipart::Form::new()
             .part("file", file_part)
             .text("purpose", request.purpose.to_string());
+        Ok(form)
+    }
+}
+
+#[async_convert::async_trait]
+impl async_convert::TryFrom<AddUploadPartRequest> for reqwest::multipart::Form {
+    type Error = OpenAIError;
+
+    async fn try_from(request: AddUploadPartRequest) -> Result<Self, Self::Error> {
+        let file_part = create_file_part(request.data).await?;
+        let form = reqwest::multipart::Form::new().part("data", file_part);
         Ok(form)
     }
 }

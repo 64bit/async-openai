@@ -26,6 +26,7 @@ pub mod realtime;
 mod run;
 mod step;
 mod thread;
+mod upload;
 mod users;
 mod vector_store;
 
@@ -51,6 +52,7 @@ pub use projects::*;
 pub use run::*;
 pub use step::*;
 pub use thread::*;
+pub use upload::*;
 pub use users::*;
 pub use vector_store::*;
 
