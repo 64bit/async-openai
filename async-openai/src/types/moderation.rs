@@ -42,17 +42,6 @@ pub struct ModerationImageUrl {
     pub url: String,
 }
 
-#[derive(Debug, Serialize, Default, Clone, PartialEq, Deserialize)]
-pub enum TextModerationModel {
-    #[default]
-    #[serde(rename = "text-moderation-latest")]
-    Latest,
-    #[serde(rename = "text-moderation-stable")]
-    Stable,
-    #[serde(untagged)]
-    Other(String),
-}
-
 #[derive(Debug, Default, Clone, Serialize, Builder, PartialEq, Deserialize)]
 #[builder(name = "CreateModerationRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -68,7 +57,7 @@ pub struct CreateModerationRequest {
     /// [moderation guide](https://platform.openai.com/docs/guides/moderation), and learn about
     /// available models [here](https://platform.openai.com/docs/models/moderation).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub model: Option<TextModerationModel>,
+    pub model: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
@@ -183,39 +172,47 @@ pub struct CategoryAppliedInputTypes {
     pub hate: Vec<ModInputType>,
 
     /// The applied input type(s) for the category 'hate/threatening'.
+    #[serde(rename = "hate/threatening")]
     pub hate_threatening: Vec<ModInputType>,
 
     /// The applied input type(s) for the category 'harassment'.
     pub harassment: Vec<ModInputType>,
 
     /// The applied input type(s) for the category 'harassment/threatening'.
+    #[serde(rename = "harassment/threatening")]
     pub harassment_threatening: Vec<ModInputType>,
 
     /// The applied input type(s) for the category 'illicit'.
     pub illicit: Vec<ModInputType>,
 
     /// The applied input type(s) for the category 'illicit/violent'.
+    #[serde(rename = "illicit/violent")]
     pub illicit_violent: Vec<ModInputType>,
 
     /// The applied input type(s) for the category 'self-harm'.
+    #[serde(rename = "self-harm")]
     pub self_harm: Vec<ModInputType>,
 
     /// The applied input type(s) for the category 'self-harm/intent'.
+    #[serde(rename = "self-harm/intent")]
     pub self_harm_intent: Vec<ModInputType>,
 
     /// The applied input type(s) for the category 'self-harm/instructions'.
+    #[serde(rename = "self-harm/instructions")]
     pub self_harm_instructions: Vec<ModInputType>,
 
     /// The applied input type(s) for the category 'sexual'.
     pub sexual: Vec<ModInputType>,
 
     /// The applied input type(s) for the category 'sexual/minors'.
+    #[serde(rename = "sexual/minors")]
     pub sexual_minors: Vec<ModInputType>,
 
     /// The applied input type(s) for the category 'violence'.
     pub violence: Vec<ModInputType>,
 
     /// The applied input type(s) for the category 'violence/graphic'.
+    #[serde(rename = "violence/graphic")]
     pub violence_graphic: Vec<ModInputType>,
 }
 
