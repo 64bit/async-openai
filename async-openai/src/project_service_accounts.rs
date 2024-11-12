@@ -65,7 +65,7 @@ impl<'c, C: Config> ProjectServiceAccounts<'c, C> {
     /// Retrieves a service account in the project.
     pub async fn retrieve(
         &self,
-        service_account_id: String,
+        service_account_id: &str,
     ) -> Result<ProjectServiceAccount, OpenAIError> {
         self.client
             .get(

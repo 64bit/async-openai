@@ -52,7 +52,7 @@ impl<'c, C: Config> ProjectUsers<'c, C> {
     }
 
     /// Retrieves a user in the project.
-    pub async fn retrieve(&self, user_id: String) -> Result<ProjectUser, OpenAIError> {
+    pub async fn retrieve(&self, user_id: &str) -> Result<ProjectUser, OpenAIError> {
         self.client
             .get(format!("/organization/projects/{}/users/{user_id}", self.project_id).as_str())
             .await

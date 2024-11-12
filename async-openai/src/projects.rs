@@ -3,6 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
+    project_api_keys::ProjectAPIKeys,
     types::{Project, ProjectCreateRequest, ProjectListResponse, ProjectUpdateRequest},
     Client, ProjectServiceAccounts, ProjectUsers,
 };
@@ -26,6 +27,11 @@ impl<'c, C: Config> Projects<'c, C> {
     // call [ProjectServiceAccounts] group APIs
     pub fn service_accounts(&self, project_id: &str) -> ProjectServiceAccounts<C> {
         ProjectServiceAccounts::new(self.client, project_id)
+    }
+
+    // call [ProjectAPIKeys] group APIs
+    pub fn api_keys(&self, project_id: &str) -> ProjectAPIKeys<C> {
+        ProjectAPIKeys::new(self.client, project_id)
     }
 
     /// Returns a list of projects.
