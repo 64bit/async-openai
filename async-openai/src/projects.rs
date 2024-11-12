@@ -4,7 +4,7 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::{Project, ProjectCreateRequest, ProjectListResponse, ProjectUpdateRequest},
-    Client,
+    Client, ProjectUsers,
 };
 
 /// Manage the projects within an organization includes creation, updating, and archiving or projects.
@@ -16,6 +16,11 @@ pub struct Projects<'c, C: Config> {
 impl<'c, C: Config> Projects<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
         Self { client }
+    }
+
+    // call [ProjectUsers] group APIs
+    pub fn users(&self, project_id: &str) -> ProjectUsers<C> {
+        ProjectUsers::new(self.client, project_id)
     }
 
     /// Returns a list of projects.
