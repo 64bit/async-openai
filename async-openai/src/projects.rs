@@ -57,7 +57,10 @@ impl<'c, C: Config> Projects<'c, C> {
     /// Archives a project in the organization. Archived projects cannot be used or updated.
     pub async fn archive(&self, project_id: String) -> Result<Project, OpenAIError> {
         self.client
-            .post(format!("/organization/projects/{project_id}").as_str(), ())
+            .post(
+                format!("/organization/projects/{project_id}/archive").as_str(),
+                (),
+            )
             .await
     }
 }
