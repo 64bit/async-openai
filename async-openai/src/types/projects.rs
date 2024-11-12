@@ -14,27 +14,27 @@ pub enum ProjectStatus {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Project {
     /// The identifier, which can be referenced in API endpoints
-    id: String,
+    pub id: String,
     /// The object type, which is always `organization.project`
-    object: String,
+    pub object: String,
     /// The name of the project. This appears in reporting.
-    name: String,
+    pub name: String,
     /// The Unix timestamp (in seconds) of when the project was created.
-    created_at: u32,
+    pub created_at: u32,
     /// The Unix timestamp (in seconds) of when the project was archived or `null`.
-    archived_at: Option<u32>,
+    pub archived_at: Option<u32>,
     /// `active` or `archived`
-    status: ProjectStatus,
+    pub status: ProjectStatus,
 }
 
 /// A list of Project objects.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ProjectListResponse {
-    object: String,
-    data: Vec<Project>,
-    first_id: String,
-    last_id: String,
-    has_more: String,
+    pub object: String,
+    pub data: Vec<Project>,
+    pub first_id: String,
+    pub last_id: String,
+    pub has_more: String,
 }
 
 /// The project create request payload.
@@ -46,7 +46,7 @@ pub struct ProjectListResponse {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ProjectCreateRequest {
     /// The friendly name of the project, this name appears in reports.
-    name: String,
+    pub name: String,
 }
 
 /// The project update request payload.
@@ -58,5 +58,5 @@ pub struct ProjectCreateRequest {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ProjectUpdateRequest {
     /// The updated name of the project, this name appears in reports.
-    name: String,
+    pub name: String,
 }
