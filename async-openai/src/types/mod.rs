@@ -19,6 +19,7 @@ mod message;
 mod message_file;
 mod model;
 mod moderation;
+mod project_service_account;
 mod project_users;
 mod projects;
 #[cfg_attr(docsrs, doc(cfg(feature = "realtime")))]
@@ -49,6 +50,7 @@ pub use message::*;
 pub use message_file::*;
 pub use model::*;
 pub use moderation::*;
+pub use project_service_account::*;
 pub use project_users::*;
 pub use projects::*;
 pub use run::*;
