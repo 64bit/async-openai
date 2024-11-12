@@ -3,8 +3,9 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
+    project_api_keys::ProjectAPIKeys,
     types::{Project, ProjectCreateRequest, ProjectListResponse, ProjectUpdateRequest},
-    Client,
+    Client, ProjectServiceAccounts, ProjectUsers,
 };
 
 /// Manage the projects within an organization includes creation, updating, and archiving or projects.
@@ -16,6 +17,21 @@ pub struct Projects<'c, C: Config> {
 impl<'c, C: Config> Projects<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
         Self { client }
+    }
+
+    // call [ProjectUsers] group APIs
+    pub fn users(&self, project_id: &str) -> ProjectUsers<C> {
+        ProjectUsers::new(self.client, project_id)
+    }
+
+    // call [ProjectServiceAccounts] group APIs
+    pub fn service_accounts(&self, project_id: &str) -> ProjectServiceAccounts<C> {
+        ProjectServiceAccounts::new(self.client, project_id)
+    }
+
+    // call [ProjectAPIKeys] group APIs
+    pub fn api_keys(&self, project_id: &str) -> ProjectAPIKeys<C> {
+        ProjectAPIKeys::new(self.client, project_id)
     }
 
     /// Returns a list of projects.
@@ -57,7 +73,10 @@ impl<'c, C: Config> Projects<'c, C> {
     /// Archives a project in the organization. Archived projects cannot be used or updated.
     pub async fn archive(&self, project_id: String) -> Result<Project, OpenAIError> {
         self.client
-            .post(format!("/organization/projects/{project_id}").as_str(), ())
+            .post(
+                format!("/organization/projects/{project_id}/archive").as_str(),
+                (),
+            )
             .await
     }
 }

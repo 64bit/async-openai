@@ -5,7 +5,7 @@ use crate::{
     Client,
 };
 
-/// Given some input text, outputs if the model classifies it as potentially harmful across several categories.
+/// Given text and/or image inputs, classifies if those inputs are potentially harmful across several categories.
 ///
 /// Related guide: [Moderations](https://platform.openai.com/docs/guides/moderation)
 pub struct Moderations<'c, C: Config> {
@@ -17,7 +17,8 @@ impl<'c, C: Config> Moderations<'c, C> {
         Self { client }
     }
 
-    /// Classifies if text is potentially harmful.
+    /// Classifies if text and/or image inputs are potentially harmful. Learn
+    /// more in the [moderation guide](https://platform.openai.com/docs/guides/moderation).
     pub async fn create(
         &self,
         request: CreateModerationRequest,

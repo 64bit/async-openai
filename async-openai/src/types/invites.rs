@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::OrganizationRole;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "lowercase")]
 pub enum InviteStatus {
     Accepted,
     Expired,
@@ -13,54 +13,50 @@ pub enum InviteStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder)]
-#[builder(name = "ProjectCreateRequestArgs")]
+#[builder(name = "InviteRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option))]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
-#[serde(rename_all = "snake_case")]
 pub struct InviteRequest {
-    email: String,
-    role: OrganizationRole,
+    pub email: String,
+    pub role: OrganizationRole,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
 pub struct InviteListResponse {
-    object: String,
-    data: Vec<Invite>,
-    first_id: Option<String>,
-    last_id: Option<String>,
-    has_more: Option<bool>,
+    pub object: String,
+    pub data: Vec<Invite>,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
+    pub has_more: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
 pub struct InviteDeleteResponse {
     /// The object type, which is always `organization.invite.deleted`
-    object: String,
-    id: String,
-    deleted: bool,
+    pub object: String,
+    pub id: String,
+    pub deleted: bool,
 }
 
 /// Represents an individual `invite` to the organization.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
 pub struct Invite {
     /// The object type, which is always `organization.invite`
-    object: String,
+    pub object: String,
     /// The identifier, which can be referenced in API endpoints
-    id: String,
+    pub id: String,
     /// The email address of the individual to whom the invite was sent
-    email: String,
+    pub email: String,
     /// `owner` or `reader`
-    role: OrganizationRole,
+    pub role: OrganizationRole,
     /// `accepted`, `expired`, or `pending`
-    status: InviteStatus,
+    pub status: InviteStatus,
     /// The Unix timestamp (in seconds) of when the invite was sent.
-    invited_at: u32,
+    pub invited_at: u32,
     /// The Unix timestamp (in seconds) of when the invite expires.
-    expires_at: u32,
+    pub expires_at: u32,
     /// The Unix timestamp (in seconds) of when the invite was accepted.
-    accepted_at: u32,
+    pub accepted_at: Option<u32>,
 }

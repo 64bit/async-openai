@@ -17,7 +17,7 @@ impl<'c, C: Config> Invites<'c, C> {
         Self { client }
     }
 
-    /// Returns a list of runs belonging to a thread.
+    /// Returns a list of invites in the organization.
     pub async fn list<Q>(&self, query: &Q) -> Result<InviteListResponse, OpenAIError>
     where
         Q: Serialize + ?Sized,
