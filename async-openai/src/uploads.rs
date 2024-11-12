@@ -5,6 +5,7 @@ use crate::{
     Client,
 };
 
+/// Allows you to upload large files in multiple parts.
 pub struct Uploads<'c, C: Config> {
     client: &'c Client<C>,
 }

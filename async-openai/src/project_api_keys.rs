@@ -7,6 +7,8 @@ use crate::{
     Client,
 };
 
+/// Manage API keys for a given project. Supports listing and deleting keys for users.
+/// This API does not allow issuing keys for users, as users need to authorize themselves to generate keys.
 pub struct ProjectAPIKeys<'c, C: Config> {
     client: &'c Client<C>,
     pub project_id: String,
