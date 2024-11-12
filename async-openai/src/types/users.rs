@@ -6,7 +6,6 @@ use super::OrganizationRole;
 
 /// Represents an individual `user` within an organization.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
 pub struct User {
     /// The object type, which is always `organization.user`
     object: String,
@@ -24,7 +23,6 @@ pub struct User {
 
 /// A list of `User` objects.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
 pub struct UserListResponse {
     object: String,
     data: Vec<User>,
@@ -34,12 +32,11 @@ pub struct UserListResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder)]
-#[builder(name = "ProjectCreateRequestArgs")]
+#[builder(name = "UserRoleUpdateRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option))]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
-#[serde(rename_all = "snake_case")]
 pub struct UserRoleUpdateRequest {
     /// `owner` or `reader`
     role: OrganizationRole,
@@ -47,7 +44,6 @@ pub struct UserRoleUpdateRequest {
 
 /// Confirmation of the deleted user
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
 pub struct UserDeleteResponse {
     object: String,
     id: String,
