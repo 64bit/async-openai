@@ -11,7 +11,7 @@ pub enum InputSource {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "lowercase")]
 pub enum OrganizationRole {
     Owner,
     Reader,

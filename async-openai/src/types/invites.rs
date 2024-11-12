@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::OrganizationRole;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "lowercase")]
 pub enum InviteStatus {
     Accepted,
     Expired,
@@ -13,19 +13,17 @@ pub enum InviteStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder)]
-#[builder(name = "ProjectCreateRequestArgs")]
+#[builder(name = "InviteRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option))]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
-#[serde(rename_all = "snake_case")]
 pub struct InviteRequest {
     email: String,
     role: OrganizationRole,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
 pub struct InviteListResponse {
     object: String,
     data: Vec<Invite>,
@@ -35,7 +33,6 @@ pub struct InviteListResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
 pub struct InviteDeleteResponse {
     /// The object type, which is always `organization.invite.deleted`
     object: String,
@@ -45,7 +42,6 @@ pub struct InviteDeleteResponse {
 
 /// Represents an individual `invite` to the organization.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "snake_case")]
 pub struct Invite {
     /// The object type, which is always `organization.invite`
     object: String,
@@ -62,5 +58,5 @@ pub struct Invite {
     /// The Unix timestamp (in seconds) of when the invite expires.
     expires_at: u32,
     /// The Unix timestamp (in seconds) of when the invite was accepted.
-    accepted_at: u32,
+    accepted_at: Option<u32>,
 }
