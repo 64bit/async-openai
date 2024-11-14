@@ -1,5 +1,5 @@
 [workspace]
-members = [ "async-openai", "examples/*" ]
+members = [ "async-openai", "async-openai-macros", "examples/*" ]
 # Only check / build main crates by default (check all with `--workspace`)
-default-members = ["async-openai"]
+default-members = ["async-openai", "async-openai-macros"]
 resolver = "2"
