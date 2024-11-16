@@ -63,7 +63,10 @@ pub enum AssistantVectorStoreChunkingStrategy {
     #[serde(rename = "auto")]
     Auto,
     #[serde(rename = "static")]
-    Static(StaticChunkingStrategy),
+    Static {
+        #[serde(rename = "static")]
+        config: StaticChunkingStrategy,
+    },
 }
 
 /// Static Chunking Strategy

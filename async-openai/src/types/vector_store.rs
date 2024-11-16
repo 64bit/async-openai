@@ -42,7 +42,10 @@ pub enum VectorStoreChunkingStrategy {
     #[serde(rename = "auto")]
     Auto,
     #[serde(rename = "static")]
-    Static(StaticChunkingStrategy),
+    Static {
+        #[serde(rename = "static")]
+        config: StaticChunkingStrategy,
+    },
 }
 
 /// Vector store expiration policy
