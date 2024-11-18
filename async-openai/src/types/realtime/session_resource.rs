@@ -35,7 +35,7 @@ pub enum TurnDetection {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
-pub enum MaxOutputTokens {
+pub enum MaxResponseOutputTokens {
     Num(u16),
     #[serde(rename = "inf")]
     Inf,
@@ -132,5 +132,5 @@ pub struct SessionResource {
     /// Provide an integer between 1 and 4096 to limit output tokens, or "inf" for the maximum available tokens for a given model.
     /// Defaults to "inf".
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_output_tokens: Option<MaxOutputTokens>,
+    pub max_response_output_tokens: Option<MaxResponseOutputTokens>,
 }
