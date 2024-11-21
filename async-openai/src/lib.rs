@@ -73,6 +73,52 @@
 //! # });
 //!```
 //!
+//! ## Other providers
+//!
+//! You can use alternative providers that extend OpenAPI specs by using `_ext` extensible methods to bring your own types:
+//!
+//! ```
+//! # tokio_test::block_on(async {
+//! use std::error::Error;
+//!
+//! use async_openai::{config::AzureConfig, types::RequestForStream, Client};
+//! use serde::{Deserialize, Serialize};
+//!
+//! #[derive(Default, Serialize)]
+//! struct AzureRequest {
+//!     specific_azure_field: String,
+//!     stream: Option<bool>,
+//! }
+//!
+//! impl RequestForStream for AzureRequest {
+//!     fn is_request_for_stream(&self) -> bool {
+//!         self.stream == Some(true)
+//!     }
+//!
+//!     fn set_request_for_stream(&mut self, stream: bool) {
+//!         self.stream = Some(stream)
+//!     }
+//! }
+//!
+//! #[derive(Deserialize)]
+//! struct AzureResponse {
+//!     specific_azure_result: String,
+//! }
+//!
+//! let client = Client::with_config(AzureConfig::new());
+//!
+//! let request = AzureRequest::default();
+//!
+//! let response: AzureResponse = client
+//!     .chat()
+//!     // Use the extensible method which allows you to bring your own types
+//!     .create_ext(request)
+//!     .await?;
+//!
+//! println!("Specific azure result: {}", response.specific_azure_result);
+//! # });
+//! ```
+//!
 //! ## Examples
 //! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //!
