@@ -11,8 +11,8 @@ use crate::{
     file::Files,
     image::Images,
     moderation::Moderations,
-    Assistants, Audio, Batches, Chat, Completions, Embeddings, FineTuning, Models, Threads,
-    VectorStores,
+    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
+    Models, Projects, Threads, Users, VectorStores,
 };
 
 #[derive(Debug, Clone, Default)]
@@ -133,6 +133,26 @@ impl<C: Config> Client<C> {
     /// To call [Batches] group related APIs using this client.
     pub fn batches(&self) -> Batches<C> {
         Batches::new(self)
+    }
+
+    /// To call [AuditLogs] group related APIs using this client.
+    pub fn audit_logs(&self) -> AuditLogs<C> {
+        AuditLogs::new(self)
+    }
+
+    /// To call [Invites] group related APIs using this client.
+    pub fn invites(&self) -> Invites<C> {
+        Invites::new(self)
+    }
+
+    /// To call [Users] group related APIs using this client.
+    pub fn users(&self) -> Users<C> {
+        Users::new(self)
+    }
+
+    /// To call [Projects] group related APIs using this client.
+    pub fn projects(&self) -> Projects<C> {
+        Projects::new(self)
     }
 
     pub fn config(&self) -> &C {

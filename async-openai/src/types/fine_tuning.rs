@@ -50,7 +50,7 @@ pub struct Hyperparameters {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateFineTuningJobRequest {
     /// The name of the model to fine-tune. You can select one of the
-    /// [supported models](https://platform.openai.com/docs/guides/fine-tuning/what-models-can-be-fine-tuned).
+    /// [supported models](https://platform.openai.com/docs/guides/fine-tuning/which-models-can-be-fine-tuned).
     pub model: String,
 
     /// The ID of an uploaded file that contains training data.
@@ -67,10 +67,9 @@ pub struct CreateFineTuningJobRequest {
     /// The hyperparameters used for the fine-tuning job.
     pub hyperparameters: Option<Hyperparameters>,
 
-    /// A string of up to 18 characters that will be added to your fine-tuned model name.
+    /// A string of up to 64 characters that will be added to your fine-tuned model name.
     ///
-    /// For example, a `suffix` of "custom-model-name" would produce a model name
-    /// like `ft:gpt-4o-mini:openai:custom-model-name:7p4lURel`.
+    /// For example, a `suffix` of "custom-model-name" would produce a model name like `ft:gpt-4o-mini:openai:custom-model-name:7p4lURel`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub suffix: Option<String>, // default: null, minLength:1, maxLength:40
 
