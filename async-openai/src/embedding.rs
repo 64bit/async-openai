@@ -1,10 +1,7 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
-        CreateBase64EmbeddingResponse, CreateEmbeddingRequest, CreateEmbeddingResponse,
-        EncodingFormat,
-    },
+    types::{CreateEmbeddingRequest, CreateEmbeddingResponse, EncodingFormat},
     Client,
 };
 
@@ -26,6 +23,16 @@ impl<'c, C: Config> Embeddings<'c, C> {
         &self,
         request: CreateEmbeddingRequest,
     ) -> Result<CreateEmbeddingResponse, OpenAIError> {
+        self.client.post("/embeddings", request).await
+    }
+
+    /// Creates an embedding vector representing the input text.
+    ///
+    /// The response will contain the embedding in float-vector format.
+    pub async fn create_float(
+        &self,
+        request: CreateEmbeddingRequest,
+    ) -> Result<CreateEmbeddingResponse, OpenAIError> {
         if matches!(request.encoding_format, Some(EncodingFormat::Base64)) {
             return Err(OpenAIError::InvalidArgument(
                 "When encoding_format is base64, use Embeddings::create_base64".into(),
@@ -40,10 +47,10 @@ impl<'c, C: Config> Embeddings<'c, C> {
     pub async fn create_base64(
         &self,
         request: CreateEmbeddingRequest,
-    ) -> Result<CreateBase64EmbeddingResponse, OpenAIError> {
+    ) -> Result<CreateEmbeddingResponse, OpenAIError> {
         if !matches!(request.encoding_format, Some(EncodingFormat::Base64)) {
             return Err(OpenAIError::InvalidArgument(
-                "When encoding_format is not base64, use Embeddings::create".into(),
+                "When encoding_format is not base64, use Embeddings::create_float".into(),
             ));
         }
 
@@ -166,7 +173,7 @@ mod tests {
             .encoding_format(EncodingFormat::Base64)
             .build()
             .unwrap();
-        let b64_response = client.embeddings().create(b64_request).await;
+        let b64_response = client.embeddings().create_float(b64_request).await;
         assert!(matches!(b64_response, Err(OpenAIError::InvalidArgument(_))));
     }
 
@@ -196,8 +203,8 @@ mod tests {
             .input(INPUT)
             .build()
             .unwrap();
-        let response = client.embeddings().create(request).await.unwrap();
-        let embedding = response.data.into_iter().next().unwrap().embedding;
+        let response = client.embeddings().create_float(request).await.unwrap();
+        let embedding: Vec<f32> = response.data.into_iter().next().unwrap().embedding.into();
 
         assert_eq!(b64_embedding.len(), embedding.len());
         for (b64, normal) in b64_embedding.iter().zip(embedding.iter()) {
