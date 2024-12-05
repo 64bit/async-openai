@@ -6,17 +6,40 @@ use crate::error::OpenAIError;
 #[derive(Debug, Serialize, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum ModerationInput {
+    /// A single string of text to classify for moderation
     String(String),
+
+    /// An array of strings to classify for moderation
     StringArray(Vec<String>),
+
+    /// An array of multi-modal inputs to the moderation model
+    MultiModal(Vec<ModerationContentPart>),
 }
 
-#[derive(Debug, Serialize, Default, Clone, Copy, PartialEq, Deserialize)]
-pub enum TextModerationModel {
-    #[default]
-    #[serde(rename = "text-moderation-latest")]
-    Latest,
-    #[serde(rename = "text-moderation-stable")]
-    Stable,
+/// Content part for multi-modal moderation input
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type")]
+pub enum ModerationContentPart {
+    /// An object describing text to classify
+    #[serde(rename = "text")]
+    Text {
+        /// A string of text to classify
+        text: String,
+    },
+
+    /// An object describing an image to classify
+    #[serde(rename = "image_url")]
+    ImageUrl {
+        /// Contains either an image URL or a data URL for a base64 encoded image
+        image_url: ModerationImageUrl,
+    },
+}
+
+/// Image URL configuration for image moderation
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ModerationImageUrl {
+    /// Either a URL of the image or the base64 encoded image data
+    pub url: String,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Builder, PartialEq, Deserialize)]
@@ -26,14 +49,15 @@ pub enum TextModerationModel {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateModerationRequest {
-    /// The input text to classify
+    /// Input (or inputs) to classify. Can be a single string, an array of strings, or
+    /// an array of multi-modal input objects similar to other models.
     pub input: ModerationInput,
 
-    /// Two content moderations models are available: `text-moderation-stable` and `text-moderation-latest`.
-    ///
-    /// The default is `text-moderation-latest` which will be automatically upgraded over time. This ensures you are always using our most accurate model. If you use `text-moderation-stable`, we will provide advanced notice before updating the model. Accuracy of `text-moderation-stable` may be slightly lower than for `text-moderation-latest`.
+    /// The content moderation model you would like to use. Learn more in the
+    /// [moderation guide](https://platform.openai.com/docs/guides/moderation), and learn about
+    /// available models [here](https://platform.openai.com/docs/models/moderation).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub model: Option<TextModerationModel>,
+    pub model: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
@@ -53,6 +77,11 @@ pub struct Category {
     /// Harassment content that also includes violence or serious harm towards any target.
     #[serde(rename = "harassment/threatening")]
     pub harassment_threatening: bool,
+    /// Content that includes instructions or advice that facilitate the planning or execution of wrongdoing, or that gives advice or instruction on how to commit illicit acts. For example, "how to shoplift" would fit this category.
+    pub illicit: bool,
+    /// Content that includes instructions or advice that facilitate the planning or execution of wrongdoing that also includes violence, or that gives advice or instruction on the procurement of any weapon.
+    #[serde(rename = "illicit/violent")]
+    pub illicit_violent: bool,
     /// Content that promotes, encourages, or depicts acts of self-harm, such as suicide, cutting, and eating disorders.
     #[serde(rename = "self-harm")]
     pub self_harm: bool,
@@ -87,6 +116,11 @@ pub struct CategoryScore {
     /// The score for the category 'harassment/threatening'.
     #[serde(rename = "harassment/threatening")]
     pub harassment_threatening: f32,
+    /// The score for the category 'illicit'.
+    pub illicit: f32,
+    /// The score for the category 'illicit/violent'.
+    #[serde(rename = "illicit/violent")]
+    pub illicit_violent: f32,
     /// The score for the category 'self-harm'.
     #[serde(rename = "self-harm")]
     pub self_harm: f32,
@@ -116,6 +150,8 @@ pub struct ContentModerationResult {
     pub categories: Category,
     /// A list of the categories along with their scores as predicted by model.
     pub category_scores: CategoryScore,
+    /// A list of the categories along with the input type(s) that the score applies to.
+    pub category_applied_input_types: CategoryAppliedInputTypes,
 }
 
 /// Represents if a given text input is potentially harmful.
@@ -127,4 +163,65 @@ pub struct CreateModerationResponse {
     pub model: String,
     /// A list of moderation objects.
     pub results: Vec<ContentModerationResult>,
+}
+
+/// A list of the categories along with the input type(s) that the score applies to.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct CategoryAppliedInputTypes {
+    /// The applied input type(s) for the category 'hate'.
+    pub hate: Vec<ModInputType>,
+
+    /// The applied input type(s) for the category 'hate/threatening'.
+    #[serde(rename = "hate/threatening")]
+    pub hate_threatening: Vec<ModInputType>,
+
+    /// The applied input type(s) for the category 'harassment'.
+    pub harassment: Vec<ModInputType>,
+
+    /// The applied input type(s) for the category 'harassment/threatening'.
+    #[serde(rename = "harassment/threatening")]
+    pub harassment_threatening: Vec<ModInputType>,
+
+    /// The applied input type(s) for the category 'illicit'.
+    pub illicit: Vec<ModInputType>,
+
+    /// The applied input type(s) for the category 'illicit/violent'.
+    #[serde(rename = "illicit/violent")]
+    pub illicit_violent: Vec<ModInputType>,
+
+    /// The applied input type(s) for the category 'self-harm'.
+    #[serde(rename = "self-harm")]
+    pub self_harm: Vec<ModInputType>,
+
+    /// The applied input type(s) for the category 'self-harm/intent'.
+    #[serde(rename = "self-harm/intent")]
+    pub self_harm_intent: Vec<ModInputType>,
+
+    /// The applied input type(s) for the category 'self-harm/instructions'.
+    #[serde(rename = "self-harm/instructions")]
+    pub self_harm_instructions: Vec<ModInputType>,
+
+    /// The applied input type(s) for the category 'sexual'.
+    pub sexual: Vec<ModInputType>,
+
+    /// The applied input type(s) for the category 'sexual/minors'.
+    #[serde(rename = "sexual/minors")]
+    pub sexual_minors: Vec<ModInputType>,
+
+    /// The applied input type(s) for the category 'violence'.
+    pub violence: Vec<ModInputType>,
+
+    /// The applied input type(s) for the category 'violence/graphic'.
+    #[serde(rename = "violence/graphic")]
+    pub violence_graphic: Vec<ModInputType>,
+}
+
+/// The type of input that was moderated
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum ModInputType {
+    /// Text content that was moderated
+    Text,
+    /// Image content that was moderated
+    Image,
 }

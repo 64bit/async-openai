@@ -5,5 +5,5 @@ edition = "2021"
 publish = false
 
 [dependencies]
-async-openai = {path = "../../async-openai"}
+async-openai = { path = "../../async-openai" }
 tokio = { version = "1.38.0", features = ["full"] }

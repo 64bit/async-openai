@@ -39,8 +39,13 @@ pub struct CreateVectorStoreRequest {
 pub enum VectorStoreChunkingStrategy {
     /// The default strategy. This strategy currently uses a `max_chunk_size_tokens` of `800` and `chunk_overlap_tokens` of `400`.
     #[default]
+    #[serde(rename = "auto")]
     Auto,
-    Static(StaticChunkingStrategy),
+    #[serde(rename = "static")]
+    Static {
+        #[serde(rename = "static")]
+        config: StaticChunkingStrategy,
+    },
 }
 
 /// Vector store expiration policy
