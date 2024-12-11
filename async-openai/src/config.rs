@@ -148,7 +148,6 @@ impl Default for AzureAuthOption {
 
 /// Configuration for Azure OpenAI Service
 #[derive(Clone, Debug, Default, Deserialize)]
-// #[serde(default)]
 pub struct AzureConfig {
     api_version: String,
     deployment_id: String,
