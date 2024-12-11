@@ -132,27 +132,28 @@ impl Config for OpenAIConfig {
     }
 }
 
-/// Configuration for Azure OpenAI Service
+/// The possible options to authenticate with Azure OpenAI Services.
 #[derive(Clone, Debug, Deserialize)]
-#[serde(default)]
+enum AzureAuthOption {
+    ApiKey(Secret<String>),
+    EntraToken(Secret<String>),
+}
+
+impl Default for AzureAuthOption {
+    fn default() -> Self {
+        let api_key = std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string());
+        Self::ApiKey(api_key.into())
+    }
+}
+
+/// Configuration for Azure OpenAI Service
+#[derive(Clone, Debug, Default, Deserialize)]
+// #[serde(default)]
 pub struct AzureConfig {
     api_version: String,
     deployment_id: String,
     api_base: String,
-    api_key: Secret<String>,
-}
-
-impl Default for AzureConfig {
-    fn default() -> Self {
-        Self {
-            api_base: Default::default(),
-            api_key: std::env::var("OPENAI_API_KEY")
-                .unwrap_or_else(|_| "".to_string())
-                .into(),
-            deployment_id: Default::default(),
-            api_version: Default::default(),
-        }
-    }
+    auth: AzureAuthOption,
 }
 
 impl AzureConfig {
@@ -172,7 +173,12 @@ impl AzureConfig {
 
     /// To use a different API key different from default OPENAI_API_KEY env var
     pub fn with_api_key<S: Into<String>>(mut self, api_key: S) -> Self {
-        self.api_key = Secret::from(api_key.into());
+        self.auth = AzureAuthOption::ApiKey(Secret::from(api_key.into()));
+        self
+    }
+
+    pub fn with_entra_token<S: Into<String>>(mut self, entra_token: S) -> Self {
+        self.auth = AzureAuthOption::EntraToken(Secret::from(entra_token.into()));
         self
     }
 
@@ -187,10 +193,20 @@ impl Config for AzureConfig {
     fn headers(&self) -> HeaderMap {
         let mut headers = HeaderMap::new();
 
-        headers.insert(
-            "api-key",
-            self.api_key.expose_secret().as_str().parse().unwrap(),
-        );
+        match self.auth {
+            AzureAuthOption::ApiKey(ref api_key) => {
+                headers.insert("api-key", api_key.expose_secret().as_str().parse().unwrap());
+            }
+            AzureAuthOption::EntraToken(ref entra_token) => {
+                headers.insert(
+                    "Authorization",
+                    format!("Bearer {}", entra_token.expose_secret())
+                        .as_str()
+                        .parse()
+                        .unwrap(),
+                );
+            }
+        };
 
         headers
     }
@@ -207,7 +223,10 @@ impl Config for AzureConfig {
     }
 
     fn api_key(&self) -> &Secret<String> {
-        &self.api_key
+        match self.auth {
+            AzureAuthOption::ApiKey(ref api_key) => api_key,
+            AzureAuthOption::EntraToken(_) => panic!("AzureAuthOption::EntraToken"),
+        }
     }
 
     fn query(&self) -> Vec<(&str, &str)> {
