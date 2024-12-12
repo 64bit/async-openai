@@ -377,50 +377,6 @@ impl<C: Config> Client<C> {
         Ok(response)
     }
 
-    /// Make HTTP POST request to receive SSE
-    pub(crate) async fn post_stream<I, O>(
-        &self,
-        path: &str,
-        request: I,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
-    where
-        I: Serialize,
-        O: DeserializeOwned + std::marker::Send + 'static,
-    {
-        let event_source = self
-            .http_client
-            .post(self.config.url(path))
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .json(&request)
-            .eventsource()
-            .unwrap();
-
-        stream(event_source).await
-    }
-
-    pub(crate) async fn post_stream_mapped_raw_events<I, O>(
-        &self,
-        path: &str,
-        request: I,
-        event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
-    where
-        I: Serialize,
-        O: DeserializeOwned + std::marker::Send + 'static,
-    {
-        let event_source = self
-            .http_client
-            .post(self.config.url(path))
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .json(&request)
-            .eventsource()
-            .unwrap();
-
-        stream_mapped_raw_events(event_source, event_mapper).await
-    }
-
     /// Make HTTP GET request to receive SSE
     pub(crate) async fn _get_stream<Q, O>(
         &self,
@@ -536,4 +492,81 @@ where
     });
 
     Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+}
+
+pub trait ClientProvider<'c, C: Config + Send> {
+    fn client(&self) -> &'c Client<C>;
+}
+
+#[async_trait::async_trait]
+pub trait ClientExt<C: Config + Send>: Send {
+    /// Make HTTP POST request to receive SSE
+    async fn post_stream<I, O>(
+        &self,
+        path: &str,
+        request: I,
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    where
+        I: Serialize + Send,
+        O: DeserializeOwned + std::marker::Send + 'static;
+
+    /// Make HTTP POST request to receive SSE with a custom event source handler
+    async fn post_stream_mapped_raw_events<I, O>(
+        &self,
+        path: &str,
+        request: I,
+        event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    where
+        I: Serialize + Send,
+        O: DeserializeOwned + std::marker::Send + 'static;
+}
+
+#[async_trait::async_trait]
+impl<C: Config> ClientExt<C> for Client<C>
+where
+    C: Send,
+{
+    async fn post_stream<I, O>(
+        &self,
+        path: &str,
+        request: I,
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    where
+        I: Serialize + Send,
+        O: DeserializeOwned + std::marker::Send + 'static,
+    {
+        let event_source = self
+            .http_client
+            .post(self.config.url(path))
+            .query(&self.config.query())
+            .headers(self.config.headers())
+            .json(&request)
+            .eventsource()
+            .unwrap();
+
+        stream(event_source).await
+    }
+
+    async fn post_stream_mapped_raw_events<I, O>(
+        &self,
+        path: &str,
+        request: I,
+        event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    where
+        I: Serialize + Send,
+        O: DeserializeOwned + std::marker::Send + 'static,
+    {
+        let event_source = self
+            .http_client
+            .post(self.config.url(path))
+            .query(&self.config.query())
+            .headers(self.config.headers())
+            .json(&request)
+            .eventsource()
+            .unwrap();
+
+        stream_mapped_raw_events(event_source, event_mapper).await
+    }
 }
