@@ -1,6 +1,7 @@
 use serde::Serialize;
 
 use crate::{
+    client::ClientExt,
     config::Config,
     error::OpenAIError,
     steps::Steps,

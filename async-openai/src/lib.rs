@@ -83,7 +83,7 @@ mod audio;
 mod audit_logs;
 mod batches;
 mod chat;
-mod client;
+pub mod client;
 mod completion;
 pub mod config;
 mod download;
