@@ -512,6 +512,10 @@ pub struct CreateChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub store: Option<bool>, // nullable: true, default: false
 
+    ///  Developer-defined tags and values used for filtering completions in the [dashboard](https://platform.openai.com/chat-completions).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>, // nullable: true
+
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
     ///
     /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
