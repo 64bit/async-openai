@@ -506,6 +506,12 @@ pub struct CreateChatCompletionRequest {
     /// See the [model endpoint compatibility](https://platform.openai.com/docs/models/model-endpoint-compatibility) table for details on which models work with the Chat API.
     pub model: String,
 
+    /// Whether or not to store the output of this chat completion request
+    ///
+    /// for use in our [model distillation](https://platform.openai.com/docs/guides/distillation) or [evals](https://platform.openai.com/docs/guides/evals) products.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub store: Option<bool>, // nullable: true, default: false
+
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
     ///
     /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
