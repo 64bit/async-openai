@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-#[derive(Debug, Serialize, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Serialize, Clone, PartialEq, Deserialize, utoipa::ToSchema)]
 #[serde(untagged)]
 pub enum EmbeddingInput {
     String(String),
@@ -14,7 +14,7 @@ pub enum EmbeddingInput {
     ArrayOfIntegerArray(Vec<Vec<u32>>),
 }
 
-#[derive(Debug, Serialize, Default, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Serialize, Default, Clone, PartialEq, Deserialize, utoipa::ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum EncodingFormat {
     #[default]
@@ -22,7 +22,7 @@ pub enum EncodingFormat {
     Base64,
 }
 
-#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq, Deserialize)]
+#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq, Deserialize, utoipa::ToSchema)]
 #[builder(name = "CreateEmbeddingRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
@@ -53,7 +53,7 @@ pub struct CreateEmbeddingRequest {
     pub dimensions: Option<u32>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, utoipa::ToSchema)]
 #[serde(untagged)]
 pub enum EmbeddingVector {
     Float(Vec<f32>),
@@ -117,7 +117,7 @@ impl EmbeddingVector {
 }
 
 /// Represents an embedding vector returned by embedding endpoint.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, utoipa::ToSchema)]
 pub struct Embedding {
     /// The index of the embedding in the list of embeddings.
     pub index: u32,
@@ -128,7 +128,7 @@ pub struct Embedding {
     pub embedding: EmbeddingVector,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, utoipa::ToSchema)]
 pub struct EmbeddingUsage {
     /// The number of tokens used by the prompt.
     pub prompt_tokens: u32,
@@ -136,7 +136,7 @@ pub struct EmbeddingUsage {
     pub total_tokens: u32,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, utoipa::ToSchema)]
 pub struct CreateEmbeddingResponse {
     pub object: String,
     /// The name of the model used to generate the embedding.
