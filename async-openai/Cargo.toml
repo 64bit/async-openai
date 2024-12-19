@@ -48,6 +48,8 @@ secrecy = { version = "0.8.0", features = ["serde"] }
 bytes = "1.6.0"
 eventsource-stream = "0.2.3"
 tokio-tungstenite = { version = "0.24.0", optional = true, default-features = false }
+utoipa = "5.2.0"
+
 
 [dev-dependencies]
 tokio-test = "0.4.4"
