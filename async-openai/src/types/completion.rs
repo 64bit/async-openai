@@ -43,14 +43,12 @@ pub struct CreateCompletionRequest {
 
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
     ///
-    ///  We generally recommend altering this or `temperature` but not both.
+    /// We generally recommend altering this or `temperature` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub top_p: Option<f32>, // min: 0, max: 1, default: 1
 
     /// How many completions to generate for each prompt.
-
     /// **Note:** Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for `max_tokens` and `stop`.
-    ///
     #[serde(skip_serializing_if = "Option::is_none")]
     pub n: Option<u8>, // min:1 max: 128, default: 1
 
@@ -72,7 +70,7 @@ pub struct CreateCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub echo: Option<bool>,
 
-    ///  Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
+    /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stop: Option<Stop>,
 
