@@ -12,8 +12,6 @@ pub enum AudioFormat {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AudioTranscription {
-    /// Whether to enable input audio transcription.
-    pub enabled: bool,
     /// The model to use for transcription (e.g., "whisper-1").
     pub model: String,
 }
