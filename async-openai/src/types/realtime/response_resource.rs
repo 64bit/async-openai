@@ -28,9 +28,15 @@ pub struct FailedError {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum IncompleteReason {
-    Interruption,
     MaxOutputTokens,
     ContentFilter,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum CancelledReason {
+    TurnDetected,
+    ClientCancelled,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -40,6 +46,8 @@ pub enum ResponseStatusDetail {
     Incomplete { reason: IncompleteReason },
     #[serde(rename = "failed")]
     Failed { error: Option<FailedError> },
+    #[serde(rename = "cancelled")]
+    Cancelled { reason: CancelledReason }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
