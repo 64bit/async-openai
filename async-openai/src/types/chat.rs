@@ -699,6 +699,7 @@ pub struct ChatChoice {
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct CreateChatCompletionResponse {
     /// A unique identifier for the chat completion.
+    #[serde(default)]
     pub id: String,
     /// A list of chat completion choices. Can be more than one if `n` is greater than 1.
     pub choices: Vec<ChatChoice>,
