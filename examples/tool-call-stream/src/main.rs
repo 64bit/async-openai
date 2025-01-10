@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut stream = client.chat().create_stream(request).await?;
 
-    let tool_call_states: Arc<Mutex<HashMap<(i32, i32), ChatCompletionMessageToolCall>>> =
+    let tool_call_states: Arc<Mutex<HashMap<(u32, u32), ChatCompletionMessageToolCall>>> =
         Arc::new(Mutex::new(HashMap::new()));
 
     while let Some(result) = stream.next().await {
@@ -64,7 +64,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     > = Arc::new(Mutex::new(Vec::new()));
                     if let Some(tool_calls) = chat_choice.delta.tool_calls {
                         for tool_call_chunk in tool_calls.into_iter() {
-                            let key = (chat_choice.index as i32, tool_call_chunk.index);
+                            let key = (chat_choice.index, tool_call_chunk.index);
                             let states = tool_call_states.clone();
                             let tool_call_data = tool_call_chunk.clone();
 
