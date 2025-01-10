@@ -500,6 +500,19 @@ pub enum ReasoningEffort {
     High,
 }
 
+/// Output types that you would like the model to generate for this request.
+///
+/// Most models are capable of generating text, which is the default: `["text"]`
+///
+/// The `gpt-4o-audio-preview` model can also be used to [generate
+/// audio](https://platform.openai.com/docs/guides/audio). To request that this model generate both text and audio responses, you can use: `["text", "audio"]`
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum ChatCompletionModalities {
+    Text,
+    Audio,
+}
+
 #[derive(Clone, Serialize, Default, Debug, Builder, Deserialize, PartialEq)]
 #[builder(name = "CreateChatCompletionRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -572,6 +585,9 @@ pub struct CreateChatCompletionRequest {
     /// How many chat completion choices to generate for each input message. Note that you will be charged based on the number of generated tokens across all of the choices. Keep `n` as `1` to minimize costs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub n: Option<u8>, // min:1, max: 128, default: 1
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub modalities: Option<ChatCompletionModalities>,
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
     #[serde(skip_serializing_if = "Option::is_none")]
