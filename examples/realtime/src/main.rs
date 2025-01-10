@@ -13,7 +13,7 @@ use tokio_tungstenite::{
 
 #[tokio::main]
 async fn main() {
-    let url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01";
+    let url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17";
     let api_key = std::env::var("OPENAI_API_KEY").expect("Please provide OPENAPI_API_KEY env var");
 
     let (stdin_tx, stdin_rx) = futures_channel::mpsc::unbounded();
