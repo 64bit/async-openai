@@ -34,11 +34,11 @@ pub enum TurnDetection {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(untagged)]
 pub enum MaxResponseOutputTokens {
-    Num(u16),
     #[serde(rename = "inf")]
     Inf,
+    #[serde(untagged)]
+    Num(u16),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
