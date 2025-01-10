@@ -61,7 +61,7 @@ pub struct ConversationItemTruncateEvent {
     /// The index of the content part to truncate.
     pub content_index: u32,
 
-    /// Inclusive duration up to which audio is truncated, in milliseconds.        
+    /// Inclusive duration up to which audio is truncated, in milliseconds.
     pub audio_end_ms: u32,
 }
 
@@ -141,7 +141,7 @@ impl From<&ClientEvent> for String {
 
 impl From<ClientEvent> for Message {
     fn from(value: ClientEvent) -> Self {
-        Message::Text(String::from(&value))
+        Message::Text(String::from(&value).into())
     }
 }
 
