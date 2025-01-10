@@ -6,5 +6,5 @@ publish = false
 
 [dependencies]
 async-openai = {path = "../../async-openai"}
-tokio = { version = "1.38.0", features = ["full"] }
-bytes = "1.6.0"
+tokio = { version = "1.43.0", features = ["full"] }
+bytes = "1.9.0"
