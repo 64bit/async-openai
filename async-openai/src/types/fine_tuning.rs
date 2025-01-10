@@ -121,13 +121,13 @@ pub struct CreateFineTuningJobRequest {
     pub seed: Option<u32>, // min:0, max: 2147483647
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub method: Option<FineTuningMethod>,
+    pub method: Option<FineTuneMethod>,
 }
 
 /// The method used for fine-tuning.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "lowercase")]
-pub enum FineTuningMethod {
+pub enum FineTuneMethod {
     Supervised {
         supervised: FineTuneSupervisedMethod,
     },
@@ -257,6 +257,8 @@ pub struct FineTuningJob {
 
     /// The Unix timestamp (in seconds) for when the fine-tuning job is estimated to finish. The value will be null if the fine-tuning job is not running.
     pub estimated_finish: Option<u32>,
+
+    pub method: Option<FineTuneMethod>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -292,11 +294,27 @@ pub enum Level {
 ///Fine-tuning job event object
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct FineTuningJobEvent {
+    /// The object identifier.
     pub id: String,
+    /// The Unix timestamp (in seconds) for when the fine-tuning job event was created.
     pub created_at: u32,
+    /// The log level of the event.
     pub level: Level,
+    /// The message of the event.
     pub message: String,
+    /// The object type, which is always "fine_tuning.job.event".
     pub object: String,
+    /// The type of event.
+    pub r#type: Option<FineTuningJobEventType>,
+    /// The data associated with the event.
+    pub data: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum FineTuningJobEventType {
+    Message,
+    Metrics,
 }
 
 /// The `fine_tuning.job.checkpoint` object represents a model checkpoint for a fine-tuning job that is ready to use.
