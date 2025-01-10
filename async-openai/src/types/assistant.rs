@@ -107,7 +107,6 @@ pub struct AssistantObject {
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
     pub temperature: Option<f32>,
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    ///
     /// We generally recommend altering this or temperature but not both.
     pub top_p: Option<f32>,
 
@@ -155,15 +154,17 @@ pub enum FileSearchRanker {
     Default2024_08_21,
 }
 
-/// The ranking options for the file search.
+/// The ranking options for the file search. If not specified, the file search tool will use the `auto` ranker and a score_threshold of 0.
 ///
-/// See the [file search tool documentation](/docs/assistants/tools/file-search/customizing-file-search-settings) for more information.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+/// See the [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search#customizing-file-search-settings) for more information.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct FileSearchRankingOptions {
     /// The ranker to use for the file search. If not specified will use the `auto` ranker.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub ranker: Option<FileSearchRanker>,
+
     /// The score threshold for the file search. All values must be a floating point number between 0 and 1.
-    pub score_threshold: Option<f32>,
+    pub score_threshold: f32,
 }
 
 /// Function tool
