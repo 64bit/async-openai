@@ -492,6 +492,14 @@ pub enum ServiceTierResponse {
     Default,
 }
 
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum ReasoningEffort {
+    Low,
+    Medium,
+    High,
+}
+
 #[derive(Clone, Serialize, Default, Debug, Builder, Deserialize, PartialEq)]
 #[builder(name = "CreateChatCompletionRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -499,11 +507,11 @@ pub enum ServiceTierResponse {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateChatCompletionRequest {
-    /// A list of messages comprising the conversation so far. [Example Python code](https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models).
+    /// A list of messages comprising the conversation so far. Depending on the [model](https://platform.openai.com/docs/models) you use, different message types (modalities) are supported, like [text](https://platform.openai.com/docs/guides/text-generation), [images](https://platform.openai.com/docs/guides/vision), and [audio](https://platform.openai.com/docs/guides/audio).
     pub messages: Vec<ChatCompletionRequestMessage>, // min: 1
 
     /// ID of the model to use.
-    /// See the [model endpoint compatibility](https://platform.openai.com/docs/models/model-endpoint-compatibility) table for details on which models work with the Chat API.
+    /// See the [model endpoint compatibility](https://platform.openai.com/docs/models#model-endpoint-compatibility) table for details on which models work with the Chat API.
     pub model: String,
 
     /// Whether or not to store the output of this chat completion request
@@ -512,13 +520,22 @@ pub struct CreateChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub store: Option<bool>, // nullable: true, default: false
 
+    /// **o1 models only**
+    ///
+    /// Constrains effort on reasoning for
+    /// [reasoning models](https://platform.openai.com/docs/guides/reasoning).
+    ///
+    /// Currently supported values are `low`, `medium`, and `high`. Reducing
+    ///
+    /// reasoning effort can result in faster responses and fewer tokens
+    /// used on reasoning in a response.
+    pub reasoning_effort: Option<ReasoningEffort>,
+
     ///  Developer-defined tags and values used for filtering completions in the [dashboard](https://platform.openai.com/chat-completions).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<serde_json::Value>, // nullable: true
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-    ///
-    /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/api-reference/parameter-details)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub frequency_penalty: Option<f32>, // min: -2.0, max: 2.0, default: 0
 
@@ -541,9 +558,16 @@ pub struct CreateChatCompletionRequest {
 
     /// The maximum number of [tokens](https://platform.openai.com/tokenizer) that can be generated in the chat completion.
     ///
-    /// The total length of input tokens and generated tokens is limited by the model's context length. [Example Python code](https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken) for counting tokens.
+    /// This value can be used to control [costs](https://openai.com/api/pricing/) for text generated via API.
+    /// This value is now deprecated in favor of `max_completion_tokens`, and is
+    /// not compatible with [o1 series models](https://platform.openai.com/docs/guides/reasoning).
+    #[deprecated]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_tokens: Option<u32>,
+
+    /// An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and [reasoning tokens](https://platform.openai.com/docs/guides/reasoning).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_completion_tokens: Option<u32>,
 
     /// How many chat completion choices to generate for each input message. Note that you will be charged based on the number of generated tokens across all of the choices. Keep `n` as `1` to minimize costs.
     #[serde(skip_serializing_if = "Option::is_none")]

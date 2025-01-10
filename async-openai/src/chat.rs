@@ -19,7 +19,21 @@ impl<'c, C: Config> Chat<'c, C> {
         Self { client }
     }
 
-    /// Creates a model response for the given chat conversation.
+    /// Creates a model response for the given chat conversation. Learn more in
+    /// the
+    ///
+    /// [text generation](https://platform.openai.com/docs/guides/text-generation),
+    /// [vision](https://platform.openai.com/docs/guides/vision),
+    ///
+    /// and [audio](https://platform.openai.com/docs/guides/audio) guides.
+    ///
+    ///
+    /// Parameter support can differ depending on the model used to generate the
+    /// response, particularly for newer reasoning models. Parameters that are
+    /// only supported for reasoning models are noted below. For the current state
+    /// of unsupported parameters in reasoning models,
+    ///
+    /// [refer to the reasoning guide](https://platform.openai.com/docs/guides/reasoning).
     pub async fn create(
         &self,
         request: CreateChatCompletionRequest,
