@@ -668,6 +668,7 @@ pub struct CreateChatCompletionRequest {
     ///
     /// reasoning effort can result in faster responses and fewer tokens
     /// used on reasoning in a response.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub reasoning_effort: Option<ReasoningEffort>,
 
     ///  Developer-defined tags and values used for filtering completions in the [dashboard](https://platform.openai.com/chat-completions).
