@@ -42,6 +42,29 @@ pub struct Hyperparameters {
     pub n_epochs: NEpochs,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
+#[serde(untagged)]
+pub enum Beta {
+    Beta(f32),
+    #[default]
+    #[serde(rename = "auto")]
+    Auto,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
+pub struct DPOHyperparameters {
+    /// The beta value for the DPO method. A higher beta value will increase the weight of the penalty between the policy and reference model.
+    pub beta: Beta,
+    /// Number of examples in each batch. A larger batch size means that model parameters
+    /// are updated less frequently, but with lower variance.
+    pub batch_size: BatchSize,
+    /// Scaling factor for the learning rate. A smaller learning rate may be useful to avoid
+    /// overfitting.
+    pub learning_rate_multiplier: LearningRateMultiplier,
+    /// The number of epochs to train the model for. An epoch refers to one full cycle through the training dataset.
+    pub n_epochs: NEpochs,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Default, Builder, PartialEq)]
 #[builder(name = "CreateFineTuningJobRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -50,7 +73,7 @@ pub struct Hyperparameters {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateFineTuningJobRequest {
     /// The name of the model to fine-tune. You can select one of the
-    /// [supported models](https://platform.openai.com/docs/guides/fine-tuning/which-models-can-be-fine-tuned).
+    /// [supported models](https://platform.openai.com/docs/guides/fine-tuning#which-models-can-be-fine-tuned).
     pub model: String,
 
     /// The ID of an uploaded file that contains training data.
@@ -59,12 +82,14 @@ pub struct CreateFineTuningJobRequest {
     ///
     /// Your dataset must be formatted as a JSONL file. Additionally, you must upload your file with the purpose `fine-tune`.
     ///
-    /// The contents of the file should differ depending on if the model uses the [chat](https://platform.openai.com/docs/api-reference/fine-tuning/chat-input) or [completions](https://platform.openai.com/docs/api-reference/fine-tuning/completions-input) format.
+    /// The contents of the file should differ depending on if the model uses the [chat](https://platform.openai.com/docs/api-reference/fine-tuning/chat-input), [completions](https://platform.openai.com/docs/api-reference/fine-tuning/completions-input) format, or if the fine-tuning method uses the [preference](https://platform.openai.com/docs/api-reference/fine-tuning/preference-input) format.
     ///
     /// See the [fine-tuning guide](https://platform.openai.com/docs/guides/fine-tuning) for more details.
     pub training_file: String,
 
     /// The hyperparameters used for the fine-tuning job.
+    /// This value is now deprecated in favor of `method`, and should be passed in under the `method` parameter.
+    #[deprecated]
     pub hyperparameters: Option<Hyperparameters>,
 
     /// A string of up to 64 characters that will be added to your fine-tuned model name.
@@ -94,6 +119,31 @@ pub struct CreateFineTuningJobRequest {
     /// If a seed is not specified, one will be generated for you.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub seed: Option<u32>, // min:0, max: 2147483647
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub method: Option<FineTuningMethod>,
+}
+
+/// The method used for fine-tuning.
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "lowercase")]
+pub enum FineTuningMethod {
+    Supervised {
+        supervised: FineTuneSupervisedMethod,
+    },
+    DPO {
+        dpo: FineTuneDPOMethod,
+    },
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct FineTuneSupervisedMethod {
+    pub hyperparameters: Hyperparameters,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct FineTuneDPOMethod {
+    pub hyperparameters: DPOHyperparameters,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
