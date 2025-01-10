@@ -52,7 +52,7 @@ pub struct AssistantVectorStore {
     pub chunking_strategy: Option<AssistantVectorStoreChunkingStrategy>,
 
     /// Set of 16 key-value pairs that can be attached to a vector store. This can be useful for storing additional information about the vector store in a structured format. Keys can be a maximum of 64 characters long and values can be a maxium of 512 characters long.
-    pub metadata: Option<HashMap<String, serde_json::Value>>,
+    pub metadata: Option<HashMap<String, String>>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
@@ -63,10 +63,7 @@ pub enum AssistantVectorStoreChunkingStrategy {
     #[serde(rename = "auto")]
     Auto,
     #[serde(rename = "static")]
-    Static {
-        #[serde(rename = "static")]
-        config: StaticChunkingStrategy,
-    },
+    Static { r#static: StaticChunkingStrategy },
 }
 
 /// Static Chunking Strategy
@@ -208,12 +205,13 @@ pub struct CreateAssistantRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tools: Option<Vec<AssistantTools>>,
 
-    ///  A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
+    /// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_resources: Option<CreateAssistantToolResources>,
 
+    /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<HashMap<String, serde_json::Value>>,
+    pub metadata: Option<HashMap<String, String>>,
 
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
     #[serde(skip_serializing_if = "Option::is_none")]
