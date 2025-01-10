@@ -513,6 +513,25 @@ pub enum ChatCompletionModalities {
     Audio,
 }
 
+/// The content that should be matched when generating a model response. If generated tokens would match this content, the entire model response can be returned much more quickly.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum PredictionContentContent {
+    /// The content used for a Predicted Output. This is often the text of a file you are regenerating with minor changes.
+    Text(String),
+    /// An array of content parts with a defined type. Supported options differ based on the [model](https://platform.openai.com/docs/models) being used to generate the response. Can contain text inputs.
+    Array(Vec<ChatCompletionRequestMessageContentPartText>),
+}
+
+/// Static predicted output content, such as the content of a text file that is being regenerated.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(tag = "type", rename_all = "lowercase", content = "content")]
+pub enum PredictionContent {
+    /// The type of the predicted content you want to provide. This type is
+    /// currently always `content`.
+    Content(PredictionContentContent),
+}
+
 #[derive(Clone, Serialize, Default, Debug, Builder, Deserialize, PartialEq)]
 #[builder(name = "CreateChatCompletionRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -587,7 +606,11 @@ pub struct CreateChatCompletionRequest {
     pub n: Option<u8>, // min:1, max: 128, default: 1
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub modalities: Option<ChatCompletionModalities>,
+    pub modalities: Option<Vec<ChatCompletionModalities>>,
+
+    /// Configuration for a [Predicted Output](https://platform.openai.com/docs/guides/predicted-outputs),which can greatly improve response times when large parts of the
+    /// model response are known ahead of time. This is most common when you are regenerating a file with only minor changes to most of the content.
+    pub prediction: Option<PredictionContent>,
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
     #[serde(skip_serializing_if = "Option::is_none")]
