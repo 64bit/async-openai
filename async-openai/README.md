@@ -34,8 +34,8 @@
   - [x] Images
   - [x] Models
   - [x] Moderations
-  - [x] Organizations | Administration
-  - [x] Realtime API types (Beta)
+  - [x] Organizations | Administration (partially implemented)
+  - [x] Realtime (Beta) (partially implemented)
   - [x] Uploads
 - SSE streaming on available APIs
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).

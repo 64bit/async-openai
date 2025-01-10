@@ -52,7 +52,7 @@ pub struct AssistantVectorStore {
     pub chunking_strategy: Option<AssistantVectorStoreChunkingStrategy>,
 
     /// Set of 16 key-value pairs that can be attached to a vector store. This can be useful for storing additional information about the vector store in a structured format. Keys can be a maximum of 64 characters long and values can be a maxium of 512 characters long.
-    pub metadata: Option<HashMap<String, serde_json::Value>>,
+    pub metadata: Option<HashMap<String, String>>,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
@@ -63,10 +63,7 @@ pub enum AssistantVectorStoreChunkingStrategy {
     #[serde(rename = "auto")]
     Auto,
     #[serde(rename = "static")]
-    Static {
-        #[serde(rename = "static")]
-        config: StaticChunkingStrategy,
-    },
+    Static { r#static: StaticChunkingStrategy },
 }
 
 /// Static Chunking Strategy
@@ -93,22 +90,20 @@ pub struct AssistantObject {
     pub name: Option<String>,
     /// The description of the assistant. The maximum length is 512 characters.
     pub description: Option<String>,
+    /// ID of the model to use. You can use the [List models](https://platform.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://platform.openai.com/docs/models) for descriptions of them.
     pub model: String,
     /// The system instructions that the assistant uses. The maximum length is 256,000 characters.
     pub instructions: Option<String>,
     /// A list of tool enabled on the assistant. There can be a maximum of 128 tools per assistant. Tools can be of types `code_interpreter`, `file_search`, or `function`.
+    #[serde(default)]
     pub tools: Vec<AssistantTools>,
-
     /// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
     pub tool_resources: Option<AssistantToolResources>,
-    /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maxium of 512 characters long.
-    pub metadata: Option<HashMap<String, serde_json::Value>>,
-
+    /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long.
+    pub metadata: Option<HashMap<String, String>>,
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
     pub temperature: Option<f32>,
-
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    ///
     /// We generally recommend altering this or temperature but not both.
     pub top_p: Option<f32>,
 
@@ -156,15 +151,17 @@ pub enum FileSearchRanker {
     Default2024_08_21,
 }
 
-/// The ranking options for the file search.
+/// The ranking options for the file search. If not specified, the file search tool will use the `auto` ranker and a score_threshold of 0.
 ///
-/// See the [file search tool documentation](/docs/assistants/tools/file-search/customizing-file-search-settings) for more information.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+/// See the [file search tool documentation](https://platform.openai.com/docs/assistants/tools/file-search#customizing-file-search-settings) for more information.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct FileSearchRankingOptions {
     /// The ranker to use for the file search. If not specified will use the `auto` ranker.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub ranker: Option<FileSearchRanker>,
+
     /// The score threshold for the file search. All values must be a floating point number between 0 and 1.
-    pub score_threshold: Option<f32>,
+    pub score_threshold: f32,
 }
 
 /// Function tool
@@ -208,12 +205,13 @@ pub struct CreateAssistantRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tools: Option<Vec<AssistantTools>>,
 
-    ///  A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
+    /// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_resources: Option<CreateAssistantToolResources>,
 
+    /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<HashMap<String, serde_json::Value>>,
+    pub metadata: Option<HashMap<String, String>>,
 
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -261,7 +259,7 @@ pub struct ModifyAssistantRequest {
     pub tool_resources: Option<AssistantToolResources>,
     /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maxium of 512 characters long.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<HashMap<String, serde_json::Value>>,
+    pub metadata: Option<HashMap<String, String>>,
 
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
     #[serde(skip_serializing_if = "Option::is_none")]
