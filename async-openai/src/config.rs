@@ -1,6 +1,6 @@
 //! Client configurations: [OpenAIConfig] for OpenAI, [AzureConfig] for Azure OpenAI Service.
 use reqwest::header::{HeaderMap, AUTHORIZATION};
-use secrecy::{ExposeSecret, Secret};
+use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 
 /// Default v1 API base url
@@ -22,7 +22,7 @@ pub trait Config: Clone {
 
     fn api_base(&self) -> &str;
 
-    fn api_key(&self) -> &Secret<String>;
+    fn api_key(&self) -> &SecretString;
 }
 
 /// Configuration for OpenAI API
@@ -30,7 +30,7 @@ pub trait Config: Clone {
 #[serde(default)]
 pub struct OpenAIConfig {
     api_base: String,
-    api_key: Secret<String>,
+    api_key: SecretString,
     org_id: String,
     project_id: String,
 }
@@ -68,7 +68,7 @@ impl OpenAIConfig {
 
     /// To use a different API key different from default OPENAI_API_KEY env var
     pub fn with_api_key<S: Into<String>>(mut self, api_key: S) -> Self {
-        self.api_key = Secret::from(api_key.into());
+        self.api_key = SecretString::from(api_key.into());
         self
     }
 
@@ -123,7 +123,7 @@ impl Config for OpenAIConfig {
         &self.api_base
     }
 
-    fn api_key(&self) -> &Secret<String> {
+    fn api_key(&self) -> &SecretString {
         &self.api_key
     }
 
@@ -139,7 +139,7 @@ pub struct AzureConfig {
     api_version: String,
     deployment_id: String,
     api_base: String,
-    api_key: Secret<String>,
+    api_key: SecretString,
 }
 
 impl Default for AzureConfig {
@@ -172,7 +172,7 @@ impl AzureConfig {
 
     /// To use a different API key different from default OPENAI_API_KEY env var
     pub fn with_api_key<S: Into<String>>(mut self, api_key: S) -> Self {
-        self.api_key = Secret::from(api_key.into());
+        self.api_key = SecretString::from(api_key.into());
         self
     }
 
@@ -187,10 +187,7 @@ impl Config for AzureConfig {
     fn headers(&self) -> HeaderMap {
         let mut headers = HeaderMap::new();
 
-        headers.insert(
-            "api-key",
-            self.api_key.expose_secret().as_str().parse().unwrap(),
-        );
+        headers.insert("api-key", self.api_key.expose_secret().parse().unwrap());
 
         headers
     }
@@ -206,7 +203,7 @@ impl Config for AzureConfig {
         &self.api_base
     }
 
-    fn api_key(&self) -> &Secret<String> {
+    fn api_key(&self) -> &SecretString {
         &self.api_key
     }
 
