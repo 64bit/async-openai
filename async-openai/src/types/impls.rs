@@ -17,16 +17,17 @@ use super::{
     ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
     ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestDeveloperMessage,
     ChatCompletionRequestDeveloperMessageContent, ChatCompletionRequestFunctionMessage,
-    ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPartImage,
-    ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
-    ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
-    ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
-    ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
-    ChatCompletionToolChoiceOption, CreateFileRequest, CreateImageEditRequest,
-    CreateImageVariationRequest, CreateMessageRequestContent, CreateSpeechResponse,
-    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
-    FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageResponseFormat,
-    ImageSize, ImageUrl, ImagesResponse, ModerationInput, Prompt, Role, Stop, TimestampGranularity,
+    ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPartAudio,
+    ChatCompletionRequestMessageContentPartImage, ChatCompletionRequestMessageContentPartText,
+    ChatCompletionRequestSystemMessage, ChatCompletionRequestSystemMessageContent,
+    ChatCompletionRequestToolMessage, ChatCompletionRequestToolMessageContent,
+    ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
+    ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption, CreateFileRequest,
+    CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
+    CreateSpeechResponse, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
+    EmbeddingInput, FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel,
+    ImageResponseFormat, ImageSize, ImageUrl, ImagesResponse, ModerationInput, Prompt, Role, Stop,
+    TimestampGranularity,
 };
 
 /// for `impl_from!(T, Enum)`, implements
@@ -735,6 +736,14 @@ impl From<ChatCompletionRequestMessageContentPartImage>
 {
     fn from(value: ChatCompletionRequestMessageContentPartImage) -> Self {
         ChatCompletionRequestUserMessageContentPart::ImageUrl(value)
+    }
+}
+
+impl From<ChatCompletionRequestMessageContentPartAudio>
+    for ChatCompletionRequestUserMessageContentPart
+{
+    fn from(value: ChatCompletionRequestMessageContentPartAudio) -> Self {
+        ChatCompletionRequestUserMessageContentPart::InputAudio(value)
     }
 }
 

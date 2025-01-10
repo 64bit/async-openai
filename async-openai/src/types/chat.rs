@@ -208,12 +208,40 @@ pub struct ChatCompletionRequestMessageContentPartImage {
     pub image_url: ImageUrl,
 }
 
+#[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum InputAudioFormat {
+    Wav,
+    #[default]
+    Mp3,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
+pub struct InputAudio {
+    /// Base64 encoded audio data.
+    pub data: String,
+    /// The format of the encoded audio data. Currently supports "wav" and "mp3".
+    pub format: InputAudioFormat,
+}
+
+/// Learn about [audio inputs](https://platform.openai.com/docs/guides/audio).
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
+#[builder(name = "ChatCompletionRequestMessageContentPartAudioArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct ChatCompletionRequestMessageContentPartAudio {
+    pub input_audio: InputAudio,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
 pub enum ChatCompletionRequestUserMessageContentPart {
     Text(ChatCompletionRequestMessageContentPartText),
     ImageUrl(ChatCompletionRequestMessageContentPartImage),
+    InputAudio(ChatCompletionRequestMessageContentPartAudio),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -252,7 +280,7 @@ pub enum ChatCompletionRequestSystemMessageContent {
 pub enum ChatCompletionRequestUserMessageContent {
     /// The text contents of the message.
     Text(String),
-    /// An array of content parts with a defined type, each can be of type `text` or `image_url` when passing in images. You can pass multiple images by adding multiple `image_url` content parts. Image input is only supported when using the `gpt-4o` model.
+    /// An array of content parts with a defined type. Supported options differ based on the [model](https://platform.openai.com/docs/models) being used to generate the response. Can contain text, image, or audio inputs.
     Array(Vec<ChatCompletionRequestUserMessageContentPart>),
 }
 
