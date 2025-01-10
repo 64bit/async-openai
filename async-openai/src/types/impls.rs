@@ -15,7 +15,8 @@ use bytes::Bytes;
 use super::{
     AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
     ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
-    ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestFunctionMessage,
+    ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestDeveloperMessage,
+    ChatCompletionRequestDeveloperMessageContent, ChatCompletionRequestFunctionMessage,
     ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPartImage,
     ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
     ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
@@ -587,6 +588,15 @@ impl From<ChatCompletionRequestSystemMessageContent> for ChatCompletionRequestSy
     }
 }
 
+impl From<ChatCompletionRequestDeveloperMessageContent> for ChatCompletionRequestDeveloperMessage {
+    fn from(value: ChatCompletionRequestDeveloperMessageContent) -> Self {
+        Self {
+            content: value,
+            name: None,
+        }
+    }
+}
+
 impl From<ChatCompletionRequestAssistantMessageContent> for ChatCompletionRequestAssistantMessage {
     fn from(value: ChatCompletionRequestAssistantMessageContent) -> Self {
         Self {
@@ -617,6 +627,18 @@ impl From<&str> for ChatCompletionRequestSystemMessageContent {
 impl From<String> for ChatCompletionRequestSystemMessageContent {
     fn from(value: String) -> Self {
         ChatCompletionRequestSystemMessageContent::Text(value)
+    }
+}
+
+impl From<&str> for ChatCompletionRequestDeveloperMessageContent {
+    fn from(value: &str) -> Self {
+        ChatCompletionRequestDeveloperMessageContent::Text(value.into())
+    }
+}
+
+impl From<String> for ChatCompletionRequestDeveloperMessageContent {
+    fn from(value: String) -> Self {
+        ChatCompletionRequestDeveloperMessageContent::Text(value)
     }
 }
 
@@ -662,7 +684,19 @@ impl From<&str> for ChatCompletionRequestSystemMessage {
     }
 }
 
+impl From<&str> for ChatCompletionRequestDeveloperMessage {
+    fn from(value: &str) -> Self {
+        ChatCompletionRequestDeveloperMessageContent::Text(value.into()).into()
+    }
+}
+
 impl From<String> for ChatCompletionRequestSystemMessage {
+    fn from(value: String) -> Self {
+        value.as_str().into()
+    }
+}
+
+impl From<String> for ChatCompletionRequestDeveloperMessage {
     fn from(value: String) -> Self {
         value.as_str().into()
     }
@@ -755,6 +789,12 @@ impl Default for ChatCompletionRequestUserMessageContent {
 impl Default for CreateMessageRequestContent {
     fn default() -> Self {
         Self::Content("".into())
+    }
+}
+
+impl Default for ChatCompletionRequestDeveloperMessageContent {
+    fn default() -> Self {
+        ChatCompletionRequestDeveloperMessageContent::Text("".into())
     }
 }
 

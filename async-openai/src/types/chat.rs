@@ -125,6 +125,28 @@ pub struct CompletionTokensDetails {
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
+#[builder(name = "ChatCompletionRequestDeveloperMessageArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct ChatCompletionRequestDeveloperMessage {
+    /// The contents of the developer message.
+    pub content: ChatCompletionRequestDeveloperMessageContent,
+
+    /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum ChatCompletionRequestDeveloperMessageContent {
+    Text(String),
+    Array(Vec<ChatCompletionRequestMessageContentPartText>),
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
 #[builder(name = "ChatCompletionRequestSystemMessageArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
@@ -320,6 +342,7 @@ pub struct ChatCompletionRequestFunctionMessage {
 #[serde(tag = "role")]
 #[serde(rename_all = "lowercase")]
 pub enum ChatCompletionRequestMessage {
+    Developer(ChatCompletionRequestDeveloperMessage),
     System(ChatCompletionRequestSystemMessage),
     User(ChatCompletionRequestUserMessage),
     Assistant(ChatCompletionRequestAssistantMessage),
