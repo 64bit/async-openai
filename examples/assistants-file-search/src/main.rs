@@ -83,7 +83,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .files()
         .create(CreateFileRequest {
             file: "./input/lyft-10k.pdf".into(),
-            ..Default::default()
+            purpose: FilePurpose::Assistants,
         })
         .await?;
 
