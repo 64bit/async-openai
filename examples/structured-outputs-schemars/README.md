@@ -2,6 +2,8 @@
 
 Based on the 'Chain of thought' example from https://platform.openai.com/docs/guides/structured-outputs/introduction?lang=curl
 
+Using `schemars` and `serde` reduces coding effort.
+
 ## Output
 
 ```
