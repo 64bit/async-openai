@@ -7,6 +7,14 @@ use tokio_util::codec::{BytesCodec, FramedRead};
 use crate::error::OpenAIError;
 use crate::types::InputSource;
 
+pub(crate) trait AsyncTryFrom<T>: Sized {
+    /// The type returned in the event of a conversion error.
+    type Error;
+
+    /// Performs the conversion.
+    async fn try_from(value: T) -> Result<Self, Self::Error>;
+}
+
 pub(crate) async fn file_stream_body(source: InputSource) -> Result<Body, OpenAIError> {
     let body = match source {
         InputSource::Path { path } => {
