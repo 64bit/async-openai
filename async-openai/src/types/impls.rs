@@ -539,38 +539,6 @@ impl From<(String, serde_json::Value)> for ChatCompletionFunctions {
     }
 }
 
-// todo: write macro for bunch of same looking From trait implementations below
-
-impl From<ChatCompletionRequestUserMessage> for ChatCompletionRequestMessage {
-    fn from(value: ChatCompletionRequestUserMessage) -> Self {
-        Self::User(value)
-    }
-}
-
-impl From<ChatCompletionRequestSystemMessage> for ChatCompletionRequestMessage {
-    fn from(value: ChatCompletionRequestSystemMessage) -> Self {
-        Self::System(value)
-    }
-}
-
-impl From<ChatCompletionRequestAssistantMessage> for ChatCompletionRequestMessage {
-    fn from(value: ChatCompletionRequestAssistantMessage) -> Self {
-        Self::Assistant(value)
-    }
-}
-
-impl From<ChatCompletionRequestFunctionMessage> for ChatCompletionRequestMessage {
-    fn from(value: ChatCompletionRequestFunctionMessage) -> Self {
-        Self::Function(value)
-    }
-}
-
-impl From<ChatCompletionRequestToolMessage> for ChatCompletionRequestMessage {
-    fn from(value: ChatCompletionRequestToolMessage) -> Self {
-        Self::Tool(value)
-    }
-}
-
 impl From<ChatCompletionRequestUserMessageContent> for ChatCompletionRequestUserMessage {
     fn from(value: ChatCompletionRequestUserMessageContent) -> Self {
         Self {
