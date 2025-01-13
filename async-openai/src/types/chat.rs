@@ -1,6 +1,7 @@
 use std::{collections::HashMap, pin::Pin};
 
 use derive_builder::Builder;
+use derive_more::From;
 use futures::Stream;
 use serde::{Deserialize, Serialize};
 
@@ -376,7 +377,7 @@ pub struct ChatCompletionRequestFunctionMessage {
     pub name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, From)]
 #[serde(tag = "role")]
 #[serde(rename_all = "lowercase")]
 pub enum ChatCompletionRequestMessage {
