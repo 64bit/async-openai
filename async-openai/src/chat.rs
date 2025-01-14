@@ -1,4 +1,5 @@
 use crate::{
+    client::{ClientExt, ClientProvider},
     config::Config,
     error::OpenAIError,
     types::{
@@ -64,5 +65,66 @@ impl<'c, C: Config> Chat<'c, C> {
         request.stream = Some(true);
 
         Ok(self.client.post_stream("/chat/completions", request).await)
+    }
+}
+
+impl<'c, C: Config + Send> ClientProvider<'c, C> for Chat<'c, C> {
+    fn client(&self) -> &'c Client<C> {
+        self.client
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use crate::types::{ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs};
+
+    use super::*;
+
+    #[async_trait::async_trait]
+    trait ChatExt {
+        async fn create_annotated_stream(
+            &self,
+            mut request: CreateChatCompletionRequest,
+        ) -> Result<ChatCompletionResponseStream, OpenAIError>;
+    }
+
+    #[async_trait::async_trait]
+    impl<'c, C: Config> ChatExt for Chat<'c, C> {
+        async fn create_annotated_stream(
+            &self,
+            mut request: CreateChatCompletionRequest,
+        ) -> Result<ChatCompletionResponseStream, OpenAIError> {
+            if request.stream.is_some() && !request.stream.unwrap() {
+                return Err(OpenAIError::InvalidArgument(
+                    "When stream is false, use Chat::create".into(),
+                ));
+            }
+
+            request.stream = Some(true);
+
+            Ok(self.client.post_stream("/chat/completions", request).await)
+        }
+    }
+
+    #[tokio::test]
+    async fn test() {
+        let client = Client::new();
+        let chat = client.chat();
+
+        let request = CreateChatCompletionRequestArgs::default()
+            .model("gpt-3.5-turbo")
+            .max_tokens(512u32)
+            .messages([ChatCompletionRequestUserMessageArgs::default()
+                .content(
+                    "Write a marketing blog praising and introducing Rust library async-openai",
+                )
+                .build()
+                .unwrap()
+                .into()])
+            .build()
+            .unwrap();
+
+        let _stream = chat.create_annotated_stream(request).await.unwrap();
     }
 }
