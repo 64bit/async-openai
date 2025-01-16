@@ -99,14 +99,17 @@ impl Config for OpenAIConfig {
                 self.project_id.as_str().parse().unwrap(),
             );
         }
-
-        headers.insert(
-            AUTHORIZATION,
-            format!("Bearer {}", self.api_key.expose_secret())
-                .as_str()
-                .parse()
-                .unwrap(),
-        );
+        
+        // API key can also be found in [`reqwest::Client`] headers.
+        if !self.api_key().expose_secret().is_empty() {
+            headers.insert(
+                AUTHORIZATION,
+                format!("Bearer {}", self.api_key().expose_secret())
+                    .as_str()
+                    .parse()
+                    .unwrap(),
+            );
+        }
 
         // hack for Assistants APIs
         // Calls to the Assistants API require that you pass a Beta header
