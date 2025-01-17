@@ -4,7 +4,7 @@ use derive_builder::Builder;
 use futures::Stream;
 use serde::{Deserialize, Serialize};
 
-use crate::error::OpenAIError;
+use crate::{error::OpenAIError, types::RequestForStream};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(untagged)]
@@ -816,6 +816,16 @@ pub struct CreateChatCompletionRequest {
     #[deprecated]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub functions: Option<Vec<ChatCompletionFunctions>>,
+}
+
+impl RequestForStream for CreateChatCompletionRequest {
+    fn is_request_for_stream(&self) -> bool {
+        self.stream == Some(true)
+    }
+
+    fn set_request_for_stream(&mut self, stream: bool) {
+        self.stream = Some(stream)
+    }
 }
 
 /// Options for streaming response. Only set this when you set `stream: true`.

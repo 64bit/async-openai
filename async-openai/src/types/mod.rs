@@ -72,3 +72,8 @@ impl From<UninitializedFieldError> for OpenAIError {
         OpenAIError::InvalidArgument(value.to_string())
     }
 }
+
+pub trait RequestForStream {
+    fn is_request_for_stream(&self) -> bool;
+    fn set_request_for_stream(&mut self, stream: bool);
+}

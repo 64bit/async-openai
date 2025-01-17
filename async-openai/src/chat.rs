@@ -1,8 +1,11 @@
+use async_openai_macros::extensible;
+
 use crate::{
     config::Config,
     error::OpenAIError,
     types::{
         ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse,
+        RequestForStream,
     },
     Client,
 };
@@ -34,11 +37,12 @@ impl<'c, C: Config> Chat<'c, C> {
     /// of unsupported parameters in reasoning models,
     ///
     /// [refer to the reasoning guide](https://platform.openai.com/docs/guides/reasoning).
+    #[extensible]
     pub async fn create(
         &self,
-        request: CreateChatCompletionRequest,
+        #[request(bounds = RequestForStream)] request: CreateChatCompletionRequest,
     ) -> Result<CreateChatCompletionResponse, OpenAIError> {
-        if request.stream.is_some() && request.stream.unwrap() {
+        if request.is_request_for_stream() {
             return Err(OpenAIError::InvalidArgument(
                 "When stream is true, use Chat::create_stream".into(),
             ));
@@ -51,17 +55,18 @@ impl<'c, C: Config> Chat<'c, C> {
     /// partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format) as they become available, with the stream terminated by a `data: [DONE]` message.
     ///
     /// [ChatCompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
+    #[extensible]
     pub async fn create_stream(
         &self,
-        mut request: CreateChatCompletionRequest,
+        #[request(bounds = RequestForStream)] mut request: CreateChatCompletionRequest,
     ) -> Result<ChatCompletionResponseStream, OpenAIError> {
-        if request.stream.is_some() && !request.stream.unwrap() {
+        if !request.is_request_for_stream() {
             return Err(OpenAIError::InvalidArgument(
                 "When stream is false, use Chat::create".into(),
             ));
         }
 
-        request.stream = Some(true);
+        request.set_request_for_stream(true);
 
         Ok(self.client.post_stream("/chat/completions", request).await)
     }
