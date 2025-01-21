@@ -316,13 +316,22 @@ impl<C: Config> Client<C> {
 
         backoff::future::retry(self.backoff.clone(), || async {
             let request = request_maker().await.map_err(backoff::Error::Permanent)?;
-            let response = client
+            let mut response = client
                 .execute(request)
                 .await
                 .map_err(OpenAIError::Reqwest)
                 .map_err(backoff::Error::Permanent)?;
 
             let status = response.status();
+
+            // Handle bad base URLs
+            if status.as_u16() == 404 {
+                response = response
+                    .error_for_status()
+                    .map_err(OpenAIError::Reqwest)
+                    .map_err(backoff::Error::Permanent)?;
+            };
+
             let bytes = response
                 .bytes()
                 .await
@@ -378,7 +387,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP POST request to receive SSE
-    pub async fn post_stream<I, O, E >(
+    pub async fn post_stream<I, O, E>(
         &self,
         path: &str,
         request: I,
@@ -479,7 +488,7 @@ where
                                     String::from_utf8_lossy(message.data.as_bytes()),
                                 );
                                 Err(Into::<E>::into(e))
-                            },
+                            }
                             Ok(output) => Ok(output),
                         };
 
