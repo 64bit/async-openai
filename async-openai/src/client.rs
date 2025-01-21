@@ -160,7 +160,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a GET request to {path} and deserialize the response body
-    pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
+    pub async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
     {
