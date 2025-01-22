@@ -1,5 +1,5 @@
 use crate::{
-    client::Client,
+    client::{Client, ClientExt},
     config::Config,
     error::OpenAIError,
     types::{CompletionResponseStream, CreateCompletionRequest, CreateCompletionResponse},

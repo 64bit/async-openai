@@ -1,4 +1,5 @@
 use crate::{
+    client::ClientExt,
     config::Config,
     error::OpenAIError,
     types::{
