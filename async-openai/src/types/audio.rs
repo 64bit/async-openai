@@ -32,17 +32,19 @@ pub enum SpeechResponseFormat {
     Pcm,
     Wav,
 }
-
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[non_exhaustive]
 pub enum Voice {
     #[default]
     Alloy,
+    Ash,
+    Coral,
     Echo,
     Fable,
     Onyx,
     Nova,
+    Sage,
     Shimmer,
 }
 
