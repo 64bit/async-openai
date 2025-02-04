@@ -69,6 +69,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             let tool_call_data = tool_call_chunk.clone();
 
                             let mut states_lock = states.lock().await;
+                            let tool_call_existed = states_lock.contains_key(&key);
                             let state = states_lock.entry(key).or_insert_with(|| {
                                 ChatCompletionMessageToolCall {
                                     id: tool_call_data.id.clone().unwrap_or_default(),
@@ -92,7 +93,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 .as_ref()
                                 .and_then(|f| f.arguments.as_ref())
                             {
-                                state.function.arguments.push_str(arguments);
+                                // Only update the arguments for existing tool calls because when inserting a new tool call, the arguments are already set
+                                if tool_call_existed {
+                                    state.function.arguments.push_str(arguments);
+                                }
                             }
                         }
                     }
