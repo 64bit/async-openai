@@ -798,6 +798,45 @@ pub struct CreateChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 
+    // Extra parameters supoprted by other inference providers
+
+    // [VLLM](https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html?ref=blog.mozilla.ai#id7)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub add_generation_prompt: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chat_template: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chat_template_kwargs: Option<HashMap<String, serde_json::Value>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub include_stop_str_in_output: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guided_json: Option<serde_json::Value>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guided_regex: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guided_choice: Option<Vec<String>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guided_grammar: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guided_decoding_backend: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guided_whitespace_pattern: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub priority: Option<i32>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_id: Option<String>,
+
     /// Deprecated in favor of `tool_choice`.
     ///
     /// Controls which (if any) function is called by the model.

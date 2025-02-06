@@ -113,6 +113,36 @@ pub struct CreateCompletionRequest {
     /// Determinism is not guaranteed, and you should refer to the `system_fingerprint` response parameter to monitor changes in the backend.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub seed: Option<i64>,
+
+    // Extra parameters supoprted by other inference providers
+
+    // [VLLM](https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html?ref=blog.mozilla.ai#id5)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub add_generation_prompt: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub include_stop_str_in_output: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guided_json: Option<serde_json::Value>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guided_regex: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guided_choice: Option<Vec<String>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guided_grammar: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guided_decoding_backend: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guided_whitespace_pattern: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub priority: Option<i32>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]

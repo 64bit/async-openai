@@ -460,7 +460,23 @@ where
         while let Some(ev) = event_source.next().await {
             match ev {
                 Err(e) => {
-                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
+                    // First get a pretty error message from the error
+                    let pretty_err = match e {
+                        reqwest_eventsource::Error::InvalidStatusCode(status_code, response) => {
+                            "Invalid status code: ".to_string()
+                                + &status_code.to_string()
+                                + "\n"
+                                + &response.text().await.unwrap_or_default()
+                        }
+                        reqwest_eventsource::Error::InvalidContentType(header_value, response) => {
+                            "Invalid content type: ".to_string()
+                                + header_value.to_str().unwrap_or_default()
+                                + "\n"
+                                + &response.text().await.unwrap_or_default()
+                        }
+                        _ => e.to_string(), // The other variants don't throw away details we might need, just use the error message
+                    };
+                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(pretty_err))) {
                         // rx dropped
                         break;
                     }

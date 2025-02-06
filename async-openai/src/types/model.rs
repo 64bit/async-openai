@@ -11,6 +11,8 @@ pub struct Model {
     pub created: u32,
     /// The organization that owns the model.
     pub owned_by: String,
+    // The model's max length
+    pub max_model_len: Option<i64>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
