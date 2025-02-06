@@ -1,3 +1,9 @@
+# async-openai-compat
+
+> **Note**: This is a fork of [async-openai](https://github.com/64bit/async-openai) focused on making the client compatible with other LLM providers. This functionality cannot be merged upstream due to strict usage of OpenAI's APIs specifications - see [this PR discussion](https://github.com/64bit/async-openai/issues/266) for more details.
+
+---
+
 <div align="center">
   <a href="https://docs.rs/async-openai">
   <img width="50px" src="https://raw.githubusercontent.com/64bit/async-openai/assets/create-image-b64-json/img-1.png" />
