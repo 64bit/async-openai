@@ -78,7 +78,7 @@ pub struct CreateTranscriptionRequest {
     /// ID of the model to use. Only `whisper-1` (which is powered by our open source Whisper V2 model) is currently available.
     pub model: String,
 
-    /// An optional text to guide the model's style or continue a previous audio segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text/prompting) should match the audio language.
+    /// An optional text to guide the model's style or continue a previous audio segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text#prompting) should match the audio language.
     pub prompt: Option<String>,
 
     /// The format of the transcript output, in one of these options: json, text, srt, verbose_json, or vtt.
@@ -204,13 +204,14 @@ pub struct CreateSpeechRequest {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateTranslationRequest {
-    /// The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
+    /// The audio file object (not file name) translate, in one of these
+    ///formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.
     pub file: AudioInput,
 
     /// ID of the model to use. Only `whisper-1` (which is powered by our open source Whisper V2 model) is currently available.
     pub model: String,
 
-    /// An optional text to guide the model's style or continue a previous audio segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text/prompting) should be in English.
+    /// An optional text to guide the model's style or continue a previous audio segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text#prompting) should be in English.
     pub prompt: Option<String>,
 
     /// The format of the transcript output, in one of these options: json, text, srt, verbose_json, or vtt.
