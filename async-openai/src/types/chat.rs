@@ -798,6 +798,10 @@ pub struct CreateChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 
+    /// Support extra_body for OpenRouter reasoning models
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub extra_body: Option<serde_json::Value>,
+
     /// Deprecated in favor of `tool_choice`.
     ///
     /// Controls which (if any) function is called by the model.
