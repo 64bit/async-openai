@@ -3,7 +3,7 @@ use std::pin::Pin;
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
 use reqwest::multipart::Form;
-use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
+use reqwest_eventsource::{Error, Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
@@ -446,6 +446,20 @@ impl<C: Config> Client<C> {
     }
 }
 
+async fn handle_eventsource_error(e: Error) -> Result<(), OpenAIError> {
+    let error_text = e.to_string();
+    if let Error::InvalidStatusCode(_code, response) = e {
+        if let Ok(text) = response.text().await {
+            let api_error = serde_json::from_str::<WrappedError>(&text);
+            if let Ok(e) = api_error {
+                return Err(OpenAIError::ApiError(e.error));
+            }
+        }
+    }
+
+    Err(OpenAIError::StreamError(error_text))
+}
+
 /// Request which responds with SSE.
 /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
 pub(crate) async fn stream<O>(
@@ -460,9 +474,11 @@ where
         while let Some(ev) = event_source.next().await {
             match ev {
                 Err(e) => {
-                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
-                        // rx dropped
-                        break;
+                    if let Err(e) = handle_eventsource_error(e).await {
+                        if let Err(_e) = tx.send(Err(e)) {
+                            // rx dropped
+                            break;
+                        }
                     }
                 }
                 Ok(event) => match event {
