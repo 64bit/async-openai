@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{env, error::Error};
 
 use async_openai::{
     config::OpenAIConfig,
@@ -11,11 +11,9 @@ use async_openai::{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    // NOTE: Ollama needs to be running
-    let api_base = "http://localhost:11434/v1"; // This is the default host:port for Ollama's OpenAI endpoint
-
+    let api_base = env::var("API_BASE").expect("API_BASE is not set in the environment.");
     // Required but ignored
-    let api_key = "ollama";
+    let api_key = env::var("API_KEY").expect("API_KEY is not set in the environment.");
 
     let client = Client::with_config(
         OpenAIConfig::new()
@@ -23,8 +21,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .with_api_base(api_base),
     );
 
-    // The model needs to be downloaded first before you can use it
-    let model = "llama3.1";
+    let model = env::var("MODEL").expect("MODEL is not set in the environment.");
 
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u32)
