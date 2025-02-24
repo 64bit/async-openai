@@ -59,11 +59,6 @@ $Env:OPENAI_API_KEY='sk-...'
 - Visit [examples](https://github.com/64bit/async-openai/tree/main/examples) directory on how to use `async-openai`.
 - Visit [docs.rs/async-openai](https://docs.rs/async-openai) for docs.
 
-### Local LLM Usage
-
-- Visit the [Ollama chat example](https://github.com/64bit/async-openai/tree/main/examples/ollama-chat) directory on how to use `async-openai` with Ollama.
-  - This example can also be adapted to work with other OpenAI compatible projects, like [llama.cpp](https://github.com/ggml-org/llama.cpp).
-
 ## Realtime API
 
 Only types for Realtime API are implemented, and can be enabled with feature flag `realtime`.
