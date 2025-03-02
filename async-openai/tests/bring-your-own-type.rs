@@ -302,3 +302,12 @@ async fn test_byot_vector_store_file_batches() {
         .list_byot("batch_id", [("limit", "2")])
         .await;
 }
+
+#[tokio::test]
+async fn test_byot_batches() {
+    let client = Client::new();
+    let _r: Result<Value, OpenAIError> = client.batches().create_byot(json!({})).await;
+    let _r: Result<Value, OpenAIError> = client.batches().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client.batches().retrieve_byot("batch_id").await;
+    let _r: Result<Value, OpenAIError> = client.batches().cancel_byot("batch_id").await;
+}
