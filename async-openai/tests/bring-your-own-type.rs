@@ -326,3 +326,26 @@ async fn test_byot_invites() {
     let _r: Result<Value, OpenAIError> = client.invites().delete_byot("invite_id").await;
     let _r: Result<Value, OpenAIError> = client.invites().list_byot([("limit", "2")]).await;
 }
+
+#[tokio::test]
+async fn test_byot_project_api_keys() {
+    let client = Client::new();
+
+    let _r: Result<Value, OpenAIError> = client
+        .projects()
+        .api_keys("project_id")
+        .list_byot([("query", "2")])
+        .await;
+
+    let _r: Result<Value, OpenAIError> = client
+        .projects()
+        .api_keys("project_id")
+        .retrieve_byot("api_key")
+        .await;
+
+    let _r: Result<Value, OpenAIError> = client
+        .projects()
+        .api_keys("project_id")
+        .delete_byot("api_key")
+        .await;
+}
