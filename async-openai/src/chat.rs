@@ -35,7 +35,7 @@ impl<'c, C: Config> Chat<'c, C> {
     ///
     /// [refer to the reasoning guide](https://platform.openai.com/docs/guides/reasoning).
     ///
-    /// You must ensure that "stream: false" in serialized `request`
+    /// You must ensure "stream: false" in serialized `request`
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned
@@ -53,7 +53,7 @@ impl<'c, C: Config> Chat<'c, C> {
     ///
     /// [ChatCompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
     ///
-    /// You must ensure that "stream: true" in serialized `request`
+    /// You must ensure "stream: true" in serialized `request`
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
