@@ -77,6 +77,13 @@
 //! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //!
 #![cfg_attr(docsrs, feature(doc_cfg))]
+
+#[cfg(feature = "byot")]
+pub(crate) use async_openai_macros::byot;
+
+#[cfg(not(feature = "byot"))]
+pub(crate) use async_openai_macros::byot_passthrough as byot;
+
 mod assistant_files;
 mod assistants;
 mod audio;
