@@ -6,24 +6,31 @@ use syn::{
     punctuated::Punctuated,
     token::Comma,
     FnArg, GenericParam, Generics, ItemFn, Pat, PatType, ReturnType, Type, TypeParam, TypeParamBound,
+    WhereClause,
 };
 
 // Parse attribute arguments like #[byot(T0: Display + Debug, T1: Clone, R: Serialize)]
 struct BoundArgs {
     bounds: Vec<(String, syn::TypeParamBound)>,
+    where_clause: Option<String>,
 }
 
 impl Parse for BoundArgs {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut bounds = Vec::new();
+        let mut where_clause = None;
         let vars = Punctuated::<syn::MetaNameValue, Comma>::parse_terminated(input)?;
         
         for var in vars {
             let name = var.path.get_ident().unwrap().to_string();
-            let bound: TypeParamBound = syn::parse_str(&var.value.into_token_stream().to_string())?;
-            bounds.push((name, bound));
+            if name == "where_clause" {
+                where_clause = Some(var.value.into_token_stream().to_string());
+            } else {
+                let bound: syn::TypeParamBound = syn::parse_str(&var.value.into_token_stream().to_string())?;
+                bounds.push((name, bound));
+            }
         }
-        Ok(BoundArgs { bounds })
+        Ok(BoundArgs { bounds, where_clause })
     }
 }
 
@@ -83,12 +90,26 @@ pub fn byot(args: TokenStream, item: TokenStream) -> TokenStream {
     let attrs = &input.attrs;
     let asyncness = &input.sig.asyncness;
 
+    // Parse where clause if provided
+    let where_clause = if let Some(where_str) = bounds_args.where_clause {
+        match syn::parse_str::<WhereClause>(&format!("where {}", where_str.replace("\"", ""))) {
+            Ok(where_clause) => quote! { #where_clause },
+            Err(e) => {
+                return TokenStream::from(e.to_compile_error())
+            }
+        }
+    } else {
+        quote! {}
+    };
+
+    eprintln!("WHERE: {:#?}", where_clause.clone().into_token_stream().to_string());
+
     let expanded = quote! {
         #(#attrs)*
         #input
 
         #(#attrs)*
-        #vis #asyncness fn #byot_fn_name #new_generics (#(#args),*) -> Result<R, OpenAIError> #block
+        #vis #asyncness fn #byot_fn_name #new_generics (#(#args),*) -> Result<R, OpenAIError> #where_clause #block
     };
 
     expanded.into()
