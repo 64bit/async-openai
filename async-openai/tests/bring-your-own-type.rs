@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 //! The purpose of this test to make sure that all _byot methods compiles with custom types.
 use std::pin::Pin;
 
@@ -108,4 +109,29 @@ async fn test_byot_fine_tunning() {
     let _r: Result<Value, OpenAIError> = client.fine_tuning().cancel_byot("fine_tuning_job_id").await;
     let _r: Result<Value, OpenAIError> = client.fine_tuning().list_events_byot("fine_tuning_job_id", [("limit", "2")]).await;
     let _r: Result<Value, OpenAIError> = client.fine_tuning().list_checkpoints_byot("fine_tuning_job_id", [("limit", "2")]).await;
+}
+
+
+#[derive(Clone, serde::Deserialize)]
+pub struct MyThreadJson(Value);
+
+impl TryFrom<eventsource_stream::Event> for MyThreadJson {
+    type Error = OpenAIError;
+    fn try_from(_value: eventsource_stream::Event) -> Result<Self, Self::Error> {
+        Ok(MyThreadJson(json!({})))
+    }
+}
+
+type MyThreadStreamingType = Pin<Box<dyn Stream<Item = Result<MyThreadJson, OpenAIError>> + Send>>;
+
+#[tokio::test]
+async fn test_byot_threads() {
+    let client = Client::new();
+
+    let _r: Result<Value, OpenAIError> = client.threads().create_and_run_byot(json!({})).await;
+    let _r: Result<MyThreadStreamingType, OpenAIError> = client.threads().create_and_run_stream_byot(json!({})).await;
+    let _r: Result<Value, OpenAIError> = client.threads().create_byot(json!({})).await;
+    let _r: Result<Value, OpenAIError> = client.threads().retrieve_byot("thread_id").await;
+    let _r: Result<Value, OpenAIError> = client.threads().update_byot("thread_id", json!({})).await;
+    let _r: Result<Value, OpenAIError> = client.threads().delete_byot("thread_id").await;
 }
