@@ -51,7 +51,7 @@ impl<'c, C: Config> Completions<'c, C> {
     )]
     pub async fn create_stream(
         &self,
-        mut request: CreateCompletionRequest,
+        request: CreateCompletionRequest,
     ) -> Result<CompletionResponseStream, OpenAIError> {
         Ok(self.client.post_stream("/completions", request).await)
     }
