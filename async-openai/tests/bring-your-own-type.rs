@@ -168,3 +168,12 @@ async fn test_byot_run_steps() {
     let _r: Result<Value, OpenAIError> = client.threads().runs("thread_id").steps("run_id").retrieve_byot("step_id").await;
     let _r: Result<Value, OpenAIError> = client.threads().runs("thread_id").steps("run_id").list_byot([("limit", "2")]).await;
 }
+
+#[tokio::test]
+async fn test_byot_vector_store_files() {
+    let client = Client::new();
+    let _r: Result<Value, OpenAIError> = client.vector_stores().files("vector_store_id").create_byot(json!({})).await;
+    let _r: Result<Value, OpenAIError> = client.vector_stores().files("vector_store_id").retrieve_byot("file_id").await;
+    let _r: Result<Value, OpenAIError> = client.vector_stores().files("vector_store_id").delete_byot("file_id").await;
+    let _r: Result<Value, OpenAIError> = client.vector_stores().files("vector_store_id").list_byot([("limit", "2")]).await;
+}
