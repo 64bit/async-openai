@@ -7,7 +7,7 @@ use crate::{
         CreateMessageRequest, DeleteMessageResponse, ListMessagesResponse, MessageObject,
         ModifyMessageRequest,
     },
-    Client, MessageFiles,
+    Client,
 };
 
 /// Represents a message within a [thread](https://platform.openai.com/docs/api-reference/threads).
@@ -23,11 +23,6 @@ impl<'c, C: Config> Messages<'c, C> {
             client,
             thread_id: thread_id.into(),
         }
-    }
-
-    /// Call [MessageFiles] API group
-    pub fn files(&self, message_id: &str) -> MessageFiles<C> {
-        MessageFiles::new(self.client, &self.thread_id, message_id)
     }
 
     /// Create a message.
