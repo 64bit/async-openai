@@ -1,7 +1,6 @@
 //! Types used in OpenAI API requests and responses.
 //! These types are created from component schemas in the [OpenAPI spec](https://github.com/openai/openai-openapi)
 mod assistant;
-mod assistant_file;
 mod assistant_impls;
 mod assistant_stream;
 mod audio;
@@ -34,7 +33,6 @@ mod users;
 mod vector_store;
 
 pub use assistant::*;
-pub use assistant_file::*;
 pub use assistant_stream::*;
 pub use audio::*;
 pub use audit_log::*;

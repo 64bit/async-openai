@@ -7,7 +7,7 @@ use crate::{
         AssistantObject, CreateAssistantRequest, DeleteAssistantResponse, ListAssistantsResponse,
         ModifyAssistantRequest,
     },
-    AssistantFiles, Client,
+    Client,
 };
 
 /// Build assistants that can call models and use tools to perform tasks.
@@ -20,11 +20,6 @@ pub struct Assistants<'c, C: Config> {
 impl<'c, C: Config> Assistants<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
         Self { client }
-    }
-
-    /// Assistant [AssistantFiles] API group
-    pub fn files(&self, assistant_id: &str) -> AssistantFiles<C> {
-        AssistantFiles::new(self.client, assistant_id)
     }
 
     /// Create an assistant with a model and instructions.

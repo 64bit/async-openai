@@ -84,7 +84,6 @@ pub(crate) use async_openai_macros::byot;
 #[cfg(not(feature = "byot"))]
 pub(crate) use async_openai_macros::byot_passthrough as byot;
 
-mod assistant_files;
 mod assistants;
 mod audio;
 mod audit_logs;
@@ -120,7 +119,6 @@ mod vector_store_file_batches;
 mod vector_store_files;
 mod vector_stores;
 
-pub use assistant_files::AssistantFiles;
 pub use assistants::Assistants;
 pub use audio::Audio;
 pub use audit_logs::AuditLogs;
