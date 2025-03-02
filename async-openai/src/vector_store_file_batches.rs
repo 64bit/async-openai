@@ -26,6 +26,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
     }
 
     /// Create vector store file batch
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(
         &self,
         request: CreateVectorStoreFileBatchRequest,
@@ -39,6 +40,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
     }
 
     /// Retrieves a vector store file batch.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(
         &self,
         batch_id: &str,
@@ -52,6 +54,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
     }
 
     /// Cancel a vector store file batch. This attempts to cancel the processing of files in this batch as soon as possible.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn cancel(&self, batch_id: &str) -> Result<VectorStoreFileBatchObject, OpenAIError> {
         self.client
             .post(
@@ -65,6 +68,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
     }
 
     /// Returns a list of vector store files in a batch.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn list<Q>(
         &self,
         batch_id: &str,
@@ -79,7 +83,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
                     "/vector_stores/{}/file_batches/{batch_id}/files",
                     &self.vector_store_id
                 ),
-                query,
+                &query,
             )
             .await
     }
