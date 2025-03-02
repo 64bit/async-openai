@@ -59,13 +59,22 @@ pub fn byot(args: TokenStream, item: TokenStream) -> TokenStream {
 
     // Generate the new function
     let fn_name = &input.sig.ident;
+    let byot_fn_name = syn::Ident::new(
+        &format!("{}_byot", fn_name),
+        fn_name.span()
+    );
     let vis = &input.vis;
     let block = &input.block;
     let attrs = &input.attrs;
     
     let expanded = quote! {
+        // Original function
         #(#attrs)*
-        #vis fn #fn_name #new_generics (#(#args),*) #return_generic #block
+        #vis #input
+
+        // Generated generic function with _byot suffix
+        #(#attrs)*
+        #vis fn #byot_fn_name #new_generics (#(#args),*) #return_generic #block
     };
 
     expanded.into()
