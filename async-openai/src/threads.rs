@@ -41,7 +41,7 @@ impl<'c, C: Config> Threads<'c, C> {
 
     /// Create a thread and run it in one request (streaming).
     ///
-    /// You must ensure "stream: true" in serialized `request`
+    /// byot: You must ensure "stream: true" in serialized `request`
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
@@ -50,8 +50,18 @@ impl<'c, C: Config> Threads<'c, C> {
     )]
     pub async fn create_and_run_stream(
         &self,
-        request: CreateThreadAndRunRequest,
+        mut request: CreateThreadAndRunRequest,
     ) -> Result<AssistantEventStream, OpenAIError> {
+        #[cfg(not(feature = "byot"))]
+        {
+            if request.stream.is_some() && !request.stream.unwrap() {
+                return Err(OpenAIError::InvalidArgument(
+                    "When stream is false, use Threads::create_and_run".into(),
+                ));
+            }
+
+            request.stream = Some(true);
+        }
         Ok(self
             .client
             .post_stream_mapped_raw_events("/threads/runs", request, TryFrom::try_from)

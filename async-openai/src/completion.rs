@@ -31,6 +31,14 @@ impl<'c, C: Config> Completions<'c, C> {
         &self,
         request: CreateCompletionRequest,
     ) -> Result<CreateCompletionResponse, OpenAIError> {
+        #[cfg(not(feature = "byot"))]
+        {
+            if request.stream.is_some() && request.stream.unwrap() {
+                return Err(OpenAIError::InvalidArgument(
+                    "When stream is true, use Completion::create_stream".into(),
+                ));
+            }
+        }
         self.client.post("/completions", request).await
     }
 
@@ -51,8 +59,18 @@ impl<'c, C: Config> Completions<'c, C> {
     )]
     pub async fn create_stream(
         &self,
-        request: CreateCompletionRequest,
+        mut request: CreateCompletionRequest,
     ) -> Result<CompletionResponseStream, OpenAIError> {
+        #[cfg(not(feature = "byot"))]
+        {
+            if request.stream.is_some() && !request.stream.unwrap() {
+                return Err(OpenAIError::InvalidArgument(
+                    "When stream is false, use Completion::create".into(),
+                ));
+            }
+
+            request.stream = Some(true);
+        }
         Ok(self.client.post_stream("/completions", request).await)
     }
 }

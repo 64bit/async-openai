@@ -35,7 +35,7 @@ impl<'c, C: Config> Chat<'c, C> {
     ///
     /// [refer to the reasoning guide](https://platform.openai.com/docs/guides/reasoning).
     ///
-    /// You must ensure "stream: false" in serialized `request`
+    /// byot: You must ensure "stream: false" in serialized `request`
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned
@@ -44,6 +44,14 @@ impl<'c, C: Config> Chat<'c, C> {
         &self,
         request: CreateChatCompletionRequest,
     ) -> Result<CreateChatCompletionResponse, OpenAIError> {
+        #[cfg(not(feature = "byot"))]
+        {
+            if request.stream.is_some() && request.stream.unwrap() {
+                return Err(OpenAIError::InvalidArgument(
+                    "When stream is true, use Chat::create_stream".into(),
+                ));
+            }
+        }
         self.client.post("/chat/completions", request).await
     }
 
@@ -53,7 +61,7 @@ impl<'c, C: Config> Chat<'c, C> {
     ///
     /// [ChatCompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
     ///
-    /// You must ensure "stream: true" in serialized `request`
+    /// byot: You must ensure "stream: true" in serialized `request`
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
@@ -62,8 +70,18 @@ impl<'c, C: Config> Chat<'c, C> {
     )]
     pub async fn create_stream(
         &self,
-        request: CreateChatCompletionRequest,
+        mut request: CreateChatCompletionRequest,
     ) -> Result<ChatCompletionResponseStream, OpenAIError> {
+        #[cfg(not(feature = "byot"))]
+        {
+            if request.stream.is_some() && !request.stream.unwrap() {
+                return Err(OpenAIError::InvalidArgument(
+                    "When stream is false, use Chat::create".into(),
+                ));
+            }
+
+            request.stream = Some(true);
+        }
         Ok(self.client.post_stream("/chat/completions", request).await)
     }
 }

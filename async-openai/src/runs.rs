@@ -41,6 +41,8 @@ impl<'c, C: Config> Runs<'c, C> {
     }
 
     /// Create a run.
+    ///
+    /// byot: You must ensure "stream: true" in serialized `request`
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
@@ -124,6 +126,7 @@ impl<'c, C: Config> Runs<'c, C> {
             .await
     }
 
+    /// byot: You must ensure "stream: true" in serialized `request`
     #[crate::byot(
         T0 = std::fmt::Display,
         T1 = serde::Serialize,
