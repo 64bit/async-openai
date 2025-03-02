@@ -317,3 +317,12 @@ async fn test_byot_audit_logs() {
     let client = Client::new();
     let _r: Result<Value, OpenAIError> = client.audit_logs().get_byot([("limit", "2")]).await;
 }
+
+#[tokio::test]
+async fn test_byot_invites() {
+    let client = Client::new();
+    let _r: Result<Value, OpenAIError> = client.invites().create_byot(json!({})).await;
+    let _r: Result<Value, OpenAIError> = client.invites().retrieve_byot("invite_id").await;
+    let _r: Result<Value, OpenAIError> = client.invites().delete_byot("invite_id").await;
+    let _r: Result<Value, OpenAIError> = client.invites().list_byot([("limit", "2")]).await;
+}
