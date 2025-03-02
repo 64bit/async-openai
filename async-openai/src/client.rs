@@ -12,7 +12,7 @@ use crate::{
     file::Files,
     image::Images,
     moderation::Moderations,
-    util::AsyncTryFrom,
+    traits::AsyncTryFrom,
     Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
     Models, Projects, Threads, Users, VectorStores,
 };

@@ -7,7 +7,8 @@ use crate::{
     download::{download_url, save_b64},
     error::OpenAIError,
     types::InputSource,
-    util::{create_all_dir, create_file_part, AsyncTryFrom},
+    util::{create_all_dir, create_file_part},
+    traits::AsyncTryFrom
 };
 
 use bytes::Bytes;
