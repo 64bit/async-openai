@@ -311,3 +311,9 @@ async fn test_byot_batches() {
     let _r: Result<Value, OpenAIError> = client.batches().retrieve_byot("batch_id").await;
     let _r: Result<Value, OpenAIError> = client.batches().cancel_byot("batch_id").await;
 }
+
+#[tokio::test]
+async fn test_byot_audit_logs() {
+    let client = Client::new();
+    let _r: Result<Value, OpenAIError> = client.audit_logs().get_byot([("limit", "2")]).await;
+}
