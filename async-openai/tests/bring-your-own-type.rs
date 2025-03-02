@@ -135,3 +135,14 @@ async fn test_byot_threads() {
     let _r: Result<Value, OpenAIError> = client.threads().update_byot("thread_id", json!({})).await;
     let _r: Result<Value, OpenAIError> = client.threads().delete_byot("thread_id").await;
 }
+
+#[tokio::test]
+async fn test_byot_messages() {
+    let client = Client::new();
+
+    let _r: Result<Value, OpenAIError> = client.threads().messages("thread_id").create_byot(json!({})).await;
+    let _r: Result<Value, OpenAIError> = client.threads().messages("thread_id").retrieve_byot("message_id").await;
+    let _r: Result<Value, OpenAIError> = client.threads().messages("thread_id").update_byot("message_id", json!({})).await;
+    let _r: Result<Value, OpenAIError> = client.threads().messages("thread_id").list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client.threads().messages("thread_id").delete_byot("message_id").await;
+}
