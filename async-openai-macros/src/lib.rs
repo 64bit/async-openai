@@ -102,8 +102,6 @@ pub fn byot(args: TokenStream, item: TokenStream) -> TokenStream {
         quote! {}
     };
 
-    eprintln!("WHERE: {:#?}", where_clause.clone().into_token_stream().to_string());
-
     let expanded = quote! {
         #(#attrs)*
         #input
