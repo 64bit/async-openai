@@ -111,6 +111,7 @@ mod projects;
 mod runs;
 mod steps;
 mod threads;
+pub mod traits;
 pub mod types;
 mod uploads;
 mod users;
@@ -118,7 +119,6 @@ mod util;
 mod vector_store_file_batches;
 mod vector_store_files;
 mod vector_stores;
-pub mod traits;
 
 pub use assistant_files::AssistantFiles;
 pub use assistants::Assistants;

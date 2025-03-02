@@ -44,7 +44,9 @@ impl<'c, C: Config> FineTuning<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        self.client.get_with_query("/fine_tuning/jobs", &query).await
+        self.client
+            .get_with_query("/fine_tuning/jobs", &query)
+            .await
     }
 
     /// Gets info about the fine-tune job.

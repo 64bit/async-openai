@@ -6,9 +6,9 @@ use std::{
 use crate::{
     download::{download_url, save_b64},
     error::OpenAIError,
+    traits::AsyncTryFrom,
     types::InputSource,
     util::{create_all_dir, create_file_part},
-    traits::AsyncTryFrom
 };
 
 use bytes::Bytes;
