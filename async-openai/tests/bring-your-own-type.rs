@@ -153,11 +153,18 @@ async fn test_byot_runs() {
 
     let _r: Result<Value, OpenAIError> = client.threads().runs("thread_id").create_byot(json!({})).await;
     let _r: Result<MyThreadStreamingType, OpenAIError> = client.threads().runs("thread_id").create_stream_byot(json!({})).await;
-
     let _r: Result<Value, OpenAIError> = client.threads().runs("thread_id").retrieve_byot("run_id").await;
     let _r: Result<Value, OpenAIError> = client.threads().runs("thread_id").update_byot("run_id", json!({})).await;
     let _r: Result<Value, OpenAIError> = client.threads().runs("thread_id").list_byot([("limit", "2")]).await;
     let _r: Result<Value, OpenAIError> = client.threads().runs("thread_id").submit_tool_outputs_byot("run_id", json!({})).await;
     let _r: Result<MyThreadStreamingType, OpenAIError> = client.threads().runs("thread_id").submit_tool_outputs_stream_byot("run_id", json!({})).await;
     let _r: Result<Value, OpenAIError> = client.threads().runs("thread_id").cancel_byot("run_id").await;
+}
+
+#[tokio::test]
+async fn test_byot_run_steps() {
+    let client = Client::new();
+
+    let _r: Result<Value, OpenAIError> = client.threads().runs("thread_id").steps("run_id").retrieve_byot("step_id").await;
+    let _r: Result<Value, OpenAIError> = client.threads().runs("thread_id").steps("run_id").list_byot([("limit", "2")]).await;
 }
