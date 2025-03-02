@@ -31,6 +31,7 @@ impl<'c, C: Config> Threads<'c, C> {
     }
 
     /// Create a thread and run it in one request.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create_and_run(
         &self,
         request: CreateThreadAndRunRequest,
@@ -39,35 +40,38 @@ impl<'c, C: Config> Threads<'c, C> {
     }
 
     /// Create a thread and run it in one request (streaming).
+    ///
+    /// You must ensure "stream: true" in serialized `request`
+    #[crate::byot(
+        T0 = serde::Serialize,
+        R = serde::de::DeserializeOwned,
+        stream = "true",
+        where_clause = "R: std::marker::Send + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
+    )]
     pub async fn create_and_run_stream(
         &self,
-        mut request: CreateThreadAndRunRequest,
+        request: CreateThreadAndRunRequest,
     ) -> Result<AssistantEventStream, OpenAIError> {
-        if request.stream.is_some() && !request.stream.unwrap() {
-            return Err(OpenAIError::InvalidArgument(
-                "When stream is false, use Threads::create_and_run".into(),
-            ));
-        }
-
-        request.stream = Some(true);
-
         Ok(self
             .client
-            .post_stream_mapped_raw_events("/threads/runs", request, AssistantStreamEvent::try_from)
+            .post_stream_mapped_raw_events("/threads/runs", request, TryFrom::try_from)
             .await)
     }
 
     /// Create a thread.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: CreateThreadRequest) -> Result<ThreadObject, OpenAIError> {
         self.client.post("/threads", request).await
     }
 
     /// Retrieves a thread.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, thread_id: &str) -> Result<ThreadObject, OpenAIError> {
         self.client.get(&format!("/threads/{thread_id}")).await
     }
 
     /// Modifies a thread.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn update(
         &self,
         thread_id: &str,
@@ -79,6 +83,7 @@ impl<'c, C: Config> Threads<'c, C> {
     }
 
     /// Delete a thread.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, thread_id: &str) -> Result<DeleteThreadResponse, OpenAIError> {
         self.client.delete(&format!("/threads/{thread_id}")).await
     }
