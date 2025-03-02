@@ -13,24 +13,32 @@ use syn::{
 struct BoundArgs {
     bounds: Vec<(String, syn::TypeParamBound)>,
     where_clause: Option<String>,
+    stream: bool,  // Add stream flag
 }
 
 impl Parse for BoundArgs {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut bounds = Vec::new();
         let mut where_clause = None;
+        let mut stream = false;  // Default to false
         let vars = Punctuated::<syn::MetaNameValue, Comma>::parse_terminated(input)?;
         
         for var in vars {
             let name = var.path.get_ident().unwrap().to_string();
-            if name == "where_clause" {
-                where_clause = Some(var.value.into_token_stream().to_string());
-            } else {
-                let bound: syn::TypeParamBound = syn::parse_str(&var.value.into_token_stream().to_string())?;
-                bounds.push((name, bound));
+            match name.as_str() {
+                "where_clause" => {
+                    where_clause = Some(var.value.into_token_stream().to_string());
+                }
+                "stream" => {
+                    stream = var.value.into_token_stream().to_string().contains("true");
+                }
+                _ => {
+                    let bound: syn::TypeParamBound = syn::parse_str(&var.value.into_token_stream().to_string())?;
+                    bounds.push((name, bound));
+                }
             }
         }
-        Ok(BoundArgs { bounds, where_clause })
+        Ok(BoundArgs { bounds, where_clause, stream })
     }
 }
 
@@ -102,12 +110,19 @@ pub fn byot(args: TokenStream, item: TokenStream) -> TokenStream {
         quote! {}
     };
 
+    // Generate return type based on stream flag
+    let return_type = if bounds_args.stream {
+        quote! { Result<::std::pin::Pin<Box<dyn ::futures::Stream<Item = Result<R, OpenAIError>> + Send>>, OpenAIError> }
+    } else {
+        quote! { Result<R, OpenAIError> }
+    };
+
     let expanded = quote! {
         #(#attrs)*
         #input
 
         #(#attrs)*
-        #vis #asyncness fn #byot_fn_name #new_generics (#(#args),*) -> Result<R, OpenAIError> #where_clause #block
+        #vis #asyncness fn #byot_fn_name #new_generics (#(#args),*) -> #return_type #where_clause #block
     };
 
     expanded.into()
