@@ -48,6 +48,13 @@ async fn test_byot_models() {
 }
 
 #[tokio::test]
+async fn test_byot_moderations() {
+    let client = Client::new();
+
+    let _r: Result<Value, OpenAIError> = client.moderations().create_byot(json!({})).await;
+}
+
+#[tokio::test]
 async fn test_byot_images() {
     let client = Client::new();
 
