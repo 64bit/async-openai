@@ -67,7 +67,7 @@ pub fn byot(args: TokenStream, item: TokenStream) -> TokenStream {
         .map(|arg| {
             match arg {
                 FnArg::Receiver(receiver) => receiver.to_token_stream(),
-                FnArg::Typed(PatType { pat, ty, .. }) => {
+                FnArg::Typed(PatType { pat, .. }) => {
                     if let Pat::Ident(pat_ident) = &**pat {
                         let generic_name = format!("T{}", param_count);
                         let generic_ident =

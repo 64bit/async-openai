@@ -1,12 +1,12 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
-        CreateBase64EmbeddingResponse, CreateEmbeddingRequest, CreateEmbeddingResponse,
-        EncodingFormat,
-    },
+    types::{CreateBase64EmbeddingResponse, CreateEmbeddingRequest, CreateEmbeddingResponse},
     Client,
 };
+
+#[cfg(not(feature = "byot"))]
+use crate::types::EncodingFormat;
 
 /// Get a vector representation of a given input that can be easily
 /// consumed by machine learning models and algorithms.

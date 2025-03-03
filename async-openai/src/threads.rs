@@ -2,8 +2,8 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::{
-        AssistantEventStream, AssistantStreamEvent, CreateThreadAndRunRequest, CreateThreadRequest,
-        DeleteThreadResponse, ModifyThreadRequest, RunObject, ThreadObject,
+        AssistantEventStream, CreateThreadAndRunRequest, CreateThreadRequest, DeleteThreadResponse,
+        ModifyThreadRequest, RunObject, ThreadObject,
     },
     Client, Messages, Runs,
 };

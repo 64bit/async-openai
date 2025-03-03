@@ -5,8 +5,8 @@ use crate::{
     error::OpenAIError,
     steps::Steps,
     types::{
-        AssistantEventStream, AssistantStreamEvent, CreateRunRequest, ListRunsResponse,
-        ModifyRunRequest, RunObject, SubmitToolOutputsRunRequest,
+        AssistantEventStream, CreateRunRequest, ListRunsResponse, ModifyRunRequest, RunObject,
+        SubmitToolOutputsRunRequest,
     },
     Client,
 };
