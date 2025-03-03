@@ -48,6 +48,7 @@ impl<'c, C: Config> Threads<'c, C> {
         stream = "true",
         where_clause = "R: std::marker::Send + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
     )]
+    #[allow(unused_mut)]
     pub async fn create_and_run_stream(
         &self,
         mut request: CreateThreadAndRunRequest,

@@ -49,6 +49,7 @@ impl<'c, C: Config> Runs<'c, C> {
         stream = "true",
         where_clause = "R: std::marker::Send + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
     )]
+    #[allow(unused_mut)]
     pub async fn create_stream(
         &self,
         mut request: CreateRunRequest,
@@ -134,6 +135,7 @@ impl<'c, C: Config> Runs<'c, C> {
         stream = "true",
         where_clause = "R: std::marker::Send + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
     )]
+    #[allow(unused_mut)]
     pub async fn submit_tool_outputs_stream(
         &self,
         run_id: &str,

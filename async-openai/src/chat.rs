@@ -68,6 +68,7 @@ impl<'c, C: Config> Chat<'c, C> {
         stream = "true",
         where_clause = "R: std::marker::Send + 'static"
     )]
+    #[allow(unused_mut)]
     pub async fn create_stream(
         &self,
         mut request: CreateChatCompletionRequest,
