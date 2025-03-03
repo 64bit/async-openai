@@ -3,5 +3,5 @@ pub trait AsyncTryFrom<T>: Sized {
     type Error;
 
     /// Performs the conversion.
-    async fn try_from(value: T) -> Result<Self, Self::Error>;
+    fn try_from(value: T) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send;
 }
