@@ -349,3 +349,32 @@ async fn test_byot_project_api_keys() {
         .delete_byot("api_key")
         .await;
 }
+
+#[tokio::test]
+async fn test_byot_project_service_accounts() {
+    let client = Client::new();
+
+    let _r: Result<Value, OpenAIError> = client
+        .projects()
+        .service_accounts("project_id")
+        .create_byot(json!({}))
+        .await;
+
+    let _r: Result<Value, OpenAIError> = client
+        .projects()
+        .service_accounts("project_id")
+        .delete_byot("service_account_id")
+        .await;
+
+    let _r: Result<Value, OpenAIError> = client
+        .projects()
+        .service_accounts("project_id")
+        .retrieve_byot("service_account_id")
+        .await;
+
+    let _r: Result<Value, OpenAIError> = client
+        .projects()
+        .service_accounts("project_id")
+        .list_byot([("limit", "2")])
+        .await;
+}
