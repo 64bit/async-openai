@@ -5,8 +5,7 @@ use syn::{
     parse_macro_input,
     punctuated::Punctuated,
     token::Comma,
-    FnArg, GenericParam, Generics, ItemFn, Pat, PatType, ReturnType, Type, TypeParam,
-    TypeParamBound, WhereClause,
+    FnArg, GenericParam, Generics, ItemFn, Pat, PatType, TypeParam, WhereClause,
 };
 
 // Parse attribute arguments like #[byot(T0: Display + Debug, T1: Clone, R: Serialize)]
