@@ -62,8 +62,10 @@
 //! This feature is available on methods whose return type is not `Bytes`
 //!
 //!```
+//!# #[cfg(feature = "byot")]
 //!# tokio_test::block_on(async {
 //! use async_openai::Client;
+//! use serde_json::{Value, json};
 //!
 //! let client = Client::new();
 //!
@@ -83,7 +85,8 @@
 //!            "model": "gpt-4o",
 //!            "store": false
 //!        }))
-//!        .await?;
+//!        .await
+//!        .unwrap();
 //!
 //!  if let Some(content) = response["choices"][0]["message"]["content"].as_str() {
 //!     println!("{}", content);

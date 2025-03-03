@@ -165,6 +165,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(not(feature = "byot"))]
     async fn test_cannot_use_base64_encoding_with_normal_create_request() {
         let client = Client::new();
 
