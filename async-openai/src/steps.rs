@@ -24,6 +24,7 @@ impl<'c, C: Config> Steps<'c, C> {
     }
 
     /// Retrieves a run step.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, step_id: &str) -> Result<RunStepObject, OpenAIError> {
         self.client
             .get(&format!(
@@ -34,6 +35,7 @@ impl<'c, C: Config> Steps<'c, C> {
     }
 
     /// Returns a list of run steps belonging to a run.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn list<Q>(&self, query: &Q) -> Result<ListRunStepsResponse, OpenAIError>
     where
         Q: Serialize + ?Sized,
@@ -41,7 +43,7 @@ impl<'c, C: Config> Steps<'c, C> {
         self.client
             .get_with_query(
                 &format!("/threads/{}/runs/{}/steps", self.thread_id, self.run_id),
-                query,
+                &query,
             )
             .await
     }

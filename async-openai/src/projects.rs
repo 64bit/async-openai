@@ -35,21 +35,24 @@ impl<'c, C: Config> Projects<'c, C> {
     }
 
     /// Returns a list of projects.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn list<Q>(&self, query: &Q) -> Result<ProjectListResponse, OpenAIError>
     where
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/organization/projects", query)
+            .get_with_query("/organization/projects", &query)
             .await
     }
 
     /// Create a new project in the organization. Projects can be created and archived, but cannot be deleted.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: ProjectCreateRequest) -> Result<Project, OpenAIError> {
         self.client.post("/organization/projects", request).await
     }
 
     /// Retrieves a project.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, project_id: String) -> Result<Project, OpenAIError> {
         self.client
             .get(format!("/organization/projects/{project_id}").as_str())
@@ -57,6 +60,7 @@ impl<'c, C: Config> Projects<'c, C> {
     }
 
     /// Modifies a project in the organization.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn modify(
         &self,
         project_id: String,
@@ -71,6 +75,7 @@ impl<'c, C: Config> Projects<'c, C> {
     }
 
     /// Archives a project in the organization. Archived projects cannot be used or updated.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn archive(&self, project_id: String) -> Result<Project, OpenAIError> {
         self.client
             .post(

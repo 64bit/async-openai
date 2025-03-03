@@ -15,12 +15,13 @@ impl<'c, C: Config> AuditLogs<'c, C> {
     }
 
     /// List user actions and configuration changes within this organization.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn get<Q>(&self, query: &Q) -> Result<ListAuditLogsResponse, OpenAIError>
     where
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/organization/audit_logs", query)
+            .get_with_query("/organization/audit_logs", &query)
             .await
     }
 }

@@ -29,6 +29,7 @@ impl<'c, C: Config> ProjectServiceAccounts<'c, C> {
     }
 
     /// Returns a list of service accounts in the project.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn list<Q>(&self, query: &Q) -> Result<ProjectServiceAccountListResponse, OpenAIError>
     where
         Q: Serialize + ?Sized,
@@ -40,12 +41,13 @@ impl<'c, C: Config> ProjectServiceAccounts<'c, C> {
                     self.project_id
                 )
                 .as_str(),
-                query,
+                &query,
             )
             .await
     }
 
     /// Creates a new service account in the project. This also returns an unredacted API key for the service account.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(
         &self,
         request: ProjectServiceAccountCreateRequest,
@@ -63,6 +65,7 @@ impl<'c, C: Config> ProjectServiceAccounts<'c, C> {
     }
 
     /// Retrieves a service account in the project.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(
         &self,
         service_account_id: &str,
@@ -79,6 +82,7 @@ impl<'c, C: Config> ProjectServiceAccounts<'c, C> {
     }
 
     /// Deletes a service account from the project.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(
         &self,
         service_account_id: &str,
