@@ -432,3 +432,13 @@ async fn test_byot_uploads() {
         client.uploads().complete_byot("upload_id", json!({})).await;
     let _r: Result<Value, OpenAIError> = client.uploads().cancel_byot("upload_id").await;
 }
+
+#[tokio::test]
+async fn test_byot_users() {
+    let client = Client::new();
+
+    let _r: Result<Value, OpenAIError> = client.users().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client.users().modify_byot("user_id", json!({})).await;
+    let _r: Result<Value, OpenAIError> = client.users().retrieve_byot("user_id").await;
+    let _r: Result<Value, OpenAIError> = client.users().delete_byot("user_id").await;
+}
