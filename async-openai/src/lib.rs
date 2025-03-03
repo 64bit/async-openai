@@ -25,23 +25,6 @@
 //! let client = Client::new().with_http_client(http_client);
 //! ```
 //!
-//! ## Microsoft Azure Endpoints
-//!
-//! ```
-//! use async_openai::{Client, config::AzureConfig};
-//!
-//! let config = AzureConfig::new()
-//!     .with_api_base("https://my-resource-name.openai.azure.com")
-//!     .with_api_version("2023-03-15-preview")
-//!     .with_deployment_id("deployment-id")
-//!     .with_api_key("...");
-//!
-//! let client = Client::with_config(config);
-//!
-//! // Note that `async-openai` only implements OpenAI spec
-//! // and doesn't maintain parity with the spec of Azure OpenAI service.
-//!
-//! ```
 //!
 //! ## Making requests
 //!
@@ -72,6 +55,60 @@
 //! println!("{}", response.choices.first().unwrap().text);
 //! # });
 //!```
+//!
+//! ## Bring Your Own Types
+//!
+//! To use custom types for inputs and outputs, enable `byot` feature which provides additional generic methods with same name and `_byot` suffix.
+//! This feature is available on methods whose return type is not `Bytes`
+//!
+//!```
+//!# tokio_test::block_on(async {
+//! use async_openai::Client;
+//!
+//! let client = Client::new();
+//!
+//! let response: Value = client
+//!        .chat()
+//!        .create_byot(json!({
+//!            "messages": [
+//!                {
+//!                    "role": "developer",
+//!                    "content": "You are a helpful assistant"
+//!                },
+//!                {
+//!                    "role": "user",
+//!                    "content": "What do you think about life?"
+//!                }
+//!            ],
+//!            "model": "gpt-4o",
+//!            "store": false
+//!        }))
+//!        .await?;
+//!
+//!  if let Some(content) = response["choices"][0]["message"]["content"].as_str() {
+//!     println!("{}", content);
+//!  }
+//! # });
+//!```
+//!
+//! ## Microsoft Azure
+//!
+//! ```
+//! use async_openai::{Client, config::AzureConfig};
+//!
+//! let config = AzureConfig::new()
+//!     .with_api_base("https://my-resource-name.openai.azure.com")
+//!     .with_api_version("2023-03-15-preview")
+//!     .with_deployment_id("deployment-id")
+//!     .with_api_key("...");
+//!
+//! let client = Client::with_config(config);
+//!
+//! // Note that `async-openai` only implements OpenAI spec
+//! // and doesn't maintain parity with the spec of Azure OpenAI service.
+//!
+//! ```
+//!
 //!
 //! ## Examples
 //! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
