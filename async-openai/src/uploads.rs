@@ -42,10 +42,10 @@ impl<'c, C: Config> Uploads<'c, C> {
     /// It is possible to add multiple Parts in parallel. You can decide the intended order of the Parts
     /// when you [complete the Upload](https://platform.openai.com/docs/api-reference/uploads/complete).
     #[crate::byot(
-        T0 = std::fmt::Display, 
+        T0 = std::fmt::Display,
         T1 = Clone,
         R = serde::de::DeserializeOwned,
-        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T1, Error = OpenAIError>",)]
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T1, Error = OpenAIError>")]
     pub async fn add_part(
         &self,
         upload_id: &str,
