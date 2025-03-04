@@ -1,7 +1,7 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{CreateEmbeddingRequest, CreateEmbeddingResponse, EncodingFormat},
+    types::{CreateEmbeddingRequest, CreateEmbeddingResponse},
     Client,
 };
 

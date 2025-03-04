@@ -243,7 +243,6 @@ pub enum ChatCompletionRequestUserMessageContentPart {
     Text(ChatCompletionRequestMessageContentPartText),
     ImageUrl(ChatCompletionRequestMessageContentPartImage),
     InputAudio(ChatCompletionRequestMessageContentPartAudio),
-    InputAudio(ChatCompletionRequestMessageContentPartAudio),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, utoipa::ToSchema)]
