@@ -20,11 +20,17 @@ impl<'c, C: Config> Images<'c, C> {
     }
 
     /// Creates an image given a prompt.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: CreateImageRequest) -> Result<ImagesResponse, OpenAIError> {
         self.client.post("/images/generations", request).await
     }
 
     /// Creates an edited or extended image given an original image and a prompt.
+    #[crate::byot(
+        T0 = Clone,
+        R = serde::de::DeserializeOwned,
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+    )]
     pub async fn create_edit(
         &self,
         request: CreateImageEditRequest,
@@ -33,6 +39,11 @@ impl<'c, C: Config> Images<'c, C> {
     }
 
     /// Creates a variation of a given image.
+    #[crate::byot(
+        T0 = Clone,
+        R = serde::de::DeserializeOwned,
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+    )]
     pub async fn create_variation(
         &self,
         request: CreateImageVariationRequest,

@@ -1,5 +1,8 @@
 [workspace]
-members = [ "async-openai", "examples/*" ]
+members = [ "async-openai", "async-openai-*", "examples/*" ]
 # Only check / build main crates by default (check all with `--workspace`)
-default-members = ["async-openai"]
+default-members = ["async-openai", "async-openai-*"]
 resolver = "2"
+
+[workspace.package]
+rust-version = "1.75"

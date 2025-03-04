@@ -28,6 +28,7 @@ impl<'c, C: Config> Uploads<'c, C> {
     ///
     /// For guidance on the proper filename extensions for each purpose, please follow the documentation on
     /// [creating a File](https://platform.openai.com/docs/api-reference/files/create).
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: CreateUploadRequest) -> Result<Upload, OpenAIError> {
         self.client.post("/uploads", request).await
     }
@@ -40,6 +41,11 @@ impl<'c, C: Config> Uploads<'c, C> {
     ///
     /// It is possible to add multiple Parts in parallel. You can decide the intended order of the Parts
     /// when you [complete the Upload](https://platform.openai.com/docs/api-reference/uploads/complete).
+    #[crate::byot(
+        T0 = std::fmt::Display,
+        T1 = Clone,
+        R = serde::de::DeserializeOwned,
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T1, Error = OpenAIError>")]
     pub async fn add_part(
         &self,
         upload_id: &str,
@@ -59,6 +65,8 @@ impl<'c, C: Config> Uploads<'c, C> {
     ///
     /// The number of bytes uploaded upon completion must match the number of bytes initially specified
     /// when creating the Upload object. No Parts may be added after an Upload is completed.
+
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn complete(
         &self,
         upload_id: &str,
@@ -70,6 +78,7 @@ impl<'c, C: Config> Uploads<'c, C> {
     }
 
     /// Cancels the Upload. No Parts may be added after an Upload is cancelled.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn cancel(&self, upload_id: &str) -> Result<Upload, OpenAIError> {
         self.client
             .post(

@@ -25,23 +25,6 @@
 //! let client = Client::new().with_http_client(http_client);
 //! ```
 //!
-//! ## Microsoft Azure Endpoints
-//!
-//! ```
-//! use async_openai::{Client, config::AzureConfig};
-//!
-//! let config = AzureConfig::new()
-//!     .with_api_base("https://my-resource-name.openai.azure.com")
-//!     .with_api_version("2023-03-15-preview")
-//!     .with_deployment_id("deployment-id")
-//!     .with_api_key("...");
-//!
-//! let client = Client::with_config(config);
-//!
-//! // Note that `async-openai` only implements OpenAI spec
-//! // and doesn't maintain parity with the spec of Azure OpenAI service.
-//!
-//! ```
 //!
 //! ## Making requests
 //!
@@ -73,11 +56,74 @@
 //! # });
 //!```
 //!
+//! ## Bring Your Own Types
+//!
+//! To use custom types for inputs and outputs, enable `byot` feature which provides additional generic methods with same name and `_byot` suffix.
+//! This feature is available on methods whose return type is not `Bytes`
+//!
+//!```
+//!# #[cfg(feature = "byot")]
+//!# tokio_test::block_on(async {
+//! use async_openai::Client;
+//! use serde_json::{Value, json};
+//!
+//! let client = Client::new();
+//!
+//! let response: Value = client
+//!        .chat()
+//!        .create_byot(json!({
+//!            "messages": [
+//!                {
+//!                    "role": "developer",
+//!                    "content": "You are a helpful assistant"
+//!                },
+//!                {
+//!                    "role": "user",
+//!                    "content": "What do you think about life?"
+//!                }
+//!            ],
+//!            "model": "gpt-4o",
+//!            "store": false
+//!        }))
+//!        .await
+//!        .unwrap();
+//!
+//!  if let Some(content) = response["choices"][0]["message"]["content"].as_str() {
+//!     println!("{}", content);
+//!  }
+//! # });
+//!```
+//!
+//! ## Microsoft Azure
+//!
+//! ```
+//! use async_openai::{Client, config::AzureConfig};
+//!
+//! let config = AzureConfig::new()
+//!     .with_api_base("https://my-resource-name.openai.azure.com")
+//!     .with_api_version("2023-03-15-preview")
+//!     .with_deployment_id("deployment-id")
+//!     .with_api_key("...");
+//!
+//! let client = Client::with_config(config);
+//!
+//! // Note that `async-openai` only implements OpenAI spec
+//! // and doesn't maintain parity with the spec of Azure OpenAI service.
+//!
+//! ```
+//!
+//!
 //! ## Examples
 //! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //!
 #![cfg_attr(docsrs, feature(doc_cfg))]
-mod assistant_files;
+
+#[cfg(feature = "byot")]
+pub(crate) use async_openai_macros::byot;
+
+#[cfg(not(feature = "byot"))]
+pub(crate) use async_openai_macros::byot_passthrough as byot;
+
 mod assistants;
 mod audio;
 mod audit_logs;
@@ -93,7 +139,6 @@ mod file;
 mod fine_tuning;
 mod image;
 mod invites;
-mod message_files;
 mod messages;
 mod model;
 mod moderation;
@@ -104,6 +149,7 @@ mod projects;
 mod runs;
 mod steps;
 mod threads;
+pub mod traits;
 pub mod types;
 mod uploads;
 mod users;
@@ -112,7 +158,6 @@ mod vector_store_file_batches;
 mod vector_store_files;
 mod vector_stores;
 
-pub use assistant_files::AssistantFiles;
 pub use assistants::Assistants;
 pub use audio::Audio;
 pub use audit_logs::AuditLogs;
@@ -125,7 +170,6 @@ pub use file::Files;
 pub use fine_tuning::FineTuning;
 pub use image::Images;
 pub use invites::Invites;
-pub use message_files::MessageFiles;
 pub use messages::Messages;
 pub use model::Models;
 pub use moderation::Moderations;

@@ -243,6 +243,7 @@ pub enum ChatCompletionRequestUserMessageContentPart {
     Text(ChatCompletionRequestMessageContentPartText),
     ImageUrl(ChatCompletionRequestMessageContentPartImage),
     InputAudio(ChatCompletionRequestMessageContentPartAudio),
+    InputAudio(ChatCompletionRequestMessageContentPartAudio),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, utoipa::ToSchema)]
@@ -651,6 +652,7 @@ pub struct CreateChatCompletionRequest {
     pub messages: Vec<ChatCompletionRequestMessage>, // min: 1
 
     /// ID of the model to use.
+    /// See the [model endpoint compatibility](https://platform.openai.com/docs/models#model-endpoint-compatibility) table for details on which models work with the Chat API.
     /// See the [model endpoint compatibility](https://platform.openai.com/docs/models#model-endpoint-compatibility) table for details on which models work with the Chat API.
     pub model: String,
 

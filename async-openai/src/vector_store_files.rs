@@ -27,6 +27,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
     }
 
     /// Create a vector store file by attaching a [File](https://platform.openai.com/docs/api-reference/files) to a [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object).
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(
         &self,
         request: CreateVectorStoreFileRequest,
@@ -40,6 +41,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
     }
 
     /// Retrieves a vector store file.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, file_id: &str) -> Result<VectorStoreFileObject, OpenAIError> {
         self.client
             .get(&format!(
@@ -50,6 +52,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
     }
 
     /// Delete a vector store file. This will remove the file from the vector store but the file itself will not be deleted. To delete the file, use the [delete file](https://platform.openai.com/docs/api-reference/files/delete) endpoint.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(
         &self,
         file_id: &str,
@@ -63,6 +66,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
     }
 
     /// Returns a list of vector store files.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn list<Q>(&self, query: &Q) -> Result<ListVectorStoreFilesResponse, OpenAIError>
     where
         Q: Serialize + ?Sized,
@@ -70,7 +74,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
         self.client
             .get_with_query(
                 &format!("/vector_stores/{}/files", &self.vector_store_id),
-                query,
+                &query,
             )
             .await
     }
