@@ -24,6 +24,11 @@ impl<'c, C: Config> Audio<'c, C> {
     }
 
     /// Transcribes audio into the input language.
+    #[crate::byot(
+        T0 = Clone,
+        R = serde::de::DeserializeOwned,
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+    )]
     pub async fn transcribe(
         &self,
         request: CreateTranscriptionRequest,
@@ -34,6 +39,11 @@ impl<'c, C: Config> Audio<'c, C> {
     }
 
     /// Transcribes audio into the input language.
+    #[crate::byot(
+        T0 = Clone,
+        R = serde::de::DeserializeOwned,
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+    )]
     pub async fn transcribe_verbose_json(
         &self,
         request: CreateTranscriptionRequest,
@@ -54,6 +64,11 @@ impl<'c, C: Config> Audio<'c, C> {
     }
 
     /// Translates audio into English.
+    #[crate::byot(
+        T0 = Clone,
+        R = serde::de::DeserializeOwned,
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+    )]
     pub async fn translate(
         &self,
         request: CreateTranslationRequest,
@@ -62,6 +77,11 @@ impl<'c, C: Config> Audio<'c, C> {
     }
 
     /// Translates audio into English.
+    #[crate::byot(
+        T0 = Clone,
+        R = serde::de::DeserializeOwned,
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+    )]
     pub async fn translate_verbose_json(
         &self,
         request: CreateTranslationRequest,

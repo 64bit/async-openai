@@ -652,6 +652,7 @@ pub struct CreateChatCompletionRequest {
 
     /// ID of the model to use.
     /// See the [model endpoint compatibility](https://platform.openai.com/docs/models#model-endpoint-compatibility) table for details on which models work with the Chat API.
+    /// See the [model endpoint compatibility](https://platform.openai.com/docs/models#model-endpoint-compatibility) table for details on which models work with the Chat API.
     pub model: String,
 
     /// Whether or not to store the output of this chat completion request for use in [model distillation](https://platform.openai.com/docs/guides/distillation) or [evals](https://platform.openai.com/docs/guides/evals) products.

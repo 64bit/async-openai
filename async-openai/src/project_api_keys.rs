@@ -23,6 +23,7 @@ impl<'c, C: Config> ProjectAPIKeys<'c, C> {
     }
 
     /// Returns a list of API keys in the project.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn list<Q>(&self, query: &Q) -> Result<ProjectApiKeyListResponse, OpenAIError>
     where
         Q: Serialize + ?Sized,
@@ -30,12 +31,13 @@ impl<'c, C: Config> ProjectAPIKeys<'c, C> {
         self.client
             .get_with_query(
                 format!("/organization/projects/{}/api_keys", self.project_id).as_str(),
-                query,
+                &query,
             )
             .await
     }
 
     /// Retrieves an API key in the project.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, api_key: &str) -> Result<ProjectApiKey, OpenAIError> {
         self.client
             .get(
@@ -49,6 +51,7 @@ impl<'c, C: Config> ProjectAPIKeys<'c, C> {
     }
 
     /// Deletes an API key from the project.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, api_key: &str) -> Result<ProjectApiKeyDeleteResponse, OpenAIError> {
         self.client
             .delete(

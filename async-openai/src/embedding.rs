@@ -1,9 +1,12 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{CreateEmbeddingRequest, CreateEmbeddingResponse, EncodingFormat},
+    types::{CreateEmbeddingRequest, CreateEmbeddingResponse},
     Client,
 };
+
+#[cfg(not(feature = "byot"))]
+use crate::types::EncodingFormat;
 
 /// Get a vector representation of a given input that can be easily
 /// consumed by machine learning models and algorithms.
@@ -19,10 +22,21 @@ impl<'c, C: Config> Embeddings<'c, C> {
     }
 
     /// Creates an embedding vector representing the input text.
+    ///
+    /// byot: In serialized `request` you must ensure "encoding_format" is not "base64"
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(
         &self,
         request: CreateEmbeddingRequest,
     ) -> Result<CreateEmbeddingResponse, OpenAIError> {
+        #[cfg(not(feature = "byot"))]
+        {
+            if matches!(request.encoding_format, Some(EncodingFormat::Base64)) {
+                return Err(OpenAIError::InvalidArgument(
+                    "When encoding_format is base64, use Embeddings::create_base64".into(),
+                ));
+            }
+        }
         self.client.post("/embeddings", request).await
     }
 
@@ -33,10 +47,13 @@ impl<'c, C: Config> Embeddings<'c, C> {
         &self,
         request: CreateEmbeddingRequest,
     ) -> Result<CreateEmbeddingResponse, OpenAIError> {
-        if matches!(request.encoding_format, Some(EncodingFormat::Base64)) {
-            return Err(OpenAIError::InvalidArgument(
-                "When encoding_format is base64, use Embeddings::create_base64".into(),
-            ));
+        #[cfg(not(feature = "byot"))]
+        {
+            if matches!(request.encoding_format, Some(EncodingFormat::Base64)) {
+                return Err(OpenAIError::InvalidArgument(
+                    "When encoding_format is base64, use Embeddings::create_base64".into(),
+                ));
+            }
         }
         self.client.post("/embeddings", request).await
     }
@@ -44,16 +61,21 @@ impl<'c, C: Config> Embeddings<'c, C> {
     /// Creates an embedding vector representing the input text.
     ///
     /// The response will contain the embedding in base64 format.
+    ///
+    /// byot: In serialized `request` you must ensure "encoding_format" is "base64"
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create_base64(
         &self,
         request: CreateEmbeddingRequest,
     ) -> Result<CreateEmbeddingResponse, OpenAIError> {
-        if !matches!(request.encoding_format, Some(EncodingFormat::Base64)) {
-            return Err(OpenAIError::InvalidArgument(
-                "When encoding_format is not base64, use Embeddings::create_float".into(),
-            ));
+        #[cfg(not(feature = "byot"))]
+        {
+            if !matches!(request.encoding_format, Some(EncodingFormat::Base64)) {
+                return Err(OpenAIError::InvalidArgument(
+                    "When encoding_format is not base64, use Embeddings::create_float".into(),
+                ));
+            }
         }
-
         self.client.post("/embeddings", request).await
     }
 }
@@ -161,6 +183,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg(not(feature = "byot"))]
     async fn test_cannot_use_base64_encoding_with_normal_create_request() {
         let client = Client::new();
 

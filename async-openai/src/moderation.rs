@@ -19,6 +19,7 @@ impl<'c, C: Config> Moderations<'c, C> {
 
     /// Classifies if text and/or image inputs are potentially harmful. Learn
     /// more in the [moderation guide](https://platform.openai.com/docs/guides/moderation).
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(
         &self,
         request: CreateModerationRequest,
