@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 pub enum AudioFormat {
     #[serde(rename = "pcm16")]
     PCM16,
-    #[serde(rename = "g711-ulaw")]
+    #[serde(rename = "g711_ulaw")]
     G711ULAW,
-    #[serde(rename = "g711-alaw")]
+    #[serde(rename = "g711_alaw")]
     G711ALAW,
 }
 
