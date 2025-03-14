@@ -21,14 +21,23 @@ impl<'c, C: Config> Completions<'c, C> {
     }
 
     /// Creates a completion for the provided prompt and parameters
+    ///
+    /// You must ensure that "stream: false" in serialized `request`
+    #[crate::byot(
+        T0 = serde::Serialize,
+        R = serde::de::DeserializeOwned
+    )]
     pub async fn create(
         &self,
         request: CreateCompletionRequest,
     ) -> Result<CreateCompletionResponse, OpenAIError> {
-        if request.stream.is_some() && request.stream.unwrap() {
-            return Err(OpenAIError::InvalidArgument(
-                "When stream is true, use Completion::create_stream".into(),
-            ));
+        #[cfg(not(feature = "byot"))]
+        {
+            if request.stream.is_some() && request.stream.unwrap() {
+                return Err(OpenAIError::InvalidArgument(
+                    "When stream is true, use Completion::create_stream".into(),
+                ));
+            }
         }
         self.client.post("/completions", request).await
     }
@@ -40,18 +49,29 @@ impl<'c, C: Config> Completions<'c, C> {
     /// as they become available, with the stream terminated by a data: \[DONE\] message.
     ///
     /// [CompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
+    ///
+    /// You must ensure that "stream: true" in serialized `request`
+    #[crate::byot(
+        T0 = serde::Serialize,
+        R = serde::de::DeserializeOwned,
+        stream = "true",
+        where_clause = "R: std::marker::Send + 'static"
+    )]
+    #[allow(unused_mut)]
     pub async fn create_stream(
         &self,
         mut request: CreateCompletionRequest,
     ) -> Result<CompletionResponseStream, OpenAIError> {
-        if request.stream.is_some() && !request.stream.unwrap() {
-            return Err(OpenAIError::InvalidArgument(
-                "When stream is false, use Completion::create".into(),
-            ));
+        #[cfg(not(feature = "byot"))]
+        {
+            if request.stream.is_some() && !request.stream.unwrap() {
+                return Err(OpenAIError::InvalidArgument(
+                    "When stream is false, use Completion::create".into(),
+                ));
+            }
+
+            request.stream = Some(true);
         }
-
-        request.stream = Some(true);
-
         Ok(self.client.post_stream("/completions", request).await)
     }
 }

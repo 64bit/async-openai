@@ -12,9 +12,9 @@ use crate::{
     file::Files,
     image::Images,
     moderation::Moderations,
-    util::AsyncTryFrom,
+    traits::AsyncTryFrom,
     Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
-    Models, Projects, Threads, Users, VectorStores,
+    Models, Projects, Threads, Uploads, Users, VectorStores,
 };
 
 #[derive(Debug, Clone, Default)]
@@ -100,6 +100,11 @@ impl<C: Config> Client<C> {
     /// To call [Files] group related APIs using this client.
     pub fn files(&self) -> Files<C> {
         Files::new(self)
+    }
+
+    /// To call [Uploads] group related APIs using this client.
+    pub fn uploads(&self) -> Uploads<C> {
+        Uploads::new(self)
     }
 
     /// To call [FineTuning] group related APIs using this client.

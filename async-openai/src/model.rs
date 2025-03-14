@@ -19,17 +19,20 @@ impl<'c, C: Config> Models<'c, C> {
 
     /// Lists the currently available models, and provides basic information
     /// about each one such as the owner and availability.
+    #[crate::byot(R = serde::de::DeserializeOwned)]
     pub async fn list(&self) -> Result<ListModelResponse, OpenAIError> {
         self.client.get("/models").await
     }
 
     /// Retrieves a model instance, providing basic information about the model
     /// such as the owner and permissioning.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, id: &str) -> Result<Model, OpenAIError> {
         self.client.get(format!("/models/{id}").as_str()).await
     }
 
     /// Delete a fine-tuned model. You must have the Owner role in your organization.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, model: &str) -> Result<DeleteModelResponse, OpenAIError> {
         self.client
             .delete(format!("/models/{model}").as_str())

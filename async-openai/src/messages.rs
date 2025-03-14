@@ -7,7 +7,7 @@ use crate::{
         CreateMessageRequest, DeleteMessageResponse, ListMessagesResponse, MessageObject,
         ModifyMessageRequest,
     },
-    Client, MessageFiles,
+    Client,
 };
 
 /// Represents a message within a [thread](https://platform.openai.com/docs/api-reference/threads).
@@ -25,12 +25,8 @@ impl<'c, C: Config> Messages<'c, C> {
         }
     }
 
-    /// Call [MessageFiles] API group
-    pub fn files(&self, message_id: &str) -> MessageFiles<C> {
-        MessageFiles::new(self.client, &self.thread_id, message_id)
-    }
-
     /// Create a message.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(
         &self,
         request: CreateMessageRequest,
@@ -41,6 +37,7 @@ impl<'c, C: Config> Messages<'c, C> {
     }
 
     /// Retrieve a message.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, message_id: &str) -> Result<MessageObject, OpenAIError> {
         self.client
             .get(&format!(
@@ -51,6 +48,7 @@ impl<'c, C: Config> Messages<'c, C> {
     }
 
     /// Modifies a message.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn update(
         &self,
         message_id: &str,
@@ -65,15 +63,17 @@ impl<'c, C: Config> Messages<'c, C> {
     }
 
     /// Returns a list of messages for a given thread.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn list<Q>(&self, query: &Q) -> Result<ListMessagesResponse, OpenAIError>
     where
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query(&format!("/threads/{}/messages", self.thread_id), query)
+            .get_with_query(&format!("/threads/{}/messages", self.thread_id), &query)
             .await
     }
 
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, message_id: &str) -> Result<DeleteMessageResponse, OpenAIError> {
         self.client
             .delete(&format!(

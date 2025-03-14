@@ -37,6 +37,7 @@
   - [x] Organizations | Administration (partially implemented)
   - [x] Realtime (Beta) (partially implemented)
   - [x] Uploads
+- Bring your own custom types for Request or Response objects.
 - SSE streaming on available APIs
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
 - Ergonomic builder pattern for all request objects.
@@ -62,7 +63,7 @@ $Env:OPENAI_API_KEY='sk-...'
 ## Realtime API
 
 Only types for Realtime API are implemented, and can be enabled with feature flag `realtime`.
-These types may change if/when OpenAI releases official specs for them.
+These types were written before OpenAI released official specs.
 
 ## Image Generation Example
 
@@ -107,6 +108,39 @@ async fn main() -> Result<(), Box<dyn Error>> {
   <br/>
   <sub>Scaled up for README, actual size 256x256</sub>
 </div>
+
+## Bring Your Own Types
+
+Enable methods whose input and outputs are generics with `byot` feature. It creates a new method with same name and `_byot` suffix.
+
+For example, to use `serde_json::Value` as request and response type:
+```rust
+let response: Value = client
+        .chat()
+        .create_byot(json!({
+            "messages": [
+                {
+                    "role": "developer",
+                    "content": "You are a helpful assistant"
+                },
+                {
+                    "role": "user",
+                    "content": "What do you think about life?"
+                }
+            ],
+            "model": "gpt-4o",
+            "store": false
+        }))
+        .await?;
+```
+
+This can be useful in many scenarios:
+- To use this library with other OpenAI compatible APIs whose types don't exactly match OpenAI. 
+- Extend existing types in this crate with new fields with `serde`.
+- To avoid verbose types.
+- To escape deserialization errors.
+
+Visit [examples/bring-your-own-type](https://github.com/64bit/async-openai/tree/main/examples/bring-your-own-type) directory to learn more.
 
 ## Contributing
 

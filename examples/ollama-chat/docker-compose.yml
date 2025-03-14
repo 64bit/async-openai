@@ -1,0 +1,27 @@
+services:
+  ollama:
+    container_name: ollama
+    image: ollama/ollama:0.5.12
+    entrypoint: ["/usr/bin/bash", "/ollama_entrypoint.sh"]
+    environment:
+      MODEL: "llama3.2:1b"
+    volumes:
+      - ./volumes/ollama:/root/.ollama
+      - ./ollama_entrypoint.sh:/ollama_entrypoint.sh
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "ollama list | grep -q llama3.2:1b"]
+      interval: 15s
+      retries: 30
+      start_period: 5s
+      timeout: 5s
+    # Uncomment if you have NVIDIA container toolkit, CUDA, etc.
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]
+    #           driver: nvidia
+    #           count: all
