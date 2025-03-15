@@ -146,7 +146,7 @@ Visit [examples/bring-your-own-type](https://github.com/64bit/async-openai/tree/
 
 Thank you for taking the time to contribute and improve the project. I'd be happy to have you!
 
-All forms of contributions, such as new features requests, bug fixes, issues, documentation, testing, comments, [examples](../examples) etc. are welcome.
+All forms of contributions, such as new features requests, bug fixes, issues, documentation, testing, comments, [examples](https://github.com/64bit/async-openai/tree/main/examples) etc. are welcome.
 
 A good starting point would be to look at existing [open issues](https://github.com/64bit/async-openai/issues).
 
