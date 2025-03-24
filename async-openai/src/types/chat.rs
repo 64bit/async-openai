@@ -897,7 +897,7 @@ pub struct CreateChatCompletionResponse {
     pub system_fingerprint: Option<String>,
 
     /// The object type, which is always `chat.completion`.
-    pub object: String,
+    pub object: Option<String>,
     pub usage: Option<CompletionUsage>,
 }
 
@@ -980,7 +980,7 @@ pub struct CreateChatCompletionStreamResponse {
     /// Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism.
     pub system_fingerprint: Option<String>,
     /// The object type, which is always `chat.completion.chunk`.
-    pub object: String,
+    pub object: Option<String>,
 
     /// An optional field that will only be present when you set `stream_options: {"include_usage": true}` in your request.
     /// When present, it contains a null value except for the last chunk which contains the token usage statistics for the entire request.
