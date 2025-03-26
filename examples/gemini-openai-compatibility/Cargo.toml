@@ -1,0 +1,12 @@
+[package]
+name = "gemini-openai-compatibility"
+version = "0.1.0"
+edition = "2021"
+rust-version.workspace = true
+
+[dependencies]
+async-openai = {path = "../../async-openai"}
+tokio = { version = "1.43.0", features = ["full"] }
+tracing-subscriber = { version =  "0.3.19",  features = ["env-filter"]}
+dotenv = "0.15.0"
+futures = "0.3.31"
