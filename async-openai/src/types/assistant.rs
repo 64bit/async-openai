@@ -106,6 +106,8 @@ pub struct AssistantObject {
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
     /// We generally recommend altering this or temperature but not both.
     pub top_p: Option<f32>,
+    /// Constrains effort on reasoning for reasoning models. Currently supported values are low, medium, and high. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.
+    pub reasoning_effort: Option<String>,
 
     pub response_format: Option<AssistantsApiResponseFormatOption>,
 }
@@ -223,6 +225,10 @@ pub struct CreateAssistantRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub top_p: Option<f32>,
 
+    /// Constrains effort on reasoning for reasoning models. Currently supported values are low, medium, and high. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reasoning_effort: Option<String>,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<AssistantsApiResponseFormatOption>,
 }
@@ -270,6 +276,10 @@ pub struct ModifyAssistantRequest {
     /// We generally recommend altering this or temperature but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub top_p: Option<f32>,
+
+    /// Constrains effort on reasoning for reasoning models. Currently supported values are low, medium, and high. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reasoning_effort: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<AssistantsApiResponseFormatOption>,
