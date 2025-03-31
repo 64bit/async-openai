@@ -129,7 +129,7 @@ pub enum Image {
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ImagesResponse {
-    pub created: Option<u32>,
+    pub created: u32,
     pub data: Vec<std::sync::Arc<Image>>,
 }
 
