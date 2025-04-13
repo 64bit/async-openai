@@ -8,7 +8,7 @@ use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
     config::{Config, OpenAIConfig},
-    error::{map_deserialization_error, OpenAIError, WrappedError},
+    error::{map_deserialization_error, ApiError, OpenAIError, WrappedError},
     file::Files,
     image::Images,
     moderation::Moderations,
@@ -335,6 +335,16 @@ impl<C: Config> Client<C> {
                 .await
                 .map_err(OpenAIError::Reqwest)
                 .map_err(backoff::Error::Permanent)?;
+
+            if status.is_server_error() {
+                // OpenAI does not guarantee server errors are returned as JSON so we cannot deserialize them.
+                let message: String = String::from_utf8_lossy(&bytes).into_owned();
+                tracing::warn!("Server error: {status} - {message}");
+                return Err(backoff::Error::Transient {
+                    err: OpenAIError::ApiError(ApiError { message, r#type: None, param: None, code: None }),
+                    retry_after: None,
+                });
+            }
 
             // Deserialize response body from either error object or actual response object
             if !status.is_success() {
