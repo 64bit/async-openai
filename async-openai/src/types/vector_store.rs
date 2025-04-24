@@ -270,6 +270,32 @@ pub struct VectorStoreFileBatchObject {
     pub file_counts: VectorStoreFileBatchCounts,
 }
 
+/// Represents the parsed content of a vector store file.
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct VectorStoreFileContentResponse {
+    /// The object type, which is always `vector_store.file_content.page`
+    pub object: String,
+
+    /// Parsed content of the file.
+    pub data: Vec<VectorStoreFileContentObject>,
+
+    /// Indicates if there are more content pages to fetch.
+    pub has_more: bool,
+
+    /// The token for the next page, if any.
+    pub next_page: Option<String>,
+}
+
+/// Represents the parsed content of a vector store file.
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+pub struct VectorStoreFileContentObject {
+    /// The content type (currently only `"text"`)
+    pub r#type: String,
+
+    /// The text content
+    pub text: String,
+}
+
 #[derive(Debug, Serialize, Default, Clone, Builder, PartialEq, Deserialize)]
 #[builder(name = "VectorStoreSearchRequestArgs")]
 #[builder(pattern = "mutable")]
