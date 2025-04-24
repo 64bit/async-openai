@@ -399,7 +399,7 @@ pub enum ComparisonValue {
 }
 
 /// Ranking options for search.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Default, Deserialize, Clone, PartialEq)]
 pub struct RankingOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ranker: Option<Ranker>,
@@ -420,7 +420,7 @@ pub enum Ranker {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CompoundFilter {
     /// Type of operation: `and` or `or`.
-    pub r#type: Option<CompoundFilterType>,
+    pub r#type: CompoundFilterType,
 
     /// Array of filters to combine. Items can be `ComparisonFilter` or `CompoundFilter`
     pub filters: Vec<ComparisonFilter>,
