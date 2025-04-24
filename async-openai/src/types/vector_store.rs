@@ -140,8 +140,8 @@ pub struct UpdateVectorStoreRequest {
 pub struct ListVectorStoreFilesResponse {
     pub object: String,
     pub data: Vec<VectorStoreFileObject>,
-    pub first_id: String,
-    pub last_id: String,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
     pub has_more: bool,
 }
 
