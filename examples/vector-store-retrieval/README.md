@@ -13,35 +13,21 @@ Lyft Annual Report obtained from https://investor.lyft.com/financials-and-report
 ## Output
 
 ```
-> Run Queued
-> In Progress ...
-> In Progress ...
-> In Progress ...
-> In Progress ...
-> In Progress ...
-> In Progress ...
-> In Progress ...
-> In Progress ...
-> In Progress ...
-> In Progress ...
-### Total Annual Profit of Uber and Lyft for 2023
-
-#### Uber
-For the year ended December 31, 2023, Uber Technologies, Inc. reported:
-- **Net Income:** $1.887 billion.
-- **Adjusted EBITDA:** $4.052 billion【4:2†source】 .
-
-#### Lyft
-For the year ended December 31, 2023, Lyft, Inc. reported:
-- **Net Loss:** $340.3 million.
-- **Adjusted EBITDA:** $222.4 million【4:1†source】 .
-
-### Summary
-- Uber reported a net income of $1.887 billion for 2023.
-- Lyft reported a net loss of $340.3 million for 2023.
-
-Uber was profitable in 2023, while Lyft incurred a significant loss.
-[FileCitation(MessageContentTextAnnotationsFileCitationObject { text: "【4:2†source】", file_citation: FileCitation { file_id: "file-YHlpVPi1RIr6jTjlCG54wsHq", quote: None }, start_index: 204, end_index: 216 }), FileCitation(MessageContentTextAnnotationsFileCitationObject { text: "【4:1†source】", file_citation: FileCitation { file_id: "file-2zGaN3VzwqRd9c3ZHa6mGk38", quote: None }, start_index: 358, end_index: 370 })]
-What was the total annual profit of Uber and Lyft?
-[]
+Waiting for vector store to be[] ready...
+Search results: VectorStoreSearchResultsPage {
+    object: "vector_store.search_results.page",
+    search_query: [
+        "uber profit",
+    ],
+    data: [
+        VectorStoreSearchResultItem {
+            file_id: "file-1XFoSYUzJudwJLkAazLdjd",
+            filename: "uber-10k.pdf",
+            score: 0.5618923,
+            attributes: {},
+            content: [
+                VectorStoreSearchResultContentObject {
+                    type: "text",
+                    text: "(In millions) Q1 2022 Q2 2022 Q3 2022 Q4 2022 Q1 2023 Q2 2023 Q3 2023 Q4 2023\n\nMobility $ 10,723 $ 13,364 $ 13,684 $ 14,894 $ 14,981 $ 16,728 $ 17,903 $ 19,285 \nDelivery 13,903 13,876 13,684 14,315 15,026 15,595 16,094 17,011 \nFreight 1,823 1,838 1,751 1,540 1,401 1,278 1,284 1,279 \n\nAdjusted EBITDA. 
+...
 ```
