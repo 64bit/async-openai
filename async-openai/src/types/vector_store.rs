@@ -363,6 +363,18 @@ pub enum VectorStoreSearchFilter {
     Compound(CompoundFilter),
 }
 
+impl From<ComparisonFilter> for VectorStoreSearchFilter {
+    fn from(filter: ComparisonFilter) -> Self {
+        Self::Comparison(filter)
+    }
+}
+
+impl From<CompoundFilter> for VectorStoreSearchFilter {
+    fn from(filter: CompoundFilter) -> Self {
+        Self::Compound(filter)
+    }
+}
+
 /// A filter used to compare a specified attribute key to a given value using a defined comparison operation.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ComparisonFilter {
@@ -395,6 +407,30 @@ pub enum ComparisonValue {
     String(String),
     Number(i64),
     Boolean(bool),
+}
+
+impl From<String> for ComparisonValue {
+    fn from(value: String) -> Self {
+        Self::String(value)
+    }
+}
+
+impl From<i64> for ComparisonValue {
+    fn from(value: i64) -> Self {
+        Self::Number(value)
+    }
+}
+
+impl From<bool> for ComparisonValue {
+    fn from(value: bool) -> Self {
+        Self::Boolean(value)
+    }
+}
+
+impl From<&str> for ComparisonValue {
+    fn from(value: &str) -> Self {
+        Self::String(value.to_string())
+    }
 }
 
 /// Ranking options for search.
