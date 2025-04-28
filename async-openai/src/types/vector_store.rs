@@ -367,8 +367,7 @@ pub enum VectorStoreSearchFilter {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ComparisonFilter {
     /// Specifies the comparison operator: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<ComparisonType>,
+    pub r#type: ComparisonType,
 
     /// The key to compare against the value.
     pub key: String,
