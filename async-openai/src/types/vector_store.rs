@@ -422,7 +422,7 @@ pub struct CompoundFilter {
     pub r#type: CompoundFilterType,
 
     /// Array of filters to combine. Items can be `ComparisonFilter` or `CompoundFilter`
-    pub filters: Vec<ComparisonFilter>,
+    pub filters: Vec<VectorStoreSearchFilter>,
 }
 
 /// Type of operation: `and` or `or`.
