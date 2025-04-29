@@ -209,7 +209,10 @@ pub enum VectorStoreFileObjectChunkingStrategy {
 pub struct CreateVectorStoreFileRequest {
     /// A [File](https://platform.openai.com/docs/api-reference/files) ID that the vector store should use. Useful for tools like `file_search` that can access files.
     pub file_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub chunking_strategy: Option<VectorStoreChunkingStrategy>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attributes: Option<HashMap<String, AttributeValue>>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -385,7 +388,7 @@ pub struct ComparisonFilter {
     pub key: String,
 
     /// The value to compare against the attribute key; supports string, number, or boolean types.
-    pub value: ComparisonValue,
+    pub value: AttributeValue,
 }
 
 /// Specifies the comparison operator: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`.
@@ -403,31 +406,31 @@ pub enum ComparisonType {
 /// The value to compare against the attribute key; supports string, number, or boolean types.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(untagged)]
-pub enum ComparisonValue {
+pub enum AttributeValue {
     String(String),
     Number(i64),
     Boolean(bool),
 }
 
-impl From<String> for ComparisonValue {
+impl From<String> for AttributeValue {
     fn from(value: String) -> Self {
         Self::String(value)
     }
 }
 
-impl From<i64> for ComparisonValue {
+impl From<i64> for AttributeValue {
     fn from(value: i64) -> Self {
         Self::Number(value)
     }
 }
 
-impl From<bool> for ComparisonValue {
+impl From<bool> for AttributeValue {
     fn from(value: bool) -> Self {
         Self::Boolean(value)
     }
 }
 
-impl From<&str> for ComparisonValue {
+impl From<&str> for AttributeValue {
     fn from(value: &str) -> Self {
         Self::String(value.to_string())
     }
@@ -499,7 +502,7 @@ pub struct VectorStoreSearchResultItem {
     pub score: f32, // minimum: 0, maximum: 1
 
     /// Attributes of the vector store file.
-    pub attributes: HashMap<String, serde_json::Value>,
+    pub attributes: HashMap<String, AttributeValue>,
 
     /// Content chunks from the file.
     pub content: Vec<VectorStoreSearchResultContentObject>,
