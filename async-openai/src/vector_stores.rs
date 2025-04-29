@@ -5,7 +5,8 @@ use crate::{
     error::OpenAIError,
     types::{
         CreateVectorStoreRequest, DeleteVectorStoreResponse, ListVectorStoresResponse,
-        UpdateVectorStoreRequest, VectorStoreObject,
+        UpdateVectorStoreRequest, VectorStoreObject, VectorStoreSearchRequest,
+        VectorStoreSearchResultsPage,
     },
     vector_store_file_batches::VectorStoreFileBatches,
     Client, VectorStoreFiles,
@@ -76,6 +77,18 @@ impl<'c, C: Config> VectorStores<'c, C> {
     ) -> Result<VectorStoreObject, OpenAIError> {
         self.client
             .post(&format!("/vector_stores/{vector_store_id}"), request)
+            .await
+    }
+
+    /// Searches a vector store.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn search(
+        &self,
+        vector_store_id: &str,
+        request: VectorStoreSearchRequest,
+    ) -> Result<VectorStoreSearchResultsPage, OpenAIError> {
+        self.client
+            .post(&format!("/vector_stores/{vector_store_id}/search"), request)
             .await
     }
 }
