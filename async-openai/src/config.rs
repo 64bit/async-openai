@@ -22,7 +22,7 @@ pub trait Config: Clone {
 
     fn api_base(&self) -> &str;
 
-    fn api_key(&self) -> &SecretString;
+    fn api_key(&self) -> SecretString;
 }
 
 /// Configuration for OpenAI API
@@ -126,8 +126,8 @@ impl Config for OpenAIConfig {
         &self.api_base
     }
 
-    fn api_key(&self) -> &SecretString {
-        &self.api_key
+    fn api_key(&self) -> SecretString {
+        self.api_key.clone()
     }
 
     fn query(&self) -> Vec<(&str, &str)> {
@@ -224,9 +224,9 @@ impl Config for AzureConfig {
         &self.api_base
     }
 
-    fn api_key(&self) -> &SecretString {
+    fn api_key(&self) -> SecretString {
         match self.auth {
-            AzureAuthOption::ApiKey(ref api_key) => api_key,
+            AzureAuthOption::ApiKey(ref api_key) => api_key.clone(),
             AzureAuthOption::EntraToken(_) => panic!("AzureAuthOption::EntraToken"),
         }
     }
