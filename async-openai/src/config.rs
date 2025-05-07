@@ -32,7 +32,7 @@ pub trait Config: Clone {
 #[serde(default)]
 pub struct OpenAIConfig {
     api_base: String,
-    api_key: SecretString,
+    api_key: Arc<SecretString>,
     org_id: String,
     project_id: String,
 }
@@ -41,9 +41,11 @@ impl Default for OpenAIConfig {
     fn default() -> Self {
         Self {
             api_base: OPENAI_API_BASE.to_string(),
-            api_key: std::env::var("OPENAI_API_KEY")
-                .unwrap_or_else(|_| "".to_string())
-                .into(),
+            api_key: Arc::new(
+                std::env::var("OPENAI_API_KEY")
+                    .unwrap_or_else(|_| "".to_string())
+                    .into(),
+            ),
             org_id: Default::default(),
             project_id: Default::default(),
         }
@@ -70,7 +72,7 @@ impl OpenAIConfig {
 
     /// To use a different API key different from default OPENAI_API_KEY env var
     pub fn with_api_key<S: Into<String>>(mut self, api_key: S) -> Self {
-        self.api_key = SecretString::from(api_key.into());
+        self.api_key = Arc::new(SecretString::from(api_key.into()));
         self
     }
 
@@ -129,7 +131,7 @@ impl Config for OpenAIConfig {
     }
 
     fn api_key(&self) -> Arc<SecretString> {
-        Arc::new(self.api_key.clone())
+        Arc::clone(&self.api_key)
     }
 
     fn query(&self) -> Vec<(&str, &str)> {
@@ -140,14 +142,14 @@ impl Config for OpenAIConfig {
 /// The possible options to authenticate with Azure OpenAI Services.
 #[derive(Clone, Debug, Deserialize)]
 enum AzureAuthOption {
-    ApiKey(SecretString),
-    EntraToken(SecretString),
+    ApiKey(Arc<SecretString>),
+    EntraToken(Arc<SecretString>),
 }
 
 impl Default for AzureAuthOption {
     fn default() -> Self {
         let api_key = std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string());
-        Self::ApiKey(api_key.into())
+        Self::ApiKey(Arc::new(api_key.into()))
     }
 }
 
@@ -177,12 +179,12 @@ impl AzureConfig {
 
     /// To use a different API key different from default OPENAI_API_KEY env var
     pub fn with_api_key<S: Into<String>>(mut self, api_key: S) -> Self {
-        self.auth = AzureAuthOption::ApiKey(SecretString::from(api_key.into()));
+        self.auth = AzureAuthOption::ApiKey(Arc::new(SecretString::from(api_key.into())));
         self
     }
 
     pub fn with_entra_token<S: Into<String>>(mut self, entra_token: S) -> Self {
-        self.auth = AzureAuthOption::EntraToken(SecretString::from(entra_token.into()));
+        self.auth = AzureAuthOption::EntraToken(Arc::new(SecretString::from(entra_token.into())));
         self
     }
 
@@ -228,7 +230,7 @@ impl Config for AzureConfig {
 
     fn api_key(&self) -> Arc<SecretString> {
         match self.auth {
-            AzureAuthOption::ApiKey(ref api_key) => Arc::new(api_key.clone()),
+            AzureAuthOption::ApiKey(ref api_key) => Arc::clone(api_key),
             AzureAuthOption::EntraToken(_) => panic!("AzureAuthOption::EntraToken"),
         }
     }
