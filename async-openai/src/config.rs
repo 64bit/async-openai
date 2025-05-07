@@ -1,7 +1,9 @@
 //! Client configurations: [OpenAIConfig] for OpenAI, [AzureConfig] for Azure OpenAI Service.
+
 use reqwest::header::{HeaderMap, AUTHORIZATION};
 use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
+use std::sync::Arc;
 
 /// Default v1 API base url
 pub const OPENAI_API_BASE: &str = "https://api.openai.com/v1";
@@ -22,7 +24,7 @@ pub trait Config: Clone {
 
     fn api_base(&self) -> &str;
 
-    fn api_key(&self) -> SecretString;
+    fn api_key(&self) -> Arc<SecretString>;
 }
 
 /// Configuration for OpenAI API
@@ -126,8 +128,8 @@ impl Config for OpenAIConfig {
         &self.api_base
     }
 
-    fn api_key(&self) -> SecretString {
-        self.api_key.clone()
+    fn api_key(&self) -> Arc<SecretString> {
+        Arc::new(self.api_key.clone())
     }
 
     fn query(&self) -> Vec<(&str, &str)> {
@@ -224,9 +226,9 @@ impl Config for AzureConfig {
         &self.api_base
     }
 
-    fn api_key(&self) -> SecretString {
+    fn api_key(&self) -> Arc<SecretString> {
         match self.auth {
-            AzureAuthOption::ApiKey(ref api_key) => api_key.clone(),
+            AzureAuthOption::ApiKey(ref api_key) => Arc::new(api_key.clone()),
             AzureAuthOption::EntraToken(_) => panic!("AzureAuthOption::EntraToken"),
         }
     }
