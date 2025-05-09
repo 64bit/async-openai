@@ -149,6 +149,7 @@ mod projects;
 mod runs;
 mod steps;
 mod threads;
+pub mod tools;
 pub mod traits;
 pub mod types;
 mod uploads;

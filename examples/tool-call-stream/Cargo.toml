@@ -7,8 +7,10 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-openai = {path = "../../async-openai"}
+async-openai = { path = "../../async-openai" }
 rand = "0.8.5"
+serde = "1.0"
 serde_json = "1.0.135"
 tokio = { version = "1.43.0", features = ["full"] }
 futures = "0.3.31"
+schemars = "0.8.22"
