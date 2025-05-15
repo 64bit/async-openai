@@ -14,7 +14,7 @@ use crate::{
     moderation::Moderations,
     traits::AsyncTryFrom,
     Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
-    Models, Projects, Threads, Uploads, Users, VectorStores,
+    Models, Projects, Responses, Threads, Uploads, Users, VectorStores,
 };
 
 #[derive(Debug, Clone, Default)]
@@ -160,6 +160,11 @@ impl<C: Config> Client<C> {
     /// To call [Projects] group related APIs using this client.
     pub fn projects(&self) -> Projects<C> {
         Projects::new(self)
+    }
+
+    /// To call [Responses] group related APIs using this client.
+    pub fn responses(&self) -> Responses<C> {
+        Responses::new(self)
     }
 
     pub fn config(&self) -> &C {
@@ -341,7 +346,12 @@ impl<C: Config> Client<C> {
                 let message: String = String::from_utf8_lossy(&bytes).into_owned();
                 tracing::warn!("Server error: {status} - {message}");
                 return Err(backoff::Error::Transient {
-                    err: OpenAIError::ApiError(ApiError { message, r#type: None, param: None, code: None }),
+                    err: OpenAIError::ApiError(ApiError {
+                        message,
+                        r#type: None,
+                        param: None,
+                        code: None,
+                    }),
                     retry_after: None,
                 });
             }
