@@ -36,6 +36,7 @@
   - [x] Moderations
   - [x] Organizations | Administration (partially implemented)
   - [x] Realtime (Beta) (partially implemented)
+  - [ ] Responses (yet to be implemented)
   - [x] Uploads
 - Bring your own custom types for Request or Response objects.
 - SSE streaming on available APIs
@@ -135,7 +136,7 @@ let response: Value = client
 ```
 
 This can be useful in many scenarios:
-- To use this library with other OpenAI compatible APIs whose types don't exactly match OpenAI. 
+- To use this library with other OpenAI compatible APIs whose types don't exactly match OpenAI.
 - Extend existing types in this crate with new fields with `serde`.
 - To avoid verbose types.
 - To escape deserialization errors.
