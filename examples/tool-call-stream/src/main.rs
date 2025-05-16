@@ -72,7 +72,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             let state = states_lock.entry(key).or_insert_with(|| {
                                 ChatCompletionMessageToolCall {
                                     id: tool_call_data.id.clone().unwrap_or_default(),
-                                    r#type: ChatCompletionToolType::Function,
+                                    r#type: Some(ChatCompletionToolType::Function),
                                     function: FunctionCall {
                                         name: tool_call_data
                                             .function
