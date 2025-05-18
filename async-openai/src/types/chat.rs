@@ -556,6 +556,45 @@ pub enum ChatCompletionToolChoiceOption {
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
+/// The amount of context window space to use for the search.
+pub enum WebSearchContextSize {
+    Low,
+    Medium,
+    High,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum WebSearchUserLocationApproximationType {
+    Approximate,
+}
+
+#[derive(Clone, Serialize, Debug, Default, Deserialize, PartialEq)]
+pub struct WebSearchUserLocationApproximation {
+    pub city: Option<String>,
+    pub country: Option<String>,
+    pub region: Option<String>,
+    pub timezone: Option<String>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct WebSearchUserLocation {
+    pub r#type: WebSearchUserLocationApproximationType,
+    pub approximate: WebSearchUserLocationApproximation,
+}
+
+/// Options for the web search tool.
+#[derive(Clone, Serialize, Debug, Default, Deserialize, PartialEq)]
+pub struct WebSearchOptions {
+    /// High level guidance for the amount of context window space to use for the search.
+    pub search_context_size: Option<WebSearchContextSize>,
+
+    /// Approximate location parameters for the search.
+    pub user_location: Option<WebSearchUserLocation>,
+}
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
 pub enum ServiceTier {
     Auto,
     Default,
@@ -797,6 +836,10 @@ pub struct CreateChatCompletionRequest {
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
+
+    /// This tool searches the web for relevant results to use in a response.
+    /// Not all models support this tool. See the [documentation](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
+    pub web_search_options: Option<WebSearchOptions>,
 
     /// Deprecated in favor of `tool_choice`.
     ///
