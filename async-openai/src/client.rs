@@ -14,7 +14,7 @@ use crate::{
     moderation::Moderations,
     traits::AsyncTryFrom,
     Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
-    Models, Projects, Threads, Uploads, Users, VectorStores,
+    Models, Projects, Threads, Tokenize, Uploads, Users, VectorStores,
 };
 
 #[derive(Debug, Clone, Default)]
@@ -85,6 +85,11 @@ impl<C: Config> Client<C> {
     /// To call [Chat] group related APIs using this client.
     pub fn chat(&self) -> Chat<C> {
         Chat::new(self)
+    }
+
+    /// To call [Tokenize] group related APIs using this client.
+    pub fn tokenize(&self) -> Tokenize<C> {
+        Tokenize::new(self)
     }
 
     /// To call [Images] group related APIs using this client.

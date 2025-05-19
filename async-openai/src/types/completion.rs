@@ -48,7 +48,6 @@ pub struct CreateCompletionRequest {
     pub top_p: Option<f32>, // min: 0, max: 1, default: 1
 
     /// How many completions to generate for each prompt.
-
     /// **Note:** Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for `max_tokens` and `stop`.
     ///
     #[serde(skip_serializing_if = "Option::is_none")]
