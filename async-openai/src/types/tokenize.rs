@@ -4,6 +4,7 @@ use crate::types::chat::CreateChatCompletionRequest;
 use crate::types::completion::CreateCompletionRequest;
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[serde(untagged)]
 pub enum CreateTokenizeRequest {
     Chat(CreateChatCompletionRequest),
     Completion(CreateCompletionRequest),
