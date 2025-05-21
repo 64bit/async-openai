@@ -11440,6 +11440,10 @@ components:
                     description: The voice to use when generating the audio. Supported voices are `alloy`, `echo`, `fable`, `onyx`, `nova`, and `shimmer`. Previews of the voices are available in the [Text to speech guide](/docs/guides/text-to-speech/voice-options).
                     type: string
                     enum: ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+                instructions:
+                    description: |
+                        Control the voice of your generated audio with additional instructions. Does not work with `tts-1` or `tts-1-hd`.
+                    type: string
                 response_format:
                     description: "The format to audio in. Supported formats are `mp3`, `opus`, `aac`, `flac`, `wav`, and `pcm`."
                     default: "mp3"
