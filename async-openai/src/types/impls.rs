@@ -23,12 +23,13 @@ use super::{
     ChatCompletionRequestSystemMessage, ChatCompletionRequestSystemMessageContent,
     ChatCompletionRequestToolMessage, ChatCompletionRequestToolMessageContent,
     ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
-    ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption, CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
-    CreateSpeechResponse, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
-    EmbeddingInput, FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel,
-    ImageResponseFormat, ImageSize, ImageUrl, ImagesResponse, ModerationInput, Prompt, Role, Stop,
-    TimestampGranularity,
+    ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption,
+    CodeInterpreterContainer, CreateFileRequest, CreateImageEditRequest,
+    CreateImageVariationRequest, CreateMessageRequestContent, CreateSpeechResponse,
+    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
+    FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageResponseFormat,
+    ImageSize, ImageUrl, ImagesResponse, InputContent, ModerationInput, Prompt, ResponseInput,
+    ResponsesRole, Role, Stop, TimestampGranularity,
 };
 
 /// for `impl_from!(T, Enum)`, implements
@@ -987,3 +988,51 @@ impl AsyncTryFrom<AddUploadPartRequest> for reqwest::multipart::Form {
 }
 
 // end: types to multipart form
+
+impl Default for ResponseInput {
+    fn default() -> Self {
+        Self::Text("".to_string())
+    }
+}
+
+impl Default for InputContent {
+    fn default() -> Self {
+        Self::TextInput("".to_string())
+    }
+}
+
+impl From<String> for ResponseInput {
+    fn from(value: String) -> Self {
+        ResponseInput::Text(value)
+    }
+}
+
+impl From<&str> for ResponseInput {
+    fn from(value: &str) -> Self {
+        ResponseInput::Text(value.to_owned())
+    }
+}
+
+impl Default for ResponsesRole {
+    fn default() -> Self {
+        Self::User
+    }
+}
+
+impl From<String> for InputContent {
+    fn from(value: String) -> Self {
+        Self::TextInput(value)
+    }
+}
+
+impl From<&str> for InputContent {
+    fn from(value: &str) -> Self {
+        Self::TextInput(value.to_owned())
+    }
+}
+
+impl Default for CodeInterpreterContainer {
+    fn default() -> Self {
+        CodeInterpreterContainer::Id("".to_string())
+    }
+}
