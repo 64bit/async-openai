@@ -39,9 +39,10 @@ pub enum Input {
 
 /// A context item: currently only messages.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(untagged, rename_all = "snake_case")]
 pub enum InputItem {
     Message(InputMessage),
+    Custom(serde_json::Value),
 }
 
 /// A message to prime the model.
@@ -54,11 +55,20 @@ pub enum InputItem {
 )]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct InputMessage {
+    #[serde(default, rename = "type")]
+    pub kind: InputMessageType,
     /// The role of the message input.
     pub role: Role,
     /// Text, image, or audio input to the model, used to generate a response. Can also contain
     /// previous assistant responses.
     pub content: InputContent,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum InputMessageType {
+    #[default]
+    Message,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
