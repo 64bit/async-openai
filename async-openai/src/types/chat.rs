@@ -586,7 +586,7 @@ pub struct WebSearchUserLocation {
     //  The type of location approximation. Always `approximate`.
     pub r#type: WebSearchUserLocationType,
 
-    pub approximate: WebSearchUserLocationApproximation,
+    pub approximate: WebSearchLocation,
 }
 
 /// Options for the web search tool.
