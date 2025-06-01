@@ -554,6 +554,57 @@ pub enum ChatCompletionToolChoiceOption {
     Named(ChatCompletionNamedToolChoice),
 }
 
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+/// The amount of context window space to use for the search.
+pub enum WebSearchContextSize {
+    Low,
+    #[default]
+    Medium,
+    High,
+}
+
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum WebSearchUserLocationType {
+
+    Approximate,
+}
+
+/// Approximate location parameters for the search.
+#[derive(Clone, Serialize, Debug, Default, Deserialize, PartialEq)]
+pub struct WebSearchLocation {
+    ///  The two-letter [ISO country code](https://en.wikipedia.org/wiki/ISO_3166-1) of the user, e.g. `US`.
+    pub country: Option<String>,
+    /// Free text input for the region of the user, e.g. `California`.
+    pub region: Option<String>,
+    /// Free text input for the city of the user, e.g. `San Francisco`.
+    pub city: Option<String>,
+    /// The [IANA timezone](https://timeapi.io/documentation/iana-timezones) of the user, e.g. `America/Los_Angeles`.
+    pub timezone: Option<String>,
+}
+
+
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+pub struct WebSearchUserLocation {
+    //  The type of location approximation. Always `approximate`.
+    pub r#type: WebSearchUserLocationType,
+
+    pub approximate: WebSearchLocation,
+}
+
+/// Options for the web search tool.
+#[derive(Clone, Serialize, Debug, Default, Deserialize, PartialEq)]
+pub struct WebSearchOptions {
+    /// High level guidance for the amount of context window space to use for the search. One of `low`, `medium`, or `high`. `medium` is the default.
+
+    pub search_context_size: Option<WebSearchContextSize>,
+
+    /// Approximate location parameters for the search.
+    pub user_location: Option<WebSearchUserLocation>,
+}
+
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ServiceTier {
@@ -797,6 +848,11 @@ pub struct CreateChatCompletionRequest {
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
+
+    /// This tool searches the web for relevant results to use in a response.
+    /// Learn more about the [web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
+
+    pub web_search_options: Option<WebSearchOptions>,
 
     /// Deprecated in favor of `tool_choice`.
     ///
