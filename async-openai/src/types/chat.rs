@@ -554,14 +554,16 @@ pub enum ChatCompletionToolChoiceOption {
     Named(ChatCompletionNamedToolChoice),
 }
 
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
 /// The amount of context window space to use for the search.
 pub enum WebSearchContextSize {
     Low,
+    #[default]
     Medium,
     High,
 }
+
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
