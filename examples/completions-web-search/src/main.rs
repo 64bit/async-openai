@@ -20,8 +20,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .web_search_options(WebSearchOptions {
             search_context_size: Some(WebSearchContextSize::Low),
             user_location: Some(WebSearchUserLocation {
-                r#type: WebSearchUserLocationApproximationType::Approximate,
-                approximate: WebSearchUserLocationApproximation {
+                r#type: WebSearchUserLocationType::Approximate,
+                approximate: WebSearchLocation {
                     city: Some("Paris".to_string()),
                     ..Default::default()
                 },
