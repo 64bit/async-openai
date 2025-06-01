@@ -583,7 +583,9 @@ pub struct WebSearchLocation {
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct WebSearchUserLocation {
-    pub r#type: WebSearchUserLocationApproximationType,
+    //  The type of location approximation. Always `approximate`.
+    pub r#type: WebSearchUserLocationType,
+
     pub approximate: WebSearchUserLocationApproximation,
 }
 
