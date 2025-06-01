@@ -592,7 +592,8 @@ pub struct WebSearchUserLocation {
 /// Options for the web search tool.
 #[derive(Clone, Serialize, Debug, Default, Deserialize, PartialEq)]
 pub struct WebSearchOptions {
-    /// High level guidance for the amount of context window space to use for the search.
+    /// High level guidance for the amount of context window space to use for the search. One of `low`, `medium`, or `high`. `medium` is the default.
+
     pub search_context_size: Option<WebSearchContextSize>,
 
     /// Approximate location parameters for the search.
