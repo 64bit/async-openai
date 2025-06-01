@@ -68,5 +68,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Print the search results
     println!("Search results: {:#?}", results);
+    // Cleanup to avoid costs 
+    let _ = client
+        .vector_stores()
+        .delete(&vector_store.id)
+        .await?;
+    
+    let _ = client
+        .files()
+        .delete(&uber_file.id)
+        .await?;
+    
+    let _ = client
+        .files()
+        .delete(&lyft_file)
+        .await?;
     Ok(())
 }
