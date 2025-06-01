@@ -81,7 +81,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     
     let _ = client
         .files()
-        .delete(&lyft_file)
+        .delete(&lyft_file.id)
         .await?;
     Ok(())
 }
