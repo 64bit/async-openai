@@ -844,8 +844,7 @@ pub struct CreateChatCompletionRequest {
     pub user: Option<String>,
 
     /// This tool searches the web for relevant results to use in a response.
-    /// Learn more about the [web search
-                tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
+    /// Learn more about the [web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
 
     pub web_search_options: Option<WebSearchOptions>,
 
