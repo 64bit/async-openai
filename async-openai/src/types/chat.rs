@@ -567,7 +567,8 @@ pub enum WebSearchContextSize {
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum WebSearchUserLocationApproximationType {
+pub enum WebSearchUserLocationType {
+
     Approximate,
 }
 
