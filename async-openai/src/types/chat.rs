@@ -572,7 +572,8 @@ pub enum WebSearchUserLocationApproximationType {
 }
 
 #[derive(Clone, Serialize, Debug, Default, Deserialize, PartialEq)]
-pub struct WebSearchUserLocationApproximation {
+pub struct WebSearchLocation {
+
     pub city: Option<String>,
     pub country: Option<String>,
     pub region: Option<String>,
