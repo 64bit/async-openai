@@ -847,6 +847,7 @@ pub struct CreateChatCompletionRequest {
 
     /// This tool searches the web for relevant results to use in a response.
     /// Learn more about the [web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub web_search_options: Option<WebSearchOptions>,
 
     /// Deprecated in favor of `tool_choice`.
