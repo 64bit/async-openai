@@ -1,7 +1,6 @@
 use async_openai::types::{
-    ChatCompletionRequestUserMessageArgs, WebSearchContextSize, WebSearchOptions,
-    WebSearchUserLocation, WebSearchLocation,
-    WebSearchUserLocationType,
+    ChatCompletionRequestUserMessageArgs, WebSearchContextSize, WebSearchLocation,
+    WebSearchOptions, WebSearchUserLocation, WebSearchUserLocationType,
 };
 use async_openai::{types::CreateChatCompletionRequestArgs, Client};
 
