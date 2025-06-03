@@ -1,5 +1,5 @@
 //! Errors originating from API calls, parsing responses, and reading-or-writing to the file system.
-use serde::Deserialize;
+use serde::{de::Error, Deserialize};
 
 #[derive(Debug, thiserror::Error)]
 pub enum OpenAIError {
@@ -68,9 +68,15 @@ pub(crate) struct WrappedError {
 }
 
 pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> OpenAIError {
+    let json_content = String::from_utf8_lossy(bytes);
     tracing::error!(
         "failed deserialization of: {}",
-        String::from_utf8_lossy(bytes)
+        json_content
     );
-    OpenAIError::JSONDeserialize(e)
+
+    // Create a custom error that includes the JSON content
+    let enhanced_error = serde_json::Error::custom(format!(
+        "{e} | JSON content: {json_content}"));
+
+    OpenAIError::JSONDeserialize(enhanced_error)
 }
