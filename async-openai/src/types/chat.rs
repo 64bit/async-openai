@@ -3,6 +3,7 @@ use std::{collections::HashMap, pin::Pin};
 use derive_builder::Builder;
 use futures::Stream;
 use serde::{Deserialize, Serialize};
+use serde_json::{Map, Value};
 
 use crate::error::OpenAIError;
 
@@ -868,6 +869,11 @@ pub struct CreateChatCompletionRequest {
     #[deprecated]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub functions: Option<Vec<ChatCompletionFunctions>>,
+
+    /// Add additional JSON properties to the request
+    #[serde(flatten)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub extra_body: Option<Map<String, Value>>,
 }
 
 /// Options for streaming response. Only set this when you set `stream: true`.
