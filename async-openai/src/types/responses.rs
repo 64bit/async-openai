@@ -940,6 +940,7 @@ pub enum FileSearchCallOutputStatus {
     Searching,
     Incomplete,
     Failed,
+    Completed,
 }
 
 /// A single result from a file search.
