@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::types::{
+    responses::{self, Function, ToolDefinition},
     ChatCompletionMessageToolCall, ChatCompletionMessageToolCallChunk,
     ChatCompletionRequestToolMessage, ChatCompletionTool, ChatCompletionToolType, FunctionCall,
     FunctionObject,
@@ -29,7 +30,7 @@ pub trait Tool: Send + Sync {
 
     /// Returns the name of the tool.
     fn name() -> String {
-        Self::Args::schema_name()
+        Self::Args::schema_name().to_string()
     }
 
     /// Returns an optional description of the tool.
@@ -42,8 +43,8 @@ pub trait Tool: Send + Sync {
         None
     }
 
-    /// Creates a ChatCompletionTool definition for the tool.
-    fn definition() -> ChatCompletionTool {
+    /// Returns the tool's definition for chat.
+    fn definition_for_chat() -> ChatCompletionTool {
         ChatCompletionTool {
             r#type: ChatCompletionToolType::Function,
             function: FunctionObject {
@@ -53,6 +54,16 @@ pub trait Tool: Send + Sync {
                 strict: Self::strict(),
             },
         }
+    }
+
+    /// Returns the tool's definition for responses.
+    fn definition_for_responses() -> ToolDefinition {
+        ToolDefinition::Function(Function {
+            name: Self::name(),
+            description: Self::description(),
+            parameters: json!(schema_for!(Self::Args)),
+            strict: Self::strict().unwrap_or(false),
+        })
     }
 
     /// Executes the tool with the given arguments.
@@ -66,8 +77,14 @@ pub trait Tool: Send + Sync {
 /// A dynamic trait for tools that allows for runtime tool management.
 /// This trait provides a way to work with tools without knowing their concrete types at compile time.
 pub trait ToolDyn: Send + Sync {
-    /// Returns the tool's definition as a ChatCompletionTool.
-    fn definition(&self) -> ChatCompletionTool;
+    /// Returns the tool's name.
+    fn name(&self) -> String;
+
+    /// Returns the tool's definition for chat.
+    fn definition_for_chat(&self) -> ChatCompletionTool;
+
+    /// Returns the tool's definition for responses.
+    fn definition_for_responses(&self) -> ToolDefinition;
 
     /// Executes the tool with the given JSON string arguments.
     /// Returns a Future that resolves to either a JSON string output or an error string.
@@ -79,8 +96,16 @@ pub trait ToolDyn: Send + Sync {
 
 // Implementation of ToolDyn for any type that implements Tool
 impl<T: Tool> ToolDyn for T {
-    fn definition(&self) -> ChatCompletionTool {
-        T::definition()
+    fn name(&self) -> String {
+        T::name()
+    }
+
+    fn definition_for_chat(&self) -> ChatCompletionTool {
+        T::definition_for_chat()
+    }
+
+    fn definition_for_responses(&self) -> ToolDefinition {
+        T::definition_for_responses()
     }
 
     fn call(
@@ -125,15 +150,14 @@ impl ToolManager {
 
     /// Adds a new tool to the manager.
     pub fn add_tool<T: Tool + 'static>(&mut self, tool: T) {
-        self.tools
-            .insert(T::name(), Arc::new(tool));
+        self.tools.insert(T::name(), Arc::new(tool));
     }
 
     /// Adds a new tool with an Arc to the manager.
     ///
     /// Use this if you want to access this tool after being added to the manager.
     pub fn add_tool_dyn(&mut self, tool: Arc<dyn ToolDyn>) {
-        self.tools.insert(tool.definition().function.name, tool);
+        self.tools.insert(tool.name(), tool);
     }
 
     /// Removes a tool from the manager.
@@ -141,13 +165,24 @@ impl ToolManager {
         self.tools.remove(name).is_some()
     }
 
-    /// Returns the definitions of all tools in the manager.
-    pub fn get_tools(&self) -> Vec<ChatCompletionTool> {
-        self.tools.values().map(|tool| tool.definition()).collect()
+    /// Returns the definitions of all tools for chat in the manager.
+    pub fn get_tools_for_chat(&self) -> Vec<ChatCompletionTool> {
+        self.tools
+            .values()
+            .map(|tool| tool.definition_for_chat())
+            .collect()
     }
 
-    /// Executes multiple tool calls concurrently and returns their results.
-    pub async fn call(
+    /// Returns the definitions of all tools for responses in the manager.
+    pub fn get_tools_for_responses(&self) -> Vec<ToolDefinition> {
+        self.tools
+            .values()
+            .map(|tool| tool.definition_for_responses())
+            .collect()
+    }
+
+    /// Executes multiple tool calls concurrently and returns their results for chat.
+    pub async fn call_for_chat(
         &self,
         calls: impl IntoIterator<Item = ChatCompletionMessageToolCall>,
     ) -> Vec<ChatCompletionRequestToolMessage> {
@@ -180,6 +215,46 @@ impl ToolManager {
                 content: output.into(),
                 tool_call_id: id,
             });
+        }
+        outputs
+    }
+
+    /// Executes multiple tool calls concurrently and returns their results for responses.
+    pub async fn call_for_responses(
+        &self,
+        calls: impl IntoIterator<Item = responses::FunctionCall>,
+    ) -> Vec<responses::InputItem> {
+        let mut handles = Vec::new();
+        let mut outputs = Vec::new();
+
+        // Spawn a task for each tool call
+        for call in calls {
+            if let Some(tool) = self.tools.get(&call.name).cloned() {
+                let handle = tokio::spawn(async move { tool.call(call.arguments).await });
+                handles.push((call.call_id, handle));
+            } else {
+                outputs.push(responses::InputItem::Custom(json!({
+                    "type": "function_call_output",
+                    "call_id": call.call_id,
+                    "output": "Tool call failed: tool not found",
+                })));
+            }
+        }
+
+        // Collect results from all spawned tasks
+        for (id, handle) in handles {
+            let output = match handle.await {
+                Ok(Ok(output)) => output,
+                Ok(Err(e)) => {
+                    format!("Tool call failed: {}", e)
+                }
+                Err(_) => "Tool call failed: runtime error".to_string(),
+            };
+            outputs.push(responses::InputItem::Custom(json!({
+                "type": "function_call_output",
+                "call_id": id,
+                "output": output,
+            })));
         }
         outputs
     }

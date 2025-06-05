@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let weather_tool = WeatherTool;
     let mut tool_manager = ToolManager::new();
     tool_manager.add_tool(weather_tool);
-    let tools = tool_manager.get_tools();
+    let tools = tool_manager.get_tools_for_chat();
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u32)
         .model("gpt-4-1106-preview")
@@ -48,7 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .build()?
                 .into();
 
-        let function_responses = tool_manager.call(tool_calls.clone()).await;
+        let function_responses = tool_manager.call_for_chat(tool_calls.clone()).await;
         let tool_messages: Vec<ChatCompletionRequestMessage> = function_responses
             .into_iter()
             .map(|res| res.into())

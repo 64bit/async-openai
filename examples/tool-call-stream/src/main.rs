@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let weather_tool = WeatherTool;
     let mut tool_manager = ToolManager::new();
     tool_manager.add_tool(weather_tool);
-    let tools = tool_manager.get_tools();
+    let tools = tool_manager.get_tools_for_chat();
 
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u32)
@@ -70,7 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("The response is not ended with tool call");
     }
     let tool_calls = tool_call_stream_manager.finish_stream();
-    let function_responses = tool_manager.call(tool_calls.clone()).await;
+    let function_responses = tool_manager.call_for_chat(tool_calls.clone()).await;
 
     let assistant_messages: ChatCompletionRequestMessage =
         ChatCompletionRequestAssistantMessageArgs::default()
