@@ -1,6 +1,6 @@
 [package]
 name = "async-openai"
-version = "0.28.1"
+version = "0.28.2"
 authors = ["Himanshu Neema"]
 categories = ["api-bindings", "web-programming", "asynchronous"]
 keywords = ["openai", "async", "openapi", "ai"]

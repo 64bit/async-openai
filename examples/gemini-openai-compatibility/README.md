@@ -53,6 +53,12 @@ This will:
 9. Function calling
 10. Create Embeddings
 
+## Data
+Sample Image obtained from Unsplash - https://unsplash.com/photos/an-elderly-couple-walks-through-a-park-Mpf6IQpiq3A
+
+Sample Audio extracted from "How to Stop Holding Yourself Back | Simon Sinek" obtained from https://www.youtube.com/watch?v=W05FYkqv7hM
+
+
 
 ## References
 - [Google Gemini's OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai)

@@ -5,7 +5,7 @@ use crate::{
     error::OpenAIError,
     types::{
         CreateVectorStoreFileRequest, DeleteVectorStoreFileResponse, ListVectorStoreFilesResponse,
-        VectorStoreFileObject,
+        VectorStoreFileContentResponse, VectorStoreFileObject,
     },
     Client,
 };
@@ -76,6 +76,20 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
                 &format!("/vector_stores/{}/files", &self.vector_store_id),
                 &query,
             )
+            .await
+    }
+
+    /// Retrieve the parsed contents of a vector store file.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve_file_content(
+        &self,
+        file_id: &str,
+    ) -> Result<VectorStoreFileContentResponse, OpenAIError> {
+        self.client
+            .get(&format!(
+                "/vector_stores/{}/files/{file_id}/content",
+                &self.vector_store_id
+            ))
             .await
     }
 }

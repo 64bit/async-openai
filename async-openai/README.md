@@ -36,6 +36,7 @@
   - [x] Moderations
   - [x] Organizations | Administration (partially implemented)
   - [x] Realtime (Beta) (partially implemented)
+  - [x] Responses (partially implemented)
   - [x] Uploads
 - Bring your own custom types for Request or Response objects.
 - SSE streaming on available APIs
