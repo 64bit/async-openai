@@ -606,6 +606,7 @@ pub struct WebSearchOptions {
 pub enum ServiceTier {
     Auto,
     Default,
+    Flex,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -613,6 +614,7 @@ pub enum ServiceTier {
 pub enum ServiceTierResponse {
     Scale,
     Default,
+    Flex,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
