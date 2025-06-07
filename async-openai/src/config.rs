@@ -15,7 +15,7 @@ pub const OPENAI_BETA_HEADER: &str = "OpenAI-Beta";
 
 /// [crate::Client] relies on this for every API call on OpenAI
 /// or Azure OpenAI service
-pub trait Config: Clone {
+pub trait Config {
     fn headers(&self) -> HeaderMap;
     fn url(&self, path: &str) -> String;
     fn query(&self) -> Vec<(&str, &str)>;
@@ -24,6 +24,33 @@ pub trait Config: Clone {
 
     fn api_key(&self) -> &SecretString;
 }
+
+/// Macro to implement Config trait for pointer types with dyn objects
+macro_rules! impl_config_for_ptr {
+    ($t:ty) => {
+        impl Config for $t {
+            fn headers(&self) -> HeaderMap {
+                self.as_ref().headers()
+            }
+            fn url(&self, path: &str) -> String {
+                self.as_ref().url(path)
+            }
+            fn query(&self) -> Vec<(&str, &str)> {
+                self.as_ref().query()
+            }
+            fn api_base(&self) -> &str {
+                self.as_ref().api_base()
+            }
+            fn api_key(&self) -> &SecretString {
+                self.as_ref().api_key()
+            }
+        }
+    };
+}
+
+impl_config_for_ptr!(Box<dyn Config>);
+impl_config_for_ptr!(std::rc::Rc<dyn Config>);
+impl_config_for_ptr!(std::sync::Arc<dyn Config>);
 
 /// Configuration for OpenAI API
 #[derive(Clone, Debug, Deserialize)]
@@ -209,5 +236,31 @@ impl Config for AzureConfig {
 
     fn query(&self) -> Vec<(&str, &str)> {
         vec![("api-version", &self.api_version)]
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::Client;
+    use std::rc::Rc;
+    use std::sync::Arc;
+    #[test]
+    fn test_client_creation() {
+        unsafe { std::env::set_var("OPENAI_API_KEY", "test") }
+        let openai_config = OpenAIConfig::default();
+        let config = Box::new(openai_config.clone()) as Box<dyn Config>;
+        let client = Client::with_config(config);
+        assert!(client.config().url("").ends_with("/v1"));
+        let config = Rc::new(openai_config.clone()) as Rc<dyn Config>;
+        let client = Client::with_config(config);
+        assert!(client.config().url("").ends_with("/v1"));
+        let cloned_client = client.clone();
+        assert!(cloned_client.config().url("").ends_with("/v1"));
+        let config = Arc::new(openai_config) as Arc<dyn Config>;
+        let client = Client::with_config(config);
+        assert!(client.config().url("").ends_with("/v1"));
+        let cloned_client = client.clone();
+        assert!(cloned_client.config().url("").ends_with("/v1"));
     }
 }
