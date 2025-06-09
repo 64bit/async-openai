@@ -12,11 +12,21 @@ use crate::{
 /// Related guide: [Chat completions](https://platform.openai.com//docs/guides/text-generation)
 pub struct Chat<'c, C: Config> {
     client: &'c Client<C>,
+    path: String,
 }
 
 impl<'c, C: Config> Chat<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            path: "/chat/completions".to_string(),
+        }
+    }
+
+    /// Change the path to the chat completions route.
+    pub fn with_path(mut self, path: impl Into<String>) -> Self {
+        self.path = path.into();
+        self
     }
 
     /// Creates a model response for the given chat conversation. Learn more in
@@ -52,7 +62,7 @@ impl<'c, C: Config> Chat<'c, C> {
                 ));
             }
         }
-        self.client.post("/chat/completions", request).await
+        self.client.post(&self.path, request).await
     }
 
     /// Creates a completion for the chat message
@@ -83,6 +93,6 @@ impl<'c, C: Config> Chat<'c, C> {
 
             request.stream = Some(true);
         }
-        Ok(self.client.post_stream("/chat/completions", request).await)
+        Ok(self.client.post_stream(&self.path, request).await)
     }
 }
