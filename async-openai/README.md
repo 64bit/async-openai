@@ -155,7 +155,7 @@ For example,
 use async_openai::{Client, config::Config, config::OpenAIConfig};
 
 let openai_config = OpenAIConfig::default();
-// You can use `std::rc::Rc` or `std::sync::Arc` to wrap the config as well
+// You can use `std::sync::Arc` to wrap the config as well
 let config = Box::new(openai_config) as Box<dyn Config>;
 let client: Client<Box<dyn Config> > = Client::with_config(config);
 ```
