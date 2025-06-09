@@ -49,7 +49,6 @@ macro_rules! impl_config_for_ptr {
 }
 
 impl_config_for_ptr!(Box<dyn Config>);
-impl_config_for_ptr!(std::rc::Rc<dyn Config>);
 impl_config_for_ptr!(std::sync::Arc<dyn Config>);
 
 /// Configuration for OpenAI API
