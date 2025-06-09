@@ -96,7 +96,7 @@
 //!
 //! ## Dynamic Dispatch for Different Providers
 //!
-//! For any struct that implements `Config` trait, you can wrap it in a smart pointer as cast the pointer to `dyn Config`
+//! For any struct that implements `Config` trait, you can wrap it in a smart pointer and cast the pointer to `dyn Config`
 //! trait object, then your client can accept any wrapped configuration type.
 //!
 //! For example,
