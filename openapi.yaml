@@ -11439,6 +11439,7 @@ components:
                 voice:
                     description: The voice to use when generating the audio. Supported voices are `alloy`, `echo`, `fable`, `onyx`, `nova`, and `shimmer`. Previews of the voices are available in the [Text to speech guide](/docs/guides/text-to-speech/voice-options).
                     type: string
+                    enum: ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
                 response_format:
                     description: "The format to audio in. Supported formats are `mp3`, `opus`, `aac`, `flac`, `wav`, and `pcm`."
                     default: "mp3"
