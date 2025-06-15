@@ -1,50 +1,34 @@
-use std::collections::HashMap;
 use std::io::{stdout, Write};
 
+use async_openai::tools::{Tool, ToolManager};
 use async_openai::types::{
-    ChatCompletionMessageToolCall, ChatCompletionRequestAssistantMessageArgs,
-    ChatCompletionRequestMessage, ChatCompletionRequestToolMessageArgs,
-    ChatCompletionRequestUserMessageArgs, ChatCompletionToolArgs, ChatCompletionToolType,
-    FunctionObjectArgs,
+    ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestMessage,
+    ChatCompletionRequestUserMessageArgs,
 };
 use async_openai::{types::CreateChatCompletionRequestArgs, Client};
 use futures::StreamExt;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
-use serde_json::{json, Value};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
-    let user_prompt = "What's the weather like in Boston and Atlanta?";
+    let mut messages = vec![ChatCompletionRequestUserMessageArgs::default()
+        .content("What's the weather like in Boston and Atlanta?")
+        .build()?
+        .into()];
 
+    let weather_tool = WeatherTool;
+    let mut tool_manager = ToolManager::new();
+    tool_manager.add_tool(weather_tool);
+    let tools = tool_manager.get_tools_for_chat();
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u32)
         .model("gpt-4-1106-preview")
-        .messages([ChatCompletionRequestUserMessageArgs::default()
-            .content(user_prompt)
-            .build()?
-            .into()])
-        .tools(vec![ChatCompletionToolArgs::default()
-            .r#type(ChatCompletionToolType::Function)
-            .function(
-                FunctionObjectArgs::default()
-                    .name("get_current_weather")
-                    .description("Get the current weather in a given location")
-                    .parameters(json!({
-                        "type": "object",
-                        "properties": {
-                            "location": {
-                                "type": "string",
-                                "description": "The city and state, e.g. San Francisco, CA",
-                            },
-                            "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] },
-                        },
-                        "required": ["location"],
-                    }))
-                    .build()?,
-            )
-            .build()?])
+        .messages(messages.clone())
+        .tools(tools)
         .build()?;
 
     let response_message = client
@@ -58,52 +42,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .clone();
 
     if let Some(tool_calls) = response_message.tool_calls {
-        let mut handles = Vec::new();
-        for tool_call in tool_calls {
-            let name = tool_call.function.name.clone();
-            let args = tool_call.function.arguments.clone();
-            let tool_call_clone = tool_call.clone();
-
-            let handle =
-                tokio::spawn(async move { call_fn(&name, &args).await.unwrap_or_default() });
-            handles.push((handle, tool_call_clone));
-        }
-
-        let mut function_responses = Vec::new();
-
-        for (handle, tool_call_clone) in handles {
-            if let Ok(response_content) = handle.await {
-                function_responses.push((tool_call_clone, response_content));
-            }
-        }
-
-        let mut messages: Vec<ChatCompletionRequestMessage> =
-            vec![ChatCompletionRequestUserMessageArgs::default()
-                .content(user_prompt)
-                .build()?
-                .into()];
-
-        let tool_calls: Vec<ChatCompletionMessageToolCall> = function_responses
-            .iter()
-            .map(|(tool_call, _response_content)| tool_call.clone())
-            .collect();
-
         let assistant_messages: ChatCompletionRequestMessage =
             ChatCompletionRequestAssistantMessageArgs::default()
-                .tool_calls(tool_calls)
+                .tool_calls(tool_calls.clone())
                 .build()?
                 .into();
 
+        let function_responses = tool_manager.call_for_chat(tool_calls.clone()).await;
         let tool_messages: Vec<ChatCompletionRequestMessage> = function_responses
-            .iter()
-            .map(|(tool_call, response_content)| {
-                ChatCompletionRequestToolMessageArgs::default()
-                    .content(response_content.to_string())
-                    .tool_call_id(tool_call.id.clone())
-                    .build()
-                    .unwrap()
-                    .into()
-            })
+            .into_iter()
+            .map(|res| res.into())
             .collect();
 
         messages.push(assistant_messages);
@@ -140,37 +88,60 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-async fn call_fn(name: &str, args: &str) -> Result<Value, Box<dyn std::error::Error>> {
-    let mut available_functions: HashMap<&str, fn(&str, &str) -> serde_json::Value> =
-        HashMap::new();
-    available_functions.insert("get_current_weather", get_current_weather);
-
-    let function_args: serde_json::Value = args.parse().unwrap();
-
-    let location = function_args["location"].as_str().unwrap();
-    let unit = function_args["unit"].as_str().unwrap_or("fahrenheit");
-    let function = available_functions.get(name).unwrap();
-    let function_response = function(location, unit);
-    Ok(function_response)
+#[derive(Debug, JsonSchema, Deserialize, Serialize)]
+enum Unit {
+    Fahrenheit,
+    Celsius,
 }
 
-fn get_current_weather(location: &str, unit: &str) -> serde_json::Value {
-    let mut rng = thread_rng();
+#[derive(Debug, JsonSchema, Deserialize)]
+struct WeatherRequest {
+    /// The city and state, e.g. San Francisco, CA
+    location: String,
+    unit: Unit,
+}
 
-    let temperature: i32 = rng.gen_range(20..=55);
+#[derive(Debug, Serialize)]
+struct WeatherResponse {
+    location: String,
+    temperature: String,
+    unit: Unit,
+    forecast: String,
+}
 
-    let forecasts = [
-        "sunny", "cloudy", "overcast", "rainy", "windy", "foggy", "snowy",
-    ];
+struct WeatherTool;
 
-    let forecast = forecasts.choose(&mut rng).unwrap_or(&"sunny");
+impl Tool for WeatherTool {
+    type Args = WeatherRequest;
+    type Output = WeatherResponse;
+    type Error = String;
 
-    let weather_info = json!({
-        "location": location,
-        "temperature": temperature.to_string(),
-        "unit": unit,
-        "forecast": forecast
-    });
+    fn name() -> String {
+        "get_current_weather".to_string()
+    }
 
-    weather_info
+    fn description() -> Option<String> {
+        Some("Get the current weather in a given location".to_string())
+    }
+
+    async fn call(&self, args: Self::Args) -> Result<Self::Output, Self::Error> {
+        let mut rng = thread_rng();
+
+        let temperature: i32 = rng.gen_range(20..=55);
+
+        let forecasts = [
+            "sunny", "cloudy", "overcast", "rainy", "windy", "foggy", "snowy",
+        ];
+
+        let forecast = forecasts.choose(&mut rng).unwrap_or(&"sunny");
+
+        let weather_info = WeatherResponse {
+            location: args.location,
+            temperature: temperature.to_string(),
+            unit: args.unit,
+            forecast: forecast.to_string(),
+        };
+
+        Ok(weather_info)
+    }
 }
