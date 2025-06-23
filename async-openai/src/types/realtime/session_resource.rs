@@ -10,12 +10,19 @@ pub enum AudioFormat {
     G711ALAW,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct AudioTranscription {
-    /// Whether to enable input audio transcription.
-    pub enabled: bool,
-    /// The model to use for transcription (e.g., "whisper-1").
-    pub model: String,
+    /// The language of the input audio. Supplying the input language in ISO-639-1 (e.g. en) format will improve accuracy and latency.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language: Option<String>,
+    /// The model to use for transcription, current options are gpt-4o-transcribe, gpt-4o-mini-transcribe, and whisper-1.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    /// An optional text to guide the model's style or continue a previous audio segment.
+    /// For whisper-1, the prompt is a list of keywords. For gpt-4o-transcribe models,
+    /// the prompt is a free text string, for example "expect words related to technology".
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -30,6 +37,14 @@ pub enum TurnDetection {
         prefix_padding_ms: u32,
         /// Duration of silence to detect speech stop (in milliseconds).
         silence_duration_ms: u32,
+    },
+
+    #[serde(rename = "semantic_vad")]
+    SemanticVAD {
+        /// The eagerness of the model to respond.
+        /// `low` will wait longer for the user to continue speaking,
+        /// `high`` will respond more quickly. `auto`` is the default and is equivalent to `medium`
+        eagerness: String,
     },
 }
 
@@ -78,8 +93,15 @@ pub enum ToolChoice {
 #[serde(rename_all = "lowercase")]
 pub enum RealtimeVoice {
     Alloy,
-    Shimmer,
+    Ash,
+    Ballad,
+    Coral,
     Echo,
+    Fable,
+    Onyx,
+    Nova,
+    Shimmer,
+    Verse,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
