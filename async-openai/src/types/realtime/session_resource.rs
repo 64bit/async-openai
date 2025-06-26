@@ -37,6 +37,15 @@ pub enum TurnDetection {
         prefix_padding_ms: u32,
         /// Duration of silence to detect speech stop (in milliseconds).
         silence_duration_ms: u32,
+
+        /// Whether or not to automatically generate a response when a VAD stop event occurs.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        create_response: Option<bool>,
+
+        /// Whether or not to automatically interrupt any ongoing response with output to
+        /// the default conversation (i.e. conversation of auto) when a VAD start event occurs.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        interrupt_response: Option<bool>,
     },
 
     #[serde(rename = "semantic_vad")]
@@ -45,6 +54,15 @@ pub enum TurnDetection {
         /// `low` will wait longer for the user to continue speaking,
         /// `high`` will respond more quickly. `auto`` is the default and is equivalent to `medium`
         eagerness: String,
+
+        /// Whether or not to automatically generate a response when a VAD stop event occurs.
+        #[serde(skip_serializing_if = "Option::is_none", default)]
+        create_response: Option<bool>,
+
+        /// Whether or not to automatically interrupt any ongoing response with output to
+        /// the default conversation (i.e. conversation of auto) when a VAD start event occurs.
+        #[serde(skip_serializing_if = "Option::is_none", default)]
+        interrupt_response: Option<bool>,
     },
 }
 
