@@ -52,10 +52,7 @@ pub(crate) async fn create_file_part(
         InputSource::VecU8 { filename, vec } => (Body::from(vec), filename),
     };
 
-    let file_part = reqwest::multipart::Part::stream(stream)
-        .file_name(file_name)
-        .mime_str("application/octet-stream")
-        .unwrap();
+    let file_part = reqwest::multipart::Part::stream(stream).file_name(file_name);
 
     Ok(file_part)
 }
