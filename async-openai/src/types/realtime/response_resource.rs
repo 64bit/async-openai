@@ -40,6 +40,8 @@ pub enum ResponseStatusDetail {
     Incomplete { reason: IncompleteReason },
     #[serde(rename = "failed")]
     Failed { error: Option<FailedError> },
+    #[serde(rename = "cancelled")]
+    Cancelled { reason: String },
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
