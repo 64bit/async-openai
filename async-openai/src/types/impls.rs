@@ -372,7 +372,7 @@ macro_rules! impl_from_for_integer_array {
 }
 
 impl_from_for_integer_array!(u32, EmbeddingInput);
-impl_from_for_integer_array!(u16, Prompt);
+impl_from_for_integer_array!(u32, Prompt);
 
 macro_rules! impl_from_for_array_of_integer_array {
     ($from_typ:ty, $to_typ:ty) => {
@@ -469,7 +469,7 @@ macro_rules! impl_from_for_array_of_integer_array {
 }
 
 impl_from_for_array_of_integer_array!(u32, EmbeddingInput);
-impl_from_for_array_of_integer_array!(u16, Prompt);
+impl_from_for_array_of_integer_array!(u32, Prompt);
 
 impl From<&str> for ChatCompletionFunctionCall {
     fn from(value: &str) -> Self {
