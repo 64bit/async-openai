@@ -103,7 +103,7 @@
 //! ```
 //! use async_openai::{Client, config::Config, config::OpenAIConfig};
 //! unsafe { std::env::set_var("OPENAI_API_KEY", "only for doc test") }
-//! 
+//!
 //! let openai_config = OpenAIConfig::default();
 //! // You can use `std::sync::Arc` to wrap the config as well
 //! let config = Box::new(openai_config) as Box<dyn Config>;
