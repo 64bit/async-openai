@@ -281,7 +281,7 @@ pub struct CreateResponse {
     /// An integer between 0 and 20 specifying the number of most likely tokens to return
     /// at each token position, each with an associated log probability.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub top_logprobs: Option<u32>, // TODO add validation of range
+    pub top_logprobs: Option<u8>, // TODO add validation of range
 
     /// An alternative to sampling with temperature, called nucleus sampling,
     /// where the model considers the results of the tokens with top_p probability
