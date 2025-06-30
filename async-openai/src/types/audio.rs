@@ -40,6 +40,7 @@ pub enum Voice {
     #[default]
     Alloy,
     Ash,
+    Ballad,
     Coral,
     Echo,
     Fable,

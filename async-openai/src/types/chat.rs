@@ -11,9 +11,9 @@ use crate::error::OpenAIError;
 pub enum Prompt {
     String(String),
     StringArray(Vec<String>),
-    // Minimum value is 0, maximum value is 50256 (inclusive).
-    IntegerArray(Vec<u16>),
-    ArrayOfIntegerArray(Vec<Vec<u16>>),
+    // Minimum value is 0, maximum value is 4_294_967_295 (inclusive).
+    IntegerArray(Vec<u32>),
+    ArrayOfIntegerArray(Vec<Vec<u32>>),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
