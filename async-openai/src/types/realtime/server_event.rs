@@ -38,7 +38,7 @@ pub struct ConversationCreatedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct InputAudioBufferCommitedEvent {
+pub struct InputAudioBufferCommittedEvent {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the preceding item after which the new item will be inserted.
@@ -49,6 +49,12 @@ pub struct InputAudioBufferCommitedEvent {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct InputAudioBufferClearedEvent {
+    /// The unique ID of the server event.
+    pub event_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct OutputAudioBufferClearedEvent {
     /// The unique ID of the server event.
     pub event_id: String,
 }
@@ -152,6 +158,14 @@ pub struct ConversationItemDeletedEvent {
     pub event_id: String,
     /// The ID of the item that was deleted.
     pub item_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ConversationItemRetrievedEvent {
+    /// The unique ID of the server event.
+    pub event_id: String,
+    /// The item that was retrieved.
+    pub item: Item,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -381,11 +395,15 @@ pub enum ServerEvent {
 
     /// Returned when an input audio buffer is committed, either by the client or automatically in server VAD mode.
     #[serde(rename = "input_audio_buffer.committed")]
-    InputAudioBufferCommited(InputAudioBufferCommitedEvent),
+    InputAudioBufferCommitted(InputAudioBufferCommittedEvent),
 
     /// Returned when the input audio buffer is cleared by the client.
     #[serde(rename = "input_audio_buffer.cleared")]
     InputAudioBufferCleared(InputAudioBufferClearedEvent),
+
+    /// Returned when the output audio buffer is cleared by the client (WebRTC specific).
+    #[serde(rename = "output_audio_buffer.cleared")]
+    OutputAudioBufferCleared(OutputAudioBufferClearedEvent),
 
     /// Returned in server turn detection mode when speech is detected.
     #[serde(rename = "input_audio_buffer.speech_started")]
@@ -421,6 +439,10 @@ pub enum ServerEvent {
     /// Returned when an item in the conversation is deleted.
     #[serde(rename = "conversation.item.deleted")]
     ConversationItemDeleted(ConversationItemDeletedEvent),
+
+    /// Returned when an item in the conversation is retrieved.
+    #[serde(rename = "conversation.item.retrieved")]
+    ConversationItemRetrieved(ConversationItemRetrievedEvent),
 
     /// Returned when a new Response is created. The first event of response creation, where the response is in an initial state of "in_progress".
     #[serde(rename = "response.created")]

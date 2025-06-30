@@ -4,10 +4,26 @@ use serde::{Deserialize, Serialize};
 pub enum AudioFormat {
     #[serde(rename = "pcm16")]
     PCM16,
-    #[serde(rename = "g711_law")]
+    #[serde(rename = "g711_ulaw")]
     G711ULAW,
     #[serde(rename = "g711_alaw")]
     G711ALAW,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum NoiseReductionType {
+    NearField,
+    FarField,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct InputAudioNoiseReduction {
+    /// Type of noise reduction. `near_field` is for close-talking microphones such as
+    /// headphones, `far_field` is for far-field microphones such as laptop or
+    /// conference room microphones.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<NoiseReductionType>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
@@ -75,6 +91,32 @@ pub enum MaxResponseOutputTokens {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TracingConfiguration {
+    /// The group id to attach to this trace to enable filtering and grouping in the traces dashboard.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub group_id: Option<String>,
+
+    /// The arbitrary metadata to attach to this trace to enable filtering in the traces dashboard.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
+
+    /// The name of the workflow to attach to this trace. This is used to name the trace in the traces dashboard.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workflow_name: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum TracingOption {
+    /// Auto tracing with default values
+    #[serde(rename = "auto")]
+    Auto,
+    /// Granular tracing configuration
+    #[serde(rename = "config")]
+    Config(TracingConfiguration),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type")]
 pub enum ToolDefinition {
     #[serde(rename = "function")]
@@ -118,19 +160,43 @@ pub enum RealtimeVoice {
     Fable,
     Onyx,
     Nova,
+    Sage,
     Shimmer,
     Verse,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum Modality {
+    Text,
+    Audio,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum RealtimeModel {
+    #[serde(rename = "gpt-4o-realtime-preview")]
+    GPT4ORealtimePreview,
+    #[serde(rename = "gpt-4o-realtime-preview-2024-10-01")]
+    GPT4ORealtimePreview20241001,
+    #[serde(rename = "gpt-4o-realtime-preview-2024-12-17")]
+    GPT4ORealtimePreview20241217,
+    #[serde(rename = "gpt-4o-realtime-preview-2025-06-03")]
+    GPT4ORealtimePreview20250603,
+    #[serde(rename = "gpt-4o-mini-realtime-preview")]
+    GPT4OMiniRealtimePreview,
+    #[serde(rename = "gpt-4o-mini-realtime-preview-2024-12-17")]
+    GPT4OMiniRealtimePreview20241217,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct SessionResource {
     /// The default model used for this session.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub model: Option<String>,
+    pub model: Option<RealtimeModel>,
 
     /// The set of modalities the model can respond with. To disable audio, set this to ["text"].
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub modalities: Option<Vec<String>>,
+    pub modalities: Option<Vec<Modality>>,
 
     //// The default system instructions prepended to model calls.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -140,9 +206,21 @@ pub struct SessionResource {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub voice: Option<RealtimeVoice>,
 
+    /// The speed of the model's spoken response. 1.0 is the default speed. 0.25 is the minimum speed. 1.5 is the maximum speed.
+    /// This value can only be changed in between model turns, not while a response is in progress.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub speed: Option<f32>,
+
     /// The format of input audio. Options are "pcm16", "g711_ulaw", or "g711_alaw".
     #[serde(skip_serializing_if = "Option::is_none")]
     pub input_audio_format: Option<AudioFormat>,
+
+    /// Configuration for input audio noise reduction. This can be set to `null` to turn off.
+    /// Noise reduction filters audio added to the input audio buffer before it is sent to VAD and the model.
+    /// Filtering the audio can improve VAD and turn detection accuracy (reducing false positives)
+    /// and model performance by improving perception of the input audio.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_audio_noise_reduction: Option<InputAudioNoiseReduction>,
 
     /// The format of output audio. Options are "pcm16", "g711_ulaw", or "g711_alaw".
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -167,6 +245,9 @@ pub struct SessionResource {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Sampling temperature for the model.
     pub temperature: Option<f32>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tracing: Option<TracingOption>,
 
     /// Maximum number of output tokens for a single assistant response, inclusive of tool calls.
     /// Provide an integer between 1 and 4096 to limit output tokens, or "inf" for the maximum available tokens for a given model.
