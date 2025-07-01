@@ -35,7 +35,7 @@ use super::{
 pub enum AssistantStreamEvent {
     /// Occurs when a new [thread](https://platform.openai.com/docs/api-reference/threads/object) is created.
     #[serde(rename = "thread.created")]
-    TreadCreated(ThreadObject),
+    ThreadCreated(ThreadObject),
     /// Occurs when a new [run](https://platform.openai.com/docs/api-reference/runs/object) is created.
     #[serde(rename = "thread.run.created")]
     ThreadRunCreated(RunObject),
@@ -119,7 +119,7 @@ impl TryFrom<eventsource_stream::Event> for AssistantStreamEvent {
         match value.event.as_str() {
             "thread.created" => serde_json::from_str::<ThreadObject>(value.data.as_str())
                 .map_err(|e| map_deserialization_error(e, value.data.as_bytes()))
-                .map(AssistantStreamEvent::TreadCreated),
+                .map(AssistantStreamEvent::ThreadCreated),
             "thread.run.created" => serde_json::from_str::<RunObject>(value.data.as_str())
                 .map_err(|e| map_deserialization_error(e, value.data.as_bytes()))
                 .map(AssistantStreamEvent::ThreadRunCreated),
