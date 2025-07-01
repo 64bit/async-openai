@@ -1326,6 +1326,16 @@ pub struct Usage {
     pub total_tokens: u32,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum ResponseInstructions {
+    /// if string is provided
+    Single(String),
+
+    /// if multiple instructions are provided
+    Multiple(Vec<InputMessage>),
+}
+
 /// The complete response returned by the Responses API.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Response {
@@ -1345,7 +1355,7 @@ pub struct Response {
 
     /// Instructions that were inserted as the first item in context.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub instructions: Option<String>,
+    pub instructions: Option<ResponseInstructions>,
 
     /// The value of `max_output_tokens` that was honored.
     #[serde(skip_serializing_if = "Option::is_none")]
