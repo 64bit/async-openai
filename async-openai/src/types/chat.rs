@@ -951,8 +951,13 @@ pub struct CreateChatCompletionResponse {
     pub system_fingerprint: Option<String>,
 
     /// The object type, which is always `chat.completion`.
+    #[serde(default="object_default_value")]
     pub object: String,
     pub usage: Option<CompletionUsage>,
+}
+
+pub fn object_default_value()->String{
+    "chat.completion".to_string()
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
