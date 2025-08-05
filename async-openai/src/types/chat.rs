@@ -1020,7 +1020,7 @@ pub struct ChatChoiceStream {
 /// Represents a streamed chunk of a chat completion response returned by model, based on the provided input.
 pub struct CreateChatCompletionStreamResponse {
     /// A unique identifier for the chat completion. Each chunk has the same ID.
-    pub id: String,
+    pub id: Option<String>,
     /// A list of chat completion choices. Can contain more than one elements if `n` is greater than 1. Can also be empty for the last chunk if you set `stream_options: {"include_usage": true}`.
     pub choices: Vec<ChatChoiceStream>,
 
