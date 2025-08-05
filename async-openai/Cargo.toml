@@ -31,7 +31,7 @@ async-openai-macros = { path = "../async-openai-macros", version = "0.1.0" }
 backoff = { version = "0.4.0", features = ["tokio"] }
 base64 = "0.22.1"
 futures = "0.3.31"
-rand = "0.8.5"
+rand = "0.9.0"
 reqwest = { version = "0.12.12", features = [
   "json",
   "stream",
