@@ -1,5 +1,5 @@
 //! Errors originating from API calls, parsing responses, and reading-or-writing to the file system.
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, thiserror::Error)]
 pub enum OpenAIError {
@@ -28,7 +28,7 @@ pub enum OpenAIError {
 }
 
 /// OpenAI API returns error object on failure
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ApiError {
     pub message: String,
     pub r#type: Option<String>,
@@ -62,9 +62,9 @@ impl std::fmt::Display for ApiError {
 }
 
 /// Wrapper to deserialize the error object nested in "error" JSON key
-#[derive(Debug, Deserialize)]
-pub(crate) struct WrappedError {
-    pub(crate) error: ApiError,
+#[derive(Debug, Deserialize, Serialize)]
+pub struct WrappedError {
+    pub error: ApiError,
 }
 
 pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> OpenAIError {
