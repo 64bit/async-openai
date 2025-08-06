@@ -21,7 +21,9 @@ pub enum ResponseStatus {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FailedError {
-    pub code: String,
+    #[serde(rename = "type")]
+    pub error_type: Option<String>,
+    pub code: Option<String>,
     pub message: String,
 }
 
