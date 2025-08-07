@@ -19,10 +19,6 @@ pub trait Config: Send + Sync {
     fn headers(&self) -> HeaderMap;
     fn url(&self, path: &str) -> String;
     fn query(&self) -> Vec<(&str, &str)>;
-
-    fn api_base(&self) -> &str;
-
-    fn api_key(&self) -> &SecretString;
 }
 
 /// Macro to implement Config trait for pointer types with dyn objects
@@ -37,12 +33,6 @@ macro_rules! impl_config_for_ptr {
             }
             fn query(&self) -> Vec<(&str, &str)> {
                 self.as_ref().query()
-            }
-            fn api_base(&self) -> &str {
-                self.as_ref().api_base()
-            }
-            fn api_key(&self) -> &SecretString {
-                self.as_ref().api_key()
             }
         }
     };
@@ -145,14 +135,6 @@ impl Config for OpenAIConfig {
         format!("{}{}", self.api_base, path)
     }
 
-    fn api_base(&self) -> &str {
-        &self.api_base
-    }
-
-    fn api_key(&self) -> &SecretString {
-        &self.api_key
-    }
-
     fn query(&self) -> Vec<(&str, &str)> {
         vec![]
     }
@@ -223,14 +205,6 @@ impl Config for AzureConfig {
             "{}/openai/deployments/{}{}",
             self.api_base, self.deployment_id, path
         )
-    }
-
-    fn api_base(&self) -> &str {
-        &self.api_base
-    }
-
-    fn api_key(&self) -> &SecretString {
-        &self.api_key
     }
 
     fn query(&self) -> Vec<(&str, &str)> {
