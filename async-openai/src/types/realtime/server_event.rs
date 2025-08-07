@@ -42,7 +42,7 @@ pub struct InputAudioBufferCommittedEvent {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the preceding item after which the new item will be inserted.
-    pub previous_item_id: String,
+    pub previous_item_id: Option<String>,
     /// The ID of the user message item that will be created.
     pub item_id: String,
 }
