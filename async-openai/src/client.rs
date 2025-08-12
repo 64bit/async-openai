@@ -347,7 +347,9 @@ impl<C: Config> Client<C> {
                                     retry_after: None,
                                 })
                             } else {
-                                if status.as_u16() == 429 && api_error.r#type != Some("insufficient_quota".to_string()) {
+                                if status.as_u16() == 429
+                                    && api_error.r#type != Some("insufficient_quota".to_string())
+                                {
                                     // Rate limited retry...
                                     tracing::warn!("Rate limited: {}", api_error.message);
                                     Err(backoff::Error::Transient {
@@ -361,7 +363,7 @@ impl<C: Config> Client<C> {
                         }
                         _ => Err(backoff::Error::Permanent(e)),
                     }
-                },
+                }
             }
         })
         .await
@@ -455,22 +457,18 @@ impl<C: Config> Client<C> {
 
 async fn read_response(response: Response) -> Result<Bytes, OpenAIError> {
     let status = response.status();
-    let bytes = response
-        .bytes()
-        .await
-        .map_err(OpenAIError::Reqwest)?;
+    let bytes = response.bytes().await.map_err(OpenAIError::Reqwest)?;
 
     if status.is_server_error() {
         // OpenAI does not guarantee server errors are returned as JSON so we cannot deserialize them.
         let message: String = String::from_utf8_lossy(&bytes).into_owned();
         tracing::warn!("Server error: {status} - {message}");
-        return Err(
-            OpenAIError::ApiError(ApiError {
-                message,
-                r#type: None,
-                param: None,
-                code: None,
-            }));
+        return Err(OpenAIError::ApiError(ApiError {
+            message,
+            r#type: None,
+            param: None,
+            code: None,
+        }));
     }
 
     // Deserialize response body from either error object or actual response object
@@ -487,19 +485,22 @@ async fn read_response(response: Response) -> Result<Bytes, OpenAIError> {
 async fn map_stream_error(value: EventSourceError) -> OpenAIError {
     match value {
         EventSourceError::Parser(e) => OpenAIError::StreamError(StreamError::Parser(e.to_string())),
-        EventSourceError::InvalidContentType(e, response) => OpenAIError::StreamError(StreamError::InvalidContentType(e, response)),
-        EventSourceError::InvalidLastEventId(e) => OpenAIError::StreamError(StreamError::InvalidLastEventId(e)),
+        EventSourceError::InvalidContentType(e, response) => {
+            OpenAIError::StreamError(StreamError::InvalidContentType(e, response))
+        }
+        EventSourceError::InvalidLastEventId(e) => {
+            OpenAIError::StreamError(StreamError::InvalidLastEventId(e))
+        }
         EventSourceError::StreamEnded => OpenAIError::StreamError(StreamError::StreamEnded),
         EventSourceError::Utf8(e) => OpenAIError::StreamError(StreamError::Utf8(e)),
         EventSourceError::Transport(error) => OpenAIError::Reqwest(error),
         EventSourceError::InvalidStatusCode(_status_code, response) => {
-            read_response(response)
-                .await
-                .expect_err("Unreachable because read_response returns err when status_code is invalid")
+            read_response(response).await.expect_err(
+                "Unreachable because read_response returns err when status_code is invalid",
+            )
         }
     }
 }
-
 
 /// Request which responds with SSE.
 /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
