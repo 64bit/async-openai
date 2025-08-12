@@ -1,5 +1,10 @@
 //! Errors originating from API calls, parsing responses, and reading-or-writing to the file system.
+use std::string::FromUtf8Error;
+
+use reqwest::{header::HeaderValue, Response};
 use serde::{Deserialize, Serialize};
+
+use reqwest_eventsource::Error as EventSourceError;
 
 #[derive(Debug, thiserror::Error)]
 pub enum OpenAIError {
@@ -20,11 +25,33 @@ pub enum OpenAIError {
     FileReadError(String),
     /// Error on SSE streaming
     #[error("stream failed: {0}")]
-    StreamError(String),
+    StreamError(StreamError),
     /// Error from client side validation
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]
     InvalidArgument(String),
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum StreamError {
+    /// Source stream is not valid UTF8
+    #[error(transparent)]
+    Utf8(FromUtf8Error),
+    /// Source stream is not a valid EventStream
+    #[error("Source stream is not a valid event stream: {0}")]
+    Parser(String),
+    /// The `Content-Type` returned by the server is invalid
+    #[error("Invalid content type for event stream: {0:?}")]
+    InvalidContentType(HeaderValue, Response),
+    /// The `Last-Event-ID` cannot be formed into a Header to be submitted to the server
+    #[error("Invalid `Last-Event-ID` for event stream: {0}")]
+    InvalidLastEventId(String),
+    /// The server sent an unrecognized event type
+    #[error("Unrecognized event type: {0}")]
+    UnrecognizedEventType(String),
+    /// The stream ended
+    #[error("Stream ended")]
+    StreamEnded,
 }
 
 /// OpenAI API returns error object on failure
