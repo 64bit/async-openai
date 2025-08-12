@@ -346,19 +346,17 @@ impl<C: Config> Client<C> {
                                     err: OpenAIError::ApiError(api_error),
                                     retry_after: None,
                                 })
+                            } else if status.as_u16() == 429
+                                && api_error.r#type != Some("insufficient_quota".to_string())
+                            {
+                                // Rate limited retry...
+                                tracing::warn!("Rate limited: {}", api_error.message);
+                                Err(backoff::Error::Transient {
+                                    err: OpenAIError::ApiError(api_error),
+                                    retry_after: None,
+                                })
                             } else {
-                                if status.as_u16() == 429
-                                    && api_error.r#type != Some("insufficient_quota".to_string())
-                                {
-                                    // Rate limited retry...
-                                    tracing::warn!("Rate limited: {}", api_error.message);
-                                    Err(backoff::Error::Transient {
-                                        err: OpenAIError::ApiError(api_error),
-                                        retry_after: None,
-                                    })
-                                } else {
-                                    Err(backoff::Error::Permanent(OpenAIError::ApiError(api_error)))
-                                }
+                                Err(backoff::Error::Permanent(OpenAIError::ApiError(api_error)))
                             }
                         }
                         _ => Err(backoff::Error::Permanent(e)),

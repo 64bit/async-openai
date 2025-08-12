@@ -4,7 +4,6 @@ use std::string::FromUtf8Error;
 use reqwest::{header::HeaderValue, Response};
 use serde::{Deserialize, Serialize};
 
-use reqwest_eventsource::Error as EventSourceError;
 
 #[derive(Debug, thiserror::Error)]
 pub enum OpenAIError {
