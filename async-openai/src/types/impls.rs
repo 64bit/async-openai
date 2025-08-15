@@ -14,6 +14,7 @@ use crate::{
 use bytes::Bytes;
 
 use super::{
+    responses::{CodeInterpreterContainer, Input, InputContent, Role as ResponsesRole},
     AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
     ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
     ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestDeveloperMessage,
@@ -371,7 +372,7 @@ macro_rules! impl_from_for_integer_array {
 }
 
 impl_from_for_integer_array!(u32, EmbeddingInput);
-impl_from_for_integer_array!(u16, Prompt);
+impl_from_for_integer_array!(u32, Prompt);
 
 macro_rules! impl_from_for_array_of_integer_array {
     ($from_typ:ty, $to_typ:ty) => {
@@ -468,7 +469,7 @@ macro_rules! impl_from_for_array_of_integer_array {
 }
 
 impl_from_for_array_of_integer_array!(u32, EmbeddingInput);
-impl_from_for_array_of_integer_array!(u16, Prompt);
+impl_from_for_array_of_integer_array!(u32, Prompt);
 
 impl From<&str> for ChatCompletionFunctionCall {
     fn from(value: &str) -> Self {
@@ -987,3 +988,51 @@ impl AsyncTryFrom<AddUploadPartRequest> for reqwest::multipart::Form {
 }
 
 // end: types to multipart form
+
+impl Default for Input {
+    fn default() -> Self {
+        Self::Text("".to_string())
+    }
+}
+
+impl Default for InputContent {
+    fn default() -> Self {
+        Self::TextInput("".to_string())
+    }
+}
+
+impl From<String> for Input {
+    fn from(value: String) -> Self {
+        Input::Text(value)
+    }
+}
+
+impl From<&str> for Input {
+    fn from(value: &str) -> Self {
+        Input::Text(value.to_owned())
+    }
+}
+
+impl Default for ResponsesRole {
+    fn default() -> Self {
+        Self::User
+    }
+}
+
+impl From<String> for InputContent {
+    fn from(value: String) -> Self {
+        Self::TextInput(value)
+    }
+}
+
+impl From<&str> for InputContent {
+    fn from(value: &str) -> Self {
+        Self::TextInput(value.to_owned())
+    }
+}
+
+impl Default for CodeInterpreterContainer {
+    fn default() -> Self {
+        CodeInterpreterContainer::Id("".to_string())
+    }
+}

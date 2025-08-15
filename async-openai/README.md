@@ -36,6 +36,7 @@
   - [x] Moderations
   - [x] Organizations | Administration (partially implemented)
   - [x] Realtime (Beta) (partially implemented)
+  - [x] Responses (partially implemented)
   - [x] Uploads
 - Bring your own custom types for Request or Response objects.
 - SSE streaming on available APIs
@@ -140,13 +141,30 @@ This can be useful in many scenarios:
 - To avoid verbose types.
 - To escape deserialization errors.
 
-Visit [examples/bring-your-own-type](https://github.com/64bit/async-openai/tree/main/examples/bring-your-own-type) directory to learn more.
+Visit [examples/bring-your-own-type](https://github.com/64bit/async-openai/tree/main/examples/bring-your-own-type)
+directory to learn more.
+
+## Dynamic Dispatch for Different Providers
+
+For any struct that implements `Config` trait, you can wrap it in a smart pointer and cast the pointer to `dyn Config`
+trait object, then your client can accept any wrapped configuration type.
+
+For example,
+
+```rust
+use async_openai::{Client, config::Config, config::OpenAIConfig};
+
+let openai_config = OpenAIConfig::default();
+// You can use `std::sync::Arc` to wrap the config as well
+let config = Box::new(openai_config) as Box<dyn Config>;
+let client: Client<Box<dyn Config> > = Client::with_config(config);
+```
 
 ## Contributing
 
 Thank you for taking the time to contribute and improve the project. I'd be happy to have you!
 
-All forms of contributions, such as new features requests, bug fixes, issues, documentation, testing, comments, [examples](../examples) etc. are welcome.
+All forms of contributions, such as new features requests, bug fixes, issues, documentation, testing, comments, [examples](https://github.com/64bit/async-openai/tree/main/examples) etc. are welcome.
 
 A good starting point would be to look at existing [open issues](https://github.com/64bit/async-openai/issues).
 

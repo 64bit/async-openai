@@ -84,6 +84,17 @@ pub struct ConversationItemCreatedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+/// Log probability information for a transcribed token.
+pub struct LogProb {
+    /// Raw UTF-8 bytes for the token.
+    pub bytes: Vec<u8>,
+    /// The log probability of the token.
+    pub logprob: f64,
+    /// The token string.
+    pub token: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ConversationItemInputAudioTranscriptionCompletedEvent {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -93,6 +104,22 @@ pub struct ConversationItemInputAudioTranscriptionCompletedEvent {
     pub content_index: u32,
     /// The transcribed text.
     pub transcript: String,
+    /// Optional per-token log probability data.
+    pub logprobs: Option<Vec<LogProb>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ConversationItemInputAudioTranscriptionDeltaEvent {
+    /// The unique ID of the server event.
+    pub event_id: String,
+    /// The ID of the user message item.
+    pub item_id: String,
+    /// The index of the content part containing the audio.
+    pub content_index: u32,
+    /// The text delta.
+    pub delta: String,
+    /// Optional per-token log probability data.
+    pub logprobs: Option<Vec<LogProb>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -377,6 +404,9 @@ pub enum ServerEvent {
     ConversationItemInputAudioTranscriptionCompleted(
         ConversationItemInputAudioTranscriptionCompletedEvent,
     ),
+
+    #[serde(rename = "conversation.item.input_audio_transcription.delta")]
+    ConversationItemInputAudioTranscriptionDelta(ConversationItemInputAudioTranscriptionDeltaEvent),
 
     /// Returned when input audio transcription is configured, and a transcription request for a user message failed.
     #[serde(rename = "conversation.item.input_audio_transcription.failed")]
