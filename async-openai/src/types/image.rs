@@ -60,6 +60,7 @@ pub enum ImageQuality {
     High,
     Medium,
     Low,
+    Auto,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
