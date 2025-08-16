@@ -11,7 +11,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
 
     let request = CreateResponseArgs::default()
-        .model("o3")
+        .model("gpt-4.1")
         .stream(true)
         .input(Input::Items(vec![InputItem::Message(
             InputMessageArgs::default()
