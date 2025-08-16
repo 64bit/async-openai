@@ -607,6 +607,8 @@ pub enum ServiceTier {
     Auto,
     Default,
     Flex,
+    Scale,
+    Priority,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -615,6 +617,7 @@ pub enum ServiceTierResponse {
     Scale,
     Default,
     Flex,
+    Priority,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
