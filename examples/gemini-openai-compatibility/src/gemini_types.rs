@@ -55,9 +55,14 @@ pub struct GeminiCreateChatCompletionResponse {
     /// The model used for the chat completion.
     pub model: String,
     /// The object type, which is always `chat.completion`.
+    #[serde(default="object_default_value")]
     pub object: String,
     /// usage statistics for the entire request.
     pub usage: Option<CompletionUsage>,
+}
+
+pub fn object_default_value()->String{
+    "chat.completion".to_string()
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
