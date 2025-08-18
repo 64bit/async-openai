@@ -94,6 +94,22 @@
 //! # });
 //!```
 //!
+//! ## Dynamic Dispatch for Different Providers
+//!
+//! For any struct that implements `Config` trait, you can wrap it in a smart pointer and cast the pointer to `dyn Config`
+//! trait object, then your client can accept any wrapped configuration type.
+//!
+//! For example,
+//! ```
+//! use async_openai::{Client, config::Config, config::OpenAIConfig};
+//! unsafe { std::env::set_var("OPENAI_API_KEY", "only for doc test") }
+//!
+//! let openai_config = OpenAIConfig::default();
+//! // You can use `std::sync::Arc` to wrap the config as well
+//! let config = Box::new(openai_config) as Box<dyn Config>;
+//! let client: Client<Box<dyn Config> > = Client::with_config(config);
+//! ```
+//!
 //! ## Microsoft Azure
 //!
 //! ```
@@ -146,6 +162,7 @@ mod project_api_keys;
 mod project_service_accounts;
 mod project_users;
 mod projects;
+mod responses;
 mod runs;
 mod steps;
 mod threads;
@@ -177,6 +194,7 @@ pub use project_api_keys::ProjectAPIKeys;
 pub use project_service_accounts::ProjectServiceAccounts;
 pub use project_users::ProjectUsers;
 pub use projects::Projects;
+pub use responses::Responses;
 pub use runs::Runs;
 pub use steps::Steps;
 pub use threads::Threads;

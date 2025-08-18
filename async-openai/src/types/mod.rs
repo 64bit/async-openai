@@ -24,6 +24,7 @@ mod projects;
 #[cfg_attr(docsrs, doc(cfg(feature = "realtime")))]
 #[cfg(feature = "realtime")]
 pub mod realtime;
+pub mod responses;
 mod run;
 mod step;
 mod thread;
