@@ -43,7 +43,7 @@ macro_rules! impl_config_for_ptr {
             fn api_base(&self) -> &str {
                 self.as_ref().api_base()
             }
-            fn api_key(&self) -> &SecretString {
+            fn api_key(&self) -> Arc<SecretString> {
                 self.as_ref().api_key()
             }
         }
