@@ -3,10 +3,11 @@ use std::{collections::HashMap, pin::Pin};
 use derive_builder::Builder;
 use futures::Stream;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::error::OpenAIError;
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(untagged)]
 pub enum Prompt {
     String(String),
@@ -16,7 +17,7 @@ pub enum Prompt {
     ArrayOfIntegerArray(Vec<Vec<u32>>),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(untagged)]
 pub enum Stop {
     String(String),           // nullable: true
@@ -886,7 +887,7 @@ pub struct CreateChatCompletionRequest {
 }
 
 /// Options for streaming response. Only set this when you set `stream: true`.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, ToSchema)]
 pub struct ChatCompletionStreamOptions {
     /// If set, an additional chunk will be streamed before the `data: [DONE]` message. The `usage` field on this chunk shows the token usage statistics for the entire request, and the `choices` field will always be an empty array. All other chunks will also include a `usage` field, but with a null value.
     pub include_usage: bool,
