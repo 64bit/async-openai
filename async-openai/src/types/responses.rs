@@ -9,9 +9,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::pin::Pin;
+use utoipa::ToSchema;
 
 /// Role of messages in the API.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum Role {
     User,
@@ -30,7 +31,7 @@ pub enum OutputStatus {
 }
 
 /// Input payload: raw text or structured context items.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(untagged)]
 pub enum Input {
     /// A text input to the model, equivalent to a text input with the user role.
@@ -40,7 +41,7 @@ pub enum Input {
 }
 
 /// A context item: currently only messages.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(untagged, rename_all = "snake_case")]
 pub enum InputItem {
     Message(InputMessage),
@@ -48,7 +49,7 @@ pub enum InputItem {
 }
 
 /// A message to prime the model.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, ToSchema)]
 #[builder(
     name = "InputMessageArgs",
     pattern = "mutable",
@@ -66,14 +67,14 @@ pub struct InputMessage {
     pub content: InputContent,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum InputMessageType {
     #[default]
     Message,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(untagged)]
 pub enum InputContent {
     /// A text input to the model.
@@ -83,7 +84,7 @@ pub enum InputContent {
 }
 
 /// Parts of a message: text, image, file, or audio.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ContentType {
     /// A text input to the model.
@@ -94,12 +95,12 @@ pub enum ContentType {
     InputFile(InputFile),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 pub struct InputText {
     text: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, ToSchema)]
 #[builder(
     name = "InputImageArgs",
     pattern = "mutable",
@@ -119,7 +120,7 @@ pub struct InputImage {
     image_url: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, ToSchema)]
 #[builder(
     name = "InputFileArgs",
     pattern = "mutable",
@@ -140,7 +141,7 @@ pub struct InputFile {
 }
 
 /// Builder for a Responses API request.
-#[derive(Clone, Serialize, Deserialize, Debug, Default, Builder, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, Default, Builder, PartialEq, ToSchema)]
 #[builder(
     name = "CreateResponseArgs",
     pattern = "mutable",
@@ -306,7 +307,7 @@ pub struct CreateResponse {
 }
 
 /// Service tier request options.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 pub struct PromptConfig {
     /// The unique identifier of the prompt template to use.
     pub id: String,
@@ -323,7 +324,7 @@ pub struct PromptConfig {
 }
 
 /// Service tier request options.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum ServiceTier {
     Auto,
@@ -332,7 +333,7 @@ pub enum ServiceTier {
 }
 
 /// Truncation strategies.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum Truncation {
     Auto,
@@ -340,7 +341,7 @@ pub enum Truncation {
 }
 
 /// o-series reasoning settings.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, ToSchema)]
 #[builder(
     name = "ReasoningConfigArgs",
     pattern = "mutable",
@@ -357,7 +358,7 @@ pub struct ReasoningConfig {
     pub summary: Option<ReasoningSummary>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum ReasoningSummary {
     Auto,
@@ -366,13 +367,13 @@ pub enum ReasoningSummary {
 }
 
 /// Configuration for text response format.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 pub struct TextConfig {
     /// Defines the format: plain text, JSON object, or JSON schema.
     pub format: TextResponseFormat,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum TextResponseFormat {
     /// The type of response format being defined: `text`
@@ -384,7 +385,7 @@ pub enum TextResponseFormat {
 }
 
 /// Definitions for model-callable tools.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ToolDefinition {
     /// File search tool.
@@ -405,7 +406,7 @@ pub enum ToolDefinition {
     LocalShell,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, ToSchema)]
 #[builder(
     name = "FileSearchArgs",
     pattern = "mutable",
@@ -427,7 +428,7 @@ pub struct FileSearch {
     pub ranking_options: Option<RankingOptions>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, ToSchema)]
 #[builder(
     name = "FunctionArgs",
     pattern = "mutable",
@@ -447,7 +448,7 @@ pub struct Function {
     pub description: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, ToSchema)]
 #[builder(
     name = "WebSearchPreviewArgs",
     pattern = "mutable",
@@ -463,7 +464,7 @@ pub struct WebSearchPreview {
     pub search_context_size: Option<WebSearchContextSize>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum WebSearchContextSize {
     Low,
@@ -471,7 +472,7 @@ pub enum WebSearchContextSize {
     High,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, ToSchema)]
 #[builder(
     name = "ComputerUsePreviewArgs",
     pattern = "mutable",
@@ -488,7 +489,7 @@ pub struct ComputerUsePreview {
 }
 
 /// Options for search result ranking.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 pub struct RankingOptions {
     /// The ranker to use for the file search.
     pub ranker: String,
@@ -499,7 +500,7 @@ pub struct RankingOptions {
 }
 
 /// Filters for file search.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(untagged)]
 pub enum Filter {
     /// A filter used to compare a specified attribute key to a given value using a defined
@@ -510,7 +511,7 @@ pub enum Filter {
 }
 
 /// Single comparison filter.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 pub struct ComparisonFilter {
     /// Specifies the comparison operator
     #[serde(rename = "type")]
@@ -521,7 +522,7 @@ pub struct ComparisonFilter {
     pub value: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, ToSchema)]
 pub enum ComparisonType {
     #[serde(rename = "eq")]
     Equals,
@@ -538,7 +539,7 @@ pub enum ComparisonType {
 }
 
 /// Combine multiple filters.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 pub struct CompoundFilter {
     /// Type of operation
     #[serde(rename = "type")]
@@ -547,7 +548,7 @@ pub struct CompoundFilter {
     pub filters: Vec<Filter>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum CompoundType {
     And,
@@ -555,7 +556,7 @@ pub enum CompoundType {
 }
 
 /// Approximate user location for web search.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, ToSchema)]
 #[builder(
     name = "LocationArgs",
     pattern = "mutable",
@@ -582,7 +583,7 @@ pub struct Location {
 }
 
 /// MCP (Model Context Protocol) tool configuration.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, ToSchema)]
 #[builder(
     name = "McpArgs",
     pattern = "mutable",
@@ -607,7 +608,7 @@ pub struct Mcp {
 }
 
 /// Allowed tools configuration for MCP.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(untagged)]
 pub enum AllowedTools {
     /// A flat list of allowed tool names.
@@ -617,7 +618,7 @@ pub enum AllowedTools {
 }
 
 /// Filter object for MCP allowed tools.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 pub struct McpAllowedToolsFilter {
     /// Names of tools in the filter
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -625,7 +626,7 @@ pub struct McpAllowedToolsFilter {
 }
 
 /// Approval policy or filter for MCP tools.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(untagged)]
 pub enum RequireApproval {
     /// A blanket policy: "always" or "never".
@@ -634,7 +635,7 @@ pub enum RequireApproval {
     Filter(McpApprovalFilter),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum RequireApprovalPolicy {
     Always,
@@ -642,7 +643,7 @@ pub enum RequireApprovalPolicy {
 }
 
 /// Filter object for MCP tool approval.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 pub struct McpApprovalFilter {
     /// A list of tools that always require approval.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -653,7 +654,7 @@ pub struct McpApprovalFilter {
 }
 
 /// Container configuration for a code interpreter.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(untagged)]
 pub enum CodeInterpreterContainer {
     /// A simple container ID.
@@ -663,7 +664,7 @@ pub enum CodeInterpreterContainer {
 }
 
 /// Auto configuration for code interpreter container.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum CodeInterpreterContainerKind {
     Auto {
@@ -674,7 +675,7 @@ pub enum CodeInterpreterContainerKind {
 }
 
 /// Code interpreter tool definition.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, ToSchema)]
 #[builder(
     name = "CodeInterpreterArgs",
     pattern = "mutable",
@@ -688,7 +689,7 @@ pub struct CodeInterpreter {
 }
 
 /// Mask image input for image generation.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 pub struct InputImageMask {
     /// Base64-encoded mask image.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -699,7 +700,7 @@ pub struct InputImageMask {
 }
 
 /// Image generation tool definition.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, ToSchema)]
 #[builder(
     name = "ImageGenerationArgs",
     pattern = "mutable",
@@ -737,7 +738,7 @@ pub struct ImageGeneration {
     pub size: Option<ImageGenerationSize>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum ImageGenerationBackground {
     Transparent,
@@ -745,7 +746,7 @@ pub enum ImageGenerationBackground {
     Auto,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum ImageGenerationOutputFormat {
     Png,
@@ -753,7 +754,7 @@ pub enum ImageGenerationOutputFormat {
     Jpeg,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum ImageGenerationQuality {
     Low,
@@ -762,7 +763,7 @@ pub enum ImageGenerationQuality {
     Auto,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum ImageGenerationSize {
     Auto,
@@ -775,7 +776,7 @@ pub enum ImageGenerationSize {
 }
 
 /// Control how the model picks or is forced to pick a tool.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 #[serde(untagged)]
 pub enum ToolChoice {
     /// Controls which (if any) tool is called by the model.
@@ -794,7 +795,7 @@ pub enum ToolChoice {
 }
 
 /// Simple tool-choice modes.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum ToolChoiceMode {
     /// The model will not call any tool and instead generates a message.
@@ -806,7 +807,7 @@ pub enum ToolChoiceMode {
 }
 
 /// Hosted tool type identifiers.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum HostedToolType {
     FileSearch,
