@@ -141,7 +141,7 @@ pub struct InputFile {
 }
 
 /// Builder for a Responses API request.
-#[derive(Clone, Serialize, Deserialize, Debug, Default, Builder, PartialEq, ToSchema)]
+#[derive(Clone, Serialize, Deserialize, Debug, Default, Builder, PartialEq)]
 #[builder(
     name = "CreateResponseArgs",
     pattern = "mutable",
