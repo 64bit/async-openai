@@ -509,13 +509,7 @@ where
                         }
 
                         let response = match serde_json::from_str::<O>(&message.data) {
-                            Err(e) => {
-                                tracing::error!(
-                                    "failed deserialization of: {}",
-                                    String::from_utf8_lossy(message.data.as_bytes()),
-                                );
-                                Err(Into::<E>::into(e))
-                            }
+                            Err(e) => Err(Into::<E>::into(e)),
                             Ok(output) => Ok(output),
                         };
 
