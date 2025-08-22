@@ -1,4 +1,5 @@
 use std::pin::Pin;
+use std::sync::Arc;
 
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
@@ -10,6 +11,7 @@ use crate::{
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, ApiError, OpenAIError, WrappedError},
     file::Files,
+    http_client::{HttpClient, BoxedHttpClient},
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
@@ -563,4 +565,33 @@ where
     });
 
     Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+}
+
+
+/// Client with HttpClient trait support
+pub struct ClientWithTrait<C: Config> {
+    pub(crate) http_client: BoxedHttpClient,
+    pub(crate) config: C,
+    pub(crate) backoff: backoff::ExponentialBackoff,
+}
+
+impl<C: Config> ClientWithTrait<C> {
+    /// Create a new client with a custom HTTP client implementation
+    pub fn new_with_http_client(http_client: impl HttpClient + 'static, config: C) -> Self {
+        Self {
+            http_client: Arc::new(http_client),
+            config,
+            backoff: Default::default(),
+        }
+    }
+    
+    /// Get the underlying configuration
+    pub fn config(&self) -> &C {
+        &self.config
+    }
+    
+    /// To call [ChatWithTrait] group related APIs using this client.
+    pub fn chat(&self) -> crate::chat_with_trait::ChatWithTrait<C> {
+        crate::chat_with_trait::ChatWithTrait::new(self)
+    }
 }
