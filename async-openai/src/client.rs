@@ -64,16 +64,6 @@ impl<C: Config> Client<C> {
         self.http_client = http_client;
         self
     }
-    
-    /// Provide any HTTP client implementing the HttpClient trait
-    /// This allows using middleware-enabled clients for automatic instrumentation
-    pub fn with_http_client_trait<H: HttpClient + 'static>(self, http_client: H) -> ClientWithTrait<C> {
-        ClientWithTrait {
-            http_client: std::sync::Arc::new(http_client),
-            config: self.config,
-            backoff: self.backoff,
-        }
-    }
 
     /// Exponential backoff for retrying [rate limited](https://platform.openai.com/docs/guides/rate-limits) requests.
     pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
@@ -574,4 +564,31 @@ where
     });
 
     Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+}
+
+
+use crate::http_client::{BoxedHttpClient, HttpClient};
+use std::sync::Arc;
+
+/// Client with HttpClient trait support
+pub struct ClientWithTrait<C: Config> {
+    http_client: BoxedHttpClient,
+    config: C,
+    backoff: backoff::ExponentialBackoff,
+}
+
+impl<C: Config> ClientWithTrait<C> {
+    /// Create a new client with a custom HTTP client implementation
+    pub fn new_with_http_client(http_client: impl HttpClient + 'static, config: C) -> Self {
+        Self {
+            http_client: Arc::new(http_client),
+            config,
+            backoff: Default::default(),
+        }
+    }
+    
+    /// Get the underlying configuration
+    pub fn config(&self) -> &C {
+        &self.config
+    }
 }
