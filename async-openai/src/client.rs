@@ -10,6 +10,7 @@ use crate::{
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, ApiError, OpenAIError, WrappedError},
     file::Files,
+    http_client::{HttpClient, BoxedHttpClient},
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
@@ -62,6 +63,16 @@ impl<C: Config> Client<C> {
     pub fn with_http_client(mut self, http_client: reqwest::Client) -> Self {
         self.http_client = http_client;
         self
+    }
+    
+    /// Provide any HTTP client implementing the HttpClient trait
+    /// This allows using middleware-enabled clients for automatic instrumentation
+    pub fn with_http_client_trait<H: HttpClient + 'static>(self, http_client: H) -> ClientWithTrait<C> {
+        ClientWithTrait {
+            http_client: std::sync::Arc::new(http_client),
+            config: self.config,
+            backoff: self.backoff,
+        }
     }
 
     /// Exponential backoff for retrying [rate limited](https://platform.openai.com/docs/guides/rate-limits) requests.
