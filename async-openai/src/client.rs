@@ -12,7 +12,7 @@ use crate::{
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, ApiError, OpenAIError, WrappedError},
     file::Files,
-    http_client::{HttpClient, BoxedHttpClient},
+    http_client::{HttpClient, BoxedHttpClient, MultipartForm, SseEvent},
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
@@ -251,45 +251,42 @@ impl<C: Config> Client<C> {
     }
 
     /// POST a form at {path} and return the response body
-    /// Note: This still uses reqwest directly as multipart forms aren't supported by HttpClient trait yet
     pub(crate) async fn post_form_raw<F>(&self, path: &str, form: F) -> Result<Bytes, OpenAIError>
     where
         Form: AsyncTryFrom<F, Error = OpenAIError>,
         F: Clone,
     {
-        // For now, forms still require reqwest::Client directly
-        // TODO: Extend HttpClient trait to support multipart
-        let reqwest_client = reqwest::Client::new();
+        // Convert the form to our MultipartForm
+        let reqwest_form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
+        let multipart = MultipartForm::from_reqwest_form(reqwest_form).await
+            .map_err(|e| OpenAIError::HttpClient(e.to_string()))?;
         
-        // Build the request directly
-        let request = reqwest_client
-            .post(self.config.url(path))
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .multipart(<Form as AsyncTryFrom<F>>::try_from(form).await?)
-            .build()
-            .map_err(OpenAIError::Reqwest)?;
+        // Build URL with query parameters
+        let url = self.config.url(path);
+        let mut parsed_url = Url::parse(&url)
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Invalid URL: {}", e)))?;
+        for (key, value) in self.config.query() {
+            parsed_url.query_pairs_mut().append_pair(key, value);
+        }
+        
+        let client = self.http_client.clone();
+        let headers = self.config.headers();
         
         // Execute with backoff retry
         backoff::future::retry(self.backoff.clone(), || async {
-            let req_clone = request.try_clone().ok_or_else(|| {
-                backoff::Error::Permanent(OpenAIError::InvalidArgument(
-                    "Failed to clone request".to_string(),
-                ))
-            })?;
-            
-            let response = reqwest_client
-                .execute(req_clone)
+            let response = client
+                .request_multipart(
+                    Method::POST,
+                    parsed_url.clone(),
+                    headers.clone(),
+                    multipart.clone(),
+                )
                 .await
-                .map_err(OpenAIError::Reqwest)
+                .map_err(|e| OpenAIError::HttpClient(e.to_string()))
                 .map_err(backoff::Error::Permanent)?;
 
-            let status = response.status();
-            let bytes = response
-                .bytes()
-                .await
-                .map_err(OpenAIError::Reqwest)
-                .map_err(backoff::Error::Permanent)?;
+            let status = response.status;
+            let bytes = response.body;
 
             if status.is_server_error() {
                 let message: String = String::from_utf8_lossy(&bytes).into_owned();
@@ -331,7 +328,6 @@ impl<C: Config> Client<C> {
     }
 
     /// POST a form at {path} and deserialize the response body
-    /// Note: This still uses reqwest directly as multipart forms aren't supported by HttpClient trait yet
     pub(crate) async fn post_form<O, F>(&self, path: &str, form: F) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
@@ -419,7 +415,6 @@ impl<C: Config> Client<C> {
 
 
     /// Make HTTP POST request to receive SSE
-    /// Note: Streaming still uses reqwest directly as SSE isn't supported by HttpClient trait yet
     pub(crate) async fn post_stream<I, O>(
         &self,
         path: &str,
@@ -429,17 +424,32 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        // TODO: Extend HttpClient trait to support streaming
-        let client = reqwest::Client::new();
-        let event_source = client
-            .post(self.config.url(path))
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .json(&request)
-            .eventsource()
-            .unwrap();
-
-        stream(event_source).await
+        // Build URL with query parameters
+        let url = self.config.url(path);
+        let mut parsed_url = Url::parse(&url)
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Invalid URL: {}", e)))
+            .unwrap(); // TODO: handle error properly
+        for (key, value) in self.config.query() {
+            parsed_url.query_pairs_mut().append_pair(key, value);
+        }
+        
+        // Serialize request body
+        let body = serde_json::to_vec(&request)
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Failed to serialize request: {}", e)))
+            .unwrap(); // TODO: handle error properly
+            
+        let event_stream = self.http_client
+            .request_stream(
+                Method::POST,
+                parsed_url,
+                self.config.headers(),
+                Some(body.into()),
+            )
+            .await
+            .map_err(|e| OpenAIError::HttpClient(e.to_string()))
+            .unwrap(); // TODO: handle error properly
+            
+        stream_from_sse(event_stream).await
     }
 
     pub(crate) async fn post_stream_mapped_raw_events<I, O>(
@@ -452,7 +462,8 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        // TODO: Extend HttpClient trait to support streaming
+        // For now, keep using reqwest for the mapped events since it needs eventsource_stream::Event
+        // TODO: Update event_mapper to use our SseEvent type
         let client = reqwest::Client::new();
         let event_source = client
             .post(self.config.url(path))
@@ -466,7 +477,6 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP GET request to receive SSE
-    /// Note: Streaming still uses reqwest directly as SSE isn't supported by HttpClient trait yet
     pub(crate) async fn _get_stream<Q, O>(
         &self,
         path: &str,
@@ -476,21 +486,97 @@ impl<C: Config> Client<C> {
         Q: Serialize + ?Sized,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        // TODO: Extend HttpClient trait to support streaming
-        let client = reqwest::Client::new();
-        let event_source = client
-            .get(self.config.url(path))
-            .query(query)
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .eventsource()
-            .unwrap();
-
-        stream(event_source).await
+        // Build URL with query parameters
+        let url = self.config.url(path);
+        let mut parsed_url = Url::parse(&url)
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Invalid URL: {}", e)))
+            .unwrap(); // TODO: handle error properly
+            
+        // Add custom query
+        let query_string = serde_urlencoded::to_string(query)
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Failed to serialize query: {}", e)))
+            .unwrap(); // TODO: handle error properly
+        if !query_string.is_empty() {
+            parsed_url.set_query(Some(&query_string));
+        }
+        
+        // Add config query
+        for (key, value) in self.config.query() {
+            parsed_url.query_pairs_mut().append_pair(key, value);
+        }
+            
+        let event_stream = self.http_client
+            .request_stream(
+                Method::GET,
+                parsed_url,
+                self.config.headers(),
+                None,
+            )
+            .await
+            .map_err(|e| OpenAIError::HttpClient(e.to_string()))
+            .unwrap(); // TODO: handle error properly
+            
+        stream_from_sse(event_stream).await
     }
 }
 
-/// Request which responds with SSE.
+/// Convert our SSE stream to OpenAI response stream
+pub(crate) async fn stream_from_sse<O>(
+    mut event_stream: Pin<Box<dyn Stream<Item = Result<SseEvent, crate::http_client::HttpError>> + Send>>,
+) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+where
+    O: DeserializeOwned + std::marker::Send + 'static,
+{
+    use futures::StreamExt;
+    
+    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+
+    tokio::spawn(async move {
+        while let Some(event_result) = event_stream.next().await {
+            match event_result {
+                Err(e) => {
+                    if let Err(_e) = tx.send(Err(OpenAIError::HttpClient(e.to_string()))) {
+                        // rx dropped
+                        break;
+                    }
+                }
+                Ok(event) => {
+                    // Check for [DONE] message
+                    if event.data == "[DONE]" {
+                        break;
+                    }
+                    
+                    // Skip open events
+                    if event.event.as_deref() == Some("open") {
+                        continue;
+                    }
+                    
+                    // Try to parse the data as JSON
+                    if !event.data.is_empty() {
+                        match serde_json::from_str::<O>(&event.data) {
+                            Ok(obj) => {
+                                if let Err(_e) = tx.send(Ok(obj)) {
+                                    // rx dropped
+                                    break;
+                                }
+                            }
+                            Err(e) => {
+                                if let Err(_e) = tx.send(Err(OpenAIError::JSONDeserialize(e))) {
+                                    // rx dropped
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+}
+
+/// Request which responds with SSE (legacy, for compatibility)
 /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
 pub(crate) async fn stream<O>(
     mut event_source: EventSource,
