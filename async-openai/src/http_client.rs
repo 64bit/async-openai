@@ -220,7 +220,7 @@ impl HttpClient for reqwest::Client {
                 Ok(Event::Message(msg)) => Ok(SseEvent {
                     data: msg.data,
                     event: Some(msg.event),
-                    id: msg.id,
+                    id: Some(msg.id),
                     retry: msg.retry.map(|d| d.as_millis() as u64),
                 }),
                 Ok(Event::Open) => Ok(SseEvent {
