@@ -31,7 +31,8 @@ impl<'c, C: Config> ChatWithTrait<'c, C> {
         request: CreateChatCompletionRequest,
     ) -> Result<CreateChatCompletionResponse, OpenAIError> {
         // Prepare the request
-        let url = self.client.config.url("/chat/completions");
+        let url = reqwest::Url::parse(&self.client.config.url("/chat/completions"))
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Invalid URL: {}", e)))?;
         
         // Serialize request body
         let body = serde_json::to_vec(&request)
