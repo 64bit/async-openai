@@ -1,4 +1,5 @@
 use std::pin::Pin;
+use std::sync::Arc;
 
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
@@ -566,9 +567,6 @@ where
     Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
 }
 
-
-use crate::http_client::{BoxedHttpClient, HttpClient};
-use std::sync::Arc;
 
 /// Client with HttpClient trait support
 pub struct ClientWithTrait<C: Config> {
