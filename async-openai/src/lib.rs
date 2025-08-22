@@ -145,6 +145,7 @@ mod audio;
 mod audit_logs;
 mod batches;
 mod chat;
+mod chat_with_trait;
 mod client;
 mod completion;
 pub mod config;

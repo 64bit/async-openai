@@ -589,4 +589,9 @@ impl<C: Config> ClientWithTrait<C> {
     pub fn config(&self) -> &C {
         &self.config
     }
+    
+    /// To call [ChatWithTrait] group related APIs using this client.
+    pub fn chat(&self) -> crate::chat_with_trait::ChatWithTrait<C> {
+        crate::chat_with_trait::ChatWithTrait::new(self)
+    }
 }
