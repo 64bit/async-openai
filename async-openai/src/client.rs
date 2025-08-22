@@ -570,9 +570,9 @@ where
 
 /// Client with HttpClient trait support
 pub struct ClientWithTrait<C: Config> {
-    http_client: BoxedHttpClient,
-    config: C,
-    backoff: backoff::ExponentialBackoff,
+    pub(crate) http_client: BoxedHttpClient,
+    pub(crate) config: C,
+    pub(crate) backoff: backoff::ExponentialBackoff,
 }
 
 impl<C: Config> ClientWithTrait<C> {

@@ -3,7 +3,7 @@
 use crate::{
     config::Config,
     error::{ApiError, OpenAIError},
-    http_client::{HttpClient, HttpResponse},
+    http_client::HttpResponse,
     types::{
         CreateChatCompletionRequest, CreateChatCompletionResponse,
         CreateChatCompletionStreamResponse,
@@ -35,7 +35,7 @@ impl<'c, C: Config> ChatWithTrait<'c, C> {
         
         // Serialize request body
         let body = serde_json::to_vec(&request)
-            .map_err(|e| OpenAIError::JSONSerialize(e))?;
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Failed to serialize request: {}", e)))?;
         
         // Prepare headers
         let mut headers = self.client.config.headers();
@@ -117,12 +117,10 @@ impl<'c, C: Config> ChatWithTrait<'c, C> {
                     }
                 }
                 Err(e) => {
-                    // Network error, retry
-                    Err(backoff::Error::transient(OpenAIError::Reqwest(
-                        reqwest::Error::from(std::io::Error::new(
-                            std::io::ErrorKind::Other,
-                            e.message
-                        ))
+                    // Network error, retry  
+                    // Convert to a string-based error since we can't create reqwest::Error directly
+                    Err(backoff::Error::transient(OpenAIError::InvalidArgument(
+                        format!("HTTP client error: {}", e.message)
                     )))
                 }
             }
