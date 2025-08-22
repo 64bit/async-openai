@@ -150,6 +150,7 @@ mod completion;
 pub mod config;
 mod download;
 mod embedding;
+pub mod http_client;
 pub mod error;
 mod file;
 mod fine_tuning;
