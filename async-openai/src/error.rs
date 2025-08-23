@@ -1,5 +1,6 @@
 //! Errors originating from API calls, parsing responses, and reading-or-writing to the file system.
 use serde::{Deserialize, Serialize};
+use std::bstr::ByteString;
 
 #[derive(Debug, thiserror::Error)]
 pub enum OpenAIError {
@@ -11,7 +12,9 @@ pub enum OpenAIError {
     ApiError(ApiError),
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: {0}")]
-    JSONDeserialize(serde_json::Error),
+    // ByteString is used Because if you use Vec<u8> You get spammed with numbers in terminal. Huge loss.
+    // there is https://crates.io/crates/byte_string if you dont want unstable features.
+    JSONDeserialize(serde_json::Error, ByteString),
     /// Error on the client side when saving file to file system
     #[error("failed to save file: {0}")]
     FileSaveError(String),
@@ -67,10 +70,7 @@ pub struct WrappedError {
     pub error: ApiError,
 }
 
-pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> OpenAIError {
-    tracing::error!(
-        "failed deserialization of: {}",
-        String::from_utf8_lossy(bytes)
-    );
-    OpenAIError::JSONDeserialize(e)
+pub(crate) fn map_deserialization_error(e: serde_json::Error, string: ByteString) -> OpenAIError {
+    tracing::error!("failed deserialization {:?}", e);
+    OpenAIError::JSONDeserialize(e, string)
 }
