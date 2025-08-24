@@ -1,3 +1,5 @@
+#![feature(bstr)]
+
 //! Rust library for OpenAI
 //!
 //! ## Creating client
