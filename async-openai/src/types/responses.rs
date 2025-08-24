@@ -1185,15 +1185,17 @@ pub struct ImageGenerationCallOutput {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CodeInterpreterCallOutput {
     /// The code that was executed.
-    pub code: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code: Option<String>,
     /// Unique ID of the call.
     pub id: String,
     /// Status of the tool call.
     pub status: String,
     /// ID of the container used to run the code.
     pub container_id: String,
-    /// The results of the execution: logs or files.
-    pub results: Vec<CodeInterpreterResult>,
+    /// The outputs of the execution: logs or files.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub outputs: Option<Vec<CodeInterpreterResult>>,
 }
 
 /// Individual result from a code interpreter: either logs or files.
