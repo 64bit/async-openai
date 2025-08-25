@@ -3,7 +3,7 @@ use std::pin::Pin;
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
 use reqwest::multipart::Form;
-use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
+use reqwest_eventsource::{retry::ExponentialBackoff, Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
@@ -12,6 +12,7 @@ use crate::{
     file::Files,
     image::Images,
     moderation::Moderations,
+    streaming_backoff::StreamingBackoff,
     traits::AsyncTryFrom,
     Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
     Models, Projects, Responses, Threads, Uploads, Users, VectorStores,
@@ -414,7 +415,7 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let event_source = self
+        let mut event_source = self
             .http_client
             .post(self.config.url(path))
             .query(&self.config.query())
@@ -422,6 +423,9 @@ impl<C: Config> Client<C> {
             .json(&request)
             .eventsource()
             .unwrap();
+
+        let retry_policy: StreamingBackoff = self.backoff.clone().into();
+        event_source.set_retry_policy(Box::new(retry_policy));
 
         stream(event_source).await
     }
@@ -436,7 +440,7 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let event_source = self
+        let mut event_source = self
             .http_client
             .post(self.config.url(path))
             .query(&self.config.query())
@@ -444,6 +448,9 @@ impl<C: Config> Client<C> {
             .json(&request)
             .eventsource()
             .unwrap();
+
+        let retry_policy: StreamingBackoff = self.backoff.clone().into();
+        event_source.set_retry_policy(Box::new(retry_policy));
 
         stream_mapped_raw_events(event_source, event_mapper).await
     }
