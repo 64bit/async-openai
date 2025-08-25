@@ -147,7 +147,7 @@ pub struct AssistantToolsFileSearchOverrides {
 pub enum FileSearchRanker {
     #[serde(rename = "auto")]
     Auto,
-    #[serde(rename = "default_2024_08_21")]
+    #[serde(rename = "default-2024-08-21")]
     Default2024_08_21,
 }
 
