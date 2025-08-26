@@ -2129,8 +2129,6 @@ pub struct CustomToolCallOutput {
     pub call_id: String,
     pub input: String,
     pub name: String,
-    #[serde(rename = "type")]
-    pub output_type: String,
     pub id: String,
 }
 
