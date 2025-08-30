@@ -1,7 +1,7 @@
 //! Client configurations: [OpenAIConfig] for OpenAI, [AzureConfig] for Azure OpenAI Service.
 use reqwest::header::{HeaderMap, AUTHORIZATION};
-use secrecy::{ExposeSecret, SecretString};
-use serde::Deserialize;
+use secrecy::{ExposeSecret, SecretString, SerializableSecret};
+use serde::{Deserialize, Serialize};
 
 /// Default v1 API base url
 pub const OPENAI_API_BASE: &str = "https://api.openai.com/v1";
@@ -59,6 +59,36 @@ pub struct OpenAIConfig {
     api_key: SecretString,
     org_id: String,
     project_id: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, Hash)]
+pub struct OpenAIConfigSerde {
+    api_base: String,
+    api_key: String,
+    org_id: String,
+    project_id: String,
+}
+
+impl From<OpenAIConfig> for OpenAIConfigSerde {
+    fn from(config: OpenAIConfig) -> Self {
+        Self {
+            api_base: config.api_base,
+            api_key: config.api_key.expose_secret().to_string(),
+            org_id: config.org_id,
+            project_id: config.project_id,
+        }
+    }
+}
+
+impl From<OpenAIConfigSerde> for OpenAIConfig {
+    fn from(config: OpenAIConfigSerde) -> Self {
+        Self {
+            api_base: config.api_base,
+            api_key: SecretString::from(config.api_key),
+            org_id: config.org_id,
+            project_id: config.project_id,
+        }
+    }
 }
 
 impl Default for OpenAIConfig {
