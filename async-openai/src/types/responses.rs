@@ -2104,20 +2104,32 @@ pub struct ResponseMetadata {
 
 /// Output item
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 #[non_exhaustive]
-pub struct OutputItem {
+pub enum OutputItem {
+    Message(OutputMessage),
+    FileSearchCall(FileSearchCallOutput),
+    FunctionCall(FunctionCall),
+    WebSearchCall(WebSearchCallOutput),
+    ComputerCall(ComputerCallOutput),
+    Reasoning(ReasoningItem),
+    ImageGenerationCall(ImageGenerationCallOutput),
+    CodeInterpreterCall(CodeInterpreterCallOutput),
+    LocalShellCall(LocalShellCallOutput),
+    McpCall(McpCallOutput),
+    McpListTools(McpListToolsOutput),
+    McpApprovalRequest(McpApprovalRequestOutput),
+    CustomToolCall(CustomToolCallOutput),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[non_exhaustive]
+pub struct CustomToolCallOutput {
+    pub call_id: String,
+    pub input: String,
+    pub name: String,
     pub id: String,
-    #[serde(rename = "type")]
-    pub item_type: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub content: Option<Vec<ContentPart>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub role: Option<String>,
-    /// For reasoning items - summary paragraphs
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub summary: Option<Vec<serde_json::Value>>,
 }
 
 /// Content part
