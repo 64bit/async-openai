@@ -544,7 +544,7 @@ pub enum ComparisonType {
 pub struct CompoundFilter {
     /// Type of operation
     #[serde(rename = "type")]
-    pub op: ComparisonType,
+    pub op: CompoundType,
     /// Array of filters to combine. Items can be ComparisonFilter or CompoundFilter.
     pub filters: Vec<Filter>,
 }
