@@ -163,7 +163,7 @@ pub struct ImageInput {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateImageEditRequest {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
-    pub image: ImageInput,
+    pub image: Vec<ImageInput>,
 
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     pub prompt: String,
