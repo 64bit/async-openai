@@ -119,6 +119,7 @@ pub struct CreateCompletionRequest {
 pub struct CreateCompletionResponse {
     /// A unique identifier for the completion.
     pub id: String,
+
     pub choices: Vec<Choice>,
     /// The Unix timestamp (in seconds) of when the completion was created.
     pub created: u32,
