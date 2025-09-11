@@ -153,6 +153,7 @@ mod embedding;
 pub mod error;
 mod file;
 mod fine_tuning;
+pub mod http_client;
 mod image;
 mod invites;
 mod messages;
