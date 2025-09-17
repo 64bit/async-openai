@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-#[derive(Debug, Serialize, Clone, PartialEq, Deserialize, utoipa::ToSchema)]
+#[derive(Debug, Serialize, Clone, PartialEq, Eq, Deserialize, utoipa::ToSchema, Hash)]
 #[serde(untagged)]
 pub enum EmbeddingInput {
     String(String),
