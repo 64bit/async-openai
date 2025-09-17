@@ -14,7 +14,7 @@ pub enum EmbeddingInput {
     ArrayOfIntegerArray(Vec<Vec<u32>>),
 }
 
-#[derive(Debug, Serialize, Default, Clone, PartialEq, Deserialize, utoipa::ToSchema)]
+#[derive(Debug, Serialize, Default, Clone, PartialEq, Deserialize, utoipa::ToSchema, Eq, Hash)]
 #[serde(rename_all = "lowercase")]
 pub enum EncodingFormat {
     #[default]
@@ -22,7 +22,7 @@ pub enum EncodingFormat {
     Base64,
 }
 
-#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq, Deserialize, utoipa::ToSchema)]
+#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq, Deserialize, utoipa::ToSchema, Eq, Hash)]
 #[builder(name = "CreateEmbeddingRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
