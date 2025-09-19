@@ -1336,7 +1336,7 @@ pub struct Usage {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Response {
     /// Unix timestamp (in seconds) when this Response was created.
-    pub created_at: u64,
+    pub created_at: f64,
 
     /// Error object if the API failed to generate a response.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1351,7 +1351,7 @@ pub struct Response {
 
     /// Instructions that were inserted as the first item in context.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub instructions: Option<String>,
+    pub instructions: Option<Instructions>,
 
     /// The value of `max_output_tokens` that was honored.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1433,12 +1433,22 @@ pub struct Response {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged, rename_all = "snake_case")]
+pub enum Instructions {
+    String(String),
+    Array(Vec<InputItem>),
+}
+
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum Status {
     Completed,
     Failed,
     InProgress,
     Incomplete,
+    Queued,
+    Cancelled,
 }
 
 /// Event types for streaming responses from the Responses API
