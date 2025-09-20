@@ -989,7 +989,7 @@ pub struct FunctionCallStream {
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ChatCompletionMessageToolCallChunk {
-    pub index: u32,
+    pub index: Option<u32>,
     /// The ID of the tool call.
     pub id: Option<String>,
     /// The type of the tool. Currently, only `function` is supported.
