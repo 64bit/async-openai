@@ -29,6 +29,7 @@ pub enum ItemRole {
 pub enum ItemContentType {
     InputText,
     InputAudio,
+    InputImage,
     Text,
     Audio,
 }
