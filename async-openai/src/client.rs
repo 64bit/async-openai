@@ -485,7 +485,7 @@ where
         while let Some(ev) = event_source.next().await {
             match ev {
                 Err(e) => {
-                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
+                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.into()))) {
                         // rx dropped
                         break;
                     }
@@ -530,7 +530,7 @@ where
         while let Some(ev) = event_source.next().await {
             match ev {
                 Err(e) => {
-                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
+                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.into()))) {
                         // rx dropped
                         break;
                     }
