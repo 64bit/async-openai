@@ -2,10 +2,7 @@ use std::error::Error;
 
 use async_openai::{
     types::responses::{
-        AllowedTools, CreateResponseArgs, Input, InputItem, InputMessageArgs, McpArgs,
-        RequireApproval, RequireApprovalPolicy, Role,
-        ToolDefinition::{Mcp, WebSearchPreview},
-        WebSearchPreviewArgs,
+        AllowedTools, CreateResponseArgs, Input, InputItem, InputMessageArgs, McpArgs, RequireApproval, RequireApprovalPolicy, Role, TextConfig, ToolDefinition::{Mcp, WebSearchPreview}, Verbosity, WebSearchPreviewArgs
     },
     Client,
 };
@@ -17,6 +14,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let request = CreateResponseArgs::default()
         .max_output_tokens(512u32)
         .model("gpt-4.1")
+        .text(TextConfig {
+            format: async_openai::types::responses::TextResponseFormat::Text,
+            verbosity: Some(Verbosity::Medium), // only here to test the config, but gpt-4.1 only supports medium
+        })
         .input(Input::Items(vec![InputItem::Message(
             InputMessageArgs::default()
                 .role(Role::User)

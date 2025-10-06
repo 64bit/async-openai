@@ -359,6 +359,15 @@ pub struct ReasoningConfig {
     pub summary: Option<ReasoningSummary>,
 }
 
+/// o-series reasoning settings.
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum Verbosity {
+    Low,
+    Medium,
+    High,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ReasoningSummary {
@@ -372,6 +381,9 @@ pub enum ReasoningSummary {
 pub struct TextConfig {
     /// Defines the format: plain text, JSON object, or JSON schema.
     pub format: TextResponseFormat,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub verbosity: Option<Verbosity>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
