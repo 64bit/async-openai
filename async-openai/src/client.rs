@@ -1,8 +1,10 @@
 use std::pin::Pin;
+use std::sync::Arc;
 
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
 use reqwest::multipart::Form;
+use reqwest::{Method, Url};
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -10,6 +12,7 @@ use crate::{
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, ApiError, OpenAIError, WrappedError},
     file::Files,
+    http_client::{BoxedHttpClient, HttpClient, MultipartForm, SseEvent},
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
@@ -17,11 +20,11 @@ use crate::{
     Models, Projects, Responses, Threads, Uploads, Users, VectorStores,
 };
 
-#[derive(Debug, Clone, Default)]
+#[derive(Clone)]
 /// Client is a container for config, backoff and http_client
 /// used to make API calls.
 pub struct Client<C: Config> {
-    http_client: reqwest::Client,
+    http_client: BoxedHttpClient,
     config: C,
     backoff: backoff::ExponentialBackoff,
 }
@@ -29,19 +32,19 @@ pub struct Client<C: Config> {
 impl Client<OpenAIConfig> {
     /// Client with default [OpenAIConfig]
     pub fn new() -> Self {
-        Self::default()
+        Self::with_config(OpenAIConfig::default())
     }
 }
 
 impl<C: Config> Client<C> {
     /// Create client with a custom HTTP client, OpenAI config, and backoff.
     pub fn build(
-        http_client: reqwest::Client,
+        http_client: impl HttpClient + 'static,
         config: C,
         backoff: backoff::ExponentialBackoff,
     ) -> Self {
         Self {
-            http_client,
+            http_client: Arc::new(http_client),
             config,
             backoff,
         }
@@ -50,17 +53,16 @@ impl<C: Config> Client<C> {
     /// Create client with [OpenAIConfig] or [crate::config::AzureConfig]
     pub fn with_config(config: C) -> Self {
         Self {
-            http_client: reqwest::Client::new(),
+            http_client: Arc::new(reqwest::Client::new()),
             config,
             backoff: Default::default(),
         }
     }
 
-    /// Provide your own [client] to make HTTP requests with.
-    ///
-    /// [client]: reqwest::Client
-    pub fn with_http_client(mut self, http_client: reqwest::Client) -> Self {
-        self.http_client = http_client;
+    /// Provide your own HTTP client implementation to make requests with.
+    /// This can be reqwest::Client, ClientWithMiddleware, or any custom implementation.
+    pub fn with_http_client(mut self, http_client: impl HttpClient + 'static) -> Self {
+        self.http_client = Arc::new(http_client);
         self
     }
 
@@ -176,16 +178,10 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned,
     {
-        let request_maker = || async {
-            Ok(self
-                .http_client
-                .get(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .build()?)
-        };
-
-        self.execute(request_maker).await
+        let bytes = self.execute_with_body(Method::GET, path, None).await?;
+        let response: O = serde_json::from_slice(bytes.as_ref())
+            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+        Ok(response)
     }
 
     /// Make a GET request to {path} with given Query and deserialize the response body
@@ -194,17 +190,24 @@ impl<C: Config> Client<C> {
         O: DeserializeOwned,
         Q: Serialize + ?Sized,
     {
-        let request_maker = || async {
-            Ok(self
-                .http_client
-                .get(self.config.url(path))
-                .query(&self.config.query())
-                .query(query)
-                .headers(self.config.headers())
-                .build()?)
+        // Build path with additional query parameters
+        let query_string = serde_urlencoded::to_string(query).map_err(|e| {
+            OpenAIError::InvalidArgument(format!("Failed to serialize query: {}", e))
+        })?;
+        let path_with_query = if query_string.is_empty() {
+            path.to_string()
+        } else if path.contains('?') {
+            format!("{}&{}", path, query_string)
+        } else {
+            format!("{}?{}", path, query_string)
         };
 
-        self.execute(request_maker).await
+        let bytes = self
+            .execute_with_body(Method::GET, &path_with_query, None)
+            .await?;
+        let response: O = serde_json::from_slice(bytes.as_ref())
+            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+        Ok(response)
     }
 
     /// Make a DELETE request to {path} and deserialize the response body
@@ -212,30 +215,15 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned,
     {
-        let request_maker = || async {
-            Ok(self
-                .http_client
-                .delete(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .build()?)
-        };
-
-        self.execute(request_maker).await
+        let bytes = self.execute_with_body(Method::DELETE, path, None).await?;
+        let response: O = serde_json::from_slice(bytes.as_ref())
+            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+        Ok(response)
     }
 
     /// Make a GET request to {path} and return the response body
     pub(crate) async fn get_raw(&self, path: &str) -> Result<Bytes, OpenAIError> {
-        let request_maker = || async {
-            Ok(self
-                .http_client
-                .get(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .build()?)
-        };
-
-        self.execute_raw(request_maker).await
+        self.execute_with_body(Method::GET, path, None).await
     }
 
     /// Make a POST request to {path} and return the response body
@@ -243,17 +231,11 @@ impl<C: Config> Client<C> {
     where
         I: Serialize,
     {
-        let request_maker = || async {
-            Ok(self
-                .http_client
-                .post(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .json(&request)
-                .build()?)
-        };
-
-        self.execute_raw(request_maker).await
+        let body = serde_json::to_vec(&request).map_err(|e| {
+            OpenAIError::InvalidArgument(format!("Failed to serialize request: {}", e))
+        })?;
+        self.execute_with_body(Method::POST, path, Some(body.into()))
+            .await
     }
 
     /// Make a POST request to {path} and deserialize the response body
@@ -262,17 +244,18 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned,
     {
-        let request_maker = || async {
-            Ok(self
-                .http_client
-                .post(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .json(&request)
-                .build()?)
-        };
+        let body = serde_json::to_vec(&request).map_err(|e| {
+            OpenAIError::InvalidArgument(format!("Failed to serialize request: {}", e))
+        })?;
 
-        self.execute(request_maker).await
+        let bytes = self
+            .execute_with_body(Method::POST, path, Some(body.into()))
+            .await?;
+
+        let response: O = serde_json::from_slice(bytes.as_ref())
+            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+
+        Ok(response)
     }
 
     /// POST a form at {path} and return the response body
@@ -281,17 +264,76 @@ impl<C: Config> Client<C> {
         Form: AsyncTryFrom<F, Error = OpenAIError>,
         F: Clone,
     {
-        let request_maker = || async {
-            Ok(self
-                .http_client
-                .post(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
-                .build()?)
-        };
+        // Convert the form to our MultipartForm
+        let reqwest_form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
+        let multipart = MultipartForm::from_reqwest_form(reqwest_form)
+            .await
+            .map_err(|e| OpenAIError::HttpClient(e.to_string()))?;
 
-        self.execute_raw(request_maker).await
+        // Build URL with query parameters
+        let url = self.config.url(path);
+        let mut parsed_url = Url::parse(&url)
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Invalid URL: {}", e)))?;
+        for (key, value) in self.config.query() {
+            parsed_url.query_pairs_mut().append_pair(key, value);
+        }
+
+        let client = self.http_client.clone();
+        let headers = self.config.headers();
+
+        // Execute with backoff retry
+        backoff::future::retry(self.backoff.clone(), || async {
+            let response = client
+                .request_multipart(
+                    Method::POST,
+                    parsed_url.clone(),
+                    headers.clone(),
+                    multipart.clone(),
+                )
+                .await
+                .map_err(|e| OpenAIError::HttpClient(e.to_string()))
+                .map_err(backoff::Error::Permanent)?;
+
+            let status = response.status;
+            let bytes = response.body;
+
+            if status.is_server_error() {
+                let message: String = String::from_utf8_lossy(&bytes).into_owned();
+                tracing::warn!("Server error: {status} - {message}");
+                return Err(backoff::Error::Transient {
+                    err: OpenAIError::ApiError(ApiError {
+                        message,
+                        r#type: None,
+                        param: None,
+                        code: None,
+                    }),
+                    retry_after: None,
+                });
+            }
+
+            if !status.is_success() {
+                let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
+                    .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
+                    .map_err(backoff::Error::Permanent)?;
+
+                if status.as_u16() == 429
+                    && wrapped_error.error.r#type != Some("insufficient_quota".to_string())
+                {
+                    tracing::warn!("Rate limited: {}", wrapped_error.error.message);
+                    return Err(backoff::Error::Transient {
+                        err: OpenAIError::ApiError(wrapped_error.error),
+                        retry_after: None,
+                    });
+                } else {
+                    return Err(backoff::Error::Permanent(OpenAIError::ApiError(
+                        wrapped_error.error,
+                    )));
+                }
+            }
+
+            Ok(bytes)
+        })
+        .await
     }
 
     /// POST a form at {path} and deserialize the response body
@@ -301,45 +343,44 @@ impl<C: Config> Client<C> {
         Form: AsyncTryFrom<F, Error = OpenAIError>,
         F: Clone,
     {
-        let request_maker = || async {
-            Ok(self
-                .http_client
-                .post(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
-                .build()?)
-        };
-
-        self.execute(request_maker).await
+        let bytes = self.post_form_raw(path, form).await?;
+        let response: O = serde_json::from_slice(bytes.as_ref())
+            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+        Ok(response)
     }
 
-    /// Execute a HTTP request and retry on rate limit
-    ///
-    /// request_maker serves one purpose: to be able to create request again
-    /// to retry API call after getting rate limited. request_maker is async because
-    /// reqwest::multipart::Form is created by async calls to read files for uploads.
-    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
-    where
-        M: Fn() -> Fut,
-        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
-    {
+    /// Execute an HTTP request with the HttpClient trait
+    async fn execute_with_body(
+        &self,
+        method: Method,
+        path: &str,
+        body: Option<Bytes>,
+    ) -> Result<Bytes, OpenAIError> {
         let client = self.http_client.clone();
+        let url = self.config.url(path);
+        let headers = self.config.headers();
+
+        // Build URL with query parameters
+        let mut parsed_url = Url::parse(&url)
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Invalid URL: {}", e)))?;
+        for (key, value) in self.config.query() {
+            parsed_url.query_pairs_mut().append_pair(key, value);
+        }
 
         backoff::future::retry(self.backoff.clone(), || async {
-            let request = request_maker().await.map_err(backoff::Error::Permanent)?;
             let response = client
-                .execute(request)
+                .request(
+                    method.clone(),
+                    parsed_url.clone(),
+                    headers.clone(),
+                    body.clone(),
+                )
                 .await
-                .map_err(OpenAIError::Reqwest)
+                .map_err(|e| OpenAIError::HttpClient(e.to_string()))
                 .map_err(backoff::Error::Permanent)?;
 
-            let status = response.status();
-            let bytes = response
-                .bytes()
-                .await
-                .map_err(OpenAIError::Reqwest)
-                .map_err(backoff::Error::Permanent)?;
+            let status = response.status;
+            let bytes = response.body;
 
             if status.is_server_error() {
                 // OpenAI does not guarantee server errors are returned as JSON so we cannot deserialize them.
@@ -385,25 +426,6 @@ impl<C: Config> Client<C> {
         .await
     }
 
-    /// Execute a HTTP request and retry on rate limit
-    ///
-    /// request_maker serves one purpose: to be able to create request again
-    /// to retry API call after getting rate limited. request_maker is async because
-    /// reqwest::multipart::Form is created by async calls to read files for uploads.
-    async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
-        M: Fn() -> Fut,
-        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
-    {
-        let bytes = self.execute_raw(request_maker).await?;
-
-        let response: O = serde_json::from_slice(bytes.as_ref())
-            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
-
-        Ok(response)
-    }
-
     /// Make HTTP POST request to receive SSE
     pub(crate) async fn post_stream<I, O>(
         &self,
@@ -414,16 +436,35 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let event_source = self
-            .http_client
-            .post(self.config.url(path))
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .json(&request)
-            .eventsource()
-            .unwrap();
+        // Build URL with query parameters
+        let url = self.config.url(path);
+        let mut parsed_url = Url::parse(&url)
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Invalid URL: {}", e)))
+            .unwrap(); // TODO: handle error properly
+        for (key, value) in self.config.query() {
+            parsed_url.query_pairs_mut().append_pair(key, value);
+        }
 
-        stream(event_source).await
+        // Serialize request body
+        let body = serde_json::to_vec(&request)
+            .map_err(|e| {
+                OpenAIError::InvalidArgument(format!("Failed to serialize request: {}", e))
+            })
+            .unwrap(); // TODO: handle error properly
+
+        let event_stream = self
+            .http_client
+            .request_stream(
+                Method::POST,
+                parsed_url,
+                self.config.headers(),
+                Some(body.into()),
+            )
+            .await
+            .map_err(|e| OpenAIError::HttpClient(e.to_string()))
+            .unwrap(); // TODO: handle error properly
+
+        stream_from_sse(event_stream).await
     }
 
     pub(crate) async fn post_stream_mapped_raw_events<I, O>(
@@ -436,8 +477,10 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let event_source = self
-            .http_client
+        // For now, keep using reqwest for the mapped events since it needs eventsource_stream::Event
+        // TODO: Update event_mapper to use our SseEvent type
+        let client = reqwest::Client::new();
+        let event_source = client
             .post(self.config.url(path))
             .query(&self.config.query())
             .headers(self.config.headers())
@@ -458,60 +501,89 @@ impl<C: Config> Client<C> {
         Q: Serialize + ?Sized,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let event_source = self
-            .http_client
-            .get(self.config.url(path))
-            .query(query)
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .eventsource()
-            .unwrap();
+        // Build URL with query parameters
+        let url = self.config.url(path);
+        let mut parsed_url = Url::parse(&url)
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Invalid URL: {}", e)))
+            .unwrap(); // TODO: handle error properly
 
-        stream(event_source).await
+        // Add custom query
+        let query_string = serde_urlencoded::to_string(query)
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Failed to serialize query: {}", e)))
+            .unwrap(); // TODO: handle error properly
+        if !query_string.is_empty() {
+            parsed_url.set_query(Some(&query_string));
+        }
+
+        // Add config query
+        for (key, value) in self.config.query() {
+            parsed_url.query_pairs_mut().append_pair(key, value);
+        }
+
+        let event_stream = self
+            .http_client
+            .request_stream(Method::GET, parsed_url, self.config.headers(), None)
+            .await
+            .map_err(|e| OpenAIError::HttpClient(e.to_string()))
+            .unwrap(); // TODO: handle error properly
+
+        stream_from_sse(event_stream).await
     }
 }
 
-/// Request which responds with SSE.
-/// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-pub(crate) async fn stream<O>(
-    mut event_source: EventSource,
+/// Convert our SSE stream to OpenAI response stream
+pub(crate) async fn stream_from_sse<O>(
+    mut event_stream: Pin<
+        Box<dyn Stream<Item = Result<SseEvent, crate::http_client::HttpError>> + Send>,
+    >,
 ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
 where
     O: DeserializeOwned + std::marker::Send + 'static,
 {
+    use futures::StreamExt;
+
     let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
     tokio::spawn(async move {
-        while let Some(ev) = event_source.next().await {
-            match ev {
+        while let Some(event_result) = event_stream.next().await {
+            match event_result {
                 Err(e) => {
-                    if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
+                    if let Err(_e) = tx.send(Err(OpenAIError::HttpClient(e.to_string()))) {
                         // rx dropped
                         break;
                     }
                 }
-                Ok(event) => match event {
-                    Event::Message(message) => {
-                        if message.data == "[DONE]" {
-                            break;
-                        }
+                Ok(event) => {
+                    // Check for [DONE] message
+                    if event.data == "[DONE]" {
+                        break;
+                    }
 
-                        let response = match serde_json::from_str::<O>(&message.data) {
-                            Err(e) => Err(map_deserialization_error(e, message.data.as_bytes())),
-                            Ok(output) => Ok(output),
-                        };
+                    // Skip open events
+                    if event.event.as_deref() == Some("open") {
+                        continue;
+                    }
 
-                        if let Err(_e) = tx.send(response) {
-                            // rx dropped
-                            break;
+                    // Try to parse the data as JSON
+                    if !event.data.is_empty() {
+                        match serde_json::from_str::<O>(&event.data) {
+                            Ok(obj) => {
+                                if let Err(_e) = tx.send(Ok(obj)) {
+                                    // rx dropped
+                                    break;
+                                }
+                            }
+                            Err(e) => {
+                                if let Err(_e) = tx.send(Err(OpenAIError::JSONDeserialize(e))) {
+                                    // rx dropped
+                                    break;
+                                }
+                            }
                         }
                     }
-                    Event::Open => continue,
-                },
+                }
             }
         }
-
-        event_source.close();
     });
 
     Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
