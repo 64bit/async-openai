@@ -96,7 +96,7 @@ pub enum ContentType {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct InputText {
-    text: String,
+    pub text: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
@@ -137,6 +137,9 @@ pub struct InputFile {
     /// The name of the file to be sent to the model.
     #[serde(skip_serializing_if = "Option::is_none")]
     filename: Option<String>,
+    /// The URL of the file to be sent to the model.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    file_url: Option<String>,
 }
 
 /// Builder for a Responses API request.
