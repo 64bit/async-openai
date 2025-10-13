@@ -19,10 +19,17 @@ pub enum FilePurpose {
     Vision,
 }
 
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
+pub enum FileExpiresAfterAnchor {
+    #[default]
+    #[serde(rename = "created_at")]
+    CreateAt,
+}
+
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct FileExpiresAfter {
     /// Anchor timestamp after which the expiration policy applies. Supported anchors: `created_at`.
-    pub anchor: String,
+    pub anchor: FileExpiresAfterAnchor,
 
     /// The number of seconds after the anchor time that the file will expire. Must be between 3600 (1 hour) and 2592000 (30 days).
     pub seconds: u32,
