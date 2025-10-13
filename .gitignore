@@ -2,6 +2,7 @@ target
 Cargo.lock
 **/*.rs.bk
 .DS_Store
+.env
 
 # directory used to store images
 data
