@@ -96,6 +96,8 @@ pub struct OpenAIFile {
     pub bytes: u32,
     /// The Unix timestamp (in seconds) for when the file was created.
     pub created_at: u32,
+    /// The Unix timestamp (in seconds) for when the file will expire.
+    pub expires_at: u32,
     /// The name of the file.
     pub filename: String,
     /// The intended purpose of the file. Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`, `fine-tune`, `fine-tune-results` and `vision`.
