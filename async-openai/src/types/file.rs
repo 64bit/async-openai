@@ -51,7 +51,7 @@ pub struct CreateFileRequest {
     pub purpose: FilePurpose,
 
     /// The expiration policy for a file. By default, files with `purpose=batch` expire after 30 days and all other files are persisted until they are manually deleted.
-    pub expires_after: FileExpiresAfter,
+    pub expires_after: Option<FileExpiresAfter>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]

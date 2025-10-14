@@ -70,7 +70,7 @@ impl<'c, C: Config> Files<'c, C> {
 #[cfg(test)]
 mod tests {
     use crate::{
-        types::{CreateFileRequestArgs, FilePurpose},
+        types::{CreateFileRequestArgs, FilePurpose, FileExpiresAfter, FileExpiresAfterAnchor},
         Client,
     };
 
@@ -89,6 +89,7 @@ mod tests {
         let request = CreateFileRequestArgs::default()
             .file(test_file_path)
             .purpose(FilePurpose::FineTune)
+            .expires_after(FileExpiresAfter{ anchor: FileExpiresAfterAnchor::CreatedAt, seconds: 3600 })
             .build()
             .unwrap();
 
@@ -111,6 +112,7 @@ mod tests {
         assert_eq!(openai_file.bytes, retrieved_file.bytes);
         assert_eq!(openai_file.filename, retrieved_file.filename);
         assert_eq!(openai_file.purpose, retrieved_file.purpose);
+        assert_eq!(openai_file.expires_at, retrieved_file.expires_at);
 
         /*
         // "To help mitigate abuse, downloading of fine-tune training files is disabled for free accounts."
