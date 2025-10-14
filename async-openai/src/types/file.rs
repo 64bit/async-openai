@@ -23,7 +23,7 @@ pub enum FilePurpose {
 pub enum FileExpiresAfterAnchor {
     #[default]
     #[serde(rename = "created_at")]
-    CreateAt,
+    CreatedAt
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -97,7 +97,7 @@ pub struct OpenAIFile {
     /// The Unix timestamp (in seconds) for when the file was created.
     pub created_at: u32,
     /// The Unix timestamp (in seconds) for when the file will expire.
-    pub expires_at: u32,
+    pub expires_at: Option<u32>,
     /// The name of the file.
     pub filename: String,
     /// The intended purpose of the file. Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`, `fine-tune`, `fine-tune-results` and `vision`.
