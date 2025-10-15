@@ -20,7 +20,7 @@ pub enum OpenAIError {
     FileReadError(String),
     /// Error on SSE streaming
     #[error("stream failed: {0}")]
-    StreamError(String),
+    StreamError(StreamError),
     /// Error from client side validation
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]
@@ -59,6 +59,16 @@ impl std::fmt::Display for ApiError {
 
         write!(f, "{}", parts.join(" "))
     }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum StreamError {
+    /// Underlying error from reqwest_eventsource library when reading the stream
+    #[error("{0}")]
+    ReqwestEventSource(#[from] reqwest_eventsource::Error),
+    /// Error when a stream event does not match one of the expected values
+    #[error("Unrecognized event: {0:#?}")]
+    UnrecognizedEvent(eventsource_stream::Event),
 }
 
 /// Wrapper to deserialize the error object nested in "error" JSON key
