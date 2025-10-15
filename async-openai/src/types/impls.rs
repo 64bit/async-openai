@@ -29,7 +29,7 @@ use super::{
     CreateSpeechResponse, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
     EmbeddingInput, FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel,
     ImageResponseFormat, ImageSize, ImageUrl, ImagesResponse, ModerationInput, Prompt, Role, Stop,
-    TimestampGranularity,
+    TimestampGranularity, FileExpiresAfterAnchor
 };
 
 /// for `impl_from!(T, Enum)`, implements
@@ -273,6 +273,18 @@ impl Display for FilePurpose {
                 Self::Batch => "batch",
                 Self::FineTune => "fine-tune",
                 Self::Vision => "vision",
+            }
+        )
+    }
+}
+
+impl Display for FileExpiresAfterAnchor {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::CreatedAt => "created_at",
             }
         )
     }
@@ -970,9 +982,14 @@ impl AsyncTryFrom<CreateFileRequest> for reqwest::multipart::Form {
 
     async fn try_from(request: CreateFileRequest) -> Result<Self, Self::Error> {
         let file_part = create_file_part(request.file.source).await?;
-        let form = reqwest::multipart::Form::new()
+        let mut form = reqwest::multipart::Form::new()
             .part("file", file_part)
             .text("purpose", request.purpose.to_string());
+        
+        if let Some(expires_after) = request.expires_after {
+            form = form.text("expires_after[anchor]", expires_after.anchor.to_string())
+                .text("expires_after[seconds]", expires_after.seconds.to_string());
+        }
         Ok(form)
     }
 }

@@ -113,6 +113,7 @@ mod tests {
                     String::from(":3").into_bytes(),
                 ),
                 purpose: FilePurpose::Assistants,
+                expires_after: None,
             })
             .await?;
 
