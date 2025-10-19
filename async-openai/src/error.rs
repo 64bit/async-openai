@@ -4,7 +4,6 @@ use std::string::FromUtf8Error;
 use reqwest::{header::HeaderValue, Response};
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Debug, thiserror::Error)]
 pub enum OpenAIError {
     /// Underlying error from reqwest library after an API call was made
@@ -33,24 +32,12 @@ pub enum OpenAIError {
 
 #[derive(Debug, thiserror::Error)]
 pub enum StreamError {
-    /// Source stream is not valid UTF8
-    #[error(transparent)]
-    Utf8(FromUtf8Error),
-    /// Source stream is not a valid EventStream
-    #[error("Source stream is not a valid event stream: {0}")]
-    Parser(String),
-    /// The `Content-Type` returned by the server is invalid
-    #[error("Invalid content type for event stream: {0:?}")]
-    InvalidContentType(HeaderValue, Response),
-    /// The `Last-Event-ID` cannot be formed into a Header to be submitted to the server
-    #[error("Invalid `Last-Event-ID` for event stream: {0}")]
-    InvalidLastEventId(String),
-    /// The server sent an unrecognized event type
-    #[error("Unrecognized event type: {0}")]
-    UnrecognizedEventType(String),
-    /// The stream ended
-    #[error("Stream ended")]
-    StreamEnded,
+    /// Underlying error from reqwest_eventsource library when reading the stream
+    #[error("{0}")]
+    ReqwestEventSource(#[from] reqwest_eventsource::Error),
+    /// Error when a stream event does not match one of the expected values
+    #[error("Unrecognized event: {0:#?}")]
+    UnrecognizedEvent(eventsource_stream::Event),
 }
 
 /// OpenAI API returns error object on failure

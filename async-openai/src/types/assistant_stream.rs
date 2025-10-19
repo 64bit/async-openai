@@ -207,9 +207,9 @@ impl TryFrom<eventsource_stream::Event> for AssistantStreamEvent {
                 .map(AssistantStreamEvent::ErrorEvent),
             "done" => Ok(AssistantStreamEvent::Done(value.data)),
 
-            _ => Err(OpenAIError::StreamError(
-                StreamError::UnrecognizedEventType(value.event),
-            )),
+            _ => Err(OpenAIError::StreamError(StreamError::UnrecognizedEvent(
+                value,
+            ))),
         }
     }
 }

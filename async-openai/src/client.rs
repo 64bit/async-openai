@@ -482,21 +482,12 @@ async fn read_response(response: Response) -> Result<Bytes, OpenAIError> {
 
 async fn map_stream_error(value: EventSourceError) -> OpenAIError {
     match value {
-        EventSourceError::Parser(e) => OpenAIError::StreamError(StreamError::Parser(e.to_string())),
-        EventSourceError::InvalidContentType(e, response) => {
-            OpenAIError::StreamError(StreamError::InvalidContentType(e, response))
+        EventSourceError::InvalidStatusCode(status_code, response) => {
+            read_response(response).await.expect_err(&format!(
+                "Unreachable because read_response returns err when status_code {status_code} is invalid"
+            ))
         }
-        EventSourceError::InvalidLastEventId(e) => {
-            OpenAIError::StreamError(StreamError::InvalidLastEventId(e))
-        }
-        EventSourceError::StreamEnded => OpenAIError::StreamError(StreamError::StreamEnded),
-        EventSourceError::Utf8(e) => OpenAIError::StreamError(StreamError::Utf8(e)),
-        EventSourceError::Transport(error) => OpenAIError::Reqwest(error),
-        EventSourceError::InvalidStatusCode(_status_code, response) => {
-            read_response(response).await.expect_err(
-                "Unreachable because read_response returns err when status_code is invalid",
-            )
-        }
+        _ => OpenAIError::StreamError(StreamError::ReqwestEventSource(value.into())),
     }
 }
 
