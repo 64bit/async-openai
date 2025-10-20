@@ -31,6 +31,7 @@ mod thread;
 mod upload;
 mod users;
 mod vector_store;
+mod video;
 
 pub use assistant::*;
 pub use assistant_stream::*;
@@ -58,6 +59,7 @@ pub use thread::*;
 pub use upload::*;
 pub use users::*;
 pub use vector_store::*;
+pub use video::*;
 
 mod impls;
 use derive_builder::UninitializedFieldError;

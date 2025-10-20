@@ -174,6 +174,7 @@ mod util;
 mod vector_store_file_batches;
 mod vector_store_files;
 mod vector_stores;
+mod video;
 
 pub use assistants::Assistants;
 pub use audio::Audio;
@@ -203,3 +204,4 @@ pub use users::Users;
 pub use vector_store_file_batches::VectorStoreFileBatches;
 pub use vector_store_files::VectorStoreFiles;
 pub use vector_stores::VectorStores;
+pub use video::Videos;

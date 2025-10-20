@@ -14,7 +14,7 @@ use crate::{
     moderation::Moderations,
     traits::AsyncTryFrom,
     Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
-    Models, Projects, Responses, Threads, Uploads, Users, VectorStores,
+    Models, Projects, Responses, Threads, Uploads, Users, VectorStores, Videos,
 };
 
 #[derive(Debug, Clone, Default)]
@@ -120,6 +120,11 @@ impl<C: Config> Client<C> {
     /// To call [Audio] group related APIs using this client.
     pub fn audio(&self) -> Audio<C> {
         Audio::new(self)
+    }
+
+    /// To call [Videos] group related APIs using this client.
+    pub fn videos(&self) -> Videos<C> {
+        Videos::new(self)
     }
 
     /// To call [Assistants] group related APIs using this client.
@@ -231,6 +236,27 @@ impl<C: Config> Client<C> {
                 .http_client
                 .get(self.config.url(path))
                 .query(&self.config.query())
+                .headers(self.config.headers())
+                .build()?)
+        };
+
+        self.execute_raw(request_maker).await
+    }
+
+    pub(crate) async fn get_raw_with_query<Q>(
+        &self,
+        path: &str,
+        query: &Q,
+    ) -> Result<Bytes, OpenAIError>
+    where
+        Q: Serialize + ?Sized,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .get(self.config.url(path))
+                .query(&self.config.query())
+                .query(query)
                 .headers(self.config.headers())
                 .build()?)
         };
