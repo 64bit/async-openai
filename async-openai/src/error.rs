@@ -1,7 +1,5 @@
 //! Errors originating from API calls, parsing responses, and reading-or-writing to the file system.
-use std::string::FromUtf8Error;
 
-use reqwest::{header::HeaderValue, Response};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, thiserror::Error)]
