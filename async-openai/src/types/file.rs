@@ -19,6 +19,22 @@ pub enum FilePurpose {
     Vision,
 }
 
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
+pub enum FileExpiresAfterAnchor {
+    #[default]
+    #[serde(rename = "created_at")]
+    CreatedAt
+}
+
+#[derive(Debug, Default, Clone, PartialEq)]
+pub struct FileExpiresAfter {
+    /// Anchor timestamp after which the expiration policy applies. Supported anchors: `created_at`.
+    pub anchor: FileExpiresAfterAnchor,
+
+    /// The number of seconds after the anchor time that the file will expire. Must be between 3600 (1 hour) and 2592000 (30 days).
+    pub seconds: u32,
+}
+
 #[derive(Debug, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateFileRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -33,6 +49,9 @@ pub struct CreateFileRequest {
     ///
     /// Use "assistants" for [Assistants](https://platform.openai.com/docs/api-reference/assistants) and [Message](https://platform.openai.com/docs/api-reference/messages) files, "vision" for Assistants image file inputs, "batch" for [Batch API](https://platform.openai.com/docs/guides/batch), and "fine-tune" for [Fine-tuning](https://platform.openai.com/docs/api-reference/fine-tuning).
     pub purpose: FilePurpose,
+
+    /// The expiration policy for a file. By default, files with `purpose=batch` expire after 30 days and all other files are persisted until they are manually deleted.
+    pub expires_after: Option<FileExpiresAfter>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -77,6 +96,8 @@ pub struct OpenAIFile {
     pub bytes: u32,
     /// The Unix timestamp (in seconds) for when the file was created.
     pub created_at: u32,
+    /// The Unix timestamp (in seconds) for when the file will expire.
+    pub expires_at: Option<u32>,
     /// The name of the file.
     pub filename: String,
     /// The intended purpose of the file. Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`, `fine-tune`, `fine-tune-results` and `vision`.
