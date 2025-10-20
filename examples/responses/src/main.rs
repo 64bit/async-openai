@@ -2,7 +2,10 @@ use std::error::Error;
 
 use async_openai::{
     types::responses::{
-        AllowedTools, CreateResponseArgs, Input, InputItem, InputMessageArgs, McpArgs, RequireApproval, RequireApprovalPolicy, Role, TextConfig, ToolDefinition::{Mcp, WebSearchPreview}, Verbosity, WebSearchPreviewArgs
+        AllowedTools, CreateResponseArgs, Input, InputItem, InputMessageArgs, McpArgs,
+        RequireApproval, RequireApprovalPolicy, Role, TextConfig,
+        ToolDefinition::{Mcp, WebSearchPreview},
+        Verbosity, WebSearchPreviewArgs,
     },
     Client,
 };
