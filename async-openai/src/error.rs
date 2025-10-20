@@ -36,8 +36,8 @@ pub enum StreamError {
     #[error("{0}")]
     ReqwestEventSource(#[from] reqwest_eventsource::Error),
     /// Error when a stream event does not match one of the expected values
-    #[error("Unrecognized event: {0:#?}")]
-    UnrecognizedEvent(eventsource_stream::Event),
+    #[error("Unknown event: {0:#?}")]
+    UnknownEvent(eventsource_stream::Event),
 }
 
 /// OpenAI API returns error object on failure
