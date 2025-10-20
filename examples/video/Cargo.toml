@@ -1,0 +1,11 @@
+[package]
+name = "video"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+async-openai = {path = "../../async-openai"}
+tokio = { version = "1.43.0", features = ["full"] }
+bytes = "1.9.0"
+
