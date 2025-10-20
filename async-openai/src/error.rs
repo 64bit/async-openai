@@ -87,5 +87,5 @@ pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> O
         json_content
     );
 
-    OpenAIError::JSONDeserialize(e, json_content)
+    OpenAIError::JSONDeserialize(e, json_content.to_string())
 }
