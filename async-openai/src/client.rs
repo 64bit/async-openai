@@ -487,7 +487,7 @@ async fn map_stream_error(value: EventSourceError) -> OpenAIError {
                 "Unreachable because read_response returns err when status_code {status_code} is invalid"
             ))
         }
-        _ => OpenAIError::StreamError(StreamError::ReqwestEventSource(value.into())),
+        _ => OpenAIError::StreamError(StreamError::ReqwestEventSource(value)),
     }
 }
 

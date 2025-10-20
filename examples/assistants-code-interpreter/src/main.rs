@@ -28,6 +28,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .create(CreateFileRequest {
             file: "./input/CASTHPI.csv".into(),
             purpose: FilePurpose::Assistants,
+            expires_after: None,
         })
         .await?;
 

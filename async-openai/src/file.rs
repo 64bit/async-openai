@@ -70,7 +70,7 @@ impl<'c, C: Config> Files<'c, C> {
 #[cfg(test)]
 mod tests {
     use crate::{
-        types::{CreateFileRequestArgs, FilePurpose, FileExpiresAfter, FileExpiresAfterAnchor},
+        types::{CreateFileRequestArgs, FileExpiresAfter, FileExpiresAfterAnchor, FilePurpose},
         Client,
     };
 
@@ -89,7 +89,10 @@ mod tests {
         let request = CreateFileRequestArgs::default()
             .file(test_file_path)
             .purpose(FilePurpose::FineTune)
-            .expires_after(FileExpiresAfter{ anchor: FileExpiresAfterAnchor::CreatedAt, seconds: 3600 })
+            .expires_after(FileExpiresAfter {
+                anchor: FileExpiresAfterAnchor::CreatedAt,
+                seconds: 3600,
+            })
             .build()
             .unwrap();
 

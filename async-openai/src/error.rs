@@ -1,7 +1,5 @@
 //! Errors originating from API calls, parsing responses, and reading-or-writing to the file system.
-use std::string::FromUtf8Error;
 
-use reqwest::{header::HeaderValue, Response};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, thiserror::Error)]
@@ -82,10 +80,7 @@ pub struct WrappedError {
 
 pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> OpenAIError {
     let json_content = String::from_utf8_lossy(bytes);
-    tracing::error!(
-        "failed deserialization of: {}",
-        json_content
-    );
+    tracing::error!("failed deserialization of: {}", json_content);
 
     OpenAIError::JSONDeserialize(e, json_content.to_string())
 }

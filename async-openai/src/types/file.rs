@@ -23,7 +23,7 @@ pub enum FilePurpose {
 pub enum FileExpiresAfterAnchor {
     #[default]
     #[serde(rename = "created_at")]
-    CreatedAt
+    CreatedAt,
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
