@@ -38,6 +38,7 @@
   - [x] Realtime (Beta) (partially implemented)
   - [x] Responses (partially implemented)
   - [x] Uploads
+  - [x] Videos
 - Bring your own custom types for Request or Response objects.
 - SSE streaming on available APIs
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
