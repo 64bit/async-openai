@@ -1,4 +1,7 @@
 //! Errors originating from API calls, parsing responses, and reading-or-writing to the file system.
+use std::string::FromUtf8Error;
+
+use reqwest::{header::HeaderValue, Response};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, thiserror::Error)]
@@ -20,11 +23,21 @@ pub enum OpenAIError {
     FileReadError(String),
     /// Error on SSE streaming
     #[error("stream failed: {0}")]
-    StreamError(String),
+    StreamError(StreamError),
     /// Error from client side validation
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]
     InvalidArgument(String),
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum StreamError {
+    /// Underlying error from reqwest_eventsource library when reading the stream
+    #[error("{0}")]
+    ReqwestEventSource(#[from] reqwest_eventsource::Error),
+    /// Error when a stream event does not match one of the expected values
+    #[error("Unknown event: {0:#?}")]
+    UnknownEvent(eventsource_stream::Event),
 }
 
 /// OpenAI API returns error object on failure

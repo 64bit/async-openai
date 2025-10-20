@@ -36,13 +36,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 | ResponseEvent::ResponseFailed(_) => {
                     break;
                 }
-                _ => { println!("{response_event:#?}"); }
+                _ => {
+                    println!("{response_event:#?}");
+                }
             },
             Err(e) => {
                 eprintln!("{e:#?}");
-                // When a stream ends, it returns Err(OpenAIError::StreamError("Stream ended"))
-                // Without this, the stream will never end
-                break;
             }
         }
     }

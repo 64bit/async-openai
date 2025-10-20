@@ -74,7 +74,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
             Err(err) => {
-                writeln!(lock, "error: {err}").unwrap();
+                writeln!(lock, "error: {err:?}").unwrap();
             }
         }
         stdout().flush()?;
@@ -132,7 +132,7 @@ async fn call_fn(
                 });
             }
             Err(err) => {
-                writeln!(lock, "error: {err}").unwrap();
+                writeln!(lock, "error: {err:?}").unwrap();
             }
         }
         stdout().flush()?;

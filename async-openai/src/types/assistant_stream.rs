@@ -3,7 +3,7 @@ use std::pin::Pin;
 use futures::Stream;
 use serde::Deserialize;
 
-use crate::error::{map_deserialization_error, ApiError, OpenAIError};
+use crate::error::{map_deserialization_error, ApiError, OpenAIError, StreamError};
 
 use super::{
     MessageDeltaObject, MessageObject, RunObject, RunStepDeltaObject, RunStepObject, ThreadObject,
@@ -207,9 +207,7 @@ impl TryFrom<eventsource_stream::Event> for AssistantStreamEvent {
                 .map(AssistantStreamEvent::ErrorEvent),
             "done" => Ok(AssistantStreamEvent::Done(value.data)),
 
-            _ => Err(OpenAIError::StreamError(
-                "Unrecognized event: {value:?#}".into(),
-            )),
+            _ => Err(OpenAIError::StreamError(StreamError::UnknownEvent(value))),
         }
     }
 }
