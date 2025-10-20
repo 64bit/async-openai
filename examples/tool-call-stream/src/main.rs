@@ -206,7 +206,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
             Err(err) => {
                 let mut lock = stdout().lock();
-                writeln!(lock, "error: {err}").unwrap();
+                writeln!(lock, "error: {err:?}").unwrap();
             }
         }
         stdout()
