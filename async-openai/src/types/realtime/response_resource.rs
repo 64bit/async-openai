@@ -21,7 +21,9 @@ pub enum ResponseStatus {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FailedError {
-    pub code: String,
+    #[serde(rename = "type")]
+    pub error_type: Option<String>,
+    pub code: Option<String>,
     pub message: String,
 }
 
@@ -31,6 +33,17 @@ pub enum IncompleteReason {
     Interruption,
     MaxOutputTokens,
     ContentFilter,
+    TokenLimit,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum FinishReason {
+    Stop,
+    Length,
+    ToolCalls,
+    ContentFilter,
+    FunctionCall,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -58,4 +71,10 @@ pub struct ResponseResource {
     pub output: Vec<Item>,
     /// Usage statistics for the response.
     pub usage: Option<Usage>,
+    /// The Unix timestamp (in seconds) for when the response was created.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<u64>,
+    /// The reason the model stopped generating tokens, if applicable.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub finish_reason: Option<FinishReason>,
 }
