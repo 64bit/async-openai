@@ -73,102 +73,102 @@ impl<C: Config> Client<C> {
     // API groups
 
     /// To call [Models] group related APIs using this client.
-    pub fn models(&self) -> Models<C> {
+    pub fn models(&self) -> Models<'_, C> {
         Models::new(self)
     }
 
     /// To call [Completions] group related APIs using this client.
-    pub fn completions(&self) -> Completions<C> {
+    pub fn completions(&self) -> Completions<'_, C> {
         Completions::new(self)
     }
 
     /// To call [Chat] group related APIs using this client.
-    pub fn chat(&self) -> Chat<C> {
+    pub fn chat(&self) -> Chat<'_, C> {
         Chat::new(self)
     }
 
     /// To call [Images] group related APIs using this client.
-    pub fn images(&self) -> Images<C> {
+    pub fn images(&self) -> Images<'_, C> {
         Images::new(self)
     }
 
     /// To call [Moderations] group related APIs using this client.
-    pub fn moderations(&self) -> Moderations<C> {
+    pub fn moderations(&self) -> Moderations<'_, C> {
         Moderations::new(self)
     }
 
     /// To call [Files] group related APIs using this client.
-    pub fn files(&self) -> Files<C> {
+    pub fn files(&self) -> Files<'_, C> {
         Files::new(self)
     }
 
     /// To call [Uploads] group related APIs using this client.
-    pub fn uploads(&self) -> Uploads<C> {
+    pub fn uploads(&self) -> Uploads<'_, C> {
         Uploads::new(self)
     }
 
     /// To call [FineTuning] group related APIs using this client.
-    pub fn fine_tuning(&self) -> FineTuning<C> {
+    pub fn fine_tuning(&self) -> FineTuning<'_, C> {
         FineTuning::new(self)
     }
 
     /// To call [Embeddings] group related APIs using this client.
-    pub fn embeddings(&self) -> Embeddings<C> {
+    pub fn embeddings(&self) -> Embeddings<'_, C> {
         Embeddings::new(self)
     }
 
     /// To call [Audio] group related APIs using this client.
-    pub fn audio(&self) -> Audio<C> {
+    pub fn audio(&self) -> Audio<'_, C> {
         Audio::new(self)
     }
 
     /// To call [Videos] group related APIs using this client.
-    pub fn videos(&self) -> Videos<C> {
+    pub fn videos(&self) -> Videos<'_, C> {
         Videos::new(self)
     }
 
     /// To call [Assistants] group related APIs using this client.
-    pub fn assistants(&self) -> Assistants<C> {
+    pub fn assistants(&self) -> Assistants<'_, C> {
         Assistants::new(self)
     }
 
     /// To call [Threads] group related APIs using this client.
-    pub fn threads(&self) -> Threads<C> {
+    pub fn threads(&self) -> Threads<'_, C> {
         Threads::new(self)
     }
 
     /// To call [VectorStores] group related APIs using this client.
-    pub fn vector_stores(&self) -> VectorStores<C> {
+    pub fn vector_stores(&self) -> VectorStores<'_, C> {
         VectorStores::new(self)
     }
 
     /// To call [Batches] group related APIs using this client.
-    pub fn batches(&self) -> Batches<C> {
+    pub fn batches(&self) -> Batches<'_, C> {
         Batches::new(self)
     }
 
     /// To call [AuditLogs] group related APIs using this client.
-    pub fn audit_logs(&self) -> AuditLogs<C> {
+    pub fn audit_logs(&self) -> AuditLogs<'_, C> {
         AuditLogs::new(self)
     }
 
     /// To call [Invites] group related APIs using this client.
-    pub fn invites(&self) -> Invites<C> {
+    pub fn invites(&self) -> Invites<'_, C> {
         Invites::new(self)
     }
 
     /// To call [Users] group related APIs using this client.
-    pub fn users(&self) -> Users<C> {
+    pub fn users(&self) -> Users<'_, C> {
         Users::new(self)
     }
 
     /// To call [Projects] group related APIs using this client.
-    pub fn projects(&self) -> Projects<C> {
+    pub fn projects(&self) -> Projects<'_, C> {
         Projects::new(self)
     }
 
     /// To call [Responses] group related APIs using this client.
-    pub fn responses(&self) -> Responses<C> {
+    pub fn responses(&self) -> Responses<'_, C> {
         Responses::new(self)
     }
 

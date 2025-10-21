@@ -28,7 +28,7 @@ impl<'c, C: Config> Runs<'c, C> {
     }
 
     ///  [Steps] API group
-    pub fn steps(&self, run_id: &str) -> Steps<C> {
+    pub fn steps(&self, run_id: &str) -> Steps<'_, C> {
         Steps::new(self.client, &self.thread_id, run_id)
     }
 
