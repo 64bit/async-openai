@@ -22,12 +22,12 @@ impl<'c, C: Config> VectorStores<'c, C> {
     }
 
     /// [VectorStoreFiles] API group
-    pub fn files(&self, vector_store_id: &str) -> VectorStoreFiles<C> {
+    pub fn files(&self, vector_store_id: &str) -> VectorStoreFiles<'_, C> {
         VectorStoreFiles::new(self.client, vector_store_id)
     }
 
     /// [VectorStoreFileBatches] API group
-    pub fn file_batches(&self, vector_store_id: &str) -> VectorStoreFileBatches<C> {
+    pub fn file_batches(&self, vector_store_id: &str) -> VectorStoreFileBatches<'_, C> {
         VectorStoreFileBatches::new(self.client, vector_store_id)
     }
 

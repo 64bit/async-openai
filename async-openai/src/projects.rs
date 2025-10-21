@@ -20,17 +20,17 @@ impl<'c, C: Config> Projects<'c, C> {
     }
 
     // call [ProjectUsers] group APIs
-    pub fn users(&self, project_id: &str) -> ProjectUsers<C> {
+    pub fn users(&self, project_id: &str) -> ProjectUsers<'_, C> {
         ProjectUsers::new(self.client, project_id)
     }
 
     // call [ProjectServiceAccounts] group APIs
-    pub fn service_accounts(&self, project_id: &str) -> ProjectServiceAccounts<C> {
+    pub fn service_accounts(&self, project_id: &str) -> ProjectServiceAccounts<'_, C> {
         ProjectServiceAccounts::new(self.client, project_id)
     }
 
     // call [ProjectAPIKeys] group APIs
-    pub fn api_keys(&self, project_id: &str) -> ProjectAPIKeys<C> {
+    pub fn api_keys(&self, project_id: &str) -> ProjectAPIKeys<'_, C> {
         ProjectAPIKeys::new(self.client, project_id)
     }
 
