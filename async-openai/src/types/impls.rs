@@ -13,6 +13,7 @@ use crate::{
 
 use bytes::Bytes;
 
+#[allow(deprecated)]
 use super::{
     responses::{CodeInterpreterContainer, Input, InputContent, Role as ResponsesRole},
     AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
@@ -558,6 +559,7 @@ impl From<String> for ChatCompletionToolChoiceOption {
     }
 }
 
+#[allow(deprecated)]
 impl From<(String, serde_json::Value)> for ChatCompletionFunctions {
     fn from(value: (String, serde_json::Value)) -> Self {
         Self {
