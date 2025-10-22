@@ -30,8 +30,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await;
 
     match result.unwrap_err() {
-        OpenAIError::ApiError(error_string) => {
-            let error = serde_json::from_str::<ErrorWrapper>(&error_string).unwrap();
+        OpenAIError::ApiError(raw_error) => {
+            let error: ErrorWrapper = raw_error.parse().unwrap();
             println!("Code: {}", error.error.code);
             println!("Message: {}", error.error.message);
         }

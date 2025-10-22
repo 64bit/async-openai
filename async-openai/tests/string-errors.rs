@@ -12,8 +12,8 @@ async fn test_byot_errors() {
     let _r: Result<Value, OpenAIError> = client.chat().create_byot(json!({})).await;
 
     match _r.unwrap_err() {
-        OpenAIError::ApiError(value) => {
-            let _value = serde_json::from_str::<Value>(&value).unwrap();
+        OpenAIError::ApiError(raw_error) => {
+            let _value: Value = raw_error.parse().unwrap();
         }
         _ => {}
     };

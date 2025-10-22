@@ -523,7 +523,7 @@ async fn read_response(response: Response) -> Result<Bytes, OpenAIError> {
         #[cfg(feature = "string-errors")]
         {
             let message: String = String::from_utf8_lossy(&bytes).into_owned();
-            return Err(OpenAIError::ApiError(message));
+            return Err(OpenAIError::ApiError(crate::error::RawApiError(message)));
         }
     }
 

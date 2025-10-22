@@ -2,6 +2,28 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Raw API error string from providers with custom error formats
+///
+/// Only available with the `string-errors` feature.
+#[cfg(feature = "string-errors")]
+#[derive(Debug, Clone)]
+pub struct RawApiError(pub String);
+
+#[cfg(feature = "string-errors")]
+impl std::fmt::Display for RawApiError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+#[cfg(feature = "string-errors")]
+impl RawApiError {
+    /// Parse the raw error string into a custom type
+    pub fn parse<T: serde::de::DeserializeOwned>(&self) -> Result<T, serde_json::Error> {
+        serde_json::from_str(&self.0)
+    }
+}
+
 #[derive(Debug, thiserror::Error)]
 pub enum OpenAIError {
     /// Underlying error from reqwest library after an API call was made
@@ -15,7 +37,7 @@ pub enum OpenAIError {
     /// This feature leaves deserialization to the user, not even assuming json.
     #[cfg(feature = "string-errors")]
     #[error("{0}")]
-    ApiError(String),
+    ApiError(RawApiError),
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: error:{0} content:{1}")]
     JSONDeserialize(serde_json::Error, String),
