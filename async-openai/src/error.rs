@@ -8,8 +8,14 @@ pub enum OpenAIError {
     #[error("http error: {0}")]
     Reqwest(#[from] reqwest::Error),
     /// OpenAI returns error object with details of API call failure
+    #[cfg(not(feature = "string-errors"))]
     #[error("{0}")]
     ApiError(ApiError),
+    /// Some OpenAI compatible services return error messages in diverge in error formats.
+    /// This feature leaves deserialization to the user, not even assuming json.
+    #[cfg(feature = "string-errors")]
+    #[error("{0}")]
+    ApiError(String),
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: error:{0} content:{1}")]
     JSONDeserialize(serde_json::Error, String),
