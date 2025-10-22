@@ -25,6 +25,8 @@ native-tls-vendored = ["reqwest/native-tls-vendored"]
 realtime = ["dep:tokio-tungstenite"]
 # Bring your own types
 byot = []
+# Deserialize error responses yourself
+string-errors = []
 
 [dependencies]
 async-openai-macros = { path = "../async-openai-macros", version = "0.1.0" }
@@ -58,6 +60,10 @@ serde_json = "1.0"
 [[test]]
 name = "bring-your-own-type"
 required-features = ["byot"]
+
+[[test]]
+name = "string-errors"
+required-features = ["string-errors", "byot"]
 
 [package.metadata.docs.rs]
 all-features = true

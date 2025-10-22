@@ -145,6 +145,13 @@ This can be useful in many scenarios:
 Visit [examples/bring-your-own-type](https://github.com/64bit/async-openai/tree/main/examples/bring-your-own-type)
 directory to learn more.
 
+## String Errors
+
+Enable the `string-errors` feature to receive API errors as raw strings instead of parsed structs. This can be useful
+in scenarios where providers expose errors in different formats.
+
+See [examples/string-errors](https://github.com/64bit/async-openai/tree/main/examples/string-errors) for usage.
+
 ## Dynamic Dispatch for Different Providers
 
 For any struct that implements `Config` trait, you can wrap it in a smart pointer and cast the pointer to `dyn Config`
