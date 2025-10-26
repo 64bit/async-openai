@@ -1364,9 +1364,9 @@ pub struct Response {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub incomplete_details: Option<IncompleteDetails>,
 
-    /// Instructions that were inserted as the first item in context.
+    /// Instructions that were inserted as the first item(s) in context.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub instructions: Option<String>,
+    pub instructions: Option<Instructions>,
 
     /// The value of `max_output_tokens` that was honored.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1447,6 +1447,18 @@ pub struct Response {
     pub user: Option<String>,
 }
 
+/// Represents instructions inserted as the first item(s) in the model's context.
+///
+/// NOTE: When creating a response directly via the OpenAI API, only a string instruction can be specified.
+/// However, when using prompts created through the OpenAI dashboard, both "developer" and "prompt" messages can be included.
+/// "Prompt" messages may consist of both "user" and "assistant" message types.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged, rename_all = "snake_case")]
+pub enum Instructions {
+    String(String),
+    Array(Vec<InputItem>),
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum Status {
@@ -1454,6 +1466,8 @@ pub enum Status {
     Failed,
     InProgress,
     Incomplete,
+    Queued,
+    Cancelled,
 }
 
 /// Event types for streaming responses from the Responses API
