@@ -618,6 +618,8 @@ pub enum ServiceTier {
     Flex,
     Scale,
     Priority,
+    #[serde(rename = "on_demand")]
+    OnDemand,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -627,6 +629,8 @@ pub enum ServiceTierResponse {
     Default,
     Flex,
     Priority,
+    #[serde(rename = "on_demand")]
+    OnDemand,
 }
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]

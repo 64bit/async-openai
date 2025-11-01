@@ -334,6 +334,9 @@ pub enum ServiceTier {
     Flex,
     Scale,
     Priority,
+
+    #[serde(rename = "on_demand")]
+    OnDemand,
 }
 
 /// Truncation strategies.
