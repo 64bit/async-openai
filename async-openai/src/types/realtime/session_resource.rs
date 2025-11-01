@@ -387,6 +387,7 @@ pub struct TokenLimits {
     pub post_instructions: u32,
 }
 
+/// Realtime session object configuration.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SessionResource {
     /// The type of session to create. Always realtime for the Realtime API.
@@ -481,4 +482,25 @@ pub struct NoiseReduction {
     /// headphones, `far_field` is for far-field microphones such as laptop or conference
     /// room microphones.
     pub r#type: NoiseReductionType,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TranscriptionAudio {
+    pub input: AudioInput,
+}
+
+/// Realtime transcription session object configuration.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TranscriptionSession {
+    /// The type of session to create. Always `transcription` for transcription sessions.
+    pub r#type: String,
+
+    /// Configuration for input and output audio.
+    pub audio: TranscriptionAudio,
+
+    /// Additional fields to include in server outputs.
+    ///
+    /// `item.input_audio_transcription.logprobs`: Include logprobs for input audio transcription.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub include: Option<Vec<String>>,
 }
