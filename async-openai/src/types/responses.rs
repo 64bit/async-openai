@@ -6,7 +6,6 @@ pub use crate::types::{
 use derive_builder::Builder;
 use futures::Stream;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use std::collections::HashMap;
 use std::pin::Pin;
 
@@ -39,7 +38,6 @@ pub enum Input {
     Items(Vec<InputItem>),
 }
 
-/// A context item: currently only messages.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(untagged, rename_all = "snake_case")]
 pub enum InputItem {
@@ -140,6 +138,12 @@ pub struct InputFile {
     /// The URL of the file to be sent to the model.
     #[serde(skip_serializing_if = "Option::is_none")]
     file_url: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Conversation {
+    /// The unique ID of the conversation.
+    pub id: String,
 }
 
 /// Builder for a Responses API request.
@@ -847,11 +851,27 @@ pub struct IncompleteDetails {
     pub reason: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct TopLogProb {
+    pub bytes: Vec<u8>,
+    pub logprob: f64,
+    pub token: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct LogProb {
+    pub bytes: Vec<u8>,
+    pub logprob: f64,
+    pub token: String,
+    pub top_logprobs: Vec<TopLogProb>,
+}
+
 /// A simple text output from the model.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct OutputText {
+pub struct OutputTextContent {
     /// The annotations of the text output.
     pub annotations: Vec<Annotation>,
+    pub logprobs: Option<LogProb>,
     /// The text output from the model.
     pub text: String,
 }
@@ -860,23 +880,27 @@ pub struct OutputText {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Annotation {
     /// A citation to a file.
-    FileCitation(FileCitation),
+    FileCitation(FileCitationBody),
     /// A citation for a web resource used to generate a model response.
-    UrlCitation(UrlCitation),
+    UrlCitation(UrlCitationBody),
+    /// A citation for a container file used to generate a model response.
+    ContainerFileCitation(ContainerFileCitationBody),
     /// A path to a file.
     FilePath(FilePath),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct FileCitation {
+pub struct FileCitationBody {
     /// The ID of the file.
     file_id: String,
+    /// The filename of the file cited.
+    filename: String,
     /// The index of the file in the list of files.
     index: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct UrlCitation {
+pub struct UrlCitationBody {
     /// The index of the last character of the URL citation in the message.
     end_index: u32,
     /// The index of the first character of the URL citation in the message.
@@ -885,6 +909,20 @@ pub struct UrlCitation {
     title: String,
     /// The URL of the web resource.
     url: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ContainerFileCitationBody {
+    /// The ID of the container file.
+    container_id: String,
+    /// The index of the last character of the container file citation in the message.
+    end_index: u32,
+    /// The ID of the file.
+    file_id: String,
+    /// The filename of the container file cited.
+    filename: String,
+    /// The index of the first character of the container file citation in the message.
+    start_index: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -897,8 +935,8 @@ pub struct FilePath {
 
 /// A refusal explanation from the model.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct Refusal {
-    /// The refusal explanationfrom the model.
+pub struct RefusalContent {
+    /// The refusal explanation from the model.
     pub refusal: String,
 }
 
@@ -906,22 +944,23 @@ pub struct Refusal {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct OutputMessage {
     /// The content of the output message.
-    pub content: Vec<Content>,
+    pub content: Vec<OutputMessageContent>,
     /// The unique ID of the output message.
     pub id: String,
-    /// The role of the output message. Always assistant.
+    /// The role of the output message. Always `assistant`.
     pub role: Role,
-    /// The status of the message input.
+    /// The status of the message input. One of `in_progress`, `completed`, or
+    /// `incomplete`. Populated when input items are returned via API.
     pub status: OutputStatus,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum Content {
+pub enum OutputMessageContent {
     /// A text output from the model.
-    OutputText(OutputText),
+    OutputText(OutputTextContent),
     /// A refusal from the model.
-    Refusal(Refusal),
+    Refusal(RefusalContent),
 }
 
 /// Nested content within an output message.
@@ -956,46 +995,58 @@ pub enum OutputContent {
     McpApprovalRequest(McpApprovalRequestOutput),
 }
 
+/// Reasoning text content.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ReasoningTextContent {
+    /// The reasoning text from the model.
+    pub text: String,
+}
+
 /// A reasoning item representing the model's chain of thought, including summary paragraphs.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ReasoningItem {
     /// Unique identifier of the reasoning content.
     pub id: String,
-    /// The summarized chain-of-thought paragraphs.
-    pub summary: Vec<SummaryText>,
+    /// Reasoning summary content.
+    pub summary: Vec<Summary>,
+    /// Reasoning text content.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub content: Option<Vec<ReasoningTextContent>>,
     /// The encrypted content of the reasoning item - populated when a response is generated with
     /// `reasoning.encrypted_content` in the `include` parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub encrypted_content: Option<String>,
-    /// The status of the reasoning item.
+    /// The status of the item. One of `in_progress`, `completed`, or `incomplete`.
+    /// Populated when items are returned via API.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<OutputStatus>,
 }
 
 /// A single summary text fragment from reasoning.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct SummaryText {
-    /// A short summary of the reasoning used by the model.
+pub struct Summary {
+    /// A summary of the reasoning output from the model so far.
     pub text: String,
 }
 
 /// File search tool call output.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct FileSearchCallOutput {
+pub struct FileSearchToolCall {
     /// The unique ID of the file search tool call.
     pub id: String,
     /// The queries used to search for files.
     pub queries: Vec<String>,
-    /// The status of the file search tool call.
-    pub status: FileSearchCallOutputStatus,
+    /// The status of the file search tool call. One of `in_progress`, `searching`,
+    /// `incomplete`,`failed`, or `completed`.
+    pub status: FileSearchToolCallStatus,
     /// The results of the file search tool call.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub results: Option<Vec<FileSearchResult>>,
+    pub results: Option<Vec<FileSearchToolCallResult>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
-pub enum FileSearchCallOutputStatus {
+pub enum FileSearchToolCallStatus {
     InProgress,
     Searching,
     Incomplete,
@@ -1005,7 +1056,12 @@ pub enum FileSearchCallOutputStatus {
 
 /// A single result from a file search.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct FileSearchResult {
+pub struct FileSearchToolCallResult {
+    /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing
+    /// additional information about the object in a structured format, and querying for objects
+    /// API or the dashboard. Keys are strings with a maximum length of 64 characters
+    /// . Values are strings with a maximum length of 512 characters, booleans, or numbers.
+    pub attributes: HashMap<String, serde_json::Value>,
     /// The unique ID of the file.
     pub file_id: String,
     /// The name of the file.
@@ -1014,71 +1070,124 @@ pub struct FileSearchResult {
     pub score: f32,
     /// The text that was retrieved from the file.
     pub text: String,
-    /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing
-    /// additional information about the object in a structured format, and querying for objects
-    /// API or the dashboard. Keys are strings with a maximum length of 64 characters
-    /// . Values are strings with a maximum length of 512 characters, booleans, or numbers.
-    pub attributes: HashMap<String, serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct SafetyCheck {
-    /// The ID of the safety check.
+pub struct ComputerCallSafetyCheckParam {
+    /// The ID of the pending safety check.
     pub id: String,
-    /// The type/code of the pending safety check.
-    pub code: String,
+    /// The type of the pending safety check.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code: Option<String>,
     /// Details about the pending safety check.
-    pub message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum WebSearchToolCallStatus {
+    InProgress,
+    Searching,
+    Completed,
+    Failed,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct WebSearchActionSearchSource {
+    /// The type of source. Always `url`.
+    pub r#type: String,
+    /// The URL of the source.
+    pub url: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct WebSearchActionSearch {
+    /// The search query.
+    pub query: String,
+    /// The sources used in the search.
+    pub sources: Option<Vec<WebSearchActionSearchSource>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct WebSearchActionOpenPage {
+    /// The URL opened by the model.
+    pub url: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct WebSearchActionFind {
+    /// The URL of the page searched for the pattern.
+    pub url: String,
+    /// The pattern or text to search for within the page.
+    pub pattern: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum WebSearchToolCallAction {
+    /// Action type "search" - Performs a web search query.
+    Search(WebSearchActionSearch),
+    /// Action type "open_page" - Opens a specific URL from search results.
+    OpenPage(WebSearchActionOpenPage),
+    /// Action type "find": Searches for a pattern within a loaded page.
+    Find(WebSearchActionFind),
 }
 
 /// Web search tool call output.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct WebSearchCallOutput {
+pub struct WebSearchToolCall {
+    /// An object describing the specific action taken in this web search call. Includes
+    /// details on how the model used the web (search, open_page, find).
+    pub action: WebSearchToolCallAction,
     /// The unique ID of the web search tool call.
     pub id: String,
     /// The status of the web search tool call.
-    pub status: String,
+    pub status: WebSearchToolCallStatus,
 }
 
 /// Output from a computer tool call.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ComputerCallOutput {
-    pub action: ComputerCallAction,
+pub struct ComputerToolCall {
+    pub action: ComputerAction,
     /// An identifier used when responding to the tool call with output.
     pub call_id: String,
     /// The unique ID of the computer call.
     pub id: String,
     /// The pending safety checks for the computer call.
-    pub pending_safety_checks: Vec<SafetyCheck>,
-    /// The status of the item.
+    pub pending_safety_checks: Vec<ComputerCallSafetyCheckParam>,
+    /// The status of the item. One of `in_progress`, `completed`, or `incomplete`.
+    /// Populated when items are returned via API.
     pub status: OutputStatus,
 }
 
 /// A point in 2D space.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Point {
+pub struct DragPoint {
+    /// The x-coordinate.
     pub x: i32,
+    /// The y-coordinate.
     pub y: i32,
 }
 
 /// Represents all user‐triggered actions.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum ComputerCallAction {
+pub enum ComputerAction {
     /// A click action.
-    Click(Click),
+    Click(ClickParam),
 
-    /// A double-click action.
-    DoubleClick(DoubleClick),
+    /// A double click action.
+    DoubleClick(DoubleClickAction),
 
     /// A drag action.
     Drag(Drag),
 
-    /// A keypress action.
-    KeyPress(KeyPress),
+    /// A collection of keypresses the model would like to perform.
+    Keypress(KeyPressAction),
 
     /// A mouse move action.
-    Move(MoveAction),
+    Move(Move),
 
     /// A screenshot action.
     Screenshot,
@@ -1086,16 +1195,16 @@ pub enum ComputerCallAction {
     /// A scroll action.
     Scroll(Scroll),
 
-    /// A type (text entry) action.
-    Type(TypeAction),
+    /// An action to type in text.
+    Type(Type),
 
-    /// A wait (no-op) action.
+    /// A wait action.
     Wait,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum ButtonPress {
+#[serde(rename_all = "lowercase")]
+pub enum ClickButtonType {
     Left,
     Right,
     Wheel,
@@ -1105,21 +1214,22 @@ pub enum ButtonPress {
 
 /// A click action.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Click {
-    /// Which mouse button was pressed.
-    pub button: ButtonPress,
-    /// X‐coordinate of the click.
+pub struct ClickParam {
+    /// Indicates which mouse button was pressed during the click. One of `left`,
+    /// `right`, `wheel`, `back`, or `forward`.
+    pub button: ClickButtonType,
+    /// The x-coordinate where the click occurred.
     pub x: i32,
-    /// Y‐coordinate of the click.
+    /// The y-coordinate where the click occurred.
     pub y: i32,
 }
 
 /// A double click action.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct DoubleClick {
-    /// X‐coordinate of the double click.
+pub struct DoubleClickAction {
+    /// The x-coordinate where the double click occurred.
     pub x: i32,
-    /// Y‐coordinate of the double click.
+    /// The y-coordinate where the double click occurred.
     pub y: i32,
 }
 
@@ -1127,52 +1237,49 @@ pub struct DoubleClick {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Drag {
     /// The path of points the cursor drags through.
-    pub path: Vec<Point>,
-    /// X‐coordinate at the end of the drag.
-    pub x: i32,
-    /// Y‐coordinate at the end of the drag.
-    pub y: i32,
+    pub path: Vec<DragPoint>,
 }
 
 /// A keypress action.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct KeyPress {
-    /// The list of keys to press (e.g. `["Control", "C"]`).
+pub struct KeyPressAction {
+    /// The combination of keys the model is requesting to be pressed.
+    /// This is an array of strings, each representing a key.
     pub keys: Vec<String>,
 }
 
 /// A mouse move action.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct MoveAction {
-    /// X‐coordinate to move to.
+pub struct Move {
+    /// The x-coordinate to move to.
     pub x: i32,
-    /// Y‐coordinate to move to.
+    /// The y-coordinate to move to.
     pub y: i32,
 }
 
 /// A scroll action.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Scroll {
-    /// Horizontal scroll distance.
+    /// The horizontal scroll distance.
     pub scroll_x: i32,
-    /// Vertical scroll distance.
+    /// The vertical scroll distance.
     pub scroll_y: i32,
-    /// X‐coordinate where the scroll began.
+    /// The x-coordinate where the scroll occurred.
     pub x: i32,
-    /// Y‐coordinate where the scroll began.
+    /// The y-coordinate where the scroll occurred.
     pub y: i32,
 }
 
 /// A typing (text entry) action.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct TypeAction {
+pub struct Type {
     /// The text to type.
     pub text: String,
 }
 
 /// Metadata for a function call request.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct FunctionCall {
+pub struct FunctionToolCall {
     /// The unique ID of the function tool call.
     pub id: String,
     /// The unique ID of the function tool call generated by the model.
@@ -1185,56 +1292,75 @@ pub struct FunctionCall {
     pub status: OutputStatus,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum ImageGenToolCallStatus {
+    InProgress,
+    Completed,
+    Generating,
+    Failed,
+}
+
 /// Output of an image generation request.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ImageGenerationCallOutput {
-    /// Unique ID of the image generation call.
+pub struct ImageGenToolCall {
+    /// The unique ID of the image generation call.
     pub id: String,
-    /// Base64-encoded generated image, or null.
+    /// The generated image encoded in base64.
     pub result: Option<String>,
-    /// Status of the image generation call.
-    pub status: String,
+    /// The status of the image generation call.
+    pub status: ImageGenToolCallStatus,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum CodeInterpreterToolCallStatus {
+    InProgress,
+    Completed,
+    Incomplete,
+    Interpreting,
+    Failed,
 }
 
 /// Output of a code interpreter request.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CodeInterpreterCallOutput {
-    /// The code that was executed.
+pub struct CodeInterpreterToolCall {
+    /// The code to run, or null if not available.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
-    /// Unique ID of the call.
-    pub id: String,
-    /// Status of the tool call.
-    pub status: String,
     /// ID of the container used to run the code.
     pub container_id: String,
-    /// The outputs of the execution: logs or files.
+    /// The unique ID of the code interpreter tool call.
+    pub id: String,
+    /// The outputs generated by the code interpreter, such as logs or images.
+    /// Can be null if no outputs are available.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub outputs: Option<Vec<CodeInterpreterResult>>,
+    pub outputs: Option<Vec<CodeInterpreterToolCallOutput>>,
+    /// The status of the code interpreter tool call.
+    /// Valid values are `in_progress`, `completed`, `incomplete`, `interpreting`, and `failed`.
+    pub status: CodeInterpreterToolCallStatus,
 }
 
 /// Individual result from a code interpreter: either logs or files.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum CodeInterpreterResult {
-    /// Text logs from the execution.
-    Logs(CodeInterpreterTextOutput),
-    /// File outputs from the execution.
-    Files(CodeInterpreterFileOutput),
+pub enum CodeInterpreterToolCallOutput {
+    /// Code interpreter output logs
+    Logs(CodeInterpreterOutputLogs),
+    /// Code interpreter output image
+    Image(CodeInterpreterOutputImage),
 }
 
-/// The output containing execution logs.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CodeInterpreterTextOutput {
-    /// The logs of the code interpreter tool call.
+pub struct CodeInterpreterOutputLogs {
+    /// The logs output from the code interpreter.
     pub logs: String,
 }
 
-/// The output containing file references.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CodeInterpreterFileOutput {
-    /// List of file IDs produced.
-    pub files: Vec<CodeInterpreterFile>,
+pub struct CodeInterpreterOutputImage {
+    /// The URL of the image output from the code interpreter.
+    pub url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -1247,73 +1373,88 @@ pub struct CodeInterpreterFile {
 
 /// Output of a local shell command request.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct LocalShellCallOutput {
-    /// Details of the exec action.
-    pub action: LocalShellAction,
-    /// Unique call identifier for responding to the tool call.
+pub struct LocalShellToolCall {
+    /// Execute a shell command on the server.
+    pub action: LocalShellExecAction,
+    /// The unique ID of the local shell tool call generated by the model.
     pub call_id: String,
-    /// Unique ID of the local shell call.
+    /// The unique ID of the local shell call.
     pub id: String,
-    /// Status of the local shell call.
+    /// The status of the local shell call.
     pub status: String,
 }
 
 /// Define the shape of a local shell action (exec).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct LocalShellAction {
+pub struct LocalShellExecAction {
     /// The command to run.
     pub command: Vec<String>,
     /// Environment variables to set for the command.
     pub env: HashMap<String, String>,
-    /// Optional timeout for the command (ms).
+    /// Optional timeout in milliseconds for the command.
     pub timeout_ms: Option<u64>,
     /// Optional user to run the command as.
     pub user: Option<String>,
-    /// Optional working directory for the command.
+    /// Optional working directory to run the command in.
     pub working_directory: Option<String>,
 }
 
 /// Output of an MCP server tool invocation.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct McpCallOutput {
-    /// JSON string of the arguments passed.
+pub struct MCPToolCall {
+    /// A JSON string of the arguments passed to the tool.
     pub arguments: String,
-    /// Unique ID of the MCP call.
+    /// The unique ID of the tool call.
     pub id: String,
-    /// Name of the tool invoked.
+    /// The name of the tool that was run.
     pub name: String,
-    /// Label of the MCP server.
+    /// The label of the MCP server running the tool.
     pub server_label: String,
+    /// Unique identifier for the MCP tool call approval request. Include this value
+    /// in a subsequent `mcp_approval_response` input to approve or reject the corresponding
+    /// tool call.
+    pub approval_request_id: Option<String>,
     /// Error message from the call, if any.
     pub error: Option<String>,
-    /// Output from the call, if any.
+    /// The output from the tool call.
     pub output: Option<String>,
+    /// The status of the tool call. One of `in_progress`, `completed`, `incomplete`,
+    /// `calling`, or `failed`.
+    pub status: Option<MCPToolCallStatus>,
 }
 
-/// Output listing tools available on an MCP server.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct McpListToolsOutput {
-    /// Unique ID of the list request.
+#[serde(rename_all = "snake_case")]
+pub enum MCPToolCallStatus {
+    InProgress,
+    Completed,
+    Incomplete,
+    Calling,
+    Failed,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct MCPListTools {
+    /// The unique ID of the list.
     pub id: String,
-    /// Label of the MCP server.
+    /// The label of the MCP server.
     pub server_label: String,
-    /// Tools available on the server with metadata.
-    pub tools: Vec<McpToolInfo>,
+    /// The tools available on the server.
+    pub tools: Vec<MCPListToolsTool>,
     /// Error message if listing failed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
 }
 
-/// Information about a single tool on an MCP server.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct McpToolInfo {
+pub struct MCPListToolsTool {
+    /// The JSON schema describing the tool's input.
+    pub input_schema: serde_json::Value,
     /// The name of the tool.
     pub name: String,
-    /// The JSON schema describing the tool's input.
-    pub input_schema: Value,
     /// Additional annotations about the tool.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub annotations: Option<Value>,
+    pub annotations: Option<serde_json::Value>,
     /// The description of the tool.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
@@ -1321,14 +1462,14 @@ pub struct McpToolInfo {
 
 /// Output representing a human approval request for an MCP tool.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct McpApprovalRequestOutput {
+pub struct MCPApprovalRequest {
     /// JSON string of arguments for the tool.
     pub arguments: String,
-    /// Unique ID of the approval request.
+    /// The unique ID of the approval request.
     pub id: String,
-    /// Name of the tool requiring approval.
+    /// The name of the tool to run.
     pub name: String,
-    /// Label of the MCP server making the request.
+    /// The label of the MCP server making the request.
     pub server_label: String,
 }
 
@@ -1347,13 +1488,31 @@ pub struct Usage {
     pub total_tokens: u32,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum Instructions {
+    /// A text input to the model, equivalent to a text input with the `developer` role.
+    Text(String),
+    /// A list of one or many input items to the model, containing different content types.
+    Array(Vec<InputItem>),
+}
+
 /// The complete response returned by the Responses API.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Response {
+    /// Whether to run the model response in the background.
+    /// [Learn more](https://platform.openai.com/docs/guides/background).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub background: Option<bool>,
+
+    /// The conversation that this response belongs to. Input items and output
+    /// items from this response are automatically added to this conversation.
+    pub conversation: Option<Conversation>,
+
     /// Unix timestamp (in seconds) when this Response was created.
     pub created_at: u64,
 
-    /// Error object if the API failed to generate a response.
+    /// An error object returned when the model fails to generate a Response.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<ErrorObject>,
 
@@ -1364,26 +1523,44 @@ pub struct Response {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub incomplete_details: Option<IncompleteDetails>,
 
-    /// Instructions that were inserted as the first item in context.
+    /// A system (or developer) message inserted into the model's context.
+    ///
+    /// When using along with `previous_response_id`, the instructions from a previous response
+    /// will not be carried over to the next response. This makes it simple to swap out
+    /// system (or developer) messages in new responses.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub instructions: Option<String>,
+    pub instructions: Option<Instructions>,
 
-    /// The value of `max_output_tokens` that was honored.
+    /// An upper bound for the number of tokens that can be generated for a response,
+    /// including visible output tokens and
+    /// [reasoning tokens](https://platform.openai.com/docs/guides/reasoning).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_output_tokens: Option<u32>,
 
-    /// Metadata tags/values that were attached to this response.
+    /// Set of 16 key-value pairs that can be attached to an object. This can be
+    /// useful for storing additional information about the object in a structured
+    /// format, and querying for objects via API or the dashboard.
+    ///
+    /// Keys are strings with a maximum length of 64 characters. Values are strings
+    /// with a maximum length of 512 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<HashMap<String, String>>,
 
-    /// Model ID used to generate the response.
+    /// Model ID used to generate the response, like gpt-4o or o3. OpenAI offers a
+    /// wide range of models with different capabilities, performance characteristics,
+    /// and price points. Refer to the [model guide](https://platform.openai.com/docs/models) to browse and compare available models.
     pub model: String,
 
-    /// The object type – always `response`.
+    /// The object type of this resource - always set to `response`.
     pub object: String,
 
-    /// The array of content items generated by the model.
-    pub output: Vec<OutputContent>,
+    /// An array of content items generated by the model.
+    ///
+    /// The length and order of items in the output array is dependent on the model's response.
+    /// Rather than accessing the first item in the output array and assuming it's an assistant
+    /// message with the content generated by the model, you might consider using
+    /// the `output_text` property where supported in SDKs.
+    pub output: Vec<OutputItem>,
 
     /// SDK-only convenience property that contains the aggregated text output from all
     /// `output_text` items in the `output` array, if any are present.
@@ -2124,27 +2301,55 @@ pub struct ResponseMetadata {
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum OutputItem {
+    /// An output message from the model.
     Message(OutputMessage),
-    FileSearchCall(FileSearchCallOutput),
-    FunctionCall(FunctionCall),
-    WebSearchCall(WebSearchCallOutput),
-    ComputerCall(ComputerCallOutput),
+    /// The results of a file search tool call. See the
+    /// [file search guide](https://platform.openai.com/docs/guides/tools-file-search)
+    /// for more information.
+    FileSearchCall(FileSearchToolCall),
+    /// A tool call to run a function. See the
+    /// [function calling guide](https://platform.openai.com/docs/guides/function-calling)
+    /// for more information.
+    FunctionCall(FunctionToolCall),
+    /// The results of a web search tool call. See the
+    /// [web search guide](https://platform.openai.com/docs/guides/tools-web-search)
+    /// for more information.
+    WebSearchCall(WebSearchToolCall),
+    /// A tool call to a computer use tool. See the
+    /// [computer use guide](https://platform.openai.com/docs/guides/tools-computer-use)
+    /// for more information.
+    ComputerCall(ComputerToolCall),
+    /// A description of the chain of thought used by a reasoning model while generating
+    /// a response. Be sure to include these items in your `input` to the Responses API for
+    /// subsequent turns of a conversation if you are manually
+    /// [managing context](https://platform.openai.com/docs/guides/conversation-state).
     Reasoning(ReasoningItem),
-    ImageGenerationCall(ImageGenerationCallOutput),
-    CodeInterpreterCall(CodeInterpreterCallOutput),
-    LocalShellCall(LocalShellCallOutput),
-    McpCall(McpCallOutput),
-    McpListTools(McpListToolsOutput),
-    McpApprovalRequest(McpApprovalRequestOutput),
-    CustomToolCall(CustomToolCallOutput),
+    /// An image generation request made by the model.
+    ImageGenerationCall(ImageGenToolCall),
+    /// A tool call to run code.
+    CodeInterpreterCall(CodeInterpreterToolCall),
+    /// A tool call to run a command on the local shell.
+    LocalShellCall(LocalShellToolCall),
+    /// An invocation of a tool on an MCP server.
+    McpCall(MCPToolCall),
+    /// A list of tools available on an MCP server.
+    McpListTools(MCPListTools),
+    /// A request for human approval of a tool invocation.
+    McpApprovalRequest(MCPApprovalRequest),
+    /// A call to a custom tool created by the model.
+    CustomToolCall(CustomToolCall),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[non_exhaustive]
-pub struct CustomToolCallOutput {
+pub struct CustomToolCall {
+    /// An identifier used to map this custom tool call to a tool call output.
     pub call_id: String,
+    /// The input for the custom tool call generated by the model.
     pub input: String,
+    /// The name of the custom tool being called.
     pub name: String,
+    /// The unique ID of the custom tool call in the OpenAI platform.
     pub id: String,
 }
 
