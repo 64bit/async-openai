@@ -1,9 +1,11 @@
 use serde::{Deserialize, Serialize};
 use tokio_tungstenite::tungstenite::Message;
 
-use super::{item::Item, session_resource::SessionResource};
+use crate::types::realtime::{ResponseCreate, Session};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+use super::item::Item;
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SessionUpdateEvent {
     /// Optional client-generated ID used to identify this event.
     /// This is an arbitrary string that a client may assign. It will be passed
@@ -12,7 +14,7 @@ pub struct SessionUpdateEvent {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
     /// Update the Realtime session. Choose either a realtime session or a transcription session.
-    pub session: SessionResource,
+    pub session: Session,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -101,7 +103,7 @@ pub struct ResponseCreateEvent {
     pub event_id: Option<String>,
 
     /// Create a new Realtime response with these parameters
-    pub response: Option<SessionResource>,
+    pub response: Option<ResponseCreate>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]

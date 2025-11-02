@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 
+use crate::types::realtime::{Response, Session};
+
 use super::{
     content_part::ContentPart, error::RealtimeAPIError, item::Item, rate_limit::RateLimit,
-    response_resource::ResponseResource, session_resource::SessionResource,
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -18,7 +19,7 @@ pub struct SessionCreatedEvent {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The session resource.
-    pub session: SessionResource,
+    pub session: Session,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -26,7 +27,7 @@ pub struct SessionUpdatedEvent {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The updated session resource.
-    pub session: SessionResource,
+    pub session: Session,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -270,7 +271,7 @@ pub struct ResponseCreatedEvent {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The response resource.
-    pub response: ResponseResource,
+    pub response: Response,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -278,7 +279,7 @@ pub struct ResponseDoneEvent {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The response resource.
-    pub response: ResponseResource,
+    pub response: Response,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

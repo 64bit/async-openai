@@ -387,12 +387,20 @@ pub struct TokenLimits {
     pub post_instructions: u32,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(tag = "type")]
+pub enum Session {
+    /// The type of session to create. Always `realtime` for the Realtime API.
+    #[serde(rename = "realtime")]
+    RealtimeSessionConfiguration(RealtimeSession),
+    /// The type of session to create. Always `transcription` for transcription sessions.
+    #[serde(rename = "transcription")]
+    TranscriptionSessionConfiguration(TranscriptionSession),
+}
+
 /// Realtime session object configuration.
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct SessionResource {
-    /// The type of session to create. Always realtime for the Realtime API.
-    pub r#type: String,
-
+pub struct RealtimeSession {
     pub audio: Audio,
 
     /// Additional fields to include in server outputs.
@@ -436,9 +444,9 @@ pub struct SessionResource {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt: Option<Prompt>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
     /// How the model chooses tools. Provide one of the string modes or force a specific
     /// function/MCP tool.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<ToolChoice>,
 
     /// Tools available to the model.
@@ -492,9 +500,6 @@ pub struct TranscriptionAudio {
 /// Realtime transcription session object configuration.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TranscriptionSession {
-    /// The type of session to create. Always `transcription` for transcription sessions.
-    pub r#type: String,
-
     /// Configuration for input and output audio.
     pub audio: TranscriptionAudio,
 
