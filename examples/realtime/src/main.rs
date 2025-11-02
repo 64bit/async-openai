@@ -1,7 +1,7 @@
 use std::process::exit;
 
 use async_openai::types::realtime::{
-    ConversationItemCreateEvent, Item, ResponseCreateEvent, ServerEvent,
+    ConversationItemCreateEvent, Item, Message as RealtimeMessage, ResponseCreateEvent, ServerEvent,
 };
 use futures_util::{future, pin_mut, StreamExt};
 
@@ -13,7 +13,7 @@ use tokio_tungstenite::{
 
 #[tokio::main]
 async fn main() {
-    let url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17";
+    let url = "wss://api.openai.com/v1/realtime?model=gpt-realtime";
     let api_key = std::env::var("OPENAI_API_KEY").expect("Please provide OPENAPI_API_KEY env var");
 
     let (stdin_tx, stdin_rx) = futures_channel::mpsc::unbounded();
@@ -25,9 +25,6 @@ async fn main() {
         "Authorization",
         format!("Bearer {api_key}").parse().unwrap(),
     );
-    request
-        .headers_mut()
-        .insert("OpenAI-Beta", "realtime=v1".parse().unwrap());
 
     // connect to WebSocket endpoint
     let (ws_stream, _) = connect_async(request).await.expect("Failed to connect");
@@ -57,20 +54,7 @@ async fn main() {
 
                             match server_event {
                                 ServerEvent::ResponseOutputItemDone(event) => {
-                                    event.item.content.unwrap_or(vec![]).iter().for_each(
-                                        |content| {
-                                            if let Some(ref transcript) = content.transcript {
-                                                eprintln!(
-                                                    "[{:?}]: {}",
-                                                    event.item.role,
-                                                    transcript.trim(),
-                                                );
-                                            }
-                                        },
-                                    );
-                                }
-                                ServerEvent::ResponseAudioTranscriptDelta(event) => {
-                                    eprint!("{}", event.delta.trim());
+                                    eprint!("{event:?}");
                                 }
                                 ServerEvent::Error(e) => {
                                     eprint!("{e:?}");
