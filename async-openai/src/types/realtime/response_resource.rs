@@ -185,7 +185,7 @@ pub struct ResponseCreate {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Response {
     /// Configuration for audio output.
-    pub audio: ResponseAudio,
+    pub audio: Option<ResponseAudio>,
 
     /// Which conversation the response is added to, determined by the `conversation` field in the
     /// `response.create` event. If `auto`, the response will be added to the default conversation
