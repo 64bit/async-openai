@@ -29,14 +29,21 @@ pub enum OutputStatus {
     Incomplete,
 }
 
-/// Input payload: raw text or structured context items.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(untagged)]
-pub enum Input {
-    /// A text input to the model, equivalent to a text input with the user role.
+pub enum InputParam {
+    ///  A text input to the model, equivalent to a text input with the
+    /// `user` role.
     Text(String),
-    /// A list of one or many input items to the model, containing different content types.
+    /// A list of one or many input items to the model, containing
+    /// different content types.
     Items(Vec<InputItem>),
+}
+
+impl Default for InputParam {
+    fn default() -> Self {
+        Self::Text(String::new())
+    }
 }
 
 /// Content item used to generate a response.
@@ -507,6 +514,48 @@ pub struct Conversation {
     pub id: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum ConversationParam {
+    /// The unique ID of the conversation.
+    ConversationID(String),
+    /// The conversation that this response belongs to.
+    Object(Conversation),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub enum IncludeEnum {
+    #[serde(rename = "file_search_call.results")]
+    FileSearchCallResults,
+    #[serde(rename = "web_search_call.results")]
+    WebSearchCallResults,
+    #[serde(rename = "web_search_call.action.sources")]
+    WebSearchCallActionSources,
+    #[serde(rename = "message.input_image.image_url")]
+    MessageInputImageImageUrl,
+    #[serde(rename = "computer_call_output.output.image_url")]
+    ComputerCallOutputOutputImageUrl,
+    #[serde(rename = "code_interpreter_call.outputs")]
+    CodeInterpreterCallOutputs,
+    #[serde(rename = "reasoning.encrypted_content")]
+    ReasoningEncryptedContent,
+    #[serde(rename = "message.output_text.logprobs")]
+    MessageOutputTextLogprobs,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ResponseStreamOptions {
+    /// When true, stream obfuscation will be enabled. Stream obfuscation adds
+    /// random characters to an `obfuscation` field on streaming delta events to
+    /// normalize payload sizes as a mitigation to certain side-channel attacks.
+    /// These obfuscation fields are included by default, but add a small amount
+    /// of overhead to the data stream. You can set `include_obfuscation` to
+    /// false to optimize for bandwidth if you trust the network links between
+    /// your application and the OpenAI API.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub include_obfuscation: Option<bool>,
+}
+
 /// Builder for a Responses API request.
 #[derive(Clone, Serialize, Deserialize, Debug, Default, Builder, PartialEq)]
 #[builder(
@@ -517,55 +566,70 @@ pub struct Conversation {
 )]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateResponse {
-    /// Text, image, or file inputs to the model, used to generate a response.
-    pub input: Input,
-
-    /// Model ID used to generate the response, like `gpt-4o`.
-    /// OpenAI offers a wide range of models with different capabilities,
-    /// performance characteristics, and price points.
-    pub model: String,
-
     /// Whether to run the model response in the background.
-    /// boolean or null.
+    /// [Learn more](https://platform.openai.com/docs/guides/background).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub background: Option<bool>,
 
-    /// Specify additional output data to include in the model response.
+    /// The conversation that this response belongs to. Items from this conversation are prepended to
+    ///  `input_items` for this response request.
     ///
-    /// Supported values:
-    /// - `file_search_call.results`
-    ///   Include the search results of the file search tool call.
-    /// - `message.input_image.image_url`
-    ///   Include image URLs from the input message.
-    /// - `computer_call_output.output.image_url`
-    ///   Include image URLs from the computer call output.
-    /// - `reasoning.encrypted_content`
-    ///   Include an encrypted version of reasoning tokens in reasoning item outputs.
-    ///   This enables reasoning items to be used in multi-turn conversations when
-    ///   using the Responses API statelessly (for example, when the `store` parameter
-    ///   is set to `false`, or when an organization is enrolled in the zero-data-
-    ///   retention program).
-    ///
-    /// If `None`, no additional data is returned.
+    /// Input items and output items from this response are automatically added to this conversation after
+    /// this response completes.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub include: Option<Vec<String>>,
+    pub conversation: Option<ConversationParam>,
 
-    /// Inserts a system (or developer) message as the first item in the model's context.
+    /// Specify additional output data to include in the model response. Currently supported
+    /// values are:
     ///
-    /// When using along with previous_response_id, the instructions from a previous response will
-    /// not be carried over to the next response. This makes it simple to swap out system
-    /// (or developer) messages in new responses.
+    /// - `web_search_call.action.sources`: Include the sources of the web search tool call.
+    ///
+    /// - `code_interpreter_call.outputs`: Includes the outputs of python code execution in code
+    ///    interpreter tool call items.
+    ///
+    /// - `computer_call_output.output.image_url`: Include image urls from the computer call
+    ///    output.
+    ///
+    /// - `file_search_call.results`: Include the search results of the file search tool call.
+    ///
+    /// - `message.input_image.image_url`: Include image urls from the input message.
+    ///
+    /// - `message.output_text.logprobs`: Include logprobs with assistant messages.
+    ///
+    /// - `reasoning.encrypted_content`: Includes an encrypted version of reasoning tokens in
+    ///    reasoning item outputs. This enables reasoning items to be used in multi-turn
+    ///    conversations when using the Responses API statelessly (like when the `store` parameter is
+    ///    set to `false`, or when an organization is enrolled in the zero data retention program).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub include: Option<Vec<IncludeEnum>>,
+
+    /// Text, image, or file inputs to the model, used to generate a response.
+    ///
+    /// Learn more:
+    /// - [Text inputs and outputs](https://platform.openai.com/docs/guides/text)
+    /// - [Image inputs](https://platform.openai.com/docs/guides/images)
+    /// - [File inputs](https://platform.openai.com/docs/guides/pdf-files)
+    /// - [Conversation state](https://platform.openai.com/docs/guides/conversation-state)
+    /// - [Function calling](https://platform.openai.com/docs/guides/function-calling)
+    pub input: InputParam,
+
+    /// A system (or developer) message inserted into the model's context.
+    ///
+    /// When using along with `previous_response_id`, the instructions from a previous
+    /// response will not be carried over to the next response. This makes it simple
+    /// to swap out system (or developer) messages in new responses.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub instructions: Option<String>,
 
-    /// An upper bound for the number of tokens that can be generated for a
-    /// response, including visible output tokens and reasoning tokens.
+    /// An upper bound for the number of tokens that can be generated for a response, including
+    /// visible output tokens and [reasoning tokens](https://platform.openai.com/docs/guides/reasoning).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_output_tokens: Option<u32>,
 
-    /// The maximum number of total calls to built-in tools that can be processed in a response.
-    /// This maximum number applies across all built-in tool calls, not per individual tool.
-    /// Any further attempts to call a tool by the model will be ignored.
+    /// The maximum number of total calls to built-in tools that can be processed in a response. This
+    /// maximum number applies across all built-in tool calls, not per individual tool. Any further
+    /// attempts to call a tool by the model will be ignored.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_tool_calls: Option<u32>,
 
     /// Set of 16 key-value pairs that can be attached to an object. This can be
@@ -577,42 +641,54 @@ pub struct CreateResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<HashMap<String, String>>,
 
+    /// Model ID used to generate the response, like `gpt-4o` or `o3`. OpenAI
+    /// offers a wide range of models with different capabilities, performance
+    /// characteristics, and price points. Refer to the [model guide](https://platform.openai.com/docs/models)
+    /// to browse and compare available models.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+
     /// Whether to allow the model to run tool calls in parallel.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parallel_tool_calls: Option<bool>,
 
-    /// The unique ID of the previous response to the model. Use this to create
-    /// multi-turn conversations.
+    /// The unique ID of the previous response to the model. Use this to create multi-turn conversations.
+    /// Learn more about [conversation state](https://platform.openai.com/docs/guides/conversation-state).
+    /// Cannot be used in conjunction with `conversation`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub previous_response_id: Option<String>,
 
     /// Reference to a prompt template and its variables.
+    /// [Learn more](https://platform.openai.com/docs/guides/text?api-mode=responses#reusable-prompts).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub prompt: Option<PromptConfig>,
+    pub prompt: Option<Prompt>,
 
-    /// **o-series models only**: Configuration options for reasoning models.
+    /// Used by OpenAI to cache responses for similar requests to optimize your cache hit rates. Replaces
+    /// the `user` field. [Learn more](https://platform.openai.com/docs/guides/prompt-caching).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub reasoning: Option<ReasoningConfig>,
+    pub prompt_cache_key: Option<String>,
 
-    /// Specifies the latency tier to use for processing the request.
+    /// **gpt-5 and o-series models only**
+    /// Configuration options for [reasoning models](https://platform.openai.com/docs/guides/reasoning).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reasoning: Option<Reasoning>,
+
+    /// A stable identifier used to help detect users of your application that may be violating OpenAI's
+    /// usage policies.
     ///
-    /// This parameter is relevant for customers subscribed to the Scale tier service.
+    /// The IDs should be a string that uniquely identifies each user. We recommend hashing their username
+    /// or email address, in order to avoid sending us any identifying information. [Learn
+    /// more](https://platform.openai.com/docs/guides/safety-best-practices#safety-identifiers).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub safety_identifier: Option<String>,
+
+    /// Specifies the processing type used for serving the request.
+    /// - If set to 'auto', then the request will be processed with the service tier configured in the Project settings. Unless otherwise configured, the Project will use 'default'.
+    /// - If set to 'default', then the request will be processed with the standard pricing and performance for the selected model.
+    /// - If set to '[flex](https://platform.openai.com/docs/guides/flex-processing)' or '[priority](https://openai.com/api-priority-processing/)', then the request will be processed with the corresponding service tier.
+    /// - When not set, the default behavior is 'auto'.
     ///
-    /// Supported values:
-    /// - `auto`
-    ///   - If the Project is Scale tier enabled, the system will utilize Scale tier credits until
-    ///     they are exhausted.
-    ///   - If the Project is not Scale tier enabled, the request will be processed using the
-    ///     default service tier with a lower uptime SLA and no latency guarantee.
-    /// - `default`
-    ///   The request will be processed using the default service tier with a lower uptime SLA and
-    ///   no latency guarantee.
-    /// - `flex`
-    ///   The request will be processed with the Flex Processing service tier. Learn more.
-    ///
-    /// When not set, the default behavior is `auto`.
-    ///
-    /// When this parameter is set, the response body will include the `service_tier` utilized.
+    /// When the `service_tier` parameter is set, the response body will include the `service_tier` value based on the processing mode actually used to serve the request. This response value may be different from the value set in the parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub service_tier: Option<ServiceTier>,
 
@@ -620,10 +696,16 @@ pub struct CreateResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub store: Option<bool>,
 
-    /// If set to true, the model response data will be streamed to the client as it is
-    /// generated using server-sent events.
+    /// If set to true, the model response data will be streamed to the client
+    /// as it is generated using [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format).
+    /// See the [Streaming section below](https://platform.openai.com/docs/api-reference/responses-streaming)
+    /// for more information.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stream: Option<bool>,
+
+    /// Options for streaming responses. Only set this when you set `stream: true`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stream_options: Option<ResponseStreamOptions>,
 
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8
     /// will make the output more random, while lower values like 0.2 will make it
@@ -632,45 +714,60 @@ pub struct CreateResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature: Option<f32>,
 
-    /// Configuration options for a text response from the model. Can be plain text
-    /// or structured JSON data.
+    /// Configuration options for a text response from the model. Can be plain
+    /// text or structured JSON data. Learn more:
+    /// - [Text inputs and outputs](https://platform.openai.com/docs/guides/text)
+    /// - [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub text: Option<TextConfig>,
+    pub text: Option<ResponseTextParam>,
 
     /// How the model should select which tool (or tools) to use when generating
-    /// a response.
+    /// a response. See the `tools` parameter to see how to specify which tools
+    /// the model can call.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tool_choice: Option<ToolChoice>,
+    pub tool_choice: Option<ToolChoiceParam>,
 
-    /// An array of tools the model may call while generating a response.
-    /// Can include built-in tools (file_search, web_search_preview,
-    /// computer_use_preview) or custom function definitions.
+    /// An array of tools the model may call while generating a response. You
+    /// can specify which tool to use by setting the `tool_choice` parameter.
+    ///
+    /// We support the following categories of tools:
+    /// - **Built-in tools**: Tools that are provided by OpenAI that extend the
+    ///   model's capabilities, like [web search](https://platform.openai.com/docs/guides/tools-web-search)
+    ///   or [file search](https://platform.openai.com/docs/guides/tools-file-search). Learn more about
+    ///   [built-in tools](https://platform.openai.com/docs/guides/tools).
+    /// - **MCP Tools**: Integrations with third-party systems via custom MCP servers
+    ///   or predefined connectors such as Google Drive and SharePoint. Learn more about
+    ///   [MCP Tools](https://platform.openai.com/docs/guides/tools-connectors-mcp).
+    /// - **Function calls (custom tools)**: Functions that are defined by you,
+    ///   enabling the model to call your own code with strongly typed arguments
+    ///   and outputs. Learn more about
+    ///   [function calling](https://platform.openai.com/docs/guides/function-calling). You can also use
+    ///   custom tools to call your own code.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<Vec<ToolDefinition>>,
+    pub tools: Option<Vec<Tool>>,
 
-    /// An integer between 0 and 20 specifying the number of most likely tokens to return
-    /// at each token position, each with an associated log probability.
+    /// An integer between 0 and 20 specifying the number of most likely tokens to return at each
+    /// token position, each with an associated log probability.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub top_logprobs: Option<u32>, // TODO add validation of range
+    pub top_logprobs: Option<u8>,
 
     /// An alternative to sampling with temperature, called nucleus sampling,
     /// where the model considers the results of the tokens with top_p probability
     /// mass. So 0.1 means only the tokens comprising the top 10% probability mass
-    /// are considered. We generally recommend altering this or `temperature` but
-    /// not both.
+    /// are considered.
+    ///
+    /// We generally recommend altering this or `temperature` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub top_p: Option<f32>,
 
-    /// The truncation strategy to use for the model response:
-    /// - `auto`: drop items in the middle to fit context window.
-    /// - `disabled`: error if exceeding context window.
+    ///The truncation strategy to use for the model response.
+    /// - `auto`: If the input to this Response exceeds
+    /// the model's context window size, the model will truncate the
+    /// response to fit the context window by dropping items from the beginning of the conversation.
+    /// - `disabled` (default): If the input size will exceed the context window
+    /// size for a model, the request will fail with a 400 error.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub truncation: Option<Truncation>,
-
-    /// A unique identifier representing your end-user, which can help OpenAI to
-    /// monitor and detect abuse.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub user: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -2085,6 +2182,7 @@ pub struct Response {
 
     /// The conversation that this response belongs to. Input items and output
     /// items from this response are automatically added to this conversation.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub conversation: Option<Conversation>,
 
     /// Unix timestamp (in seconds) when this Response was created.
