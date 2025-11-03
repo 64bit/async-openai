@@ -3130,3 +3130,10 @@ pub struct TextAnnotation {
     pub start: u32,
     pub end: u32,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct DeleteResponse {
+    pub object: String,
+    pub deleted: bool,
+    pub id: String,
+}

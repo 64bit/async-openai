@@ -1,13 +1,12 @@
+use serde::Serialize;
+
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::responses::{CreateResponse, Response, ResponseStream},
+    types::responses::{CreateResponse, DeleteResponse, Response, ResponseStream},
     Client,
 };
 
-/// Given text input or a list of context items, the model will generate a response.
-///
-/// Related guide: [Responses](https://platform.openai.com/docs/api-reference/responses)
 pub struct Responses<'c, C: Config> {
     client: &'c Client<C>,
 }
@@ -18,7 +17,15 @@ impl<'c, C: Config> Responses<'c, C> {
         Self { client }
     }
 
-    /// Creates a model response for the given input.
+    /// Creates a model response. Provide [text](https://platform.openai.com/docs/guides/text) or
+    /// [image](https://platform.openai.com/docs/guides/images) inputs to generate
+    /// [text](https://platform.openai.com/docs/guides/text) or
+    /// [JSON](https://platform.openai.com/docs/guides/structured-outputs) outputs. Have the model call
+    /// your own [custom code](https://platform.openai.com/docs/guides/function-calling) or use
+    /// built-in [tools](https://platform.openai.com/docs/guides/tools) like
+    /// [web search](https://platform.openai.com/docs/guides/tools-web-search)
+    /// or [file search](https://platform.openai.com/docs/guides/tools-file-search) to use your own data
+    /// as input for the model's response.
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned
@@ -51,5 +58,37 @@ impl<'c, C: Config> Responses<'c, C> {
             request.stream = Some(true);
         }
         Ok(self.client.post_stream("/responses", request).await)
+    }
+
+    /// Retrieves a model response with the given ID.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve<Q>(&self, response_id: &str, query: &Q) -> Result<Response, OpenAIError>
+    where
+        Q: Serialize + ?Sized,
+    {
+        self.client
+            .get_with_query(&format!("/responses/{}", response_id), &query)
+            .await
+    }
+
+    /// Deletes a model response with the given ID.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn delete(&self, response_id: &str) -> Result<DeleteResponse, OpenAIError> {
+        self.client
+            .delete(&format!("/responses/{}", response_id))
+            .await
+    }
+
+    /// Cancels a model response with the given ID. Only responses created with the
+    /// `background` parameter set to `true` can be cancelled.
+    /// [Learn more](https://platform.openai.com/docs/guides/background).
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn cancel(&self, response_id: &str) -> Result<Response, OpenAIError> {
+        self.client
+            .post(
+                &format!("/responses/{}/cancel", response_id),
+                serde_json::json!({}),
+            )
+            .await
     }
 }
