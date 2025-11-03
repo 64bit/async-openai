@@ -14,7 +14,7 @@ use crate::{
 use bytes::Bytes;
 
 use super::{
-    responses::{CodeInterpreterContainer, Input, InputContent, Role as ResponsesRole},
+    responses::{CodeInterpreterContainer, EasyInputContent, Input, Role as ResponsesRole},
     AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
     ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
     ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestDeveloperMessage,
@@ -1053,9 +1053,9 @@ impl Default for Input {
     }
 }
 
-impl Default for InputContent {
+impl Default for EasyInputContent {
     fn default() -> Self {
-        Self::TextInput("".to_string())
+        Self::Text("".to_string())
     }
 }
 
@@ -1077,15 +1077,15 @@ impl Default for ResponsesRole {
     }
 }
 
-impl From<String> for InputContent {
+impl From<String> for EasyInputContent {
     fn from(value: String) -> Self {
-        Self::TextInput(value)
+        Self::Text(value)
     }
 }
 
-impl From<&str> for InputContent {
+impl From<&str> for EasyInputContent {
     fn from(value: &str) -> Self {
-        Self::TextInput(value.to_owned())
+        Self::Text(value.to_owned())
     }
 }
 

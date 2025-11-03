@@ -38,14 +38,362 @@ pub enum Input {
     Items(Vec<InputItem>),
 }
 
+/// Content item used to generate a response.
+///
+/// This is a properly discriminated union based on the `type` field, using Rust's
+/// type-safe enum with serde's tag attribute for efficient deserialization.
+///
+/// # OpenAPI Specification
+/// Corresponds to the `Item` schema in the OpenAPI spec with a `type` discriminator.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(untagged, rename_all = "snake_case")]
-pub enum InputItem {
-    Message(InputMessage),
-    Custom(serde_json::Value),
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum Item {
+    /// A message (type: "message").
+    /// Can represent InputMessage (user/system/developer) or OutputMessage (assistant).
+    ///
+    /// InputMessage:
+    ///     A message input to the model with a role indicating instruction following hierarchy.
+    ///     Instructions given with the developer or system role take precedence over instructions given with the user role.
+    /// OutputMessage:
+    ///     A message output from the model.
+    Message(MessageItem),
+
+    /// The results of a file search tool call. See the
+    /// [file search guide](https://platform.openai.com/docs/guides/tools-file-search) for more information.
+    FileSearchCall(FileSearchToolCall),
+
+    /// A tool call to a computer use tool. See the
+    /// [computer use guide](https://platform.openai.com/docs/guides/tools-computer-use) for more information.
+    ComputerCall(ComputerToolCall),
+
+    /// The output of a computer tool call.
+    ComputerCallOutput(ComputerCallOutputItemParam),
+
+    /// The results of a web search tool call. See the
+    /// [web search guide](https://platform.openai.com/docs/guides/tools-web-search) for more information.
+    WebSearchCall(WebSearchToolCall),
+
+    /// A tool call to run a function. See the
+    ///
+    /// [function calling guide](https://platform.openai.com/docs/guides/function-calling) for more information.
+    FunctionCall(FunctionToolCall),
+
+    /// The output of a function tool call.
+    FunctionCallOutput(FunctionCallOutputItemParam),
+
+    /// A description of the chain of thought used by a reasoning model while generating
+    /// a response. Be sure to include these items in your `input` to the Responses API
+    /// for subsequent turns of a conversation if you are manually
+    /// [managing context](https://platform.openai.com/docs/guides/conversation-state).
+    Reasoning(ReasoningItem),
+
+    /// An image generation request made by the model.
+    ImageGenerationCall(ImageGenToolCall),
+
+    /// A tool call to run code.
+    CodeInterpreterCall(CodeInterpreterToolCall),
+
+    /// A tool call to run a command on the local shell.
+    LocalShellCall(LocalShellToolCall),
+
+    /// The output of a local shell tool call.
+    LocalShellCallOutput(LocalShellToolCallOutput),
+
+    /// A list of tools available on an MCP server.
+    McpListTools(MCPListTools),
+
+    /// A request for human approval of a tool invocation.
+    McpApprovalRequest(MCPApprovalRequest),
+
+    /// A response to an MCP approval request.
+    McpApprovalResponse(MCPApprovalResponse),
+
+    /// An invocation of a tool on an MCP server.
+    McpCall(MCPToolCall),
+
+    /// The output of a custom tool call from your code, being sent back to the model.
+    CustomToolCallOutput(CustomToolCallOutput),
+
+    /// A call to a custom tool created by the model.
+    CustomToolCall(CustomToolCall),
 }
 
-/// A message to prime the model.
+/// Input item that can be used in the context for generating a response.
+///
+/// This represents the OpenAPI `InputItem` schema which is an `anyOf`:
+/// 1. `EasyInputMessage` - Simple, user-friendly message input (can use string content)
+/// 2. `Item` - Structured items with proper type discrimination (including InputMessage, OutputMessage, tool calls)
+/// 3. `ItemReferenceParam` - Reference to an existing item by ID (type can be null)
+///
+/// Uses untagged deserialization because these types overlap in structure.
+/// Order matters: more specific structures are tried first.
+///
+/// # OpenAPI Specification
+/// Corresponds to the `InputItem` schema: `anyOf[EasyInputMessage, Item, ItemReferenceParam]`
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum InputItem {
+    /// A reference to an existing item by ID.
+    /// Has a required `id` field and optional `type` (can be "item_reference" or null).
+    /// Must be tried first as it's the most minimal structure.
+    ItemReference(ItemReference),
+
+    /// All structured items with proper type discrimination.
+    /// Includes InputMessage, OutputMessage, and all tool calls/outputs.
+    /// Uses the discriminated `Item` enum for efficient, type-safe deserialization.
+    Item(Item),
+
+    /// A simple, user-friendly message input (EasyInputMessage).
+    /// Supports string content and can include assistant role for previous responses.
+    /// Must be tried last as it's the most flexible structure.
+    ///
+    /// A message input to the model with a role indicating instruction following
+    /// hierarchy. Instructions given with the `developer` or `system` role take
+    /// precedence over instructions given with the `user` role. Messages with the
+    /// `assistant` role are presumed to have been generated by the model in previous
+    /// interactions.
+    EasyMessage(EasyInputMessage),
+}
+
+impl InputItem {
+    /// Creates an InputItem from an item reference ID.
+    pub fn from_reference(id: impl Into<String>) -> Self {
+        Self::ItemReference(ItemReference::new(id))
+    }
+
+    /// Creates an InputItem from a structured Item.
+    pub fn from_item(item: Item) -> Self {
+        Self::Item(item)
+    }
+
+    /// Creates an InputItem from an EasyInputMessage.
+    pub fn from_easy_message(message: EasyInputMessage) -> Self {
+        Self::EasyMessage(message)
+    }
+
+    /// Creates a simple text message with the given role and content.
+    pub fn text_message(role: Role, content: impl Into<String>) -> Self {
+        Self::EasyMessage(EasyInputMessage {
+            r#type: InputMessageType::Message,
+            role,
+            content: EasyInputContent::Text(content.into()),
+        })
+    }
+}
+
+/// A message item used within the `Item` enum.
+///
+/// Both InputMessage and OutputMessage have `type: "message"`, so we use an untagged
+/// enum to distinguish them based on their structure:
+/// - OutputMessage: role=assistant, required id & status fields
+/// - InputMessage: role=user/system/developer, content is Vec<ContentType>, optional id/status
+///
+/// Note: EasyInputMessage is NOT included here - it's a separate variant in `InputItem`,
+/// not part of the structured `Item` enum.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum MessageItem {
+    /// An output message from the model (role: assistant, has required id & status).
+    /// This must come first as it has the most specific structure (required id and status fields).
+    Output(OutputMessage),
+
+    /// A structured input message (role: user/system/developer, content is Vec<ContentType>).
+    /// Has structured content list and optional id/status fields.
+    ///
+    /// A message input to the model with a role indicating instruction following hierarchy.
+    /// Instructions given with the `developer` or `system` role take precedence over instructions
+    /// given with the `user` role.
+    Input(InputMessage),
+}
+
+/// A reference to an existing item by ID.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ItemReference {
+    /// The type of item to reference. Can be "item_reference" or null.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<ItemReferenceType>,
+    /// The ID of the item to reference.
+    pub id: String,
+}
+
+impl ItemReference {
+    /// Create a new item reference with the given ID.
+    pub fn new(id: impl Into<String>) -> Self {
+        Self {
+            r#type: Some(ItemReferenceType::ItemReference),
+            id: id.into(),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum ItemReferenceType {
+    ItemReference,
+}
+
+/// Output from a function call that you're providing back to the model.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct FunctionCallOutputItemParam {
+    /// The unique ID of the function tool call generated by the model.
+    pub call_id: String,
+    /// Text, image, or file output of the function tool call.
+    pub output: FunctionCallOutput,
+    /// The unique ID of the function tool call output.
+    /// Populated when this item is returned via API.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// The status of the item. One of `in_progress`, `completed`, or `incomplete`.
+    /// Populated when items are returned via API.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<OutputStatus>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum FunctionCallOutput {
+    /// A JSON string of the output of the function tool call.
+    Text(String),
+    Content(Vec<InputContent>), // TODO use shape which allows null from OpenAPI spec?
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ComputerCallOutputItemParam {
+    /// The ID of the computer tool call that produced the output.
+    pub call_id: String,
+    /// A computer screenshot image used with the computer use tool.
+    pub output: ComputerScreenshotImage,
+    /// The safety checks reported by the API that have been acknowledged by the developer.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub acknowledged_safety_checks: Option<Vec<ComputerCallSafetyCheckParam>>,
+    /// The unique ID of the computer tool call output. Optional when creating.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// The status of the message input. One of `in_progress`, `completed`, or `incomplete`.
+    /// Populated when input items are returned via API.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<OutputStatus>, // TODO rename OutputStatus?
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum ComputerScreenshotImageType {
+    ComputerScreenshot,
+}
+
+/// A computer screenshot image used with the computer use tool.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ComputerScreenshotImage {
+    /// Specifies the event type. For a computer screenshot, this property is always
+    /// set to `computer_screenshot`.
+    pub r#type: ComputerScreenshotImageType,
+    /// The identifier of an uploaded file that contains the screenshot.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub file_id: Option<String>,
+    /// The URL of the screenshot image.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub image_url: Option<String>,
+}
+
+/// Output from a local shell tool call that you're providing back to the model.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct LocalShellToolCallOutput {
+    /// The unique ID of the local shell tool call generated by the model.
+    pub id: String,
+
+    /// A JSON string of the output of the local shell tool call.
+    pub output: String,
+
+    /// The status of the item. One of `in_progress`, `completed`, or `incomplete`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<OutputStatus>,
+}
+
+/// Output from a local shell command execution.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct LocalShellOutput {
+    /// The stdout output from the command.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stdout: Option<String>,
+
+    /// The stderr output from the command.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stderr: Option<String>,
+
+    /// The exit code of the command.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub exit_code: Option<i32>,
+}
+
+/// An MCP approval response that you're providing back to the model.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct MCPApprovalResponse {
+    /// The ID of the approval request being answered.
+    pub approval_request_id: String,
+
+    /// Whether the request was approved.
+    pub approve: bool,
+
+    /// The unique ID of the approval response
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// Optional reason for the decision.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reason: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum CustomToolCallOutputOutput {
+    /// A string of the output of the custom tool call.
+    Text(String),
+    /// Text, image, or file output of the custom tool call.
+    List(Vec<InputContent>),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct CustomToolCallOutput {
+    /// The call ID, used to map this custom tool call output to a custom tool call.
+    pub call_id: String,
+
+    /// The output from the custom tool call generated by your code.
+    /// Can be a string or an list of output content.
+    pub output: CustomToolCallOutputOutput,
+
+    /// The unique ID of the custom tool call output in the OpenAI platform.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+}
+
+/// A simplified message input to the model (EasyInputMessage in the OpenAPI spec).
+///
+/// This is the most user-friendly way to provide messages, supporting both simple
+/// string content and structured content. Role can include `assistant` for providing
+/// previous assistant responses.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[builder(
+    name = "EasyInputMessageArgs",
+    pattern = "mutable",
+    setter(into, strip_option),
+    default
+)]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct EasyInputMessage {
+    /// The type of the message input. Always set to `message`.
+    pub r#type: MessageType,
+    /// The role of the message input. One of `user`, `assistant`, `system`, or `developer`.
+    pub role: Role,
+    /// Text, image, or audio input to the model, used to generate a response.
+    /// Can also contain previous assistant responses.
+    pub content: EasyInputContent,
+}
+
+/// A structured message input to the model (InputMessage in the OpenAPI spec).
+///
+/// This variant requires structured content (not a simple string) and does not support
+/// the `assistant` role (use OutputMessage for that). Used when items are returned via API
+/// with additional metadata.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(
     name = "InputMessageArgs",
@@ -55,45 +403,56 @@ pub enum InputItem {
 )]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct InputMessage {
-    #[serde(default, rename = "type")]
-    pub kind: InputMessageType,
-    /// The role of the message input.
-    pub role: Role,
-    /// Text, image, or audio input to the model, used to generate a response. Can also contain
-    /// previous assistant responses.
-    pub content: InputContent,
+    /// A list of one or many input items to the model, containing different content types.
+    pub content: Vec<InputContent>,
+    /// The role of the message input. One of `user`, `system`, or `developer`.
+    /// Note: `assistant` is NOT allowed here; use OutputMessage instead.
+    pub role: InputRole,
+    /// The status of the item. One of `in_progress`, `completed`, or `incomplete`.
+    /// Populated when items are returned via API.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<OutputStatus>, // TODO rename OutputStatus to ItemStatus maybe?
+    /// The type of the message input. Always set to `message`.
+    pub r#type: MessageType,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
-#[serde(rename_all = "snake_case")]
-pub enum InputMessageType {
+/// The role for an input message - can only be `user`, `system`, or `developer`.
+/// This type ensures type safety by excluding the `assistant` role (use OutputMessage for that).
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum InputRole {
     #[default]
-    Message,
+    User,
+    System,
+    Developer,
 }
 
+/// Content for EasyInputMessage - can be a simple string or structured list.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(untagged)]
-pub enum InputContent {
+pub enum EasyInputContent {
     /// A text input to the model.
-    TextInput(String),
+    Text(String),
     /// A list of one or many input items to the model, containing different content types.
-    InputItemContentList(Vec<ContentType>),
+    ContentList(Vec<InputContent>),
 }
 
 /// Parts of a message: text, image, file, or audio.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum ContentType {
+pub enum InputContent {
     /// A text input to the model.
-    InputText(InputText),
-    /// An image input to the model.
-    InputImage(InputImage),
+    InputText(InputTextContent),
+    /// An image input to the model. Learn about
+    /// [image inputs](https://platform.openai.com/docs/guides/vision).
+    InputImage(InputImageContent),
     /// A file input to the model.
-    InputFile(InputFile),
+    InputFile(InputFileContent),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct InputText {
+pub struct InputTextContent {
+    /// The text input to the model.
     pub text: String,
 }
 
@@ -105,8 +464,9 @@ pub struct InputText {
     default
 )]
 #[builder(build_fn(error = "OpenAIError"))]
-pub struct InputImage {
-    /// The detail level of the image to be sent to the model.
+pub struct InputImageContent {
+    /// The detail level of the image to be sent to the model. One of `high`, `low`, or `auto`.
+    /// Defaults to `auto`.
     detail: ImageDetail,
     /// The ID of the file to be sent to the model.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -125,19 +485,19 @@ pub struct InputImage {
     default
 )]
 #[builder(build_fn(error = "OpenAIError"))]
-pub struct InputFile {
+pub struct InputFileContent {
     /// The content of the file to be sent to the model.
     #[serde(skip_serializing_if = "Option::is_none")]
     file_data: Option<String>,
     /// The ID of the file to be sent to the model.
     #[serde(skip_serializing_if = "Option::is_none")]
     file_id: Option<String>,
-    /// The name of the file to be sent to the model.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    filename: Option<String>,
     /// The URL of the file to be sent to the model.
     #[serde(skip_serializing_if = "Option::is_none")]
     file_url: Option<String>,
+    /// The name of the file to be sent to the model.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    filename: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -312,9 +672,16 @@ pub struct CreateResponse {
     pub user: Option<String>,
 }
 
-/// Service tier request options.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct PromptConfig {
+#[serde(untagged)]
+pub enum ResponsePromptVariables {
+    String(String),
+    Content(InputContent),
+    Custom(serde_json::Value),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Prompt {
     /// The unique identifier of the prompt template to use.
     pub id: String,
 
@@ -322,17 +689,17 @@ pub struct PromptConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
 
-    /// Optional map of values to substitute in for variables in your prompt. The substitution
-    /// values can either be strings, or other Response input types like images or files.
-    /// For now only supporting Strings.
+    /// Optional map of values to substitute in for variables in your
+    /// prompt. The substitution values can either be strings, or other
+    /// Response input types like images or files.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub variables: Option<HashMap<String, String>>,
+    pub variables: Option<ResponsePromptVariables>,
 }
 
-/// Service tier request options.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum ServiceTier {
+    #[default]
     Auto,
     Default,
     Flex,
@@ -351,17 +718,27 @@ pub enum Truncation {
 /// o-series reasoning settings.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(
-    name = "ReasoningConfigArgs",
+    name = "ReasoningArgs",
     pattern = "mutable",
     setter(into, strip_option),
     default
 )]
 #[builder(build_fn(error = "OpenAIError"))]
-pub struct ReasoningConfig {
-    /// Constrain effort on reasoning.
+pub struct Reasoning {
+    /// Constrains effort on reasoning for
+    /// [reasoning models](https://platform.openai.com/docs/guides/reasoning).
+    /// Currently supported values are `minimal`, `low`, `medium`, and `high`. Reducing
+    /// reasoning effort can result in faster responses and fewer tokens used
+    /// on reasoning in a response.
+    ///
+    /// Note: The `gpt-5-pro` model defaults to (and only supports) `high` reasoning effort.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub effort: Option<ReasoningEffort>,
-    /// Summary mode for reasoning.
+    /// A summary of the reasoning performed by the model. This can be
+    /// useful for debugging and understanding the model's reasoning process.
+    /// One of `auto`, `concise`, or `detailed`.
+    ///
+    /// `concise` is only supported for `computer-use-preview` models.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<ReasoningSummary>,
 }
@@ -385,22 +762,42 @@ pub enum ReasoningSummary {
 
 /// Configuration for text response format.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct TextConfig {
-    /// Defines the format: plain text, JSON object, or JSON schema.
-    pub format: TextResponseFormat,
+pub struct ResponseTextParam {
+    /// An object specifying the format that the model must output.
+    ///
+    /// Configuring `{ "type": "json_schema" }` enables Structured Outputs,
+    /// which ensures the model will match your supplied JSON schema. Learn more in the
+    /// [Structured Outputs guide](https://platform.openai.com/docs/guides/structured-outputs).
+    ///
+    /// The default format is `{ "type": "text" }` with no additional options.
+    ///
+    /// **Not recommended for gpt-4o and newer models:**
+    ///
+    /// Setting to `{ "type": "json_object" }` enables the older JSON mode, which
+    /// ensures the message the model generates is valid JSON. Using `json_schema`
+    /// is preferred for models that support it.
+    pub format: TextResponseFormatConfiguration,
 
+    /// Constrains the verbosity of the model's response. Lower values will result in
+    /// more concise responses, while higher values will result in more verbose responses.
+    ///
+    /// Currently supported values are `low`, `medium`, and `high`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verbosity: Option<Verbosity>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum TextResponseFormat {
-    /// The type of response format being defined: `text`
+pub enum TextResponseFormatConfiguration {
+    /// Default response format. Used to generate text responses.
     Text,
-    /// The type of response format being defined: `json_object`
+    /// JSON object response format. An older method of generating JSON responses.
+    /// Using `json_schema` is recommended for models that support it.
+    /// Note that the model will not generate JSON without a system or user message
+    /// instructing it to do so.
     JsonObject,
-    /// The type of response format being defined: `json_schema`
+    /// JSON Schema response format. Used to generate structured JSON responses.
+    /// Learn more about [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs).
     JsonSchema(ResponseFormatJsonSchema),
 }
 
@@ -621,7 +1018,7 @@ pub struct Mcp {
     pub allowed_tools: Option<AllowedTools>,
     /// Optional HTTP headers for the MCP server.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub headers: Option<Value>,
+    pub headers: Option<serde_json::Value>,
     /// Approval policy or filter for tools.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub require_approval: Option<RequireApproval>,
@@ -948,10 +1345,28 @@ pub struct OutputMessage {
     /// The unique ID of the output message.
     pub id: String,
     /// The role of the output message. Always `assistant`.
-    pub role: Role,
+    pub role: AssistantRole,
     /// The status of the message input. One of `in_progress`, `completed`, or
     /// `incomplete`. Populated when input items are returned via API.
     pub status: OutputStatus,
+    /// The type of the output message. Always `message`.
+    pub r#type: MessageType,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum MessageType {
+    #[default]
+    Message,
+}
+
+/// The role for an output message - always `assistant`.
+/// This type ensures type safety by only allowing the assistant role.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum AssistantRole {
+    #[default]
+    Assistant,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -964,35 +1379,38 @@ pub enum OutputMessageContent {
 }
 
 /// Nested content within an output message.
+///
+/// Note: This enum is similar to OutputItem but may be used in different contexts.
+/// Consider using OutputItem directly if it fits your use case.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum OutputContent {
     /// An output message from the model.
     Message(OutputMessage),
     /// The results of a file search tool call.
-    FileSearchCall(FileSearchCallOutput),
+    FileSearchCall(FileSearchToolCall),
     /// A tool call to run a function.
-    FunctionCall(FunctionCall),
+    FunctionCall(FunctionToolCall),
     /// The results of a web search tool call.
-    WebSearchCall(WebSearchCallOutput),
+    WebSearchCall(WebSearchToolCall),
     /// A tool call to a computer use tool.
-    ComputerCall(ComputerCallOutput),
+    ComputerCall(ComputerToolCall),
     /// A description of the chain of thought used by a reasoning model while generating a response.
     /// Be sure to include these items in your input to the Responses API for subsequent turns of a
     /// conversation if you are manually managing context.
     Reasoning(ReasoningItem),
     /// Image generation tool call output.
-    ImageGenerationCall(ImageGenerationCallOutput),
+    ImageGenerationCall(ImageGenToolCall),
     /// Code interpreter tool call output.
-    CodeInterpreterCall(CodeInterpreterCallOutput),
+    CodeInterpreterCall(CodeInterpreterToolCall),
     /// Local shell tool call output.
-    LocalShellCall(LocalShellCallOutput),
+    LocalShellCall(LocalShellToolCall),
     /// MCP tool invocation output.
-    McpCall(McpCallOutput),
+    McpCall(MCPToolCall),
     /// MCP list-tools output.
-    McpListTools(McpListToolsOutput),
+    McpListTools(MCPListTools),
     /// MCP approval request output.
-    McpApprovalRequest(McpApprovalRequestOutput),
+    McpApprovalRequest(MCPApprovalRequest),
 }
 
 /// Reasoning text content.
@@ -1277,19 +1695,21 @@ pub struct Type {
     pub text: String,
 }
 
-/// Metadata for a function call request.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct FunctionToolCall {
-    /// The unique ID of the function tool call.
-    pub id: String,
+    /// A JSON string of the arguments to pass to the function.
+    pub arguments: String,
     /// The unique ID of the function tool call generated by the model.
     pub call_id: String,
     /// The name of the function to run.
     pub name: String,
-    /// A JSON string of the arguments to pass to the function.
-    pub arguments: String,
-    /// The status of the item.
-    pub status: OutputStatus,
+    /// The unique ID of the function tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// The status of the item. One of `in_progress`, `completed`, or `incomplete`.
+    /// Populated when items are returned via API.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<OutputStatus>, // TODO rename OutputStatus?
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -1301,7 +1721,6 @@ pub enum ImageGenToolCallStatus {
     Failed,
 }
 
-/// Output of an image generation request.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ImageGenToolCall {
     /// The unique ID of the image generation call.
@@ -1371,7 +1790,6 @@ pub struct CodeInterpreterFile {
     mime_type: String,
 }
 
-/// Output of a local shell command request.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct LocalShellToolCall {
     /// Execute a shell command on the server.
@@ -1381,7 +1799,7 @@ pub struct LocalShellToolCall {
     /// The unique ID of the local shell call.
     pub id: String,
     /// The status of the local shell call.
-    pub status: String,
+    pub status: OutputStatus,
 }
 
 /// Define the shape of a local shell action (exec).
@@ -1460,7 +1878,6 @@ pub struct MCPListToolsTool {
     pub description: Option<String>,
 }
 
-/// Output representing a human approval request for an MCP tool.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct MCPApprovalRequest {
     /// JSON string of arguments for the tool.
@@ -1556,48 +1973,79 @@ pub struct Response {
 
     /// An array of content items generated by the model.
     ///
-    /// The length and order of items in the output array is dependent on the model's response.
-    /// Rather than accessing the first item in the output array and assuming it's an assistant
-    /// message with the content generated by the model, you might consider using
-    /// the `output_text` property where supported in SDKs.
+    /// - The length and order of items in the output array is dependent on the model's response.
+    /// - Rather than accessing the first item in the output array and assuming it's an assistant
+    ///   message with the content generated by the model, you might consider using
+    ///   the `output_text` property where supported in SDKs.
     pub output: Vec<OutputItem>,
 
     /// SDK-only convenience property that contains the aggregated text output from all
     /// `output_text` items in the `output` array, if any are present.
     /// Supported in the Python and JavaScript SDKs.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub output_text: Option<String>,
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    // pub output_text: Option<String>,
 
-    /// Whether parallel tool calls were enabled.
+    /// Whether to allow the model to run tool calls in parallel.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parallel_tool_calls: Option<bool>,
 
-    /// Previous response ID, if creating part of a multi-turn conversation.
+    /// The unique ID of the previous response to the model. Use this to create multi-turn conversations.
+    /// Learn more about [conversation state](https://platform.openai.com/docs/guides/conversation-state).
+    /// Cannot be used in conjunction with `conversation`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub previous_response_id: Option<String>,
 
-    /// Reasoning configuration echoed back (effort, summary settings).
+    /// Reference to a prompt template and its variables.
+    /// [Learn more](https://platform.openai.com/docs/guides/text?api-mode=responses#reusable-prompts).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub reasoning: Option<ReasoningConfig>,
+    pub prompt: Option<Prompt>,
 
-    /// Whether to store the generated model response for later retrieval via API.
+    /// Used by OpenAI to cache responses for similar requests to optimize your cache hit rates. Replaces
+    /// the `user` field. [Learn more](https://platform.openai.com/docs/guides/prompt-caching).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub store: Option<bool>,
+    pub prompt_cache_key: Option<String>,
 
-    /// The service tier that actually processed this response.
+    /// **gpt-5 and o-series models only**
+    /// Configuration options for [reasoning models](https://platform.openai.com/docs/guides/reasoning).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reasoning: Option<Reasoning>,
+
+    /// A stable identifier used to help detect users of your application that may be violating OpenAI's
+    /// usage policies.
+    ///
+    /// The IDs should be a string that uniquely identifies each user. We recommend hashing their username
+    /// or email address, in order to avoid sending us any identifying information. [Learn
+    /// more](https://platform.openai.com/docs/guides/safety-best-practices#safety-identifiers).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub safety_identifier: Option<String>,
+
+    /// Specifies the processing type used for serving the request.
+    /// - If set to 'auto', then the request will be processed with the service tier configured in the Project settings. Unless otherwise configured, the Project will use 'default'.
+    /// - If set to 'default', then the request will be processed with the standard pricing and performance for the selected model.
+    /// - If set to '[flex](https://platform.openai.com/docs/guides/flex-processing)' or '[priority](https://openai.com/api-priority-processing/)', then the request will be processed with the corresponding service tier.
+    /// - When not set, the default behavior is 'auto'.
+    ///
+    /// When the `service_tier` parameter is set, the response body will include the `service_tier` value based on the processing mode actually used to serve the request. This response value may be different from the value set in the parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub service_tier: Option<ServiceTier>,
 
     /// The status of the response generation.
+    /// One of `completed`, `failed`, `in_progress`, `cancelled`, `queued`, or `incomplete`.
     pub status: Status,
 
-    /// Sampling temperature that was used.
+    /// What sampling temperature was used, between 0 and 2. Higher values like 0.8 make
+    /// outputs more random, lower values like 0.2 make output more focused and deterministic.
+    ///
+    /// We generally recommend altering this or `top_p` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature: Option<f32>,
 
-    /// Text format configuration echoed back (plain, json_object, json_schema).
+    /// Configuration options for a text response from the model. Can be plain
+    /// text or structured JSON data. Learn more:
+    /// - [Text inputs and outputs](https://platform.openai.com/docs/guides/text)
+    /// - [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub text: Option<TextConfig>,
+    pub text: Option<ResponseTextParam>,
 
     /// How the model chose or was forced to choose a tool.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1630,6 +2078,8 @@ pub enum Status {
     Completed,
     Failed,
     InProgress,
+    Cancelled,
+    Queued,
     Incomplete,
 }
 
