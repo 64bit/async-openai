@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::responses::RequireApproval;
+use crate::types::MCPTool;
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct AudioTranscription {
@@ -103,67 +103,6 @@ pub struct FunctionTool {
     pub description: String,
     /// Parameters of the function in JSON Schema.
     pub parameters: serde_json::Value,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(untagged)]
-pub enum AllowedTools {
-    /// A string array of allowed tool names
-    List(Vec<String>),
-    /// A filter object to specify which tools are allowed.
-    Filter(MCPAllowedToolsFilter),
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct MCPAllowedToolsFilter {
-    /// Indicates whether or not a tool modifies data or is read-only.
-    /// If an MCP server is annotated with [readOnlyHint](https://modelcontextprotocol.io/specification/2025-06-18/schema#toolannotations-readonlyhint),
-    /// it will match this filter.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub read_only: Option<bool>,
-    /// List of allowed tool names.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tool_names: Option<Vec<String>>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct MCPTool {
-    /// A label for this MCP server, used to identify it in tool calls.
-    pub server_label: String,
-
-    /// List of allowed tool names or a filter object.
-    pub allowed_tools: AllowedTools,
-
-    /// An OAuth access token that can be used with a remote MCP server, either with a custom MCP
-    /// server URL or a service connector. Your application must handle the OAuth authorization
-    /// flow and provide the token here.
-    pub authorization: Option<String>,
-
-    /// Identifier for service connectors, like those available in ChatGPT. One of `server_url` or
-    /// `connector_id` must be provided. Learn more about service connectors [here](https://platform.openai.com/docs/guides/tools-remote-mcp#connectors).
-    ///
-    /// Currently supported `connector_id` values are:
-    /// - Dropbox: `connector_dropbox`
-    /// - Gmail: `connector_gmail`
-    /// - Google Calendar: `connector_googlecalendar`
-    /// - Google Drive: `connector_googledrive`
-    /// - Microsoft Teams: `connector_microsoftteams`
-    /// - Outlook Calendar: `connector_outlookcalendar`
-    /// - Outlook Email: `connector_outlookemail`
-    /// - SharePoint: `connector_sharepoint`
-    pub connector_id: Option<String>,
-
-    /// Optional HTTP headers to send to the MCP server. Use for authentication or other purposes.
-    pub headers: Option<serde_json::Value>,
-
-    /// Specify which of the MCP server's tools require approval.
-    pub require_approval: Option<RequireApproval>,
-
-    /// Optional description of the MCP server, used to provide more context.
-    pub server_description: Option<String>,
-
-    /// The URL for the MCP server. One of `server_url` or `connector_id` must be provided.
-    pub server_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

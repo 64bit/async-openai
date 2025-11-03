@@ -1,4 +1,5 @@
 use crate::error::OpenAIError;
+use crate::types::MCPTool;
 pub use crate::types::{
     CompletionTokensDetails, ImageDetail, PromptTokensDetails, ReasoningEffort,
     ResponseFormatJsonSchema,
@@ -174,7 +175,7 @@ impl InputItem {
     /// Creates a simple text message with the given role and content.
     pub fn text_message(role: Role, content: impl Into<String>) -> Self {
         Self::EasyMessage(EasyInputMessage {
-            r#type: InputMessageType::Message,
+            r#type: MessageType::Message,
             role,
             content: EasyInputContent::Text(content.into()),
         })
@@ -804,34 +805,87 @@ pub enum TextResponseFormatConfiguration {
 /// Definitions for model-callable tools.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum ToolDefinition {
-    /// File search tool.
-    FileSearch(FileSearch),
-    /// Custom function call.
-    Function(Function),
-    /// Web search preview tool.
-    WebSearchPreview(WebSearchPreview),
-    /// Virtual computer control tool.
-    ComputerUsePreview(ComputerUsePreview),
-    /// Remote Model Context Protocol server.
-    Mcp(Mcp),
-    /// Python code interpreter tool.
-    CodeInterpreter(CodeInterpreter),
-    /// Image generation tool.
-    ImageGeneration(ImageGeneration),
-    /// Local shell command execution tool.
+pub enum Tool {
+    /// Defines a function in your own code the model can choose to call. Learn more about [function
+    /// calling](https://platform.openai.com/docs/guides/tools).
+    Function(FunctionTool),
+    /// A tool that searches for relevant content from uploaded files. Learn more about the [file search
+    /// tool](https://platform.openai.com/docs/guides/tools-file-search).
+    FileSearch(FileSearchTool),
+    /// A tool that controls a virtual computer. Learn more about the [computer
+    /// use tool](https://platform.openai.com/docs/guides/tools-computer-use).
+    ComputerUsePreview(ComputerUsePreviewTool),
+    /// Search the Internet for sources related to the prompt. Learn more about the
+    /// [web search tool](https://platform.openai.com/docs/guides/tools-web-search).
+    WebSearch(WebSearchTool),
+    /// type: web_search_2025_08_26
+    #[serde(rename = "web_search_2025_08_26")]
+    WebSearch20250826(WebSearchTool),
+    /// Give the model access to additional tools via remote Model Context Protocol
+    /// (MCP) servers. [Learn more about MCP](https://platform.openai.com/docs/guides/tools-remote-mcp).
+    Mcp(MCPTool),
+    /// A tool that runs Python code to help generate a response to a prompt.
+    CodeInterpreter(CodeInterpreterTool),
+    /// A tool that generates images using a model like `gpt-image-1`.
+    ImageGeneration(ImageGenTool),
+    /// A tool that allows the model to execute shell commands in a local environment.
     LocalShell,
+    /// A custom tool that processes input using a specified format. Learn more about   [custom
+    /// tools](https://platform.openai.com/docs/guides/function-calling#custom-tools)
+    Custom(CustomToolParam),
+    /// This tool searches the web for relevant results to use in a response. Learn more about the [web search
+    ///tool](https://platform.openai.com/docs/guides/tools-web-search).
+    WebSearchPreview(WebSearchTool),
+    /// type: web_search_preview_2025_03_11
+    #[serde(rename = "web_search_preview_2025_03_11")]
+    WebSearchPreview20250311(WebSearchTool),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+pub struct CustomToolParam {
+    /// The name of the custom tool, used to identify it in tool calls.
+    pub name: String,
+    /// Optional description of the custom tool, used to provide more context.
+    pub description: Option<String>,
+    /// The input format for the custom tool. Default is unconstrained text.
+    pub format: CustomToolParamFormat,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum GrammarSyntax {
+    Lark,
+    #[default]
+    Regex,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder, Default)]
+pub struct CustomGrammarFormatParam {
+    /// The grammar definition.
+    pub definition: String,
+    /// The syntax of the grammar definition. One of `lark` or `regex`.
+    pub syntax: GrammarSyntax,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[serde(tag = "type", rename_all = "lowercase")]
+pub enum CustomToolParamFormat {
+    /// Unconstrained free-form text.
+    #[default]
+    Text,
+    /// A grammar defined by the user.
+    Grammar(CustomGrammarFormatParam),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(
-    name = "FileSearchArgs",
+    name = "FileSearchToolArgs",
     pattern = "mutable",
     setter(into, strip_option),
     default
 )]
 #[builder(build_fn(error = "OpenAIError"))]
-pub struct FileSearch {
+pub struct FileSearchTool {
     /// The IDs of the vector stores to search.
     pub vector_store_ids: Vec<String>,
     /// The maximum number of results to return. This number should be between 1 and 50 inclusive.
@@ -847,69 +901,117 @@ pub struct FileSearch {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(
-    name = "FunctionArgs",
+    name = "FunctionToolArgs",
     pattern = "mutable",
     setter(into, strip_option),
     default
 )]
-pub struct Function {
+pub struct FunctionTool {
     /// The name of the function to call.
     pub name: String,
     /// A JSON schema object describing the parameters of the function.
-    pub parameters: serde_json::Value,
-    /// Whether to enforce strict parameter validation.
-    pub strict: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parameters: Option<serde_json::Value>,
+    /// Whether to enforce strict parameter validation. Default `true`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub strict: Option<bool>,
     /// A description of the function. Used by the model to determine whether or not to call the
     /// function.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct WebSearchToolFilters {
+    /// Allowed domains for the search. If not provided, all domains are allowed.
+    /// Subdomains of the provided domains are allowed as well.
+    ///
+    /// Example: `["pubmed.ncbi.nlm.nih.gov"]`
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allowed_domains: Option<Vec<String>>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(
-    name = "WebSearchPreviewArgs",
+    name = "WebSearchToolArgs",
     pattern = "mutable",
     setter(into, strip_option),
     default
 )]
-pub struct WebSearchPreview {
-    /// The user's location.
+pub struct WebSearchTool {
+    /// Filters for the search.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub user_location: Option<Location>,
-    /// High level guidance for the amount of context window space to use for the search.
+    pub filters: Option<WebSearchToolFilters>,
+    /// The approximate location of the user.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub search_context_size: Option<WebSearchContextSize>,
+    pub user_location: Option<WebSearchApproximateLocation>,
+    /// High level guidance for the amount of context window space to use for the search. One of `low`,
+    /// `medium`, or `high`. `medium` is the default.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub search_context_size: Option<WebSearchToolSearchContextSize>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
 #[serde(rename_all = "lowercase")]
-pub enum WebSearchContextSize {
+pub enum WebSearchToolSearchContextSize {
     Low,
+    #[default]
     Medium,
     High,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ComputerEnvironment {
+    Windows,
+    Mac,
+    Linux,
+    Ubuntu,
+    #[default]
+    Browser,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(
-    name = "ComputerUsePreviewArgs",
+    name = "ComputerUsePreviewToolArgs",
     pattern = "mutable",
     setter(into, strip_option),
     default
 )]
-pub struct ComputerUsePreview {
+pub struct ComputerUsePreviewTool {
     /// The type of computer environment to control.
-    environment: String,
+    environment: ComputerEnvironment,
     /// The width of the computer display.
     display_width: u32,
     /// The height of the computer display.
     display_height: u32,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+pub enum RankVersionType {
+    #[serde(rename = "auto")]
+    Auto,
+    #[serde(rename = "default-2024-11-15")]
+    Default20241115,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct HybridSearch {
+    /// The weight of the embedding in the reciprocal ranking fusion.
+    pub embedding_weight: f32,
+    /// The weight of the text in the reciprocal ranking fusion.
+    pub text_weight: f32,
+}
+
 /// Options for search result ranking.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct RankingOptions {
+    /// Weights that control how reciprocal rank fusion balances semantic embedding matches versus
+    /// sparse keyword matches when hybrid search is enabled.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hybrid_search: Option<HybridSearch>,
     /// The ranker to use for the file search.
-    pub ranker: String,
+    pub ranker: RankVersionType,
     /// The score threshold for the file search, a number between 0 and 1. Numbers closer to 1 will
     /// attempt to return only the most relevant results, but may return fewer results.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -923,16 +1025,23 @@ pub enum Filter {
     /// A filter used to compare a specified attribute key to a given value using a defined
     /// comparison operation.
     Comparison(ComparisonFilter),
-    /// Combine multiple filters using and or or.
+    /// Combine multiple filters using `and` or `or`.
     Compound(CompoundFilter),
 }
 
 /// Single comparison filter.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ComparisonFilter {
-    /// Specifies the comparison operator
-    #[serde(rename = "type")]
-    pub op: ComparisonType,
+    /// Specifies the comparison operator: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `nin`.
+    /// - `eq`: equals
+    /// - `ne`: not equal
+    /// - `gt`: greater than
+    /// - `gte`: greater than or equal
+    /// - `lt`: less than
+    /// - `lte`: less than or equal
+    /// - `in`: in
+    /// - `nin`: not in
+    pub r#type: ComparisonType,
     /// The key to compare against the value.
     pub key: String,
     /// The value to compare against the attribute key; supports string, number, or boolean types.
@@ -948,19 +1057,22 @@ pub enum ComparisonType {
     #[serde(rename = "gt")]
     GreaterThan,
     #[serde(rename = "gte")]
-    GreaterThanOrEqualTo,
+    GreaterThanOrEqual,
     #[serde(rename = "lt")]
     LessThan,
     #[serde(rename = "lte")]
-    LessThanOrEqualTo,
+    LessThanOrEqual,
+    #[serde(rename = "in")]
+    In,
+    #[serde(rename = "nin")]
+    NotIn,
 }
 
-/// Combine multiple filters.
+/// Combine multiple filters using `and` or `or`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CompoundFilter {
-    /// Type of operation
-    #[serde(rename = "type")]
-    pub op: CompoundType,
+    /// 'Type of operation: `and` or `or`.'
+    pub r#type: CompoundType,
     /// Array of filters to combine. Items can be ComparisonFilter or CompoundFilter.
     pub filters: Vec<Filter>,
 }
@@ -972,148 +1084,109 @@ pub enum CompoundType {
     Or,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum WebSearchApproximateLocationType {
+    #[default]
+    Approximate,
+}
+
 /// Approximate user location for web search.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(
-    name = "LocationArgs",
+    name = "WebSearchApproximateLocationArgs",
     pattern = "mutable",
     setter(into, strip_option),
     default
 )]
 #[builder(build_fn(error = "OpenAIError"))]
-pub struct Location {
-    /// The type of location approximation. Always approximate.
-    #[serde(rename = "type")]
-    pub kind: String,
-    /// Free text input for the city of the user, e.g. San Francisco.
+pub struct WebSearchApproximateLocation {
+    /// The type of location approximation. Always `approximate`.
+    pub r#type: WebSearchApproximateLocationType,
+    /// Free text input for the city of the user, e.g. `San Francisco`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
-    /// The two-letter ISO country code of the user, e.g. US.
+    /// The two-letter [ISO country code](https://en.wikipedia.org/wiki/ISO_3166-1) of the user,
+    /// e.g. `US`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<String>,
-    /// Free text input for the region of the user, e.g. California.
+    /// Free text input for the region of the user, e.g. `California`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub region: Option<String>,
-    /// The IANA timezone of the user, e.g. America/Los_Angeles.
+    /// The [IANA timezone](https://timeapi.io/documentation/iana-timezones) of the user, e.g.
+    /// `America/Los_Angeles`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub timezone: Option<String>,
 }
 
-/// MCP (Model Context Protocol) tool configuration.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
-#[builder(
-    name = "McpArgs",
-    pattern = "mutable",
-    setter(into, strip_option),
-    default
-)]
-#[builder(build_fn(error = "OpenAIError"))]
-pub struct Mcp {
-    /// A label for this MCP server.
-    pub server_label: String,
-    /// The URL for the MCP server.
-    pub server_url: String,
-    /// List of allowed tool names or filter object.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub allowed_tools: Option<AllowedTools>,
-    /// Optional HTTP headers for the MCP server.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub headers: Option<serde_json::Value>,
-    /// Approval policy or filter for tools.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub require_approval: Option<RequireApproval>,
-}
-
-/// Allowed tools configuration for MCP.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(untagged)]
-pub enum AllowedTools {
-    /// A flat list of allowed tool names.
-    List(Vec<String>),
-    /// A filter object specifying allowed tools.
-    Filter(McpAllowedToolsFilter),
-}
-
-/// Filter object for MCP allowed tools.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct McpAllowedToolsFilter {
-    /// Names of tools in the filter
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tool_names: Option<Vec<String>>,
-}
-
-/// Approval policy or filter for MCP tools.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(untagged)]
-pub enum RequireApproval {
-    /// A blanket policy: "always" or "never".
-    Policy(RequireApprovalPolicy),
-    /// A filter object specifying which tools require approval.
-    Filter(McpApprovalFilter),
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum RequireApprovalPolicy {
-    Always,
-    Never,
-}
-
-/// Filter object for MCP tool approval.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct McpApprovalFilter {
-    /// A list of tools that always require approval.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub always: Option<McpAllowedToolsFilter>,
-    /// A list of tools that never require approval.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub never: Option<McpAllowedToolsFilter>,
-}
-
 /// Container configuration for a code interpreter.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(untagged)]
-pub enum CodeInterpreterContainer {
-    /// A simple container ID.
-    Id(String),
-    /// Auto-configured container with optional files.
-    Container(CodeInterpreterContainerKind),
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum CodeInterpreterToolContainer {
+    /// Configuration for a code interpreter container. Optionally specify the IDs of the
+    /// files to run the code on.
+    Auto(CodeInterpreterContainerAuto),
+
+    /// The container ID.
+    #[serde(untagged)]
+    ContainerID(String),
+}
+
+impl Default for CodeInterpreterToolContainer {
+    fn default() -> Self {
+        Self::Auto(CodeInterpreterContainerAuto::default())
+    }
 }
 
 /// Auto configuration for code interpreter container.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(tag = "type", rename_all = "snake_case")]
-pub enum CodeInterpreterContainerKind {
-    Auto {
-        /// Optional list of uploaded file IDs.
-        #[serde(skip_serializing_if = "Option::is_none")]
-        file_ids: Option<Vec<String>>,
-    },
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct CodeInterpreterContainerAuto {
+    /// An optional list of uploaded files to make available to your code.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub file_ids: Option<Vec<String>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub memory_limit: Option<u64>,
 }
 
-/// Code interpreter tool definition.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(
-    name = "CodeInterpreterArgs",
+    name = "CodeInterpreterToolArgs",
     pattern = "mutable",
     setter(into, strip_option),
     default
 )]
 #[builder(build_fn(error = "OpenAIError"))]
-pub struct CodeInterpreter {
-    /// Container configuration for running code.
-    pub container: CodeInterpreterContainer,
+pub struct CodeInterpreterTool {
+    /// The code interpreter container. Can be a container ID or an object that
+    /// specifies uploaded file IDs to make available to your code.
+    pub container: CodeInterpreterToolContainer,
 }
 
-/// Mask image input for image generation.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct InputImageMask {
+pub struct ImageGenToolInputImageMask {
     /// Base64-encoded mask image.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub image_url: Option<String>,
     /// File ID for the mask image.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub file_id: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum InputFidelity {
+    #[default]
+    High,
+    Low,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ImageGenToolModeration {
+    #[default]
+    Auto,
+    Low,
 }
 
 /// Image generation tool definition.
@@ -1125,64 +1198,78 @@ pub struct InputImageMask {
     default
 )]
 #[builder(build_fn(error = "OpenAIError"))]
-pub struct ImageGeneration {
-    /// Background type: transparent, opaque, or auto.
+pub struct ImageGenTool {
+    /// Background type for the generated image. One of `transparent`,
+    /// `opaque`, or `auto`. Default: `auto`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub background: Option<ImageGenerationBackground>,
-    /// Optional mask for inpainting.
+    pub background: Option<ImageGenToolBackground>,
+    /// Control how much effort the model will exert to match the style and features, especially facial features,
+    /// of input images. This parameter is only supported for `gpt-image-1`. Unsupported
+    /// for `gpt-image-1-mini`. Supports `high` and `low`. Defaults to `low`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub input_image_mask: Option<InputImageMask>,
-    /// Model to use (default: gpt-image-1).
+    pub input_fidelity: Option<InputFidelity>,
+    /// Optional mask for inpainting. Contains `image_url`
+    /// (string, optional) and `file_id` (string, optional).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_image_mask: Option<ImageGenToolInputImageMask>,
+    /// The image generation model to use. Default: `gpt-image-1`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
-    /// Moderation level (default: auto).
+    /// Moderation level for the generated image. Default: `auto`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub moderation: Option<String>,
-    /// Compression level (0-100).
+    pub moderation: Option<ImageGenToolModeration>,
+    /// Compression level for the output image. Default: 100.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub output_compression: Option<u8>,
-    /// Output format: png, webp, or jpeg.
+    /// The output format of the generated image. One of `png`, `webp`, or
+    /// `jpeg`. Default: `png`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub output_format: Option<ImageGenerationOutputFormat>,
-    /// Number of partial images (0-3).
+    pub output_format: Option<ImageGenToolOutputFormat>,
+    /// Number of partial images to generate in streaming mode, from 0 (default value) to 3.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub partial_images: Option<u8>,
-    /// Quality: low, medium, high, or auto.
+    /// The quality of the generated image. One of `low`, `medium`, `high`,
+    /// or `auto`. Default: `auto`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub quality: Option<ImageGenerationQuality>,
-    /// Size: e.g. "1024x1024" or auto.
+    pub quality: Option<ImageGenToolQuality>,
+    /// The size of the generated image. One of `1024x1024`, `1024x1536`,
+    /// `1536x1024`, or `auto`. Default: `auto`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub size: Option<ImageGenerationSize>,
+    pub size: Option<ImageGenToolSize>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
-pub enum ImageGenerationBackground {
+pub enum ImageGenToolBackground {
     Transparent,
     Opaque,
+    #[default]
     Auto,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
-pub enum ImageGenerationOutputFormat {
+pub enum ImageGenToolOutputFormat {
+    #[default]
     Png,
     Webp,
     Jpeg,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
-pub enum ImageGenerationQuality {
+pub enum ImageGenToolQuality {
     Low,
     Medium,
     High,
+    #[default]
     Auto,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
-pub enum ImageGenerationSize {
+pub enum ImageGenToolSize {
+    #[default]
     Auto,
     #[serde(rename = "1024x1024")]
     Size1024x1024,
@@ -1192,44 +1279,105 @@ pub enum ImageGenerationSize {
     Size1536x1024,
 }
 
-/// Control how the model picks or is forced to pick a tool.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(untagged)]
-pub enum ToolChoice {
-    /// Controls which (if any) tool is called by the model.
-    Mode(ToolChoiceMode),
-    /// Indicates that the model should use a built-in tool to generate a response.
-    Hosted {
-        /// The type of hosted tool the model should to use.
-        #[serde(rename = "type")]
-        kind: HostedToolType,
-    },
-    /// Use this option to force the model to call a specific function.
-    Function {
-        /// The name of the function to call.
-        name: String,
-    },
-}
-
-/// Simple tool-choice modes.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum ToolChoiceMode {
-    /// The model will not call any tool and instead generates a message.
-    None,
-    /// The model can pick between generating a message or calling one or more tools.
+pub enum ToolChoiceAllowedMode {
     Auto,
-    /// The model must call one or more tools.
     Required,
 }
 
-/// Hosted tool type identifiers.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
-#[serde(rename_all = "snake_case")]
-pub enum HostedToolType {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ToolChoiceAllowed {
+    /// Constrains the tools available to the model to a pre-defined set.
+    ///
+    /// `auto` allows the model to pick from among the allowed tools and generate a
+    /// message.
+    ///
+    /// `required` requires the model to call one or more of the allowed tools.
+    mode: ToolChoiceAllowedMode,
+    /// A list of tool definitions that the model should be allowed to call.
+    ///
+    /// For the Responses API, the list of tool definitions might look like:
+    /// ```json
+    /// [
+    ///   { "type": "function", "name": "get_weather" },
+    ///   { "type": "mcp", "server_label": "deepwiki" },
+    ///   { "type": "image_generation" }
+    /// ]
+    /// ```
+    tools: Vec<serde_json::Value>,
+}
+
+/// The type of hosted tool the model should to use. Learn more about
+/// [built-in tools](https://platform.openai.com/docs/guides/tools).
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ToolChoiceTypes {
     FileSearch,
     WebSearchPreview,
     ComputerUsePreview,
+    CodeInterpreter,
+    ImageGeneration,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ToolChoiceFunction {
+    /// The name of the function to call.
+    name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ToolChoiceMCP {
+    /// The name of the tool to call on the server.
+    name: String,
+    /// The label of the MCP server to use.
+    server_label: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ToolChoiceCustom {
+    /// The name of the custom tool to call.
+    name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ToolChoiceParam {
+    /// Constrains the tools available to the model to a pre-defined set.
+    AllowedTools(ToolChoiceAllowed),
+
+    /// Use this option to force the model to call a specific function.
+    Function(ToolChoiceFunction),
+
+    /// Use this option to force the model to call a specific tool on a remote MCP server.
+    Mcp(ToolChoiceMCP),
+
+    /// Use this option to force the model to call a custom tool.
+    Custom(ToolChoiceCustom),
+
+    /// Indicates that the model should use a built-in tool to generate a response.
+    /// [Learn more about built-in tools](https://platform.openai.com/docs/guides/tools).
+    #[serde(untagged)]
+    Hosted(ToolChoiceTypes),
+
+    /// Controls which (if any) tool is called by the model.
+    ///
+    /// `none` means the model will not call any tool and instead generates a message.
+    ///
+    /// `auto` means the model can pick between generating a message or calling one or
+    /// more tools.
+    ///
+    /// `required` means the model must call one or more tools.
+    #[serde(untagged)]
+    Mode(ToolChoiceOptions),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum ToolChoiceOptions {
+    None,
+    Auto,
+    Required,
 }
 
 /// Error returned by the API when a request fails.
@@ -1890,17 +2038,30 @@ pub struct MCPApprovalRequest {
     pub server_label: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct InputTokenDetails {
+    /// The number of tokens that were retrieved from the cache.
+    /// [More on prompt caching](https://platform.openai.com/docs/guides/prompt-caching).
+    pub cached_tokens: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct OutputTokenDetails {
+    /// The number of reasoning tokens.
+    pub reasoning_tokens: u32,
+}
+
 /// Usage statistics for a response.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct Usage {
+pub struct ResponseUsage {
     /// The number of input tokens.
     pub input_tokens: u32,
     /// A detailed breakdown of the input tokens.
-    pub input_tokens_details: PromptTokensDetails,
+    pub input_tokens_details: InputTokenDetails,
     /// The number of output tokens.
     pub output_tokens: u32,
     /// A detailed breakdown of the output tokens.
-    pub output_tokens_details: CompletionTokensDetails,
+    pub output_tokens_details: OutputTokenDetails,
     /// The total number of tokens used.
     pub total_tokens: u32,
 }
@@ -2047,29 +2208,58 @@ pub struct Response {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<ResponseTextParam>,
 
-    /// How the model chose or was forced to choose a tool.
+    /// How the model should select which tool (or tools) to use when generating
+    /// a response. See the `tools` parameter to see how to specify which tools
+    /// the model can call.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tool_choice: Option<ToolChoice>,
+    pub tool_choice: Option<ToolChoiceParam>,
 
-    /// Tool definitions that were provided.
+    /// An array of tools the model may call while generating a response. You
+    /// can specify which tool to use by setting the `tool_choice` parameter.
+    ///
+    /// We support the following categories of tools:
+    /// - **Built-in tools**: Tools that are provided by OpenAI that extend the
+    ///   model's capabilities, like [web search](https://platform.openai.com/docs/guides/tools-web-search)
+    ///   or [file search](https://platform.openai.com/docs/guides/tools-file-search). Learn more about
+    ///   [built-in tools](https://platform.openai.com/docs/guides/tools).
+    /// - **MCP Tools**: Integrations with third-party systems via custom MCP servers
+    ///   or predefined connectors such as Google Drive and SharePoint. Learn more about
+    ///   [MCP Tools](https://platform.openai.com/docs/guides/tools-connectors-mcp).
+    /// - **Function calls (custom tools)**: Functions that are defined by you,
+    ///   enabling the model to call your own code with strongly typed arguments
+    ///   and outputs. Learn more about
+    ///   [function calling](https://platform.openai.com/docs/guides/function-calling). You can also use
+    ///   custom tools to call your own code.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<Vec<ToolDefinition>>,
+    pub tools: Option<Vec<Tool>>,
 
-    /// Nucleus sampling cutoff that was used.
+    /// An integer between 0 and 20 specifying the number of most likely tokens to return at each
+    /// token position, each with an associated log probability.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub top_logprobs: Option<u8>,
+
+    /// An alternative to sampling with temperature, called nucleus sampling,
+    /// where the model considers the results of the tokens with top_p probability
+    /// mass. So 0.1 means only the tokens comprising the top 10% probability mass
+    /// are considered.
+    ///
+    /// We generally recommend altering this or `temperature` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub top_p: Option<f32>,
 
-    /// Truncation strategy that was applied.
+    ///The truncation strategy to use for the model response.
+    /// - `auto`: If the input to this Response exceeds
+    /// the model's context window size, the model will truncate the
+    /// response to fit the context window by dropping items from the beginning of the conversation.
+    /// - `disabled` (default): If the input size will exceed the context window
+    /// size for a model, the request will fail with a 400 error.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub truncation: Option<Truncation>,
 
-    /// Token usage statistics for this request.
+    /// Represents token usage details including input tokens, output tokens,
+    /// a breakdown of output tokens, and the total tokens used.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub usage: Option<Usage>,
-
-    /// End-user ID for which this response was generated.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub user: Option<String>,
+    pub usage: Option<ResponseUsage>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
