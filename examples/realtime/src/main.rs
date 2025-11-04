@@ -1,7 +1,7 @@
 use std::process::exit;
 
 use async_openai::types::realtime::{
-    ConversationItemCreateEvent, Item, RealtimeServerEvent, ResponseCreateEvent,
+    ConversationItemCreateEvent, RealtimeConversationItem, RealtimeServerEvent, ResponseCreateEvent,
 };
 use futures_util::{future, pin_mut, StreamExt};
 
@@ -107,7 +107,7 @@ async fn read_stdin(tx: futures_channel::mpsc::UnboundedSender<Message>) {
         }
 
         // Create item from json representation
-        let item = Item::try_from(serde_json::json!({
+        let item = RealtimeConversationItem::try_from(serde_json::json!({
             "type": "message",
             "role": "user",
             "content": [
