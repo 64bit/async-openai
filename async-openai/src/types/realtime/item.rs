@@ -1,5 +1,10 @@
 use serde::{Deserialize, Serialize};
 
+use crate::types::{
+    realtime::{ErrorCodeMessage, ErrorMessage},
+    responses::MCPListToolsTool,
+};
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SystemMessageContent {
     /// The text content.
@@ -9,7 +14,7 @@ pub struct SystemMessageContent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct SystemMessage {
+pub struct RealtimeConversationItemMessageSystem {
     /// The content of the message.
     pub content: Vec<SystemMessageContent>,
 
@@ -70,7 +75,7 @@ pub enum UserMessageContent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct UserMessage {
+pub struct RealtimeConversationItemMessageUser {
     /// The content of the message.
     pub content: Vec<UserMessageContent>,
 
@@ -114,7 +119,7 @@ pub enum AssistantMessageContent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct AssistantMessage {
+pub struct RealtimeConversationItemMessageAssistant {
     /// The content of the message.
     pub content: Vec<AssistantMessageContent>,
 
@@ -135,14 +140,14 @@ pub struct AssistantMessage {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "role")]
 #[serde(rename_all = "lowercase")]
-pub enum Message {
-    System(SystemMessage),
-    User(UserMessage),
-    Assistant(AssistantMessage),
+pub enum RealtimeConversationItemMessage {
+    System(RealtimeConversationItemMessageSystem),
+    User(RealtimeConversationItemMessageUser),
+    Assistant(RealtimeConversationItemMessageAssistant),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct FunctionCall {
+pub struct RealtimeConversationItemFunctionCall {
     /// The arguments of the function call. This is a JSON-encoded string representing
     /// the arguments passed to the function, for example {"arg1": "value1", "arg2": 42}.
     pub arguments: String,
@@ -167,7 +172,7 @@ pub struct FunctionCall {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct FunctionCallOutput {
+pub struct RealtimeConversationItemFunctionCallOutput {
     /// The ID of the function call this output is for.
     pub call_id: String,
 
@@ -189,7 +194,7 @@ pub struct FunctionCallOutput {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct McpApprovalResponse {
+pub struct RealtimeMCPApprovalResponse {
     /// The ID of the approval request being answered.
     pub approval_request_id: String,
 
@@ -204,34 +209,19 @@ pub struct McpApprovalResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct AvailableMcpTool {
-    /// The JSON schema describing the tool's input.
-    pub input_schema: serde_json::Value,
-
-    /// The name of the tool.
-    pub name: String,
-
-    /// Additional annotations about the tool.
-    pub annotations: Option<serde_json::Value>,
-
-    /// The description of the tool.
-    pub description: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct McpListTools {
+pub struct RealtimeMCPListTools {
     /// The label of the MCP server.
     pub server_label: String,
 
     /// The tools available on the server.
-    pub tools: Vec<AvailableMcpTool>,
+    pub tools: Vec<MCPListToolsTool>,
 
     /// The unique ID of the list.
     pub id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct McpApprovalRequest {
+pub struct RealtimeMCPApprovalRequest {
     /// A JSON string of arguments for the tool.
     pub arguments: String,
 
@@ -246,7 +236,18 @@ pub struct McpApprovalRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct McpCall {
+pub struct RealtimeMCPProtocolError {}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum RealtimeMCPToolCallError {
+    ProtocolError(ErrorCodeMessage),
+    ToolExecutionError(ErrorMessage),
+    HttpError(ErrorCodeMessage),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RealtimeMCPToolCall {
     /// A JSON string of the arguments passed to the tool.
     pub arguments: String,
 
@@ -263,23 +264,23 @@ pub struct McpCall {
     pub approval_request_id: Option<String>,
 
     /// The error from the tool call, if any.
-    pub error: Option<serde_json::Value>, // TODO: implement type
+    pub error: Option<RealtimeMCPToolCallError>,
 
     /// The output from the tool call.
-    pub output: String,
+    pub output: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
 pub enum RealtimeConversationItem {
-    Message(Message),
-    FunctionCall(FunctionCall),
-    FunctionCallOutput(FunctionCallOutput),
-    McpApprovalResponse(McpApprovalResponse),
-    McpListTools(McpListTools),
-    McpCall(McpCall),
-    McpApprovalRequest(McpApprovalRequest),
+    Message(RealtimeConversationItemMessage),
+    FunctionCall(RealtimeConversationItemFunctionCall),
+    FunctionCallOutput(RealtimeConversationItemFunctionCallOutput),
+    McpApprovalResponse(RealtimeMCPApprovalResponse),
+    McpListTools(RealtimeMCPListTools),
+    McpCall(RealtimeMCPToolCall),
+    McpApprovalRequest(RealtimeMCPApprovalRequest),
 }
 
 impl TryFrom<serde_json::Value> for RealtimeConversationItem {
