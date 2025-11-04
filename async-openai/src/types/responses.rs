@@ -3137,3 +3137,23 @@ pub struct DeleteResponse {
     pub deleted: bool,
     pub id: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub enum ItemResource {
+    // TODO: implement this
+}
+
+/// A list of Response items.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ResponseItemList {
+    /// The type of object returned, must be `list`.
+    pub object: String,
+    /// The ID of the first item in the list.
+    pub first_id: Option<String>,
+    /// The ID of the last item in the list.
+    pub last_id: Option<String>,
+    /// Whether there are more items in the list.
+    pub has_more: bool,
+    /// The list of items.
+    pub data: Vec<ItemResource>,
+}

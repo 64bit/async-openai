@@ -3,7 +3,9 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::responses::{CreateResponse, DeleteResponse, Response, ResponseStream},
+    types::responses::{
+        CreateResponse, DeleteResponse, Response, ResponseItemList, ResponseStream,
+    },
     Client,
 };
 
@@ -89,6 +91,21 @@ impl<'c, C: Config> Responses<'c, C> {
                 &format!("/responses/{}/cancel", response_id),
                 serde_json::json!({}),
             )
+            .await
+    }
+
+    /// Returns a list of input items for a given response.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn list_input_items<Q>(
+        &self,
+        response_id: &str,
+        query: &Q,
+    ) -> Result<ResponseItemList, OpenAIError>
+    where
+        Q: Serialize + ?Sized,
+    {
+        self.client
+            .get_with_query(&format!("/responses/{}/input_items", response_id), &query)
             .await
     }
 }
