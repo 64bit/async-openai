@@ -14,7 +14,7 @@ use crate::{
 use bytes::Bytes;
 
 use super::{
-    responses::{CodeInterpreterContainer, EasyInputContent, Input, Role as ResponsesRole},
+    responses::{EasyInputContent, Role as ResponsesRole},
     AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
     ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
     ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestDeveloperMessage,
@@ -1047,27 +1047,9 @@ impl AsyncTryFrom<CreateVideoRequest> for reqwest::multipart::Form {
 
 // end: types to multipart form
 
-impl Default for Input {
-    fn default() -> Self {
-        Self::Text("".to_string())
-    }
-}
-
 impl Default for EasyInputContent {
     fn default() -> Self {
         Self::Text("".to_string())
-    }
-}
-
-impl From<String> for Input {
-    fn from(value: String) -> Self {
-        Input::Text(value)
-    }
-}
-
-impl From<&str> for Input {
-    fn from(value: &str) -> Self {
-        Input::Text(value.to_owned())
     }
 }
 
@@ -1086,11 +1068,5 @@ impl From<String> for EasyInputContent {
 impl From<&str> for EasyInputContent {
     fn from(value: &str) -> Self {
         Self::Text(value.to_owned())
-    }
-}
-
-impl Default for CodeInterpreterContainer {
-    fn default() -> Self {
-        CodeInterpreterContainer::Id("".to_string())
     }
 }
