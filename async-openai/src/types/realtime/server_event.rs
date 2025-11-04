@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 use crate::types::realtime::{RealtimeResponse, Session};
 
 use super::{
-    content_part::ContentPart, error::RealtimeAPIError, item::Item, rate_limit::RateLimit,
+    content_part::ContentPart, error::RealtimeAPIError, item::RealtimeConversationItem,
+    rate_limit::RateLimit,
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -35,7 +36,7 @@ pub struct ConversationItemAddedEvent {
     /// The unique ID of the server event.
     pub event_id: String,
     /// A single item within a Realtime conversation.
-    pub item: Item,
+    pub item: RealtimeConversationItem,
     /// The ID of the item that precedes this one, if any. This is used to maintain ordering when items are inserted.
     pub previous_item_id: Option<String>,
 }
@@ -45,7 +46,7 @@ pub struct ConversationItemDoneEvent {
     /// The unique ID of the server event.
     pub event_id: String,
     /// A single item within a Realtime conversation.
-    pub item: Item,
+    pub item: RealtimeConversationItem,
     /// The ID of the item that precedes this one, if any. This is used to maintain ordering when items are inserted.
     pub previous_item_id: Option<String>,
 }
@@ -243,7 +244,7 @@ pub struct ConversationItemRetrievedEvent {
     /// The unique ID of the server event.
     pub event_id: String,
     /// A single item within a Realtime conversation.
-    pub item: Item,
+    pub item: RealtimeConversationItem,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -291,7 +292,7 @@ pub struct ResponseOutputItemAddedEvent {
     /// The index of the output item in the Response.
     pub output_index: u32,
     /// A single item within a Realtime conversation.
-    pub item: Item,
+    pub item: RealtimeConversationItem,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -303,7 +304,7 @@ pub struct ResponseOutputItemDoneEvent {
     /// The index of the output item in the Response.
     pub output_index: u32,
     /// A single item within a Realtime conversation.
-    pub item: Item,
+    pub item: RealtimeConversationItem,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

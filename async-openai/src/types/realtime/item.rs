@@ -272,7 +272,7 @@ pub struct McpCall {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
-pub enum Item {
+pub enum RealtimeConversationItem {
     Message(Message),
     FunctionCall(FunctionCall),
     FunctionCallOutput(FunctionCallOutput),
@@ -282,7 +282,7 @@ pub enum Item {
     McpApprovalRequest(McpApprovalRequest),
 }
 
-impl TryFrom<serde_json::Value> for Item {
+impl TryFrom<serde_json::Value> for RealtimeConversationItem {
     type Error = serde_json::Error;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {

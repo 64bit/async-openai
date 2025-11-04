@@ -1,9 +1,7 @@
 use serde::{Deserialize, Serialize};
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::types::realtime::{RealtimeResponseCreateParams, Session};
-
-use super::item::Item;
+use crate::types::realtime::{RealtimeConversationItem, RealtimeResponseCreateParams, Session};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SessionUpdateEvent {
@@ -56,7 +54,7 @@ pub struct ConversationItemCreateEvent {
     pub previous_item_id: Option<String>,
 
     /// A single item within a Realtime conversation.
-    pub item: Item,
+    pub item: RealtimeConversationItem,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -322,8 +320,8 @@ message_from_event!(ResponseCreateEvent, RealtimeClientEvent);
 message_from_event!(ResponseCancelEvent, RealtimeClientEvent);
 message_from_event!(OutputAudioBufferClearEvent, RealtimeClientEvent);
 
-impl From<Item> for ConversationItemCreateEvent {
-    fn from(value: Item) -> Self {
+impl From<RealtimeConversationItem> for ConversationItemCreateEvent {
+    fn from(value: RealtimeConversationItem) -> Self {
         Self {
             event_id: None,
             previous_item_id: None,
