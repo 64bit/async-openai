@@ -559,7 +559,7 @@ pub struct ResponseMCPCallFailedEvent {
 /// These are events emitted from the OpenAI Realtime WebSocket server to the client.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type")]
-pub enum ServerEvent {
+pub enum RealtimeServerEvent {
     /// Returned when an error occurs, which could be a client problem or a server problem.
     /// Most errors are recoverable and the session will stay open, we recommend to
     /// implementors to monitor and log error messages by default.

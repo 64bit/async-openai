@@ -128,7 +128,7 @@ pub struct OutputAudioBufferClearEvent {
 /// These are events that the OpenAI Realtime WebSocket server will accept from the client.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum ClientEvent {
+pub enum RealtimeClientEvent {
     /// Send this event to update the session's configuration. The client may send this event at any time to update any field
     /// except for `voice` and `model`. `voice` can be updated only if there have been no other audio outputs yet.
     ///
@@ -234,14 +234,14 @@ pub enum ClientEvent {
     OutputAudioBufferClear(OutputAudioBufferClearEvent),
 }
 
-impl From<&ClientEvent> for String {
-    fn from(value: &ClientEvent) -> Self {
+impl From<&RealtimeClientEvent> for String {
+    fn from(value: &RealtimeClientEvent) -> Self {
         serde_json::to_string(value).unwrap()
     }
 }
 
-impl From<ClientEvent> for Message {
-    fn from(value: ClientEvent) -> Self {
+impl From<RealtimeClientEvent> for Message {
+    fn from(value: RealtimeClientEvent) -> Self {
         Message::Text(String::from(&value).into())
     }
 }
@@ -266,61 +266,61 @@ macro_rules! event_from {
     };
 }
 
-event_from!(SessionUpdateEvent, ClientEvent, SessionUpdate);
+event_from!(SessionUpdateEvent, RealtimeClientEvent, SessionUpdate);
 event_from!(
     InputAudioBufferAppendEvent,
-    ClientEvent,
+    RealtimeClientEvent,
     InputAudioBufferAppend
 );
 event_from!(
     InputAudioBufferCommitEvent,
-    ClientEvent,
+    RealtimeClientEvent,
     InputAudioBufferCommit
 );
 event_from!(
     InputAudioBufferClearEvent,
-    ClientEvent,
+    RealtimeClientEvent,
     InputAudioBufferClear
 );
 event_from!(
     ConversationItemCreateEvent,
-    ClientEvent,
+    RealtimeClientEvent,
     ConversationItemCreate
 );
 event_from!(
     ConversationItemTruncateEvent,
-    ClientEvent,
+    RealtimeClientEvent,
     ConversationItemTruncate
 );
 event_from!(
     ConversationItemDeleteEvent,
-    ClientEvent,
+    RealtimeClientEvent,
     ConversationItemDelete
 );
 event_from!(
     ConversationItemRetrieveEvent,
-    ClientEvent,
+    RealtimeClientEvent,
     ConversationItemRetrieve
 );
-event_from!(ResponseCreateEvent, ClientEvent, ResponseCreate);
-event_from!(ResponseCancelEvent, ClientEvent, ResponseCancel);
+event_from!(ResponseCreateEvent, RealtimeClientEvent, ResponseCreate);
+event_from!(ResponseCancelEvent, RealtimeClientEvent, ResponseCancel);
 event_from!(
     OutputAudioBufferClearEvent,
-    ClientEvent,
+    RealtimeClientEvent,
     OutputAudioBufferClear
 );
 
-message_from_event!(SessionUpdateEvent, ClientEvent);
-message_from_event!(InputAudioBufferAppendEvent, ClientEvent);
-message_from_event!(InputAudioBufferCommitEvent, ClientEvent);
-message_from_event!(InputAudioBufferClearEvent, ClientEvent);
-message_from_event!(ConversationItemCreateEvent, ClientEvent);
-message_from_event!(ConversationItemTruncateEvent, ClientEvent);
-message_from_event!(ConversationItemDeleteEvent, ClientEvent);
-message_from_event!(ConversationItemRetrieveEvent, ClientEvent);
-message_from_event!(ResponseCreateEvent, ClientEvent);
-message_from_event!(ResponseCancelEvent, ClientEvent);
-message_from_event!(OutputAudioBufferClearEvent, ClientEvent);
+message_from_event!(SessionUpdateEvent, RealtimeClientEvent);
+message_from_event!(InputAudioBufferAppendEvent, RealtimeClientEvent);
+message_from_event!(InputAudioBufferCommitEvent, RealtimeClientEvent);
+message_from_event!(InputAudioBufferClearEvent, RealtimeClientEvent);
+message_from_event!(ConversationItemCreateEvent, RealtimeClientEvent);
+message_from_event!(ConversationItemTruncateEvent, RealtimeClientEvent);
+message_from_event!(ConversationItemDeleteEvent, RealtimeClientEvent);
+message_from_event!(ConversationItemRetrieveEvent, RealtimeClientEvent);
+message_from_event!(ResponseCreateEvent, RealtimeClientEvent);
+message_from_event!(ResponseCancelEvent, RealtimeClientEvent);
+message_from_event!(OutputAudioBufferClearEvent, RealtimeClientEvent);
 
 impl From<Item> for ConversationItemCreateEvent {
     fn from(value: Item) -> Self {
