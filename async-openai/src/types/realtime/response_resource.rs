@@ -1,8 +1,11 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::realtime::{
-    AudioFormat, Conversation, Item, MaxOutputTokens, Prompt, RealtimeVoice, ToolChoice,
-    ToolDefinition,
+use crate::types::{
+    realtime::{
+        Conversation, Item, MaxOutputTokens, RealtimeAudioFormats, RealtimeTool, RealtimeVoice,
+        ToolChoice,
+    },
+    responses::Prompt,
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -104,7 +107,7 @@ pub struct ResponseStatusDetail {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ResponseAudioOutput {
     /// The format of the output audio.
-    pub format: AudioFormat,
+    pub format: RealtimeAudioFormats,
 
     /// The voice the model uses to respond. Voice cannot be changed during the session once
     /// the model has responded with audio at least once. Current voice options are
@@ -121,7 +124,7 @@ pub struct ResponseAudio {
 
 /// The response resource.
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseCreate {
+pub struct RealtimeResponseCreateParams {
     /// Configuration for audio input and output.
     pub audio: ResponseAudio,
 
@@ -179,7 +182,7 @@ pub struct ResponseCreate {
 
     /// Tools available to the model.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<Vec<ToolDefinition>>,
+    pub tools: Option<Vec<RealtimeTool>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

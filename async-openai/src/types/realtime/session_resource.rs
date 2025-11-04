@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::MCPTool;
+use crate::types::{
+    responses::{Prompt, ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions},
+    MCPTool,
+};
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct AudioTranscription {
@@ -23,7 +26,7 @@ pub struct AudioTranscription {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type")]
-pub enum TurnDetection {
+pub enum RealtimeTurnDetection {
     /// Server-side voice activity detection (VAD) which flips on when user speech is detected
     /// and off after a period of silence.
     #[serde(rename = "server_vad")]
@@ -95,7 +98,7 @@ pub enum MaxOutputTokens {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct FunctionTool {
+pub struct RealtimeFunctionTool {
     /// The name of the function.
     pub name: String,
     /// The description of the function, including guidance on when and how to call it,
@@ -107,9 +110,9 @@ pub struct FunctionTool {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type")]
-pub enum ToolDefinition {
+pub enum RealtimeTool {
     #[serde(rename = "function")]
-    Function(FunctionTool),
+    Function(RealtimeFunctionTool),
     /// Give the model access to additional tools via remote Model Context Protocol (MCP) servers.
     /// [Learn more about MCP](https://platform.openai.com/docs/guides/tools-remote-mcp).
     #[serde(rename = "mcp")]
@@ -123,35 +126,15 @@ pub enum FunctionType {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(tag = "type")]
-pub enum Tool {
-    /// Use this option to force the model to call a specific function.
-    #[serde(rename = "function")]
-    Function {
-        /// The name of the function to call.
-        name: String,
-    },
-    /// Use this option to force the model to call a specific tool on a remote MCP server.
-    #[serde(rename = "mcp")]
-    MCP {
-        /// The name of the tool to call on the server.
-        name: String,
-        /// The label of the MCP server to use.
-        server_label: String,
-    },
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "lowercase")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum ToolChoice {
-    /// `auto` means the model can pick between generating a message or calling one or more tools.
-    Auto,
-    /// `none` means the model will not call any tool and instead generates a message.
-    None,
-    /// `required` means the model must call one or more tools.
-    Required,
+    /// Use this option to force the model to call a specific function.
+    Function(ToolChoiceFunction),
+    /// Use this option to force the model to call a specific tool on a remote MCP server.
+    Mcp(ToolChoiceMCP),
+
     #[serde(untagged)]
-    Tool(Tool),
+    Mode(ToolChoiceOptions),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -171,7 +154,7 @@ pub enum RealtimeVoice {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type")]
-pub enum AudioFormat {
+pub enum RealtimeAudioFormats {
     /// The PCM audio format. Only a 24kHz sample rate is supported.
     #[serde(rename = "audio/pcm")]
     PCMAudioFormat {
@@ -195,13 +178,13 @@ pub struct G711ULAWAudioFormat {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AudioInput {
     /// The format of the input audio.
-    pub format: AudioFormat,
+    pub format: RealtimeAudioFormats,
     /// Configuration for input audio noise reduction. This can be set to null to turn off.
     /// Noise reduction filters audio added to the input audio buffer before it is sent to VAD
     /// and the model. Filtering the audio can improve VAD and turn detection accuracy
     /// (reducing false positives) and model performance by improving perception of the
     /// input audio.
-    pub noise_reduction: Option<NoiseReduction>,
+    pub noise_reduction: Option<NoiseReductionType>,
     /// Configuration for input audio transcription, defaults to off and can be set to `null` to turn off once on.
     /// Input audio transcription is not native to the model, since the model consumes audio directly.
     /// Transcription runs asynchronously through [the /audio/transcriptions endpoint](https://platform.openai.com/docs/api-reference/audio/createTranscription)
@@ -222,13 +205,13 @@ pub struct AudioInput {
     /// the model will score a low probability of turn end and wait longer for the user to
     /// continue speaking. This can be useful for more natural conversations, but may have a
     /// higher latency.    
-    pub turn_detection: TurnDetection,
+    pub turn_detection: RealtimeTurnDetection,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AudioOutput {
     /// The format of the output audio.
-    pub format: AudioFormat,
+    pub format: RealtimeAudioFormats,
     /// The speed of the model's spoken response as a multiple of the original speed.
     /// 1.0 is the default speed. 0.25 is the minimum speed. 1.5 is the maximum speed.
     /// This value can only be changed in between model turns, not while a response
@@ -248,19 +231,6 @@ pub struct AudioOutput {
 pub struct Audio {
     pub input: AudioInput,
     pub output: AudioOutput,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Prompt {
-    /// The unique identifier of the prompt template to use.
-    pub id: String,
-    /// Optional map of values to substitute in for variables in your prompt. The substitution
-    /// values can either be strings, or other Response input types like images or files.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub variables: Option<serde_json::Value>,
-    /// Optional version of the prompt template.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub version: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -286,7 +256,7 @@ pub struct TracingConfiguration {
 /// The truncation strategy to use for the session.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "lowercase")]
-pub enum Truncation {
+pub enum RealtimeTruncation {
     /// `auto` is the default truncation strategy.
     Auto,
     /// `disabled` will disable truncation and emit errors when the conversation exceeds the input
@@ -338,6 +308,7 @@ pub enum Session {
 }
 
 /// Realtime session object configuration.
+/// openapi spec type: RealtimeSessionCreateRequestGA
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RealtimeSession {
     pub audio: Audio,
@@ -390,7 +361,7 @@ pub struct RealtimeSession {
 
     /// Tools available to the model.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<Vec<ToolDefinition>>,
+    pub tools: Option<Vec<RealtimeTool>>,
 
     /// Realtime API can write session traces to the [Traces Dashboard](https://platform.openai.com/logs?api=traces).
     /// Set to null to disable tracing. Once tracing is enabled for a session, the configuration cannot be modified.
@@ -413,22 +384,17 @@ pub struct RealtimeSession {
     /// truncate but would instead return an error if the conversation exceeds the model's input
     /// token limit.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub truncation: Option<Truncation>,
+    pub truncation: Option<RealtimeTruncation>,
 }
 
+/// Type of noise reduction. `near_field` is for close-talking microphones such as
+/// headphones, `far_field` is for far-field microphones such as laptop or conference
+/// room microphones.
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum NoiseReductionType {
     NearField,
     FarField,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct NoiseReduction {
-    /// Type of noise reduction. `near_field` is for close-talking microphones such as
-    /// headphones, `far_field` is for far-field microphones such as laptop or conference
-    /// room microphones.
-    pub r#type: NoiseReductionType,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -437,6 +403,7 @@ pub struct TranscriptionAudio {
 }
 
 /// Realtime transcription session object configuration.
+/// openapi spec type: RealtimeTranscriptionSessionCreateRequestGA
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RealtimeTranscriptionSession {
     /// Configuration for input and output audio.

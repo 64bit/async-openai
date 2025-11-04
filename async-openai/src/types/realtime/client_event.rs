@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::types::realtime::{ResponseCreate, Session};
+use crate::types::realtime::{RealtimeResponseCreateParams, Session};
 
 use super::item::Item;
 
@@ -103,7 +103,7 @@ pub struct ResponseCreateEvent {
     pub event_id: Option<String>,
 
     /// Create a new Realtime response with these parameters
-    pub response: Option<ResponseCreate>,
+    pub response: Option<RealtimeResponseCreateParams>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
