@@ -183,7 +183,7 @@ pub struct ResponseCreate {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Response {
+pub struct RealtimeResponse {
     /// Configuration for audio output.
     pub audio: Option<ResponseAudio>,
 

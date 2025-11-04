@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::realtime::{Response, Session};
+use crate::types::realtime::{RealtimeResponse, Session};
 
 use super::{
     content_part::ContentPart, error::RealtimeAPIError, item::Item, rate_limit::RateLimit,
@@ -271,7 +271,7 @@ pub struct ResponseCreatedEvent {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The response resource.
-    pub response: Response,
+    pub response: RealtimeResponse,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -279,7 +279,7 @@ pub struct ResponseDoneEvent {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The response resource.
-    pub response: Response,
+    pub response: RealtimeResponse,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
