@@ -419,9 +419,9 @@ pub struct InputMessage {
     /// The status of the item. One of `in_progress`, `completed`, or `incomplete`.
     /// Populated when items are returned via API.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<OutputStatus>, // TODO rename OutputStatus to ItemStatus maybe?
-    /// The type of the message input. Always set to `message`.
-    pub r#type: MessageType,
+    pub status: Option<OutputStatus>,
+    /////The type of the message input. Always set to `message`.
+    //pub r#type: MessageType,
 }
 
 /// The role for an input message - can only be `user`, `system`, or `developer`.
@@ -811,6 +811,11 @@ pub enum ServiceTier {
 pub enum Truncation {
     Auto,
     Disabled,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Billing {
+    pub payer: String,
 }
 
 /// o-series reasoning settings.
@@ -1531,7 +1536,7 @@ pub struct ResponseLogProb {
 pub struct OutputTextContent {
     /// The annotations of the text output.
     pub annotations: Vec<Annotation>,
-    pub logprobs: Option<LogProb>,
+    pub logprobs: Option<Vec<LogProb>>,
     /// The text output from the model.
     pub text: String,
 }
@@ -1612,8 +1617,8 @@ pub struct OutputMessage {
     /// The status of the message input. One of `in_progress`, `completed`, or
     /// `incomplete`. Populated when input items are returned via API.
     pub status: OutputStatus,
-    /// The type of the output message. Always `message`.
-    pub r#type: MessageType,
+    ///// The type of the output message. Always `message`.
+    //pub r#type: MessageType,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
@@ -2173,6 +2178,10 @@ pub struct Response {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub background: Option<bool>,
 
+    /// Billing information for the response.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub billing: Option<Billing>,
+
     /// The conversation that this response belongs to. Input items and output
     /// items from this response are automatically added to this conversation.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2368,7 +2377,6 @@ pub enum Status {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
-#[non_exhaustive]
 pub enum OutputItem {
     /// An output message from the model.
     Message(OutputMessage),
