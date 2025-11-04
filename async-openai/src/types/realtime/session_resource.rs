@@ -331,10 +331,10 @@ pub struct TokenLimits {
 pub enum Session {
     /// The type of session to create. Always `realtime` for the Realtime API.
     #[serde(rename = "realtime")]
-    RealtimeSessionConfiguration(RealtimeSession),
+    RealtimeSession(RealtimeSession),
     /// The type of session to create. Always `transcription` for transcription sessions.
     #[serde(rename = "transcription")]
-    TranscriptionSessionConfiguration(TranscriptionSession),
+    RealtimeTranscriptionSession(RealtimeTranscriptionSession),
 }
 
 /// Realtime session object configuration.
@@ -438,7 +438,7 @@ pub struct TranscriptionAudio {
 
 /// Realtime transcription session object configuration.
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct TranscriptionSession {
+pub struct RealtimeTranscriptionSession {
     /// Configuration for input and output audio.
     pub audio: TranscriptionAudio,
 
