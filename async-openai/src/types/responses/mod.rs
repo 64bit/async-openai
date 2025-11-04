@@ -1,5 +1,5 @@
-mod responses;
-mod responses_stream;
+mod response;
+mod response_stream;
 
-pub use responses::*;
-pub use responses_stream::*;
+pub use response::*;
+pub use response_stream::*;
