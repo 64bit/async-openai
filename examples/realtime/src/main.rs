@@ -1,7 +1,7 @@
 use std::process::exit;
 
 use async_openai::types::realtime::{
-    ConversationItemCreateEvent, Item, Message as RealtimeMessage, ResponseCreateEvent, ServerEvent,
+    ConversationItemCreateEvent, Item, RealtimeServerEvent, ResponseCreateEvent,
 };
 use futures_util::{future, pin_mut, StreamExt};
 
@@ -43,7 +43,7 @@ async fn main() {
             match message {
                 Message::Text(_) => {
                     let data = message.clone().into_data();
-                    let server_event: Result<ServerEvent, serde_json::Error> =
+                    let server_event: Result<RealtimeServerEvent, serde_json::Error> =
                         serde_json::from_slice(&data);
                     match server_event {
                         Ok(server_event) => {
@@ -53,10 +53,10 @@ async fn main() {
                             eprint!("{:32} | ", event_type.as_str().unwrap());
 
                             match server_event {
-                                ServerEvent::ResponseOutputItemDone(event) => {
+                                RealtimeServerEvent::ResponseOutputItemDone(event) => {
                                     eprint!("{event:?}");
                                 }
-                                ServerEvent::Error(e) => {
+                                RealtimeServerEvent::Error(e) => {
                                     eprint!("{e:?}");
                                 }
                                 _ => {}
