@@ -6,7 +6,7 @@ use crate::types::realtime::{
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Usage {
+pub struct RealtimeResponseUsage {
     /// Details about the input tokens used in the Response. Cached tokens are tokens from previous
     /// turns in the conversation that are included as context for the current response. Cached tokens
     /// here are counted as a subset of input tokens, meaning input tokens will include cached and
@@ -232,5 +232,5 @@ pub struct RealtimeResponse {
     /// Usage statistics for the Response, this will correspond to billing. A Realtime API session
     /// will maintain a conversation context and append new Items to the Conversation, thus output
     /// from previous turns (text and audio tokens) will become the input for later turns.
-    pub usage: Option<Usage>,
+    pub usage: Option<RealtimeResponseUsage>,
 }

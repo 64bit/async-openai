@@ -137,7 +137,7 @@ pub struct LogProb {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct InputTokenDetails {
+pub struct TokenUsageInputTokenDetails {
     /// Number of audio tokens billed for this request.
     pub audio_tokens: u32,
     /// Number of text tokens billed for this request.
@@ -153,7 +153,7 @@ pub struct TokenUsage {
     /// Total number of tokens used (input + output).
     pub total_tokens: u32,
     /// Details about the input tokens billed for this request.
-    pub input_token_details: Option<InputTokenDetails>,
+    pub input_token_details: Option<TokenUsageInputTokenDetails>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -164,7 +164,7 @@ pub struct DurationUsage {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type")]
-pub enum Usage {
+pub enum TranscriptionUsage {
     #[serde(rename = "tokens")]
     TokenUsage(TokenUsage),
     #[serde(rename = "duration")]
@@ -185,7 +185,7 @@ pub struct ConversationItemInputAudioTranscriptionCompletedEvent {
     pub logprobs: Option<Vec<LogProb>>,
     /// Usage statistics for the transcription, this is billed according to the ASR model's pricing rather than
     /// the realtime model's pricing.
-    pub usage: Usage,
+    pub usage: TranscriptionUsage,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
