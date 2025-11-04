@@ -3139,8 +3139,36 @@ pub struct DeleteResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct InputItemReference {
+    pub r#type: Option<String>,
+    pub id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ItemResourceItem {
+    Message(MessageItem),
+    FileSearchCall(FileSearchToolCall),
+    ComputerCall(ComputerToolCall),
+    ComputerCallOutput(ComputerCallOutputItemParam),
+    WebSearchCall(WebSearchToolCall),
+    FunctionCall(FunctionToolCall),
+    FunctionCallOutput(FunctionCallOutputItemParam),
+    ImageGenerationCall(ImageGenToolCall),
+    CodeInterpreterCall(CodeInterpreterToolCall),
+    LocalShellCall(LocalShellToolCall),
+    LocalShellCallOutput(LocalShellToolCallOutput),
+    McpListTools(MCPListTools),
+    McpApprovalRequest(MCPApprovalRequest),
+    McpApprovalResponse(MCPApprovalResponse),
+    McpCall(MCPToolCall),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
 pub enum ItemResource {
-    // TODO: implement this
+    ItemReference(InputItemReference),
+    Item(ItemResourceItem),
 }
 
 /// A list of Response items.
