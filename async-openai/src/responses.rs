@@ -5,6 +5,7 @@ use crate::{
     error::OpenAIError,
     types::responses::{
         CreateResponse, DeleteResponse, Response, ResponseItemList, ResponseStream,
+        TokenCountsBody, TokenCountsResource,
     },
     Client,
 };
@@ -107,5 +108,14 @@ impl<'c, C: Config> Responses<'c, C> {
         self.client
             .get_with_query(&format!("/responses/{}/input_items", response_id), &query)
             .await
+    }
+
+    /// Get input token counts
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn get_input_token_counts(
+        &self,
+        request: TokenCountsBody,
+    ) -> Result<TokenCountsResource, OpenAIError> {
+        self.client.post("/responses/input_tokens", request).await
     }
 }

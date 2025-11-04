@@ -3157,3 +3157,87 @@ pub struct ResponseItemList {
     /// The list of items.
     pub data: Vec<ItemResource>,
 }
+
+#[derive(Clone, Serialize, Deserialize, Debug, Default, Builder, PartialEq)]
+#[builder(
+    name = "TokenCountsBodyArgs",
+    pattern = "mutable",
+    setter(into, strip_option),
+    default
+)]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct TokenCountsBody {
+    /// The conversation that this response belongs to. Items from this
+    /// conversation are prepended to `input_items` for this response request.
+    /// Input items and output items from this response are automatically added to this
+    /// conversation after this response completes.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub conversation: Option<ConversationParam>,
+
+    /// Text, image, or file inputs to the model, used to generate a response
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input: Option<InputParam>,
+
+    /// A system (or developer) message inserted into the model's context.
+    ///
+    /// When used along with `previous_response_id`, the instructions from a previous response will
+    /// not be carried over to the next response. This makes it simple to swap out system (or
+    /// developer) messages in new responses.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub instructions: Option<String>,
+
+    /// Model ID used to generate the response, like `gpt-4o` or `o3`. OpenAI offers a
+    /// wide range of models with different capabilities, performance characteristics,
+    /// and price points. Refer to the [model guide](https://platform.openai.com/docs/models)
+    /// to browse and compare available models.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+
+    /// Whether to allow the model to run tool calls in parallel.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parallel_tool_calls: Option<bool>,
+
+    /// The unique ID of the previous response to the model. Use this to create multi-turn
+    /// conversations. Learn more about [conversation state](https://platform.openai.com/docs/guides/conversation-state).
+    /// Cannot be used in conjunction with `conversation`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub previous_response_id: Option<String>,
+
+    /// **gpt-5 and o-series models only**
+    /// Configuration options for [reasoning models](https://platform.openai.com/docs/guides/reasoning).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reasoning: Option<Reasoning>,
+
+    /// Configuration options for a text response from the model. Can be plain
+    /// text or structured JSON data. Learn more:
+    /// - [Text inputs and outputs](https://platform.openai.com/docs/guides/text)
+    /// - [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<ResponseTextParam>,
+
+    /// How the model should select which tool (or tools) to use when generating
+    /// a response. See the `tools` parameter to see how to specify which tools
+    /// the model can call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tool_choice: Option<ToolChoiceParam>,
+
+    /// An array of tools the model may call while generating a response. You can specify which tool
+    /// to use by setting the `tool_choice` parameter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tools: Option<Vec<Tool>>,
+
+    ///The truncation strategy to use for the model response.
+    /// - `auto`: If the input to this Response exceeds
+    /// the model's context window size, the model will truncate the
+    /// response to fit the context window by dropping items from the beginning of the conversation.
+    /// - `disabled` (default): If the input size will exceed the context window
+    /// size for a model, the request will fail with a 400 error.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub truncation: Option<Truncation>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct TokenCountsResource {
+    pub object: String,
+    pub input_tokens: u32,
+}
