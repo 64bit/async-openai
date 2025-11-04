@@ -1,7 +1,8 @@
 use async_openai::{
     types::responses::{
-        CreateResponseArgs, FunctionArgs, FunctionCall, Input, InputItem, InputMessageArgs,
-        OutputContent, Role, ToolDefinition,
+        CreateResponseArgs, EasyInputContent, EasyInputMessage, FunctionCallOutput,
+        FunctionCallOutputItemParam, FunctionTool, FunctionToolCall, InputItem, InputParam, Item,
+        MessageType, OutputItem, Role, Tool,
     },
     Client,
 };
@@ -22,48 +23,46 @@ fn check_weather(location: String, units: String) -> String {
 async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
-    let tools = vec![ToolDefinition::Function(
-        FunctionArgs::default()
-            .name("get_weather")
-            .description("Retrieves current weather for the given location")
-            .parameters(serde_json::json!(
-                {
-                    "type": "object",
-                    "properties": {
-                        "location": {
-                            "type": "string",
-                            "description": "City and country e.g. Bogotá, Colombia"
-                        },
-                        "units": {
-                            "type": "string",
-                            "enum": [
-                                "celsius",
-                                "fahrenheit"
-                            ],
-                            "description": "Units the temperature will be returned in."
-                        }
+    let tools = vec![Tool::Function(FunctionTool {
+        name: "get_weather".to_string(),
+        description: Some("Retrieves current weather for the given location".to_string()),
+        parameters: Some(serde_json::json!(
+            {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "City and country e.g. Bogotá, Colombia"
                     },
-                    "required": [
-                        "location",
-                        "units"
-                    ],
-                    "additionalProperties": false
-                }
-            ))
-            .build()?,
-    )];
+                    "units": {
+                        "type": "string",
+                        "enum": [
+                            "celsius",
+                            "fahrenheit"
+                        ],
+                        "description": "Units the temperature will be returned in."
+                    }
+                },
+                "required": [
+                    "location",
+                    "units"
+                ],
+                "additionalProperties": false
+            }
+        )),
+        strict: None,
+    })];
 
-    let mut input_messages = vec![InputItem::Message(
-        InputMessageArgs::default()
-            .role(Role::User)
-            .content("What's the weather like in Paris today?")
-            .build()?,
-    )];
+    let mut input_messages = vec![InputItem::EasyMessage(EasyInputMessage {
+        r#type: MessageType::Message,
+        role: Role::User,
+        content: EasyInputContent::Text("What's the weather like in Paris today?".to_string()),
+    })];
 
     let request = CreateResponseArgs::default()
         .max_output_tokens(512u32)
         .model("gpt-4.1")
-        .input(Input::Items(input_messages.clone()))
+        .input(InputParam::Items(input_messages.clone()))
         .tools(tools.clone())
         .build()?;
 
@@ -72,9 +71,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let response = client.responses().create(request).await?;
 
     // the model might ask for us to do a function call
-    let function_call_request: Option<FunctionCall> =
-        response.output.into_iter().find_map(|output_content| {
-            if let OutputContent::FunctionCall(inner) = output_content {
+    let function_call_request: Option<FunctionToolCall> =
+        response.output.into_iter().find_map(|output_item| {
+            if let OutputItem::FunctionCall(inner) = output_item {
                 Some(inner)
             } else {
                 None
@@ -97,19 +96,25 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-    input_messages.push(InputItem::Custom(serde_json::to_value(
-        &OutputContent::FunctionCall(function_call_request.clone()),
-    )?));
-    input_messages.push(InputItem::Custom(serde_json::json!({
-        "type": "function_call_output",
-        "call_id": function_call_request.call_id,
-        "output": function_result,
-    })));
+    // Add the function call from the assistant back to the conversation
+    input_messages.push(InputItem::Item(Item::FunctionCall(
+        function_call_request.clone(),
+    )));
+
+    // Add the function call output back to the conversation
+    input_messages.push(InputItem::Item(Item::FunctionCallOutput(
+        FunctionCallOutputItemParam {
+            call_id: function_call_request.call_id.clone(),
+            output: FunctionCallOutput::Text(function_result),
+            id: None,
+            status: None,
+        },
+    )));
 
     let request = CreateResponseArgs::default()
         .max_output_tokens(512u32)
         .model("gpt-4.1")
-        .input(Input::Items(input_messages))
+        .input(InputParam::Items(input_messages))
         .tools(tools)
         .build()?;
 
