@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             CreateConversationRequestArgs::default()
                 .metadata({
                     let mut metadata = HashMap::new();
-                    metadata.insert("topic".to_string(), serde_json::json!("demo"));
+                    metadata.insert("topic".to_string(), "demo".to_string());
                     metadata
                 })
                 .items(vec![InputItem::from_easy_message(EasyInputMessage {
@@ -110,8 +110,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             UpdateConversationRequestArgs::default()
                 .metadata({
                     let mut metadata = HashMap::new();
-                    metadata.insert("topic".to_string(), serde_json::json!("updated-demo"));
-                    metadata.insert("status".to_string(), serde_json::json!("active"));
+                    metadata.insert("topic".to_string(), "updated-demo".into());
+                    metadata.insert("status".to_string(), "active".into());
                     metadata
                 })
                 .build()?,
@@ -129,7 +129,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .items(&conversation.id)
             .delete(item_to_delete)
             .await?;
-        println!("Item deleted. Conversation still exists: {}\n", updated_conv.id);
+        println!(
+            "Item deleted. Conversation still exists: {}\n",
+            updated_conv.id
+        );
     }
 
     // 7. Retrieve the conversation
@@ -148,4 +151,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-
