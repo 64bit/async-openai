@@ -1,7 +1,8 @@
 use std::process::exit;
 
 use async_openai::types::realtime::{
-    ConversationItemCreateEvent, RealtimeConversationItem, RealtimeServerEvent, ResponseCreateEvent,
+    RealtimeClientEventConversationItemCreate, RealtimeClientEventResponseCreate,
+    RealtimeConversationItem, RealtimeServerEvent,
 };
 use futures_util::{future, pin_mut, StreamExt};
 
@@ -120,13 +121,13 @@ async fn read_stdin(tx: futures_channel::mpsc::UnboundedSender<Message>) {
         .unwrap();
 
         // Create event of type "conversation.item.create"
-        let event: ConversationItemCreateEvent = item.into();
+        let event: RealtimeClientEventConversationItemCreate = item.into();
         // Create WebSocket message from client event
         let message: Message = event.into();
         // send WebSocket message containing event of type "conversation.item.create" to server
         tx.unbounded_send(message).unwrap();
         // send WebSocket message containing event of type "response.create" to server
-        tx.unbounded_send(ResponseCreateEvent::default().into())
+        tx.unbounded_send(RealtimeClientEventResponseCreate::default().into())
             .unwrap();
     }
 }
