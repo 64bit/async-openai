@@ -4,7 +4,7 @@ use tokio_tungstenite::tungstenite::Message;
 use crate::types::realtime::{RealtimeConversationItem, RealtimeResponseCreateParams, Session};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct SessionUpdateEvent {
+pub struct RealtimeClientEventSessionUpdate {
     /// Optional client-generated ID used to identify this event.
     /// This is an arbitrary string that a client may assign. It will be passed
     /// back if there is an error with the event, but the corresponding
@@ -16,7 +16,7 @@ pub struct SessionUpdateEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct InputAudioBufferAppendEvent {
+pub struct RealtimeClientEventInputAudioBufferAppend {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
@@ -26,21 +26,21 @@ pub struct InputAudioBufferAppendEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct InputAudioBufferCommitEvent {
+pub struct RealtimeClientEventInputAudioBufferCommit {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct InputAudioBufferClearEvent {
+pub struct RealtimeClientEventInputAudioBufferClear {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ConversationItemCreateEvent {
+pub struct RealtimeClientEventConversationItemCreate {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
@@ -58,7 +58,7 @@ pub struct ConversationItemCreateEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct ConversationItemRetrieveEvent {
+pub struct RealtimeClientEventConversationItemRetrieve {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
@@ -68,7 +68,7 @@ pub struct ConversationItemRetrieveEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct ConversationItemTruncateEvent {
+pub struct RealtimeClientEventConversationItemTruncate {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
@@ -85,7 +85,7 @@ pub struct ConversationItemTruncateEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct ConversationItemDeleteEvent {
+pub struct RealtimeClientEventConversationItemDelete {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
@@ -95,7 +95,7 @@ pub struct ConversationItemDeleteEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct ResponseCreateEvent {
+pub struct RealtimeClientEventResponseCreate {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
@@ -105,7 +105,7 @@ pub struct ResponseCreateEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct ResponseCancelEvent {
+pub struct RealtimeClientEventResponseCancel {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
@@ -117,7 +117,7 @@ pub struct ResponseCancelEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct OutputAudioBufferClearEvent {
+pub struct RealtimeClientEventOutputAudioBufferClear {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
@@ -134,7 +134,7 @@ pub enum RealtimeClientEvent {
     /// configuration. Only the fields that are present in the `session.update` are updated. To clear a field like `instructions`,
     /// pass an empty string. To clear a field like `tools`, pass an empty array. To clear a field like `turn_detection`, pass `null`.
     #[serde(rename = "session.update")]
-    SessionUpdate(SessionUpdateEvent),
+    SessionUpdate(RealtimeClientEventSessionUpdate),
 
     /// Send this event to append audio bytes to the input audio buffer. The audio buffer is temporary storage you can write to and later commit.
     /// A "commit" will create a new user message item in the conversation history from the buffer content and clear the buffer. Input audio
@@ -147,7 +147,7 @@ pub enum RealtimeClientEvent {
     /// client may allow the VAD to be more responsive. Unlike most other client events, the server will not send a confirmation response to
     /// this event.
     #[serde(rename = "input_audio_buffer.append")]
-    InputAudioBufferAppend(InputAudioBufferAppendEvent),
+    InputAudioBufferAppend(RealtimeClientEventInputAudioBufferAppend),
 
     /// Send this event to commit the user input audio buffer, which will create a new user message item in the conversation.
     /// This event will produce an error if the input audio buffer is empty.
@@ -155,12 +155,12 @@ pub enum RealtimeClientEvent {
     /// Committing the input audio buffer will trigger input audio transcription (if enabled in session configuration), but it will not create a response from the model.
     /// The server will respond with an input_audio_buffer.committed event.
     #[serde(rename = "input_audio_buffer.commit")]
-    InputAudioBufferCommit(InputAudioBufferCommitEvent),
+    InputAudioBufferCommit(RealtimeClientEventInputAudioBufferCommit),
 
     /// Send this event to clear the audio bytes in the buffer.
     /// The server will respond with an `input_audio_buffer.cleared` event.
     #[serde(rename = "input_audio_buffer.clear")]
-    InputAudioBufferClear(InputAudioBufferClearEvent),
+    InputAudioBufferClear(RealtimeClientEventInputAudioBufferClear),
 
     /// Add a new Item to the Conversation's context, including messages, function calls, and function call responses.
     /// This event can be used both to populate a "history" of the conversation and to add new items mid-stream,
@@ -168,14 +168,14 @@ pub enum RealtimeClientEvent {
     ///
     /// If successful, the server will respond with a `conversation.item.created` event, otherwise an `error` event will be sent.
     #[serde(rename = "conversation.item.create")]
-    ConversationItemCreate(ConversationItemCreateEvent),
+    ConversationItemCreate(RealtimeClientEventConversationItemCreate),
 
     /// Send this event when you want to retrieve the server's representation of a specific item in the conversation history.
     /// This is useful, for example, to inspect user audio after noise cancellation and VAD.
     /// The server will respond with a `conversation.item.retrieved` event, unless the item does not exist in the conversation history,
     /// in which case the server will respond with an error.
     #[serde(rename = "conversation.item.retrieve")]
-    ConversationItemRetrieve(ConversationItemRetrieveEvent),
+    ConversationItemRetrieve(RealtimeClientEventConversationItemRetrieve),
 
     /// Send this event to truncate a previous assistant message's audio. The server will produce audio faster than realtime,
     /// so this event is useful when the user interrupts to truncate audio that has already been sent to the client but not
@@ -186,13 +186,13 @@ pub enum RealtimeClientEvent {
     ///
     /// If successful, the server will respond with a `conversation.item.truncated` event.
     #[serde(rename = "conversation.item.truncate")]
-    ConversationItemTruncate(ConversationItemTruncateEvent),
+    ConversationItemTruncate(RealtimeClientEventConversationItemTruncate),
 
     /// Send this event when you want to remove any item from the conversation history. The server will respond with a
     /// `conversation.item.deleted` event, unless the item does not exist in the conversation history, in which case the
     /// server will respond with an error.
     #[serde(rename = "conversation.item.delete")]
-    ConversationItemDelete(ConversationItemDeleteEvent),
+    ConversationItemDelete(RealtimeClientEventConversationItemDelete),
 
     /// This event instructs the server to create a Response, which means triggering model inference.
     /// When in Server VAD mode, the server will create Responses automatically.
@@ -215,21 +215,21 @@ pub enum RealtimeClientEvent {
     /// Arbitrary input can be provided with the `input` field, which is an array accepting raw Items and references to
     /// existing Items.
     #[serde(rename = "response.create")]
-    ResponseCreate(ResponseCreateEvent),
+    ResponseCreate(RealtimeClientEventResponseCreate),
 
     /// Send this event to cancel an in-progress response. The server will respond with a `response.done` event
     /// with a status of `response.status=cancelled`. If there is no response to cancel, the server will respond
     /// with an error. It's safe to call `response.cancel` even if no response is in progress, an error will be
     /// returned the session will remain unaffected.
     #[serde(rename = "response.cancel")]
-    ResponseCancel(ResponseCancelEvent),
+    ResponseCancel(RealtimeClientEventResponseCancel),
 
     /// **WebRTC Only:** Emit to cut off the current audio response.
     /// This will trigger the server to stop generating audio and emit a `output_audio_buffer.cleared` event.
     /// This event should be preceded by a `response.cancel` client event to stop the generation of the current response.
     /// [Learn more](https://platform.openai.com/docs/guides/realtime-conversations#client-and-server-events-for-audio-in-webrtc)
     #[serde(rename = "output_audio_buffer.clear")]
-    OutputAudioBufferClear(OutputAudioBufferClearEvent),
+    OutputAudioBufferClear(RealtimeClientEventOutputAudioBufferClear),
 }
 
 impl From<&RealtimeClientEvent> for String {
@@ -264,63 +264,99 @@ macro_rules! event_from {
     };
 }
 
-event_from!(SessionUpdateEvent, RealtimeClientEvent, SessionUpdate);
 event_from!(
-    InputAudioBufferAppendEvent,
+    RealtimeClientEventSessionUpdate,
+    RealtimeClientEvent,
+    SessionUpdate
+);
+event_from!(
+    RealtimeClientEventInputAudioBufferAppend,
     RealtimeClientEvent,
     InputAudioBufferAppend
 );
 event_from!(
-    InputAudioBufferCommitEvent,
+    RealtimeClientEventInputAudioBufferCommit,
     RealtimeClientEvent,
     InputAudioBufferCommit
 );
 event_from!(
-    InputAudioBufferClearEvent,
+    RealtimeClientEventInputAudioBufferClear,
     RealtimeClientEvent,
     InputAudioBufferClear
 );
 event_from!(
-    ConversationItemCreateEvent,
+    RealtimeClientEventConversationItemCreate,
     RealtimeClientEvent,
     ConversationItemCreate
 );
 event_from!(
-    ConversationItemTruncateEvent,
+    RealtimeClientEventConversationItemTruncate,
     RealtimeClientEvent,
     ConversationItemTruncate
 );
 event_from!(
-    ConversationItemDeleteEvent,
+    RealtimeClientEventConversationItemDelete,
     RealtimeClientEvent,
     ConversationItemDelete
 );
 event_from!(
-    ConversationItemRetrieveEvent,
+    RealtimeClientEventConversationItemRetrieve,
     RealtimeClientEvent,
     ConversationItemRetrieve
 );
-event_from!(ResponseCreateEvent, RealtimeClientEvent, ResponseCreate);
-event_from!(ResponseCancelEvent, RealtimeClientEvent, ResponseCancel);
 event_from!(
-    OutputAudioBufferClearEvent,
+    RealtimeClientEventResponseCreate,
+    RealtimeClientEvent,
+    ResponseCreate
+);
+event_from!(
+    RealtimeClientEventResponseCancel,
+    RealtimeClientEvent,
+    ResponseCancel
+);
+event_from!(
+    RealtimeClientEventOutputAudioBufferClear,
     RealtimeClientEvent,
     OutputAudioBufferClear
 );
 
-message_from_event!(SessionUpdateEvent, RealtimeClientEvent);
-message_from_event!(InputAudioBufferAppendEvent, RealtimeClientEvent);
-message_from_event!(InputAudioBufferCommitEvent, RealtimeClientEvent);
-message_from_event!(InputAudioBufferClearEvent, RealtimeClientEvent);
-message_from_event!(ConversationItemCreateEvent, RealtimeClientEvent);
-message_from_event!(ConversationItemTruncateEvent, RealtimeClientEvent);
-message_from_event!(ConversationItemDeleteEvent, RealtimeClientEvent);
-message_from_event!(ConversationItemRetrieveEvent, RealtimeClientEvent);
-message_from_event!(ResponseCreateEvent, RealtimeClientEvent);
-message_from_event!(ResponseCancelEvent, RealtimeClientEvent);
-message_from_event!(OutputAudioBufferClearEvent, RealtimeClientEvent);
+message_from_event!(RealtimeClientEventSessionUpdate, RealtimeClientEvent);
+message_from_event!(
+    RealtimeClientEventInputAudioBufferAppend,
+    RealtimeClientEvent
+);
+message_from_event!(
+    RealtimeClientEventInputAudioBufferCommit,
+    RealtimeClientEvent
+);
+message_from_event!(
+    RealtimeClientEventInputAudioBufferClear,
+    RealtimeClientEvent
+);
+message_from_event!(
+    RealtimeClientEventConversationItemCreate,
+    RealtimeClientEvent
+);
+message_from_event!(
+    RealtimeClientEventConversationItemTruncate,
+    RealtimeClientEvent
+);
+message_from_event!(
+    RealtimeClientEventConversationItemDelete,
+    RealtimeClientEvent
+);
+message_from_event!(
+    RealtimeClientEventConversationItemRetrieve,
+    RealtimeClientEvent
+);
+message_from_event!(RealtimeClientEventResponseCreate, RealtimeClientEvent);
+message_from_event!(RealtimeClientEventResponseCancel, RealtimeClientEvent);
+message_from_event!(
+    RealtimeClientEventOutputAudioBufferClear,
+    RealtimeClientEvent
+);
 
-impl From<RealtimeConversationItem> for ConversationItemCreateEvent {
+impl From<RealtimeConversationItem> for RealtimeClientEventConversationItemCreate {
     fn from(value: RealtimeConversationItem) -> Self {
         Self {
             event_id: None,
