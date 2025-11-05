@@ -1,19 +1,13 @@
 mod client_event;
-mod content_part;
-mod conversation;
+mod conversation_item;
 mod error;
-mod item;
-mod rate_limit;
-mod response_resource;
+mod response;
 mod server_event;
-mod session_resource;
+mod session;
 
 pub use client_event::*;
-pub use content_part::*;
-pub use conversation::*;
+pub use conversation_item::*;
 pub use error::*;
-pub use item::*;
-pub use rate_limit::*;
-pub use response_resource::*;
+pub use response::*;
 pub use server_event::*;
-pub use session_resource::*;
+pub use session::*;

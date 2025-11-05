@@ -1,7 +1,8 @@
 use async_openai::{
     Client,
     types::responses::{
-        CreateResponseArgs, Input, InputContent, InputItem, InputMessageArgs, ResponseEvent, Role,
+        CreateResponseArgs, EasyInputContent, EasyInputMessage, InputItem, InputParam, MessageType,
+        ResponseStreamEvent, Role,
     },
 };
 use futures::StreamExt;
@@ -13,13 +14,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let request = CreateResponseArgs::default()
         .model("gpt-4.1")
         .stream(true)
-        .input(Input::Items(vec![InputItem::Message(
-            InputMessageArgs::default()
-                .role(Role::User)
-                .content(InputContent::TextInput(
-                    "Write a haiku about programming.".to_string(),
-                ))
-                .build()?,
+        .input(InputParam::Items(vec![InputItem::EasyMessage(
+            EasyInputMessage {
+                r#type: MessageType::Message,
+                role: Role::User,
+                content: EasyInputContent::Text("Write a haiku about programming.".to_string()),
+            },
         )]))
         .build()?;
 
@@ -28,12 +28,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     while let Some(result) = stream.next().await {
         match result {
             Ok(response_event) => match &response_event {
-                ResponseEvent::ResponseOutputTextDelta(delta) => {
+                ResponseStreamEvent::ResponseOutputTextDelta(delta) => {
                     print!("{}", delta.delta);
                 }
-                ResponseEvent::ResponseCompleted(_)
-                | ResponseEvent::ResponseIncomplete(_)
-                | ResponseEvent::ResponseFailed(_) => {
+                ResponseStreamEvent::ResponseCompleted(_)
+                | ResponseStreamEvent::ResponseIncomplete(_)
+                | ResponseStreamEvent::ResponseFailed(_) => {
                     break;
                 }
                 _ => {

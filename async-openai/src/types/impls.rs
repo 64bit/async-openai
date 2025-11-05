@@ -14,7 +14,7 @@ use crate::{
 use bytes::Bytes;
 
 use super::{
-    responses::{CodeInterpreterContainer, Input, InputContent, Role as ResponsesRole},
+    responses::{EasyInputContent, Role as ResponsesRole},
     AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
     ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
     ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestDeveloperMessage,
@@ -1047,27 +1047,9 @@ impl AsyncTryFrom<CreateVideoRequest> for reqwest::multipart::Form {
 
 // end: types to multipart form
 
-impl Default for Input {
+impl Default for EasyInputContent {
     fn default() -> Self {
         Self::Text("".to_string())
-    }
-}
-
-impl Default for InputContent {
-    fn default() -> Self {
-        Self::TextInput("".to_string())
-    }
-}
-
-impl From<String> for Input {
-    fn from(value: String) -> Self {
-        Input::Text(value)
-    }
-}
-
-impl From<&str> for Input {
-    fn from(value: &str) -> Self {
-        Input::Text(value.to_owned())
     }
 }
 
@@ -1077,20 +1059,14 @@ impl Default for ResponsesRole {
     }
 }
 
-impl From<String> for InputContent {
+impl From<String> for EasyInputContent {
     fn from(value: String) -> Self {
-        Self::TextInput(value)
+        Self::Text(value)
     }
 }
 
-impl From<&str> for InputContent {
+impl From<&str> for EasyInputContent {
     fn from(value: &str) -> Self {
-        Self::TextInput(value.to_owned())
-    }
-}
-
-impl Default for CodeInterpreterContainer {
-    fn default() -> Self {
-        CodeInterpreterContainer::Id("".to_string())
+        Self::Text(value.to_owned())
     }
 }
