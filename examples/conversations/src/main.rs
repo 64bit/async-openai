@@ -1,8 +1,8 @@
 use async_openai::{
-    types::{
-        responses::{EasyInputContent, EasyInputMessage, InputItem, MessageType, Role},
-        CreateConversationItemsRequestArgs, CreateConversationRequestArgs,
-        ListConversationItemsQuery, UpdateConversationRequestArgs,
+    types::responses::{
+        CreateConversationItemsRequestArgs, CreateConversationRequestArgs, EasyInputContent,
+        EasyInputMessage, InputItem, ListConversationItemsQuery, MessageType, Role,
+        UpdateConversationRequestArgs,
     },
     Client,
 };
