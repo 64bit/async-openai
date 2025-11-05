@@ -1,8 +1,8 @@
 use async_openai::{
     types::responses::{
-        CreateConversationItemsRequestArgs, CreateConversationRequestArgs, EasyInputContent,
-        EasyInputMessage, InputItem, ListConversationItemsQuery, MessageType, Role,
-        UpdateConversationRequestArgs,
+        ConversationItem, CreateConversationItemsRequestArgs, CreateConversationRequestArgs,
+        EasyInputContent, EasyInputMessage, InputItem, ListConversationItemsQuery, MessageType,
+        Role, UpdateConversationRequestArgs,
     },
     Client,
 };
@@ -120,26 +120,52 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Updated metadata: {:?}\n", updated_conversation.metadata);
 
-    // 6. Delete an item from the conversation
-    if !all_items.data.is_empty() {
-        println!("6. Deleting an item from the conversation...");
-        let item_to_delete = &all_items.last_id;
-        let updated_conv = client
-            .conversations()
-            .items(&conversation.id)
-            .delete(item_to_delete)
-            .await?;
-        println!(
-            "Item deleted. Conversation still exists: {}\n",
-            updated_conv.id
-        );
-    }
-
-    // 7. Retrieve the conversation
-    println!("7. Retrieving the conversation...");
+    // 6. Retrieve the conversation
+    println!("6. Retrieving the conversation...");
     let retrieved_conversation = client.conversations().retrieve(&conversation.id).await?;
     println!("Retrieved conversation: {}", retrieved_conversation.id);
     println!("Metadata: {:?}\n", retrieved_conversation.metadata);
+
+    // 7. Delete the conversation items.
+    println!("7. Deleting the conversation items...");
+    for item in all_items.data {
+        let item_id = match item {
+            ConversationItem::Message(message) => message.id,
+            ConversationItem::FileSearchCall(file_search_tool_call) => file_search_tool_call.id,
+            ConversationItem::WebSearchCall(web_search_tool_call) => web_search_tool_call.id,
+            ConversationItem::ImageGenerationCall(image_gen_tool_call) => image_gen_tool_call.id,
+            ConversationItem::ComputerCall(computer_tool_call) => computer_tool_call.id,
+            ConversationItem::Reasoning(reasoning_item) => reasoning_item.id,
+            ConversationItem::CodeInterpreterCall(code_interpreter_tool_call) => {
+                code_interpreter_tool_call.id
+            }
+            ConversationItem::LocalShellCall(local_shell_tool_call) => local_shell_tool_call.id,
+            ConversationItem::LocalShellCallOutput(local_shell_tool_call_output) => {
+                local_shell_tool_call_output.id
+            }
+            ConversationItem::McpListTools(mcplist_tools) => mcplist_tools.id,
+            ConversationItem::McpApprovalRequest(mcpapproval_request) => mcpapproval_request.id,
+            ConversationItem::McpApprovalResponse(mcpapproval_response) => {
+                mcpapproval_response.id.unwrap()
+            }
+            ConversationItem::McpCall(mcptool_call) => mcptool_call.id,
+            ConversationItem::CustomToolCall(custom_tool_call) => custom_tool_call.id,
+            ConversationItem::CustomToolCallOutput(custom_tool_call_output) => {
+                custom_tool_call_output.id.unwrap()
+            }
+            ConversationItem::ItemReference(any_item_reference) => any_item_reference.id,
+        };
+
+        let conversation_resource = client
+            .conversations()
+            .items(&conversation.id)
+            .delete(&item_id)
+            .await?;
+        println!(
+            "Item deleted: item id: {item_id}, conversation id: {}",
+            conversation_resource.id
+        );
+    }
 
     // 8. Delete the conversation
     println!("8. Deleting the conversation...");
