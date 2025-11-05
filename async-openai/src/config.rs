@@ -136,7 +136,7 @@ impl Config for OpenAIConfig {
 
         // hack for Assistants APIs
         // Calls to the Assistants API require that you pass a Beta header
-        headers.insert(OPENAI_BETA_HEADER, "assistants=v2".parse().unwrap());
+        // headers.insert(OPENAI_BETA_HEADER, "assistants=v2".parse().unwrap());
 
         headers
     }
