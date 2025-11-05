@@ -1,10 +1,10 @@
-use std::{fmt::Display, pin::Pin};
+use std::{fmt::Display, pin::Pin, time::Duration};
 
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
 use reqwest::multipart::Form;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
     config::{Config, OpenAIConfig},
@@ -344,6 +344,13 @@ impl<C: Config> Client<C> {
                     .map_err(backoff::Error::Permanent)?;
             };
 
+            let retry_after = response
+                .headers()
+                .get("retry-after")
+                .and_then(|h| h.to_str().ok())
+                .and_then(|s| s.parse::<u64>().ok())
+                .map(Duration::from_secs);
+
             let bytes = response
                 .bytes()
                 .await
@@ -380,7 +387,7 @@ impl<C: Config> Client<C> {
                     tracing::warn!("Rate limited: {}", wrapped_error.error.message);
                     return Err(backoff::Error::Transient {
                         err: OpenAIError::ApiError(wrapped_error.error),
-                        retry_after: None,
+                        retry_after,
                     });
                 } else {
                     return Err(backoff::Error::Permanent(OpenAIError::ApiError(
