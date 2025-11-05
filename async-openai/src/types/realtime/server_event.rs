@@ -1,10 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::realtime::{RealtimeResponse, Session};
-
 use super::{
     content_part::ContentPart, error::RealtimeAPIError, item::RealtimeConversationItem,
-    rate_limit::RateLimit,
+    rate_limit::RealtimeRateLimit, response::RealtimeResponse, session::Session,
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -469,7 +467,7 @@ pub struct ResponseFunctionCallArgumentsDoneEvent {
 pub struct RateLimitsUpdatedEvent {
     /// The unique ID of the server event.
     pub event_id: String,
-    pub rate_limits: Vec<RateLimit>,
+    pub rate_limits: Vec<RealtimeRateLimit>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

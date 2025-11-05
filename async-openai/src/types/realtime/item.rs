@@ -271,8 +271,7 @@ pub struct RealtimeMCPToolCall {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(tag = "type")]
-#[serde(rename_all = "snake_case")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum RealtimeConversationItem {
     Message(RealtimeConversationItemMessage),
     FunctionCall(RealtimeConversationItemFunctionCall),
