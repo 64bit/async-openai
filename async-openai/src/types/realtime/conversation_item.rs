@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::types::{
+    mcp::MCPListToolsTool,
     realtime::{ErrorCodeMessage, ErrorMessage},
-    responses::MCPListToolsTool,
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

@@ -1,14 +1,12 @@
 use crate::error::OpenAIError;
-use crate::types::MCPTool;
 pub use crate::types::{
     CompletionTokensDetails, ImageDetail, PromptTokensDetails, ReasoningEffort,
     ResponseFormatJsonSchema,
 };
+use crate::types::{MCPListToolsTool, MCPTool};
 use derive_builder::Builder;
-use futures::Stream;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::pin::Pin;
 
 /// Role of messages in the API.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
@@ -2105,20 +2103,6 @@ pub struct MCPListTools {
     /// Error message if listing failed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct MCPListToolsTool {
-    /// The JSON schema describing the tool's input.
-    pub input_schema: serde_json::Value,
-    /// The name of the tool.
-    pub name: String,
-    /// Additional annotations about the tool.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub annotations: Option<serde_json::Value>,
-    /// The description of the tool.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

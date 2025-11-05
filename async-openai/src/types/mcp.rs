@@ -121,3 +121,17 @@ pub struct MCPToolApprovalFilter {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub never: Option<MCPToolFilter>,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct MCPListToolsTool {
+    /// The JSON schema describing the tool's input.
+    pub input_schema: serde_json::Value,
+    /// The name of the tool.
+    pub name: String,
+    /// Additional annotations about the tool.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub annotations: Option<serde_json::Value>,
+    /// The description of the tool.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+}
