@@ -2422,7 +2422,7 @@ pub struct DeleteResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct InputItemReference {
+pub struct AnyItemReference {
     pub r#type: Option<String>,
     pub id: String,
 }
@@ -2450,7 +2450,7 @@ pub enum ItemResourceItem {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(untagged)]
 pub enum ItemResource {
-    ItemReference(InputItemReference),
+    ItemReference(AnyItemReference),
     Item(ItemResourceItem),
 }
 

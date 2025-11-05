@@ -28,6 +28,7 @@
   - [x] Batch
   - [x] Chat
   - [x] Completions (Legacy)
+  - [x] Conversations
   - [x] Embeddings
   - [x] Files
   - [x] Fine-Tuning
