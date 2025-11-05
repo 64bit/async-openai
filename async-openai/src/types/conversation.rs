@@ -1,26 +1,25 @@
-use std::collections::HashMap;
-
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-use super::responses::InputItem;
+use super::{common::Metadata, responses::InputItem};
 
 /// Represents a conversation object.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
-pub struct ConversationObject {
+pub struct ConversationResource {
     /// The unique ID of the conversation.
     pub id: String,
     /// The object type, which is always `conversation`.
     pub object: String,
     /// Set of 16 key-value pairs that can be attached to an object.
-    pub metadata: HashMap<String, serde_json::Value>,
+    pub metadata: Metadata,
     /// The time at which the conversation was created, measured in seconds since the Unix epoch.
     pub created_at: i64,
 }
 
 /// Request to create a conversation.
+/// openapi spec type: CreateConversationBody
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
 #[builder(name = "CreateConversationRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -30,8 +29,8 @@ pub struct ConversationObject {
 pub struct CreateConversationRequest {
     /// Set of 16 key-value pairs that can be attached to an object.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<HashMap<String, serde_json::Value>>,
-    
+    pub metadata: Option<Metadata>,
+
     /// Initial items to include in the conversation context. You may add up to 20 items at a time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub items: Option<Vec<InputItem>>,
@@ -46,7 +45,7 @@ pub struct CreateConversationRequest {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct UpdateConversationRequest {
     /// Set of 16 key-value pairs that can be attached to an object.
-    pub metadata: HashMap<String, serde_json::Value>,
+    pub metadata: Metadata,
 }
 
 /// Represents a deleted conversation.
@@ -88,7 +87,7 @@ pub struct ConversationItemList {
 }
 
 /// A single item within a conversation.
-/// This is an alias to the Item type from the responses module, 
+/// This is an alias to the Item type from the responses module,
 /// as conversation items use the same structure.
 pub use super::responses::Item as ConversationItem;
 
@@ -130,15 +129,15 @@ pub struct ListConversationItemsQuery {
     /// A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<u32>,
-    
+
     /// The order to return the input items in. Default is `desc`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<ListOrder>,
-    
+
     /// An item ID to list items after, used in pagination.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
-    
+
     /// Specify additional output data to include in the model response.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub include: Option<Vec<IncludeParam>>,
@@ -153,4 +152,3 @@ pub enum ListOrder {
     /// Return items in descending order.
     Desc,
 }
-

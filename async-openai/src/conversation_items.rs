@@ -4,7 +4,7 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::{
-        ConversationItem, ConversationItemList, ConversationObject,
+        ConversationItem, ConversationItemList, ConversationResource,
         CreateConversationItemsRequest,
     },
     Client,
@@ -65,7 +65,7 @@ impl<'c, C: Config> ConversationItems<'c, C> {
 
     /// Delete an item from a conversation.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
-    pub async fn delete(&self, item_id: &str) -> Result<ConversationObject, OpenAIError> {
+    pub async fn delete(&self, item_id: &str) -> Result<ConversationResource, OpenAIError> {
         self.client
             .delete(&format!(
                 "/conversations/{}/items/{item_id}",
@@ -74,4 +74,3 @@ impl<'c, C: Config> ConversationItems<'c, C> {
             .await
     }
 }
-

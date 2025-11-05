@@ -3,7 +3,7 @@ use crate::{
     conversation_items::ConversationItems,
     error::OpenAIError,
     types::{
-        ConversationObject, CreateConversationRequest, DeleteConversationResponse,
+        ConversationResource, CreateConversationRequest, DeleteConversationResponse,
         UpdateConversationRequest,
     },
     Client,
@@ -28,7 +28,7 @@ impl<'c, C: Config> Conversations<'c, C> {
     pub async fn create(
         &self,
         request: CreateConversationRequest,
-    ) -> Result<ConversationObject, OpenAIError> {
+    ) -> Result<ConversationResource, OpenAIError> {
         self.client.post("/conversations", request).await
     }
 
@@ -37,7 +37,7 @@ impl<'c, C: Config> Conversations<'c, C> {
     pub async fn retrieve(
         &self,
         conversation_id: &str,
-    ) -> Result<ConversationObject, OpenAIError> {
+    ) -> Result<ConversationResource, OpenAIError> {
         self.client
             .get(&format!("/conversations/{conversation_id}"))
             .await
@@ -60,10 +60,9 @@ impl<'c, C: Config> Conversations<'c, C> {
         &self,
         conversation_id: &str,
         request: UpdateConversationRequest,
-    ) -> Result<ConversationObject, OpenAIError> {
+    ) -> Result<ConversationResource, OpenAIError> {
         self.client
             .post(&format!("/conversations/{conversation_id}"), request)
             .await
     }
 }
-
