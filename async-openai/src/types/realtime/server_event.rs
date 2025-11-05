@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use super::{
-    content_part::ContentPart, error::RealtimeAPIError, item::RealtimeConversationItem,
-    rate_limit::RealtimeRateLimit, response::RealtimeResponse, session::Session,
+    conversation_item::RealtimeConversationItem, error::RealtimeAPIError,
+    response::RealtimeResponse, session::Session,
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -306,6 +306,23 @@ pub struct ResponseOutputItemDoneEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(tag = "type")]
+pub enum ContentPart {
+    #[serde(rename = "text")]
+    Text {
+        /// The text content
+        text: String,
+    },
+    #[serde(rename = "audio")]
+    Audio {
+        /// Base64-encoded audio data
+        audio: Option<String>,
+        /// The transcript of the audio
+        transcript: String,
+    },
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ResponseContentPartAddedEvent {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -461,6 +478,25 @@ pub struct ResponseFunctionCallArgumentsDoneEvent {
     pub call_id: String,
     /// The final arguments as a JSON string.
     pub arguments: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeRateLimitName {
+    Requests,
+    Tokens,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RealtimeRateLimit {
+    /// The name of the rate limit (requests, tokens).
+    pub name: RealtimeRateLimitName,
+    /// The maximum allowed value for the rate limit.
+    pub limit: u32,
+    /// The remaining value before the limit is reached.
+    pub remaining: u32,
+    /// Seconds until the rate limit resets.
+    pub reset_seconds: f32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

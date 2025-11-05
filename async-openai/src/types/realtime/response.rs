@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::types::{
     realtime::{
-        Conversation, MaxOutputTokens, RealtimeAudioFormats, RealtimeConversationItem,
-        RealtimeTool, RealtimeVoice, ToolChoice,
+        MaxOutputTokens, RealtimeAudioFormats, RealtimeConversationItem, RealtimeTool,
+        RealtimeVoice, ToolChoice,
     },
     responses::Prompt,
 };
@@ -140,6 +140,14 @@ pub struct ResponseAudioOutput {
 pub struct ResponseAudio {
     /// Configuration for audio output.
     pub output: ResponseAudioOutput,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum Conversation {
+    #[default]
+    Auto,
+    None,
 }
 
 /// The response resource.
