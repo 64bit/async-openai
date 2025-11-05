@@ -1,7 +1,16 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::error::OpenAIError;
+use crate::{
+    error::OpenAIError,
+    types::responses::{
+        AnyItemReference, CodeInterpreterToolCall, ComputerToolCall, CustomToolCall,
+        CustomToolCallOutput, FileSearchToolCall, ImageGenToolCall, InputFileContent,
+        InputImageContent, InputTextContent, LocalShellToolCall, LocalShellToolCallOutput,
+        MCPApprovalRequest, MCPApprovalResponse, MCPListTools, MCPToolCall, OutputTextContent,
+        ReasoningItem, ReasoningTextContent, RefusalContent, WebSearchToolCall,
+    },
+};
 
 use super::{common::Metadata, responses::InputItem};
 
@@ -86,10 +95,95 @@ pub struct ConversationItemList {
     pub last_id: String,
 }
 
-/// A single item within a conversation.
-/// This is an alias to the Item type from the responses module,
-/// as conversation items use the same structure.
-pub use super::responses::Item as ConversationItem;
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum MessageStatus {
+    InProgress,
+    Incomplete,
+    Completed,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum MessageRole {
+    Unknown,
+    User,
+    Assistant,
+    System,
+    Critic,
+    Discriminator,
+    Developer,
+    Tool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct TextContent {
+    pub text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct SummaryTextContent {
+    /// A summary of the reasoning output from the model so far.
+    pub text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ComputerScreenContent {
+    /// The URL of the screenshot image.
+    pub image_url: Option<String>,
+    ///  The identifier of an uploaded file that contains the screenshot.
+    pub file_id: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum MessageContent {
+    InputText(InputTextContent),
+    OutputText(OutputTextContent),
+    Text(TextContent),
+    SummaryText(SummaryTextContent),
+    ReasoningText(ReasoningTextContent),
+    Refusal(RefusalContent),
+    InputImage(InputImageContent),
+    ComputerScreen(ComputerScreenContent),
+    InputFile(InputFileContent),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Message {
+    /// The unique ID of the message.
+    pub id: String,
+    /// The status of item. One of `in_progress`, `completed`, or `incomplete`. Populated when items are
+    /// returned via API.
+    pub status: MessageStatus,
+    /// The role of the message. One of `unknown`, `user`, `assistant`, `system`, `critic`,
+    /// `discriminator`, `developer`, or `tool`.
+    pub role: MessageRole,
+    /// The content of the message.
+    pub content: Vec<MessageContent>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ConversationItem {
+    Message(Message),
+    FileSearchCall(FileSearchToolCall),
+    WebSearchCall(WebSearchToolCall),
+    ImageGenerationCall(ImageGenToolCall),
+    ComputerCall(ComputerToolCall),
+    Reasoning(ReasoningItem),
+    CodeInterpreterCall(CodeInterpreterToolCall),
+    LocalShellCall(LocalShellToolCall),
+    LocalShellCallOutput(LocalShellToolCallOutput),
+    McpListTools(MCPListTools),
+    McpApprovalRequest(MCPApprovalRequest),
+    McpApprovalResponse(MCPApprovalResponse),
+    McpCall(MCPToolCall),
+    CustomToolCall(CustomToolCall),
+    CustomToolCallOutput(CustomToolCallOutput),
+    #[serde(untagged)]
+    ItemReference(AnyItemReference),
+}
 
 /// Additional fields to include in the response.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
