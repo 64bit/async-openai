@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::responses::{
         ConversationItem, ConversationItemList, ConversationResource,
         CreateConversationItemsRequest,
     },

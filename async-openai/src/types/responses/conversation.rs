@@ -6,13 +6,14 @@ use crate::{
     types::responses::{
         AnyItemReference, CodeInterpreterToolCall, ComputerToolCall, CustomToolCall,
         CustomToolCallOutput, FileSearchToolCall, ImageGenToolCall, InputFileContent,
-        InputImageContent, InputTextContent, LocalShellToolCall, LocalShellToolCallOutput,
-        MCPApprovalRequest, MCPApprovalResponse, MCPListTools, MCPToolCall, OutputTextContent,
-        ReasoningItem, ReasoningTextContent, RefusalContent, WebSearchToolCall,
+        InputImageContent, InputItem, InputTextContent, LocalShellToolCall,
+        LocalShellToolCallOutput, MCPApprovalRequest, MCPApprovalResponse, MCPListTools,
+        MCPToolCall, OutputTextContent, ReasoningItem, ReasoningTextContent, RefusalContent,
+        WebSearchToolCall,
     },
 };
 
-use super::{common::Metadata, responses::InputItem};
+use crate::types::common::Metadata;
 
 /// Represents a conversation object.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]

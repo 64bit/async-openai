@@ -2,7 +2,7 @@ use crate::{
     config::Config,
     conversation_items::ConversationItems,
     error::OpenAIError,
-    types::{
+    types::responses::{
         ConversationResource, CreateConversationRequest, DeleteConversationResponse,
         UpdateConversationRequest,
     },
