@@ -6,7 +6,7 @@ use super::{
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ErrorEvent {
+pub struct RealtimeServerEventError {
     /// The unique ID of the server event.
     pub event_id: String,
     /// Details of the error.
@@ -14,7 +14,7 @@ pub struct ErrorEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct SessionCreatedEvent {
+pub struct RealtimeServerEventSessionCreated {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The session resource.
@@ -22,7 +22,7 @@ pub struct SessionCreatedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct SessionUpdatedEvent {
+pub struct RealtimeServerEventSessionUpdated {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The updated session resource.
@@ -30,7 +30,7 @@ pub struct SessionUpdatedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ConversationItemAddedEvent {
+pub struct RealtimeServerEventConversationItemAdded {
     /// The unique ID of the server event.
     pub event_id: String,
     /// A single item within a Realtime conversation.
@@ -40,7 +40,7 @@ pub struct ConversationItemAddedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ConversationItemDoneEvent {
+pub struct RealtimeServerEventConversationItemDone {
     /// The unique ID of the server event.
     pub event_id: String,
     /// A single item within a Realtime conversation.
@@ -50,7 +50,7 @@ pub struct ConversationItemDoneEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct InputAudioBufferCommitedEvent {
+pub struct RealtimeServerEventInputAudioBufferCommitted {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the preceding item after which the new item will be inserted. Can be null if the item has no predecessor.
@@ -60,13 +60,13 @@ pub struct InputAudioBufferCommitedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct InputAudioBufferClearedEvent {
+pub struct RealtimeServerEventInputAudioBufferCleared {
     /// The unique ID of the server event.
     pub event_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct InputAudioBufferSpeechStartedEvent {
+pub struct RealtimeServerEventInputAudioBufferSpeechStarted {
     /// The unique ID of the server event.
     pub event_id: String,
     /// Milliseconds from the start of all audio written to the buffer during the session when speech was
@@ -78,7 +78,7 @@ pub struct InputAudioBufferSpeechStartedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct InputAudioBufferSpeechStoppedEvent {
+pub struct RealtimeServerEventInputAudioBufferSpeechStopped {
     /// The unique ID of the server event.
     pub event_id: String,
     /// Milliseconds since the session started when speech stopped. This will correspond to the end of
@@ -89,7 +89,7 @@ pub struct InputAudioBufferSpeechStoppedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct InputAudioBufferTimeoutTriggeredEvent {
+pub struct RealtimeServerEventInputAudioBufferTimeoutTriggered {
     /// The unique ID of the server event.
     pub event_id: String,
     /// Millisecond offset of audio written to the input audio buffer at the time the timeout was triggered.
@@ -101,7 +101,7 @@ pub struct InputAudioBufferTimeoutTriggeredEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct OutputAudioBufferStartedEvent {
+pub struct RealtimeServerEventOutputAudioBufferStarted {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The unique ID of the response that produced the audio.
@@ -109,7 +109,7 @@ pub struct OutputAudioBufferStartedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct OutputAudioBufferStoppedEvent {
+pub struct RealtimeServerEventOutputAudioBufferStopped {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The unique ID of the response that produced the audio.
@@ -117,7 +117,7 @@ pub struct OutputAudioBufferStoppedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct OutputAudioBufferClearedEvent {
+pub struct RealtimeServerEventOutputAudioBufferCleared {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The unique ID of the response that produced the audio.
@@ -171,7 +171,7 @@ pub enum TranscriptionUsage {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ConversationItemInputAudioTranscriptionCompletedEvent {
+pub struct RealtimeServerEventConversationItemInputAudioTranscriptionCompleted {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the item containing the audio that is being transcribed.
@@ -188,7 +188,7 @@ pub struct ConversationItemInputAudioTranscriptionCompletedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ConversationItemInputAudioTranscriptionDeltaEvent {
+pub struct RealtimeServerEventConversationItemInputAudioTranscriptionDelta {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the item containing the audio that is being transcribed.
@@ -206,7 +206,7 @@ pub struct ConversationItemInputAudioTranscriptionDeltaEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ConversationItemInputAudioTranscriptionFailedEvent {
+pub struct RealtimeServerEventConversationItemInputAudioTranscriptionFailed {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the user message item.
@@ -218,7 +218,7 @@ pub struct ConversationItemInputAudioTranscriptionFailedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ConversationItemTruncatedEvent {
+pub struct RealtimeServerEventConversationItemTruncated {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the assistant message item that was truncated.
@@ -230,7 +230,7 @@ pub struct ConversationItemTruncatedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ConversationItemDeletedEvent {
+pub struct RealtimeServerEventConversationItemDeleted {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the item that was deleted.
@@ -238,7 +238,7 @@ pub struct ConversationItemDeletedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ConversationItemRetrievedEvent {
+pub struct RealtimeServerEventConversationItemRetrieved {
     /// The unique ID of the server event.
     pub event_id: String,
     /// A single item within a Realtime conversation.
@@ -246,7 +246,7 @@ pub struct ConversationItemRetrievedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ConversationItemInputAudioTranscriptionSegmentEvent {
+pub struct RealtimeServerEventConversationItemInputAudioTranscriptionSegment {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the item containing the input audio content.
@@ -266,7 +266,7 @@ pub struct ConversationItemInputAudioTranscriptionSegmentEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseCreatedEvent {
+pub struct RealtimeServerEventResponseCreated {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The response resource.
@@ -274,7 +274,7 @@ pub struct ResponseCreatedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseDoneEvent {
+pub struct RealtimeServerEventResponseDone {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The response resource.
@@ -282,7 +282,7 @@ pub struct ResponseDoneEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseOutputItemAddedEvent {
+pub struct RealtimeServerEventResponseOutputItemAdded {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the Response to which the item belongs.
@@ -294,7 +294,7 @@ pub struct ResponseOutputItemAddedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseOutputItemDoneEvent {
+pub struct RealtimeServerEventResponseOutputItemDone {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response to which the item belongs.
@@ -323,7 +323,7 @@ pub enum ContentPart {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseContentPartAddedEvent {
+pub struct RealtimeServerEventResponseContentPartAdded {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response.
@@ -339,7 +339,7 @@ pub struct ResponseContentPartAddedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseContentPartDoneEvent {
+pub struct RealtimeServerEventResponseContentPartDone {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response.
@@ -355,7 +355,7 @@ pub struct ResponseContentPartDoneEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseOutputTextDeltaEvent {
+pub struct RealtimeServerEventResponseTextDelta {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response.
@@ -371,7 +371,7 @@ pub struct ResponseOutputTextDeltaEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseOutputTextDoneEvent {
+pub struct RealtimeServerEventResponseTextDone {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response.
@@ -387,7 +387,7 @@ pub struct ResponseOutputTextDoneEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseOutputAudioTranscriptDeltaEvent {
+pub struct RealtimeServerEventResponseAudioTranscriptDelta {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response.
@@ -403,7 +403,7 @@ pub struct ResponseOutputAudioTranscriptDeltaEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseOutputAudioTranscriptDoneEvent {
+pub struct RealtimeServerEventResponseAudioTranscriptDone {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response.
@@ -419,7 +419,7 @@ pub struct ResponseOutputAudioTranscriptDoneEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseOutputAudioDeltaEvent {
+pub struct RealtimeServerEventResponseAudioDelta {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response.
@@ -435,7 +435,7 @@ pub struct ResponseOutputAudioDeltaEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseOutputAudioDoneEvent {
+pub struct RealtimeServerEventResponseAudioDone {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response.
@@ -449,7 +449,7 @@ pub struct ResponseOutputAudioDoneEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseFunctionCallArgumentsDeltaEvent {
+pub struct RealtimeServerEventResponseFunctionCallArgumentsDelta {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response.
@@ -465,7 +465,7 @@ pub struct ResponseFunctionCallArgumentsDeltaEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseFunctionCallArgumentsDoneEvent {
+pub struct RealtimeServerEventResponseFunctionCallArgumentsDone {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response.
@@ -500,14 +500,14 @@ pub struct RealtimeRateLimit {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct RateLimitsUpdatedEvent {
+pub struct RealtimeServerEventRateLimitsUpdated {
     /// The unique ID of the server event.
     pub event_id: String,
     pub rate_limits: Vec<RealtimeRateLimit>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct MCPListToolsInProgressEvent {
+pub struct RealtimeServerEventMCPListToolsInProgress {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the MCP list tools item.
@@ -515,7 +515,7 @@ pub struct MCPListToolsInProgressEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct MCPListToolsCompletedEvent {
+pub struct RealtimeServerEventMCPListToolsCompleted {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the MCP list tools item.
@@ -523,7 +523,7 @@ pub struct MCPListToolsCompletedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct MCPListToolsFailedEvent {
+pub struct RealtimeServerEventMCPListToolsFailed {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the MCP list tools item.
@@ -531,7 +531,7 @@ pub struct MCPListToolsFailedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseMCPCallArgumentsDeltaEvent {
+pub struct RealtimeServerEventResponseMCPCallArgumentsDelta {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response.
@@ -548,7 +548,7 @@ pub struct ResponseMCPCallArgumentsDeltaEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseMCPCallArgumentsDoneEvent {
+pub struct RealtimeServerEventResponseMCPCallArgumentsDone {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The ID of the response.
@@ -562,7 +562,7 @@ pub struct ResponseMCPCallArgumentsDoneEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseMCPCallInProgressEvent {
+pub struct RealtimeServerEventResponseMCPCallInProgress {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The index of the output item in the response.
@@ -572,7 +572,7 @@ pub struct ResponseMCPCallInProgressEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseMCPCallCompletedEvent {
+pub struct RealtimeServerEventResponseMCPCallCompleted {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The index of the output item in the response.
@@ -582,7 +582,7 @@ pub struct ResponseMCPCallCompletedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseMCPCallFailedEvent {
+pub struct RealtimeServerEventResponseMCPCallFailed {
     /// The unique ID of the server event.
     pub event_id: String,
     /// The index of the output item in the response.
@@ -599,16 +599,16 @@ pub enum RealtimeServerEvent {
     /// Most errors are recoverable and the session will stay open, we recommend to
     /// implementors to monitor and log error messages by default.
     #[serde(rename = "error")]
-    Error(ErrorEvent),
+    Error(RealtimeServerEventError),
 
     /// Returned when a Session is created. Emitted automatically when a new connection is established as the first server event.
     /// This event will contain the default Session configuration.
     #[serde(rename = "session.created")]
-    SessionCreated(SessionCreatedEvent),
+    SessionCreated(RealtimeServerEventSessionCreated),
 
     /// Returned when a session is updated with a `session.update` event, unless there is an error.
     #[serde(rename = "session.updated")]
-    SessionUpdated(SessionUpdatedEvent),
+    SessionUpdated(RealtimeServerEventSessionUpdated),
 
     /// Sent by the server when an Item is added to the default Conversation. This can happen in several cases:
     /// - When the client sends a conversation.item.create event
@@ -619,21 +619,21 @@ pub enum RealtimeServerEvent {
     /// The event will include the full content of the Item (except when model is generating a Response) except for audio data,
     /// which can be retrieved separately with a `conversation.item.retrieve` event if necessary.
     #[serde(rename = "conversation.item.added")]
-    ConversationItemAdded(ConversationItemAddedEvent),
+    ConversationItemAdded(RealtimeServerEventConversationItemAdded),
 
     /// Returned when a conversation item is finalized.
     ///
     /// The event will include the full content of the Item except for audio data, which can be retrieved
     /// separately with a `conversation.item.retrieve` event if needed.
     #[serde(rename = "conversation.item.done")]
-    ConversationItemDone(ConversationItemDoneEvent),
+    ConversationItemDone(RealtimeServerEventConversationItemDone),
 
     /// Returned when a conversation item is retrieved with `conversation.item.retrieve`.
     /// This is provided as a way to fetch the server's representation of an item, for example to get access
     /// to the post-processed audio data after noise cancellation and VAD.
     /// It includes the full content of the Item, including audio data.
     #[serde(rename = "conversation.item.retrieved")]
-    ConversationItemRetrieved(ConversationItemRetrievedEvent),
+    ConversationItemRetrieved(RealtimeServerEventConversationItemRetrieved),
 
     /// This event is the output of audio transcription for user audio written to the user audio
     /// buffer. Transcription begins when the input audio buffer is committed by the client or
@@ -645,24 +645,26 @@ pub enum RealtimeServerEvent {
     /// may diverge somewhat from the model's interpretation, and should be treated as a rough guide.
     #[serde(rename = "conversation.item.input_audio_transcription.completed")]
     ConversationItemInputAudioTranscriptionCompleted(
-        ConversationItemInputAudioTranscriptionCompletedEvent,
+        RealtimeServerEventConversationItemInputAudioTranscriptionCompleted,
     ),
 
     /// Returned when the text value of an input audio transcription content part is updated with incremental transcription results.
     #[serde(rename = "conversation.item.input_audio_transcription.delta")]
-    ConversationItemInputAudioTranscriptionDelta(ConversationItemInputAudioTranscriptionDeltaEvent),
+    ConversationItemInputAudioTranscriptionDelta(
+        RealtimeServerEventConversationItemInputAudioTranscriptionDelta,
+    ),
 
     /// Returned when an input audio transcription segment is identified for an item.
     #[serde(rename = "conversation.item.input_audio_transcription.segment")]
     ConversationItemInputAudioTranscriptionSegment(
-        ConversationItemInputAudioTranscriptionSegmentEvent,
+        RealtimeServerEventConversationItemInputAudioTranscriptionSegment,
     ),
 
     /// Returned when input audio transcription is configured, and a transcription request for a user message failed.
     /// These events are separate from other `error` events so that the client can identify the related Item.
     #[serde(rename = "conversation.item.input_audio_transcription.failed")]
     ConversationItemInputAudioTranscriptionFailed(
-        ConversationItemInputAudioTranscriptionFailedEvent,
+        RealtimeServerEventConversationItemInputAudioTranscriptionFailed,
     ),
 
     /// Returned when an earlier assistant audio message item is truncated by the client with a `conversation.item.truncate` event.
@@ -671,22 +673,22 @@ pub enum RealtimeServerEvent {
     /// This action will truncate the audio and remove the server-side text transcript to ensure there is no text in the
     /// context that hasn't been heard by the user.
     #[serde(rename = "conversation.item.truncated")]
-    ConversationItemTruncated(ConversationItemTruncatedEvent),
+    ConversationItemTruncated(RealtimeServerEventConversationItemTruncated),
 
     /// Returned when an item in the conversation is deleted by the client with a `conversation.item.delete` event.
     /// This event is used to synchronize the server's understanding of the conversation history with the client's view.
     #[serde(rename = "conversation.item.deleted")]
-    ConversationItemDeleted(ConversationItemDeletedEvent),
+    ConversationItemDeleted(RealtimeServerEventConversationItemDeleted),
 
     /// Returned when an input audio buffer is committed, either by the client or automatically in server VAD mode.
     /// The `item_id` property is the ID of the user message item that will be created,
     /// thus a `conversation.item.created` event will also be sent to the client.
     #[serde(rename = "input_audio_buffer.committed")]
-    InputAudioBufferCommited(InputAudioBufferCommitedEvent),
+    InputAudioBufferCommitted(RealtimeServerEventInputAudioBufferCommitted),
 
     /// Returned when the input audio buffer is cleared by the client with a `input_audio_buffer.clear` event.
     #[serde(rename = "input_audio_buffer.cleared")]
-    InputAudioBufferCleared(InputAudioBufferClearedEvent),
+    InputAudioBufferCleared(RealtimeServerEventInputAudioBufferCleared),
 
     /// Sent by the server when in `server_vad` mode to indicate that speech has been detected in the audio buffer.
     /// This can happen any time audio is added to the buffer (unless speech is already detected).
@@ -697,12 +699,12 @@ pub enum RealtimeServerEvent {
     /// also be included in the `input_audio_buffer.speech_stopped` event (unless the client manually commits the
     ///  audio buffer during VAD activation).
     #[serde(rename = "input_audio_buffer.speech_started")]
-    InputAudioBufferSpeechStarted(InputAudioBufferSpeechStartedEvent),
+    InputAudioBufferSpeechStarted(RealtimeServerEventInputAudioBufferSpeechStarted),
 
     /// Returned in `server_vad` mode when the server detects the end of speech in the audio buffer.
     /// The server will also send a `conversation.item.created` event with the user message item that is created from the audio buffer.
     #[serde(rename = "input_audio_buffer.speech_stopped")]
-    InputAudioBufferSpeechStopped(InputAudioBufferSpeechStoppedEvent),
+    InputAudioBufferSpeechStopped(RealtimeServerEventInputAudioBufferSpeechStopped),
 
     /// Returned when the Server VAD timeout is triggered for the input audio buffer. This is
     /// configured with `idle_timeout_ms` in the `turn_detection` settings of the session, and
@@ -718,31 +720,31 @@ pub enum RealtimeServerEvent {
     /// There may be speech that didn't trigger VAD but is still detected by the model, so the model may respond
     /// with something relevant to the conversation or a prompt to continue speaking.
     #[serde(rename = "input_audio_buffer.timeout_triggered")]
-    InputAudioBufferTimeoutTriggered(InputAudioBufferTimeoutTriggeredEvent),
+    InputAudioBufferTimeoutTriggered(RealtimeServerEventInputAudioBufferTimeoutTriggered),
 
     /// *WebRTC Only*: Emitted when the server begins streaming audio to the client. This
     /// event is emitted after an audio content part has been added (`response.content_part.added`) to the response.
     /// [Learn more](https://platform.openai.com/docs/guides/realtime-conversations#client-and-server-events-for-audio-in-webrtc).
     #[serde(rename = "output_audio_buffer.started")]
-    OutputAudioBufferStarted(OutputAudioBufferStartedEvent),
+    OutputAudioBufferStarted(RealtimeServerEventOutputAudioBufferStarted),
 
     /// *WebRTC Only*: Emitted when the output audio buffer has been completely drained on
     /// the server, and no more audio is forthcoming. This event is emitted after the full response data has been sent
     /// to the client (`response.done`). [Learn more](https://platform.openai.com/docs/guides/realtime-conversations#client-and-server-events-for-audio-in-webrtc).
     #[serde(rename = "output_audio_buffer.stopped")]
-    OutputAudioBufferStopped(OutputAudioBufferStoppedEvent),
+    OutputAudioBufferStopped(RealtimeServerEventOutputAudioBufferStopped),
 
     /// *WebRTC Only*: Emitted when the output audio buffer is cleared. This happens either in
     /// VAD mode when the user has interrupted (`input_audio_buffer.speech_started`), or when the client has
     /// emitted the `output_audio_buffer.clear` event to manually cut off the current audio response.
     /// [Learn more](https://platform.openai.com/docs/guides/realtime-conversations#client-and-server-events-for-audio-in-webrtc).
     #[serde(rename = "output_audio_buffer.cleared")]
-    OutputAudioBufferCleared(OutputAudioBufferClearedEvent),
+    OutputAudioBufferCleared(RealtimeServerEventOutputAudioBufferCleared),
 
     /// Returned when a new Response is created. The first event of response creation,
     /// where the response is in an initial state of `in_progress`.
     #[serde(rename = "response.created")]
-    ResponseCreated(ResponseCreatedEvent),
+    ResponseCreated(RealtimeServerEventResponseCreated),
 
     /// Returned when a Response is done streaming. Always emitted, no matter the final state.
     /// The Response object included in the `response.done` event will include all output Items in the Response
@@ -753,96 +755,96 @@ pub enum RealtimeServerEvent {
     ///
     /// A response will contain all output items that were generated during the response, excluding any audio content.
     #[serde(rename = "response.done")]
-    ResponseDone(ResponseDoneEvent),
+    ResponseDone(RealtimeServerEventResponseDone),
 
     /// Returned when a new Item is created during Response generation.
     #[serde(rename = "response.output_item.added")]
-    ResponseOutputItemAdded(ResponseOutputItemAddedEvent),
+    ResponseOutputItemAdded(RealtimeServerEventResponseOutputItemAdded),
 
     /// Returned when an Item is done streaming. Also emitted when a Response is interrupted, incomplete, or cancelled.
     #[serde(rename = "response.output_item.done")]
-    ResponseOutputItemDone(ResponseOutputItemDoneEvent),
+    ResponseOutputItemDone(RealtimeServerEventResponseOutputItemDone),
 
     /// Returned when a new content part is added to an assistant message item during response generation.
     #[serde(rename = "response.content_part.added")]
-    ResponseContentPartAdded(ResponseContentPartAddedEvent),
+    ResponseContentPartAdded(RealtimeServerEventResponseContentPartAdded),
 
     /// Returned when a content part is done streaming in an assistant message item.
     /// Also emitted when a Response is interrupted, incomplete, or cancelled.
     #[serde(rename = "response.content_part.done")]
-    ResponseContentPartDone(ResponseContentPartDoneEvent),
+    ResponseContentPartDone(RealtimeServerEventResponseContentPartDone),
 
     /// Returned when the text value of an "output_text" content part is updated.
     #[serde(rename = "response.output_text.delta")]
-    ResponseOutputTextDelta(ResponseOutputTextDeltaEvent),
+    ResponseOutputTextDelta(RealtimeServerEventResponseTextDelta),
 
     /// Returned when the text value of an "output_text" content part is done streaming.
     /// Also emitted when a Response is interrupted, incomplete, or cancelled.
     #[serde(rename = "response.output_text.done")]
-    ResponseOutputTextDone(ResponseOutputTextDoneEvent),
+    ResponseOutputTextDone(RealtimeServerEventResponseTextDone),
 
     /// Returned when the model-generated transcription of audio output is updated.
     #[serde(rename = "response.output_audio_transcript.delta")]
-    ResponseOutputAudioTranscriptDelta(ResponseOutputAudioTranscriptDeltaEvent),
+    ResponseOutputAudioTranscriptDelta(RealtimeServerEventResponseAudioTranscriptDelta),
 
     /// Returned when the model-generated transcription of audio output is done streaming.
     /// Also emitted when a Response is interrupted, incomplete, or cancelled.
     #[serde(rename = "response.output_audio_transcript.done")]
-    ResponseOutputAudioTranscriptDone(ResponseOutputAudioTranscriptDoneEvent),
+    ResponseOutputAudioTranscriptDone(RealtimeServerEventResponseAudioTranscriptDone),
 
     /// Returned when the model-generated audio is updated.
     #[serde(rename = "response.output_audio.delta")]
-    ResponseOutputAudioDelta(ResponseOutputAudioDeltaEvent),
+    ResponseOutputAudioDelta(RealtimeServerEventResponseAudioDelta),
 
     /// Returned when the model-generated audio is done.
     /// Also emitted when a Response is interrupted, incomplete, or cancelled.
     #[serde(rename = "response.output_audio.done")]
-    ResponseOutputAudioDone(ResponseOutputAudioDoneEvent),
+    ResponseOutputAudioDone(RealtimeServerEventResponseAudioDone),
 
     /// Returned when the model-generated function call arguments are updated.
     #[serde(rename = "response.function_call_arguments.delta")]
-    ResponseFunctionCallArgumentsDelta(ResponseFunctionCallArgumentsDeltaEvent),
+    ResponseFunctionCallArgumentsDelta(RealtimeServerEventResponseFunctionCallArgumentsDelta),
 
     /// Returned when the model-generated function call arguments are done streaming.
     /// Also emitted when a Response is interrupted, incomplete, or cancelled.
     #[serde(rename = "response.function_call_arguments.done")]
-    ResponseFunctionCallArgumentsDone(ResponseFunctionCallArgumentsDoneEvent),
+    ResponseFunctionCallArgumentsDone(RealtimeServerEventResponseFunctionCallArgumentsDone),
 
     /// Returned when MCP tool call arguments are updated.
     #[serde(rename = "response.mcp_call_arguments.delta")]
-    ResponseMCPCallArgumentsDelta(ResponseMCPCallArgumentsDeltaEvent),
+    ResponseMCPCallArgumentsDelta(RealtimeServerEventResponseMCPCallArgumentsDelta),
 
     /// Returned when MCP tool call arguments are finalized during response generation.
     #[serde(rename = "response.mcp_call_arguments.done")]
-    ResponseMCPCallArgumentsDone(ResponseMCPCallArgumentsDoneEvent),
+    ResponseMCPCallArgumentsDone(RealtimeServerEventResponseMCPCallArgumentsDone),
 
     /// Returned when an MCP tool call is in progress.
     #[serde(rename = "response.mcp_call.in_progress")]
-    ResponseMCPCallInProgress(ResponseMCPCallInProgressEvent),
+    ResponseMCPCallInProgress(RealtimeServerEventResponseMCPCallInProgress),
 
     /// Returned when an MCP tool call has completed successfully.
     #[serde(rename = "response.mcp_call.completed")]
-    ResponseMCPCallCompleted(ResponseMCPCallCompletedEvent),
+    ResponseMCPCallCompleted(RealtimeServerEventResponseMCPCallCompleted),
 
     /// Returned when an MCP tool call has failed.
     #[serde(rename = "response.mcp_call.failed")]
-    ResponseMCPCallFailed(ResponseMCPCallFailedEvent),
+    ResponseMCPCallFailed(RealtimeServerEventResponseMCPCallFailed),
 
     /// Returned when listing MCP tools is in progress for an item.
     #[serde(rename = "mcp_list_tools.in_progress")]
-    MCPListToolsInProgress(MCPListToolsInProgressEvent),
+    MCPListToolsInProgress(RealtimeServerEventMCPListToolsInProgress),
 
     /// Returned when listing MCP tools has completed for an item.
     #[serde(rename = "mcp_list_tools.completed")]
-    MCPListToolsCompleted(MCPListToolsCompletedEvent),
+    MCPListToolsCompleted(RealtimeServerEventMCPListToolsCompleted),
 
     /// Returned when listing MCP tools has failed for an item.
     #[serde(rename = "mcp_list_tools.failed")]
-    MCPListToolsFailed(MCPListToolsFailedEvent),
+    MCPListToolsFailed(RealtimeServerEventMCPListToolsFailed),
 
     /// Emitted at the beginning of a Response to indicate the updated rate limits.
     /// When a Response is created some tokens will be "reserved" for the output tokens, the rate limits
     /// shown here reflect that reservation, which is then adjusted accordingly once the Response is completed.
     #[serde(rename = "rate_limits.updated")]
-    RateLimitsUpdated(RateLimitsUpdatedEvent),
+    RateLimitsUpdated(RealtimeServerEventRateLimitsUpdated),
 }
