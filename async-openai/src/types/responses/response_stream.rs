@@ -44,10 +44,10 @@ pub enum ResponseStreamEvent {
     ResponseContentPartDone(ResponseContentPartDoneEvent),
     /// Emitted when there is an additional text delta.
     #[serde(rename = "response.output_text.delta")]
-    ResponseOutputTextDelta(ResponseOutputTextDeltaEvent),
+    ResponseOutputTextDelta(ResponseTextDeltaEvent),
     /// Emitted when text content is finalized.
     #[serde(rename = "response.output_text.done")]
-    ResponseOutputTextDone(ResponseOutputTextDoneEvent),
+    ResponseOutputTextDone(ResponseTextDoneEvent),
     /// Emitted when there is a partial refusal text.
     #[serde(rename = "response.refusal.delta")]
     ResponseRefusalDelta(ResponseRefusalDeltaEvent),
@@ -98,16 +98,16 @@ pub enum ResponseStreamEvent {
     ResponseReasoningTextDone(ResponseReasoningTextDoneEvent),
     /// Emitted when an image generation tool call has completed and the final image is available.
     #[serde(rename = "response.image_generation_call.completed")]
-    ResponseImageGenerationCallCompleted(ResponseImageGenerationCallCompletedEvent),
+    ResponseImageGenerationCallCompleted(ResponseImageGenCallCompletedEvent),
     /// Emitted when an image generation tool call is actively generating an image (intermediate state).
     #[serde(rename = "response.image_generation_call.generating")]
-    ResponseImageGenerationCallGenerating(ResponseImageGenerationCallGeneratingEvent),
+    ResponseImageGenerationCallGenerating(ResponseImageGenCallGeneratingEvent),
     /// Emitted when an image generation tool call is in progress.
     #[serde(rename = "response.image_generation_call.in_progress")]
-    ResponseImageGenerationCallInProgress(ResponseImageGenerationCallInProgressEvent),
+    ResponseImageGenerationCallInProgress(ResponseImageGenCallInProgressEvent),
     /// Emitted when a partial image is available during image generation streaming.
     #[serde(rename = "response.image_generation_call.partial_image")]
-    ResponseImageGenerationCallPartialImage(ResponseImageGenerationCallPartialImageEvent),
+    ResponseImageGenerationCallPartialImage(ResponseImageGenCallPartialImageEvent),
     /// Emitted when there is a delta (partial update) to the arguments of an MCP tool call.
     #[serde(rename = "response.mcp_call_arguments.delta")]
     ResponseMCPCallArgumentsDelta(ResponseMCPCallArgumentsDeltaEvent),
@@ -227,7 +227,7 @@ pub struct ResponseContentPartDoneEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ResponseOutputTextDeltaEvent {
+pub struct ResponseTextDeltaEvent {
     pub sequence_number: u64,
     pub item_id: String,
     pub output_index: u32,
@@ -238,7 +238,7 @@ pub struct ResponseOutputTextDeltaEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ResponseOutputTextDoneEvent {
+pub struct ResponseTextDoneEvent {
     pub sequence_number: u64,
     pub item_id: String,
     pub output_index: u32,
@@ -385,28 +385,28 @@ pub struct ResponseReasoningTextDoneEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ResponseImageGenerationCallCompletedEvent {
+pub struct ResponseImageGenCallCompletedEvent {
     pub sequence_number: u64,
     pub output_index: u32,
     pub item_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ResponseImageGenerationCallGeneratingEvent {
+pub struct ResponseImageGenCallGeneratingEvent {
     pub sequence_number: u64,
     pub output_index: u32,
     pub item_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ResponseImageGenerationCallInProgressEvent {
+pub struct ResponseImageGenCallInProgressEvent {
     pub sequence_number: u64,
     pub output_index: u32,
     pub item_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ResponseImageGenerationCallPartialImageEvent {
+pub struct ResponseImageGenCallPartialImageEvent {
     pub sequence_number: u64,
     pub output_index: u32,
     pub item_id: String,
