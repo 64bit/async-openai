@@ -35,7 +35,7 @@
   - [x] Models
   - [x] Moderations
   - [x] Organizations | Administration (partially implemented)
-  - [x] Realtime (Beta) (partially implemented)
+  - [x] Realtime GA (partially implemented)
   - [x] Responses (partially implemented)
   - [x] Uploads
   - [x] Videos
@@ -65,7 +65,6 @@ $Env:OPENAI_API_KEY='sk-...'
 ## Realtime API
 
 Only types for Realtime API are implemented, and can be enabled with feature flag `realtime`.
-These types were written before OpenAI released official specs.
 
 ## Image Generation Example
 
@@ -179,8 +178,6 @@ To maintain quality of the project, a minimum of the following is a must for cod
 This project adheres to [Rust Code of Conduct](https://www.rust-lang.org/policies/code-of-conduct)
 
 ## Complimentary Crates
-
-- [openai-func-enums](https://github.com/frankfralick/openai-func-enums) provides procedural macros that make it easier to use this library with OpenAI API's tool calling feature. It also provides derive macros you can add to existing [clap](https://github.com/clap-rs/clap) application subcommands for natural language use of command line tools. It also supports openai's [parallel tool calls](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling) and allows you to choose between running multiple tool calls concurrently or own their own OS threads.
 - [async-openai-wasm](https://github.com/ifsheldon/async-openai-wasm) provides WASM support.
 
 ## License
