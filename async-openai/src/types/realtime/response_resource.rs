@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::types::{
@@ -76,7 +78,7 @@ pub struct OutputTokenDetails {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case")]
-pub enum ResponseStatus {
+pub enum RealtimeResponseStatus {
     InProgress,
     Completed,
     Cancelled,
@@ -91,17 +93,35 @@ pub struct Error {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResponseStatusDetail {
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeResponseStatusDetailType {
+    Completed,
+    Cancelled,
+    Incomplete,
+    Failed,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum RealtimeResponseStatusDetailReason {
+    TurnDetected,
+    ClientCancelled,
+    MaxOutputTokens,
+    ContentFilter,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RealtimeResponseStatusDetail {
     /// A description of the error that caused the response to fail, populated when the status is failed.
     pub error: Option<Error>,
     /// The reason the Response did not complete. For a `cancelled` Response, one of `turn_detected`
     /// (the server VAD detected a new start of speech) or `client_cancelled` (the client sent a cancel
     /// event). For an incomplete Response, one of `max_output_tokens` or `content_filter` (the
     ///  server-side safety filter activated and cut off the response).
-    pub reason: Option<String>,
+    pub reason: Option<RealtimeResponseStatusDetailReason>,
     /// The type of error that caused the response to fail, corresponding with the `status`
     /// field (`completed`, `cancelled`, `incomplete`, `failed`).
-    pub r#type: String,
+    pub r#type: RealtimeResponseStatusDetailType,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -213,7 +233,7 @@ pub struct RealtimeResponse {
     /// Keys are strings with a maximum length of 64 characters. Values are strings with a
     /// maximum length of 512 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<serde_json::Value>,
+    pub metadata: Option<HashMap<String, String>>,
 
     /// The object type, must be "realtime.response".
     pub object: String,
@@ -227,10 +247,10 @@ pub struct RealtimeResponse {
     pub output_modalities: Vec<String>,
 
     /// The final status of the response (`completed`, `cancelled`, `failed`, or `incomplete`, `in_progress`).
-    pub status: ResponseStatus,
+    pub status: RealtimeResponseStatus,
 
     /// Additional details about the status.
-    pub status_details: Option<ResponseStatusDetail>,
+    pub status_details: Option<RealtimeResponseStatusDetail>,
 
     /// Usage statistics for the Response, this will correspond to billing. A Realtime API session
     /// will maintain a conversation context and append new Items to the Conversation, thus output

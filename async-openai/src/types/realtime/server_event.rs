@@ -128,12 +128,12 @@ pub struct OutputAudioBufferClearedEvent {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 /// Log probability information for a transcribed token.
-pub struct LogProb {
-    /// Raw UTF-8 bytes for the token.
+pub struct LogProbProperties {
+    /// The bytes that were used to generate the log probability.
     pub bytes: Vec<u8>,
     /// The log probability of the token.
     pub logprob: f64,
-    /// The token string.
+    /// The token that was used to generate the log probability.
     pub token: String,
 }
 
@@ -146,7 +146,7 @@ pub struct TokenUsageInputTokenDetails {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct TokenUsage {
+pub struct TranscriptTextUsageTokens {
     /// Number of input tokens billed for this request.
     pub input_tokens: u32,
     /// Number of output tokens generated.
@@ -158,7 +158,7 @@ pub struct TokenUsage {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct DurationUsage {
+pub struct TranscriptTextUsageDuration {
     ///Duration of the input audio in seconds.
     pub seconds: f32,
 }
@@ -167,9 +167,9 @@ pub struct DurationUsage {
 #[serde(tag = "type")]
 pub enum TranscriptionUsage {
     #[serde(rename = "tokens")]
-    TokenUsage(TokenUsage),
+    Tokens(TranscriptTextUsageTokens),
     #[serde(rename = "duration")]
-    DurationUsage(DurationUsage),
+    Duration(TranscriptTextUsageDuration),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -183,7 +183,7 @@ pub struct ConversationItemInputAudioTranscriptionCompletedEvent {
     /// The transcribed text.
     pub transcript: String,
     /// Optional per-token log probability data.
-    pub logprobs: Option<Vec<LogProb>>,
+    pub logprobs: Option<Vec<LogProbProperties>>,
     /// Usage statistics for the transcription, this is billed according to the ASR model's pricing rather than
     /// the realtime model's pricing.
     pub usage: TranscriptionUsage,
@@ -204,7 +204,7 @@ pub struct ConversationItemInputAudioTranscriptionDeltaEvent {
     /// corresponds a log probability of which token would be selected for this chunk of transcription. This
     /// can help to identify if it was possible there were multiple valid options for a given chunk of
     /// transcription.
-    pub logprobs: Option<Vec<LogProb>>,
+    pub logprobs: Option<Vec<LogProbProperties>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
