@@ -1,0 +1,10 @@
+[package]
+name = "string-errors"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-openai = { path = "../../async-openai", features = ["string-errors", "byot"] }
+tokio = { version = "1.43.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

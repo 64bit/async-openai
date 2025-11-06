@@ -6,9 +6,12 @@ use reqwest::{multipart::Form, Response};
 use reqwest_eventsource::{Error as EventSourceError, Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
+#[cfg(not(feature = "string-errors"))]
+use crate::error::{ApiError, WrappedError};
+
 use crate::{
     config::{Config, OpenAIConfig},
-    error::{map_deserialization_error, ApiError, OpenAIError, StreamError, WrappedError},
+    error::{map_deserialization_error, OpenAIError, StreamError},
     file::Files,
     image::Images,
     moderation::Moderations,
@@ -377,6 +380,7 @@ impl<C: Config> Client<C> {
                 Ok(bytes) => Ok(bytes),
                 Err(e) => {
                     match e {
+                        #[cfg(not(feature = "string-errors"))]
                         OpenAIError::ApiError(api_error) => {
                             if status.is_server_error() {
                                 Err(backoff::Error::Transient {
@@ -388,6 +392,17 @@ impl<C: Config> Client<C> {
                             {
                                 // Rate limited retry...
                                 tracing::warn!("Rate limited: {}", api_error.message);
+                                Err(backoff::Error::Transient {
+                                    err: OpenAIError::ApiError(api_error),
+                                    retry_after: None,
+                                })
+                            } else {
+                                Err(backoff::Error::Permanent(OpenAIError::ApiError(api_error)))
+                            }
+                        }
+                        #[cfg(feature = "string-errors")]
+                        OpenAIError::ApiError(api_error) => {
+                            if status.is_server_error() {
                                 Err(backoff::Error::Transient {
                                     err: OpenAIError::ApiError(api_error),
                                     retry_after: None,
@@ -494,6 +509,7 @@ async fn read_response(response: Response) -> Result<Bytes, OpenAIError> {
     let status = response.status();
     let bytes = response.bytes().await.map_err(OpenAIError::Reqwest)?;
 
+    #[cfg(not(feature = "string-errors"))]
     if status.is_server_error() {
         // OpenAI does not guarantee server errors are returned as JSON so we cannot deserialize them.
         let message: String = String::from_utf8_lossy(&bytes).into_owned();
@@ -508,10 +524,18 @@ async fn read_response(response: Response) -> Result<Bytes, OpenAIError> {
 
     // Deserialize response body from either error object or actual response object
     if !status.is_success() {
-        let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
-            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+        #[cfg(not(feature = "string-errors"))]
+        {
+            let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
+                .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+            return Err(OpenAIError::ApiError(wrapped_error.error));
+        }
 
-        return Err(OpenAIError::ApiError(wrapped_error.error));
+        #[cfg(feature = "string-errors")]
+        {
+            let message: String = String::from_utf8_lossy(&bytes).into_owned();
+            return Err(OpenAIError::ApiError(crate::error::RawApiError(message)));
+        }
     }
 
     Ok(bytes)
