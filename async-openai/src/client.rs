@@ -13,7 +13,7 @@ use crate::{
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
-    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Conversations, Embeddings,
+    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Containers, Conversations, Embeddings,
     FineTuning, Invites, Models, Projects, Responses, Threads, Uploads, Users, VectorStores,
     Videos,
 };
@@ -176,6 +176,11 @@ impl<C: Config> Client<C> {
     /// To call [Conversations] group related APIs using this client.
     pub fn conversations(&self) -> Conversations<'_, C> {
         Conversations::new(self)
+    }
+
+    /// To call [Containers] group related APIs using this client.
+    pub fn containers(&self) -> Containers<'_, C> {
+        Containers::new(self)
     }
 
     pub fn config(&self) -> &C {
