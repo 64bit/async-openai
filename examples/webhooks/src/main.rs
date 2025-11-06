@@ -65,16 +65,6 @@ async fn main() {
     info!("🚀 Starting OpenAI Webhook Example");
     info!("");
 
-    // Check for API key
-    let api_key = match std::env::var("OPENAI_API_KEY") {
-        Ok(key) => key,
-        Err(_) => {
-            error!("❌ OPENAI_API_KEY environment variable not set!");
-            error!("   Please set it with: export OPENAI_API_KEY=\"your-api-key\"");
-            std::process::exit(1);
-        }
-    };
-
     // Get webhook secret from environment
     let webhook_secret = std::env::var("OPENAI_WEBHOOK_SECRET").unwrap_or_else(|_| {
         warn!("⚠️  OPENAI_WEBHOOK_SECRET not set, using default test secret");
@@ -116,7 +106,6 @@ async fn main() {
     info!("🔄 Sending background response request in 3 seconds...");
 
     // Spawn a task to send the background response request
-    let api_key_clone = api_key.clone();
     tokio::spawn(async move {
         // Wait for server to be ready
         tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
@@ -126,7 +115,7 @@ async fn main() {
         info!("📤 Sending background response request...");
         info!("");
 
-        match send_background_response(&api_key_clone).await {
+        match send_background_response().await {
             Ok(response_id) => {
                 info!("✅ Background response created successfully!");
                 info!("   Response ID: {}", response_id);
@@ -147,7 +136,7 @@ async fn main() {
 }
 
 /// Send a background response request to OpenAI using async-openai client
-async fn send_background_response(_api_key: &str) -> Result<String, Box<dyn std::error::Error>> {
+async fn send_background_response() -> Result<String, Box<dyn std::error::Error>> {
     // Create OpenAI client (will use OPENAI_API_KEY env var)
     let client = Client::new();
 
