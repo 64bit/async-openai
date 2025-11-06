@@ -13,9 +13,9 @@ use crate::{
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
-    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Containers, Conversations, Embeddings,
-    FineTuning, Invites, Models, Projects, Responses, Threads, Uploads, Users, VectorStores,
-    Videos,
+    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Containers, Conversations,
+    Embeddings, FineTuning, Invites, Models, Projects, Responses, Threads, Uploads, Users,
+    VectorStores, Videos,
 };
 
 #[derive(Debug, Clone, Default)]
