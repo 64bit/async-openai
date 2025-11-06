@@ -1,9 +1,19 @@
-use crate::error::WebhookError;
 use crate::types::webhooks::WebhookEvent;
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use std::time::{SystemTime, UNIX_EPOCH};
+
+/// Errors that can occur when processing webhooks
+#[derive(Debug, thiserror::Error)]
+pub enum WebhookError {
+    /// Invalid webhook signature or signature verification failed
+    #[error("invalid webhook signature: {0}")]
+    InvalidSignature(String),
+    /// Failed to deserialize webhook payload
+    #[error("failed to deserialize webhook payload: error:{0} content:{1}")]
+    Deserialization(serde_json::Error, String),
+}
 
 type HmacSha256 = Hmac<Sha256>;
 
@@ -356,7 +366,7 @@ mod tests {
         assert!(result.is_err());
         assert!(matches!(
             result.unwrap_err(),
-            WebhookError::Deserialization(_)
+            WebhookError::Deserialization(..)
         ));
     }
 }

@@ -34,6 +34,8 @@ mod upload;
 mod users;
 mod vector_store;
 mod video;
+#[cfg_attr(docsrs, doc(cfg(feature = "webhook")))]
+#[cfg(feature = "webhook")]
 pub mod webhooks;
 
 pub use assistant::*;
