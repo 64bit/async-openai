@@ -29,6 +29,7 @@
   - [x] Chat
   - [x] Completions (Legacy)
   - [x] Conversations
+  - [x] Containers | Container Files
   - [x] Embeddings
   - [x] Files
   - [x] Fine-Tuning
@@ -37,7 +38,7 @@
   - [x] Moderations
   - [x] Organizations | Administration (partially implemented)
   - [x] Realtime GA (partially implemented)
-  - [x] Responses (partially implemented)
+  - [x] Responses
   - [x] Uploads
   - [x] Videos
 - Bring your own custom types for Request or Response objects.
