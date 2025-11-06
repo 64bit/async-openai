@@ -31,9 +31,9 @@ pub enum OpenAIError {
 /// Errors that can occur when processing webhooks
 #[derive(Debug, thiserror::Error)]
 pub enum WebhookError {
-    /// Invalid webhook signature - verification failed
-    #[error("invalid webhook signature")]
-    InvalidSignature,
+    /// Invalid webhook signature or signature verification failed
+    #[error("invalid webhook signature: {0}")]
+    InvalidSignature(String),
     /// Failed to deserialize webhook payload
     #[error("failed to deserialize webhook payload: {0}")]
     Deserialization(#[from] serde_json::Error),
