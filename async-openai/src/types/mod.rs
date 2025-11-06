@@ -34,6 +34,7 @@ mod upload;
 mod users;
 mod vector_store;
 mod video;
+pub mod webhooks;
 
 pub use assistant::*;
 pub use assistant_stream::*;
