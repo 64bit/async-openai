@@ -2,6 +2,15 @@
 
 This example demonstrates how to handle OpenAI webhook events using the `async-openai` library, including signature verification.
 
+## Feature Requirement
+
+This example requires the `webhook` feature to be enabled:
+
+```toml
+[dependencies]
+async-openai = { version = "*", features = ["webhook"] }
+```
+
 
 
 ## Running the Example
