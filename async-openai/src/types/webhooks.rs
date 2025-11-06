@@ -589,3 +589,26 @@ impl EventId for WebhookEvent {
         }
     }
 }
+
+impl WebhookEvent {
+    /// Get the timestamp when the event was created
+    pub fn created_at(&self) -> i64 {
+        match self {
+            WebhookEvent::BatchCancelled(w) => w.created_at,
+            WebhookEvent::BatchCompleted(w) => w.created_at,
+            WebhookEvent::BatchExpired(w) => w.created_at,
+            WebhookEvent::BatchFailed(w) => w.created_at,
+            WebhookEvent::EvalRunCanceled(w) => w.created_at,
+            WebhookEvent::EvalRunFailed(w) => w.created_at,
+            WebhookEvent::EvalRunSucceeded(w) => w.created_at,
+            WebhookEvent::FineTuningJobCancelled(w) => w.created_at,
+            WebhookEvent::FineTuningJobFailed(w) => w.created_at,
+            WebhookEvent::FineTuningJobSucceeded(w) => w.created_at,
+            WebhookEvent::RealtimeCallIncoming(w) => w.created_at,
+            WebhookEvent::ResponseCancelled(w) => w.created_at,
+            WebhookEvent::ResponseCompleted(w) => w.created_at,
+            WebhookEvent::ResponseFailed(w) => w.created_at,
+            WebhookEvent::ResponseIncomplete(w) => w.created_at,
+        }
+    }
+}

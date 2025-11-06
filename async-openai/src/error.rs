@@ -28,6 +28,17 @@ pub enum OpenAIError {
     InvalidArgument(String),
 }
 
+/// Errors that can occur when processing webhooks
+#[derive(Debug, thiserror::Error)]
+pub enum WebhookError {
+    /// Invalid webhook signature - verification failed
+    #[error("invalid webhook signature")]
+    InvalidSignature,
+    /// Failed to deserialize webhook payload
+    #[error("failed to deserialize webhook payload: {0}")]
+    Deserialization(#[from] serde_json::Error),
+}
+
 #[derive(Debug, thiserror::Error)]
 pub enum StreamError {
     /// Underlying error from reqwest_eventsource library when reading the stream
