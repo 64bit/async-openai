@@ -25,6 +25,7 @@ native-tls-vendored = ["reqwest/native-tls-vendored"]
 realtime = ["dep:tokio-tungstenite"]
 # Bring your own types
 byot = []
+webhook = ["dep:hmac", "dep:sha2", "dep:hex"]
 
 [dependencies]
 async-openai-macros = { path = "../async-openai-macros", version = "0.1.0" }
@@ -50,6 +51,9 @@ secrecy = { version = "0.10.3", features = ["serde"] }
 bytes = "1.9.0"
 eventsource-stream = "0.2.3"
 tokio-tungstenite = { version = "0.26.1", optional = true, default-features = false }
+hmac = { version = "0.12", optional = true, default-features = false}
+sha2 = { version = "0.10", optional = true, default-features = false }
+hex = { version = "0.4", optional = true, default-features = false }
 
 [dev-dependencies]
 tokio-test = "0.4.4"

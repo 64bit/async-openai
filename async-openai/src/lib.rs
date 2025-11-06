@@ -179,6 +179,8 @@ mod vector_store_file_batches;
 mod vector_store_files;
 mod vector_stores;
 mod video;
+#[cfg(feature = "webhook")]
+pub mod webhooks;
 
 pub use assistants::Assistants;
 pub use audio::Audio;

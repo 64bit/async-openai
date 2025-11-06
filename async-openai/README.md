@@ -68,6 +68,10 @@ $Env:OPENAI_API_KEY='sk-...'
 
 Only types for Realtime API are implemented, and can be enabled with feature flag `realtime`.
 
+## Webhooks
+
+Support for webhook event types, signature verification, and building webhook events from payloads can be enabled by using the `webhook` feature flag.
+
 ## Image Generation Example
 
 ```rust
