@@ -131,10 +131,6 @@ async fn main() {
                 info!("✅ Background response created successfully!");
                 info!("   Response ID: {}", response_id);
                 info!("   Waiting for webhook events...");
-                info!("");
-                info!("   Expected events:");
-                info!("   1. response.completed - When the response finishes");
-                info!("   2. Or response.failed - If the response fails");
                 info!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
                 info!("");
             }
@@ -261,56 +257,56 @@ fn process_webhook_event(event: WebhookEvent) {
         WebhookEvent::BatchCancelled(webhook) => {
             info!("📦 Batch Cancelled");
             info!("   Batch ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
         }
         WebhookEvent::BatchCompleted(webhook) => {
             info!("📦 Batch Completed");
             info!("   Batch ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
         }
         WebhookEvent::BatchExpired(webhook) => {
             info!("📦 Batch Expired");
             info!("   Batch ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
         }
         WebhookEvent::BatchFailed(webhook) => {
             info!("📦 Batch Failed");
             info!("   Batch ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
         }
 
         // Eval run events
         WebhookEvent::EvalRunCanceled(webhook) => {
             info!("🧪 Eval Run Canceled");
             info!("   Eval Run ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
         }
         WebhookEvent::EvalRunFailed(webhook) => {
             info!("🧪 Eval Run Failed");
             info!("   Eval Run ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
         }
         WebhookEvent::EvalRunSucceeded(webhook) => {
             info!("🧪 Eval Run Succeeded");
             info!("   Eval Run ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
         }
 
         // Fine-tuning events
         WebhookEvent::FineTuningJobCancelled(webhook) => {
             info!("🔧 Fine-Tuning Job Cancelled");
             info!("   Job ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
         }
         WebhookEvent::FineTuningJobFailed(webhook) => {
             info!("🔧 Fine-Tuning Job Failed");
             info!("   Job ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
         }
         WebhookEvent::FineTuningJobSucceeded(webhook) => {
             info!("🔧 Fine-Tuning Job Succeeded");
             info!("   Job ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
         }
 
         // Realtime events
@@ -321,35 +317,35 @@ fn process_webhook_event(event: WebhookEvent) {
             for header in &webhook.data.sip_headers {
                 info!("     {}: {}", header.name, header.value);
             }
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
         }
 
         // Response events (for background responses)
         WebhookEvent::ResponseCancelled(webhook) => {
             info!("💬 Response Cancelled");
             info!("   Response ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
             info!("");
             info!("   ℹ️  The background response was cancelled before completion.");
         }
         WebhookEvent::ResponseCompleted(webhook) => {
             info!("💬 Response Completed ✅");
             info!("   Response ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
             info!("");
             info!("   ℹ️  The background response has been completed successfully!");
         }
         WebhookEvent::ResponseFailed(webhook) => {
             info!("💬 Response Failed");
             info!("   Response ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
             info!("");
             info!("   ℹ️  The background response failed during processing.");
         }
         WebhookEvent::ResponseIncomplete(webhook) => {
             info!("💬 Response Incomplete");
             info!("   Response ID: {}", webhook.data.id);
-            info!("   Event occurred at: {}", webhook.created_at);
+            info!("   Event created at: {}", webhook.created_at);
             info!("");
             info!("   ℹ️  The background response was interrupted.");
         }
