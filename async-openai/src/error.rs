@@ -35,8 +35,8 @@ pub enum WebhookError {
     #[error("invalid webhook signature: {0}")]
     InvalidSignature(String),
     /// Failed to deserialize webhook payload
-    #[error("failed to deserialize webhook payload: {0}")]
-    Deserialization(#[from] serde_json::Error),
+    #[error("failed to deserialize webhook payload: error:{0} content:{1}")]
+    Deserialization(serde_json::Error, String),
 }
 
 #[derive(Debug, thiserror::Error)]

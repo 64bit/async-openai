@@ -48,7 +48,8 @@ impl Webhooks {
         )?;
 
         // Deserialize the event
-        let event: WebhookEvent = serde_json::from_str(body)?;
+        let event: WebhookEvent = serde_json::from_str(body)
+            .map_err(|e| WebhookError::Deserialization(e, body.to_string()))?;
 
         Ok(event)
     }
