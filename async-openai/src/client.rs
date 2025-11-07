@@ -394,9 +394,9 @@ impl<C: Config> Client<C> {
             while let Some(event_result) = event_stream.next().await {
                 match event_result {
                     Err(e) => {
-                        if let Err(_e) = tx.send(Err(OpenAIError::StreamError(
+                        if let Err(_e) = tx.send(Err(OpenAIError::StreamError(Box::new(
                             StreamError::EventStream(e.to_string()),
-                        ))) {
+                        )))) {
                             break;
                         }
                     }
@@ -597,7 +597,7 @@ async fn map_stream_error(value: EventSourceError) -> OpenAIError {
                 "Unreachable because read_response returns err when status_code {status_code} is invalid"
             ))
         }
-        _ => OpenAIError::StreamError(StreamError::ReqwestEventSource(value)),
+        _ => OpenAIError::StreamError(Box::new(StreamError::ReqwestEventSource(value))),
     }
 }
 
