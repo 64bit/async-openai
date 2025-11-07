@@ -5,9 +5,9 @@ use crate::{
     error::OpenAIError,
     types::audio::{
         CreateSpeechRequest, CreateSpeechResponse, CreateTranscriptionRequest,
-        CreateTranscriptionResponseJson, CreateTranscriptionResponseVerboseJson,
-        CreateTranslationRequest, CreateTranslationResponseJson,
-        CreateTranslationResponseVerboseJson, SpeechResponseStream,
+        CreateTranscriptionResponseDiarizedJson, CreateTranscriptionResponseJson,
+        CreateTranscriptionResponseVerboseJson, CreateTranslationRequest,
+        CreateTranslationResponseJson, CreateTranslationResponseVerboseJson, SpeechResponseStream,
     },
     Client,
 };
@@ -48,6 +48,21 @@ impl<'c, C: Config> Audio<'c, C> {
         &self,
         request: CreateTranscriptionRequest,
     ) -> Result<CreateTranscriptionResponseVerboseJson, OpenAIError> {
+        self.client
+            .post_form("/audio/transcriptions", request)
+            .await
+    }
+
+    /// Transcribes audio into the input language.
+    #[crate::byot(
+        T0 = Clone,
+        R = serde::de::DeserializeOwned,
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+    )]
+    pub async fn transcribe_diarized_json(
+        &self,
+        request: CreateTranscriptionRequest,
+    ) -> Result<CreateTranscriptionResponseDiarizedJson, OpenAIError> {
         self.client
             .post_form("/audio/transcriptions", request)
             .await

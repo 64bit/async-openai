@@ -151,16 +151,25 @@ pub struct CreateTranscriptionRequest {
     pub known_speaker_references: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[serde(rename_all = "snake_case")]
 pub enum TranscriptionChunkingStrategy {
-    ServerVad(VadConfig),
-    #[serde(untagged)]
+    #[default]
     Auto,
+    #[serde(untagged)]
+    ServerVad(VadConfig),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum VadConfigType {
+    #[default]
+    ServerVad,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct VadConfig {
+    pub r#type: VadConfigType,
     /// Amount of audio to include before the VAD detected speech (in milliseconds). Default: 300.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prefix_padding_ms: Option<u32>,
@@ -235,7 +244,7 @@ pub enum TranscriptionUsage {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "lowercase")]
 pub enum CreateTranscriptionResponseDiarizedJsonTask {
     Transcribe,
 }
@@ -243,10 +252,10 @@ pub enum CreateTranscriptionResponseDiarizedJsonTask {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreateTranscriptionResponseDiarizedJson {
     /// The type of task that was run. Always `transcribe`.
-    pub task: CreateTranscriptionResponseDiarizedJsonTask,
+    pub task: Option<CreateTranscriptionResponseDiarizedJsonTask>,
 
     /// Duration of the input audio in seconds.
-    pub duration: f32,
+    pub duration: Option<f32>,
 
     /// The concatenated transcript text for the entire audio input.
     pub text: String,

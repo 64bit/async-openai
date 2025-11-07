@@ -7,7 +7,7 @@ use crate::{
     download::{download_url, save_b64},
     error::OpenAIError,
     traits::AsyncTryFrom,
-    types::{InputSource, VideoSize},
+    types::{audio::TranscriptionChunkingStrategy, InputSource, VideoSize},
     util::{create_all_dir, create_file_part},
 };
 
@@ -16,7 +16,7 @@ use bytes::Bytes;
 use super::{
     audio::{
         AudioInput, AudioResponseFormat, CreateSpeechResponse, CreateTranscriptionRequest,
-        CreateTranslationRequest, TimestampGranularity,
+        CreateTranslationRequest, TimestampGranularity, TranscriptionInclude,
     },
     responses::{EasyInputContent, Role as ResponsesRole},
     AddUploadPartRequest, ChatCompletionFunctionCall, ChatCompletionFunctions,
@@ -262,6 +262,18 @@ impl Display for TimestampGranularity {
             match self {
                 TimestampGranularity::Word => "word",
                 TimestampGranularity::Segment => "segment",
+            }
+        )
+    }
+}
+
+impl Display for TranscriptionInclude {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                TranscriptionInclude::Logprobs => "logprobs",
             }
         )
     }
@@ -871,6 +883,10 @@ impl AsyncTryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
             .part("file", audio_part)
             .text("model", request.model);
 
+        if let Some(language) = request.language {
+            form = form.text("language", language);
+        }
+
         if let Some(prompt) = request.prompt {
             form = form.text("prompt", prompt);
         }
@@ -883,13 +899,45 @@ impl AsyncTryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
             form = form.text("temperature", temperature.to_string())
         }
 
-        if let Some(language) = request.language {
-            form = form.text("language", language);
+        if let Some(include) = request.include {
+            for inc in include {
+                form = form.text("include[]", inc.to_string());
+            }
         }
 
         if let Some(timestamp_granularities) = request.timestamp_granularities {
             for tg in timestamp_granularities {
                 form = form.text("timestamp_granularities[]", tg.to_string());
+            }
+        }
+
+        if let Some(stream) = request.stream {
+            form = form.text("stream", stream.to_string());
+        }
+
+        if let Some(chunking_strategy) = request.chunking_strategy {
+            match chunking_strategy {
+                TranscriptionChunkingStrategy::Auto => {
+                    form = form.text("chunking_strategy", "auto");
+                }
+                TranscriptionChunkingStrategy::ServerVad(vad_config) => {
+                    form = form.text(
+                        "chunking_strategy",
+                        format!("{}", serde_json::to_string(&vad_config).unwrap()),
+                    );
+                }
+            }
+        }
+
+        if let Some(known_speaker_names) = request.known_speaker_names {
+            for kn in known_speaker_names {
+                form = form.text("known_speaker_names[]", kn.to_string());
+            }
+        }
+
+        if let Some(known_speaker_references) = request.known_speaker_references {
+            for kn in known_speaker_references {
+                form = form.text("known_speaker_references[]", kn.to_string());
             }
         }
 
