@@ -32,3 +32,20 @@ impl From<HashMap<String, String>> for Metadata {
         Self(value)
     }
 }
+
+// openapi spec type: VoiceIdsShared
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum Voice {
+    #[default]
+    Alloy,
+    Ash,
+    Ballad,
+    Coral,
+    Echo,
+    Sage,
+    Shimmer,
+    Verse,
+    Marin,
+    Cedar,
+}
