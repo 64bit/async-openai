@@ -234,6 +234,30 @@ pub enum TranscriptionUsage {
     Duration(TranscriptTextUsageDuration),
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum CreateTranscriptionResponseDiarizedJsonTask {
+    Transcribe,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CreateTranscriptionResponseDiarizedJson {
+    /// The type of task that was run. Always `transcribe`.
+    pub task: CreateTranscriptionResponseDiarizedJsonTask,
+
+    /// Duration of the input audio in seconds.
+    pub duration: f32,
+
+    /// The concatenated transcript text for the entire audio input.
+    pub text: String,
+
+    /// Segments of the transcript annotated with timestamps and speaker labels.
+    pub segments: Vec<TranscriptionDiarizedSegment>,
+
+    /// Token or duration usage statistics for the request.
+    pub usage: TranscriptionUsage,
+}
+
 /// Represents a verbose json transcription response returned by model, based on
 /// the provided input.
 #[derive(Debug, Deserialize, Clone, Serialize)]
@@ -269,6 +293,35 @@ pub struct TranscriptionWord {
 
     /// End time of the word in seconds.
     pub end: f32,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum TranscriptionDiarizedSegmentType {
+    #[serde(rename = "transcript.text.segment")]
+    TranscriptTextSegment,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TranscriptionDiarizedSegment {
+    /// The type of the segment. Always `transcript.text.segment`.
+    pub r#type: TranscriptionDiarizedSegmentType,
+
+    /// Unique identifier for the segment.
+    pub id: String,
+
+    /// Start timestamp of the segment in seconds.
+    pub start: f32,
+
+    /// End timestamp of the segment in seconds.
+    pub end: f32,
+
+    /// Transcript text for this segment.
+    pub text: String,
+
+    /// Speaker label for this segment.
+    /// When known speakers are provided, the label matches known_speaker_names[].
+    /// Otherwise speakers are labeled sequentially using capital letters (`A`, `B`, ...).
+    pub speaker: String,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
