@@ -3,7 +3,7 @@ use std::pin::Pin;
 use futures::Stream;
 use serde::{Deserialize, Serialize};
 
-use crate::error::OpenAIError;
+use crate::{error::OpenAIError, traits::EventType};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
@@ -41,3 +41,24 @@ pub struct SpeechAudioDoneEvent {
 /// Stream of response events
 pub type SpeechResponseStream =
     Pin<Box<dyn Stream<Item = Result<CreateSpeechResponseStreamEvent, OpenAIError>> + Send>>;
+
+impl EventType for SpeechAudioDeltaEvent {
+    fn event_type(&self) -> &'static str {
+        "speech.audio.delta"
+    }
+}
+
+impl EventType for SpeechAudioDoneEvent {
+    fn event_type(&self) -> &'static str {
+        "speech.audio.done"
+    }
+}
+
+impl EventType for CreateSpeechResponseStreamEvent {
+    fn event_type(&self) -> &'static str {
+        match self {
+            CreateSpeechResponseStreamEvent::SpeechAudioDelta(event) => event.event_type(),
+            CreateSpeechResponseStreamEvent::SpeechAudioDone(event) => event.event_type(),
+        }
+    }
+}
