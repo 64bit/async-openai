@@ -36,6 +36,7 @@ pub enum AudioResponseFormat {
     Srt,
     VerboseJson,
     Vtt,
+    DiarizedJson,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Copy, PartialEq)]
@@ -78,26 +79,108 @@ pub enum TimestampGranularity {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateTranscriptionRequest {
-    /// The audio file to transcribe, in one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm.
+    /// The audio file object (not file name) to transcribe, in one of these formats:
+    /// flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.
     pub file: AudioInput,
 
-    /// ID of the model to use. Only `whisper-1` (which is powered by our open source Whisper V2 model) is currently available.
+    /// ID of the model to use. The options are `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`, `whisper-1`
+    /// (which is powered by our open source Whisper V2 model), and `gpt-4o-transcribe-diarize`.
     pub model: String,
 
-    /// An optional text to guide the model's style or continue a previous audio segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text#prompting) should match the audio language.
-    pub prompt: Option<String>,
-
-    /// The format of the transcript output, in one of these options: json, text, srt, verbose_json, or vtt.
-    pub response_format: Option<AudioResponseFormat>,
-
-    /// The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically increase the temperature until certain thresholds are hit.
-    pub temperature: Option<f32>, // default: 0
-
-    /// The language of the input audio. Supplying the input language in [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format will improve accuracy and latency.
+    /// The language of the input audio. Supplying the input language in
+    /// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) (e.g. `en`) format will improve
+    /// accuracy and latency.
     pub language: Option<String>,
 
-    /// The timestamp granularities to populate for this transcription. `response_format` must be set `verbose_json` to use timestamp granularities. Either or both of these options are supported: `word`, or `segment`. Note: There is no additional latency for segment timestamps, but generating word timestamps incurs additional latency.
+    /// An optional text to guide the model's style or continue a previous audio segment. The
+    /// [prompt](https://platform.openai.com/docs/guides/speech-to-text#prompting) should match the audio
+    /// language. This field is not supported when using `gpt-4o-transcribe-diarize`.
+    pub prompt: Option<String>,
+
+    /// The format of the output, in one of these options: `json`, `text`, `srt`, `verbose_json`, `vtt`, or
+    /// `diarized_json`. For `gpt-4o-transcribe` and `gpt-4o-mini-transcribe`, the only supported format is
+    /// `json`. For `gpt-4o-transcribe-diarize`, the supported formats are `json`, `text`, and
+    /// `diarized_json`, with `diarized_json` required to receive speaker annotations.
+    pub response_format: Option<AudioResponseFormat>,
+
+    /// TThe sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more
+    /// random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the
+    /// model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically
+    /// increase the temperature until certain thresholds are hit.
+    pub temperature: Option<f32>, // default: 0
+
+    /// Additional information to include in the transcription response.
+
+    /// `logprobs` will return the log probabilities of the tokens in the
+    /// response to understand the model's confidence in the transcription.
+    /// `logprobs` only works with response_format set to `json` and only with
+    /// the models `gpt-4o-transcribe` and `gpt-4o-mini-transcribe`. This field is not supported when
+    /// using `gpt-4o-transcribe-diarize`.
+    pub include: Option<Vec<TranscriptionInclude>>,
+
+    /// The timestamp granularities to populate for this transcription. `response_format` must be set
+    /// `verbose_json` to use timestamp granularities. Either or both of these options are supported:
+    /// `word`, or `segment`. Note: There is no additional latency for segment timestamps, but generating
+    /// word timestamps incurs additional latency. This option is not available for `gpt-4o-transcribe-diarize`.
     pub timestamp_granularities: Option<Vec<TimestampGranularity>>,
+
+    /// If set to true, the model response data will be streamed to the client
+    /// as it is generated using [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format).
+    /// See the [Streaming section of the Speech-to-Text guide](https://platform.openai.com/docs/guides/speech-to-text?lang=curl#streaming-transcriptions)
+    /// for more information.
+    /// Note: Streaming is not supported for the `whisper-1` model and will be ignored.    
+    pub stream: Option<bool>,
+
+    /// Controls how the audio is cut into chunks. When set to `"auto"`, the server first normalizes
+    /// loudness and then uses voice activity detection (VAD) to choose boundaries. `server_vad` object
+    /// can be provided to tweak VAD detection parameters manually. If unset, the audio is transcribed as
+    /// a single block. Required when using `gpt-4o-transcribe-diarize` for inputs longer than 30
+    /// seconds.
+    pub chunking_strategy: Option<TranscriptionChunkingStrategy>,
+
+    /// Optional list of speaker names that correspond to the audio samples provided in
+    /// `known_speaker_references[]`. Each entry should be a short identifier (for example `customer` or
+    /// `agent`). Up to 4 speakers are supported.
+    pub known_speaker_names: Option<Vec<String>>,
+
+    /// Optional list of audio samples (as [data
+    /// URLs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs)) that contain
+    /// known speaker references matching `known_speaker_names[]`. Each sample must be between 2 and 10
+    /// seconds, and can use any of the same input audio formats supported by `file`.
+    pub known_speaker_references: Option<Vec<String>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum TranscriptionChunkingStrategy {
+    ServerVad(VadConfig),
+    #[serde(untagged)]
+    Auto,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct VadConfig {
+    /// Amount of audio to include before the VAD detected speech (in milliseconds). Default: 300.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prefix_padding_ms: Option<u32>,
+
+    /// Duration of silence to detect speech stop (in milliseconds).
+    /// With shorter values the model will respond more quickly,
+    /// but may jump in on short pauses from the user. Default: 200.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub silence_duration_ms: Option<u32>,
+
+    /// Sensitivity threshold (0.0 to 1.0) for voice activity detection. A
+    /// higher threshold will require louder audio to activate the model, and
+    /// thus might perform better in noisy environments. Default: 0.5.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub threshold: Option<f32>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum TranscriptionInclude {
+    Logprobs,
 }
 
 /// Represents a transcription response returned by model, based on the provided
