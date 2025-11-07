@@ -254,6 +254,9 @@ pub struct CreateTranscriptionResponseVerboseJson {
     /// Segments of the transcribed text and their corresponding details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub segments: Option<Vec<TranscriptionSegment>>,
+
+    /// Usage statistics for models billed by audio input duration.
+    pub usage: TranscriptTextUsageDuration,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
