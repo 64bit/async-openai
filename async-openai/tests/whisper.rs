@@ -1,17 +1,6 @@
-use async_openai::types::CreateTranslationRequestArgs;
-use async_openai::{types::CreateTranscriptionRequestArgs, Client};
+use async_openai::types::audio::CreateTranslationRequestArgs;
+use async_openai::{types::audio::CreateTranscriptionRequestArgs, Client};
 use tokio_test::assert_err;
-
-#[tokio::test]
-async fn transcribe_test() {
-    let client = Client::new();
-
-    let request = CreateTranscriptionRequestArgs::default().build().unwrap();
-
-    let response = client.audio().transcribe(request).await;
-
-    assert_err!(response); // FileReadError("cannot extract file name from ")
-}
 
 #[tokio::test]
 async fn transcribe_sendable_test() {
@@ -21,21 +10,10 @@ async fn transcribe_sendable_test() {
     let transcribe = tokio::spawn(async move {
         let request = CreateTranscriptionRequestArgs::default().build().unwrap();
 
-        client.audio().transcribe(request).await
+        client.audio().transcription().create(request).await
     });
 
     let response = transcribe.await.unwrap();
-
-    assert_err!(response); // FileReadError("cannot extract file name from ")
-}
-
-#[tokio::test]
-async fn translate_test() {
-    let client = Client::new();
-
-    let request = CreateTranslationRequestArgs::default().build().unwrap();
-
-    let response = client.audio().translate(request).await;
 
     assert_err!(response); // FileReadError("cannot extract file name from ")
 }
@@ -48,7 +26,7 @@ async fn translate_sendable_test() {
     let translate = tokio::spawn(async move {
         let request = CreateTranslationRequestArgs::default().build().unwrap();
 
-        client.audio().translate(request).await
+        client.audio().translation().create(request).await
     });
 
     let response = translate.await.unwrap();
