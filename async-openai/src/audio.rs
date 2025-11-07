@@ -124,6 +124,8 @@ impl<'c, C: Config> Audio<'c, C> {
         #[cfg(not(feature = "byot"))]
         {
             if let Some(stream_format) = request.stream_format {
+                use crate::types::audio::StreamFormat;
+
                 if stream_format != StreamFormat::SSE {
                     return Err(OpenAIError::InvalidArgument(
                         "When stream_format is not SSE, use Audio::speech".into(),
