@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::types::{audio::TranscriptionUsage, LogProbProperties};
+
 use super::{
     conversation_item::RealtimeConversationItem, error::RealtimeAPIError,
     response::RealtimeResponse, session::Session,
@@ -122,52 +124,6 @@ pub struct RealtimeServerEventOutputAudioBufferCleared {
     pub event_id: String,
     /// The unique ID of the response that produced the audio.
     pub response_id: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-/// Log probability information for a transcribed token.
-pub struct LogProbProperties {
-    /// The bytes that were used to generate the log probability.
-    pub bytes: Vec<u8>,
-    /// The log probability of the token.
-    pub logprob: f64,
-    /// The token that was used to generate the log probability.
-    pub token: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct TokenUsageInputTokenDetails {
-    /// Number of audio tokens billed for this request.
-    pub audio_tokens: u32,
-    /// Number of text tokens billed for this request.
-    pub text_tokens: u32,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct TranscriptTextUsageTokens {
-    /// Number of input tokens billed for this request.
-    pub input_tokens: u32,
-    /// Number of output tokens generated.
-    pub output_tokens: u32,
-    /// Total number of tokens used (input + output).
-    pub total_tokens: u32,
-    /// Details about the input tokens billed for this request.
-    pub input_token_details: Option<TokenUsageInputTokenDetails>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct TranscriptTextUsageDuration {
-    ///Duration of the input audio in seconds.
-    pub seconds: f32,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(tag = "type")]
-pub enum TranscriptionUsage {
-    #[serde(rename = "tokens")]
-    Tokens(TranscriptTextUsageTokens),
-    #[serde(rename = "duration")]
-    Duration(TranscriptTextUsageDuration),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

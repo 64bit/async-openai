@@ -248,6 +248,7 @@ impl Display for AudioResponseFormat {
                 AudioResponseFormat::Text => "text",
                 AudioResponseFormat::VerboseJson => "verbose_json",
                 AudioResponseFormat::Vtt => "vtt",
+                AudioResponseFormat::DiarizedJson => "diarized_json",
             }
         )
     }
