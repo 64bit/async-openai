@@ -41,6 +41,17 @@ pub enum AudioResponseFormat {
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Copy, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum TranslationResponseFormat {
+    #[default]
+    Json,
+    Text,
+    Srt,
+    VerboseJson,
+    Vtt,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum SpeechResponseFormat {
     #[default]
@@ -427,17 +438,19 @@ pub enum StreamFormat {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateTranslationRequest {
     /// The audio file object (not file name) translate, in one of these
-    ///formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.
+    /// formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.
     pub file: AudioInput,
 
-    /// ID of the model to use. Only `whisper-1` (which is powered by our open source Whisper V2 model) is currently available.
+    /// ID of the model to use. Only `whisper-1` (which is powered by our open
+    /// source Whisper V2 model) is currently available.
     pub model: String,
 
-    /// An optional text to guide the model's style or continue a previous audio segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text#prompting) should be in English.
+    /// An optional text to guide the model's style or continue a previous audio
+    /// segment. The [prompt](https://platform.openai.com/docs/guides/speech-to-text#prompting) should be in English.
     pub prompt: Option<String>,
 
     /// The format of the transcript output, in one of these options: json, text, srt, verbose_json, or vtt.
-    pub response_format: Option<AudioResponseFormat>,
+    pub response_format: Option<TranslationResponseFormat>,
 
     /// The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically increase the temperature until certain thresholds are hit.
     pub temperature: Option<f32>, // default: 0

@@ -7,7 +7,10 @@ use crate::{
     download::{download_url, save_b64},
     error::OpenAIError,
     traits::AsyncTryFrom,
-    types::{audio::TranscriptionChunkingStrategy, InputSource, VideoSize},
+    types::{
+        audio::{TranscriptionChunkingStrategy, TranslationResponseFormat},
+        InputSource, VideoSize,
+    },
     util::{create_all_dir, create_file_part},
 };
 
@@ -249,6 +252,22 @@ impl Display for AudioResponseFormat {
                 AudioResponseFormat::VerboseJson => "verbose_json",
                 AudioResponseFormat::Vtt => "vtt",
                 AudioResponseFormat::DiarizedJson => "diarized_json",
+            }
+        )
+    }
+}
+
+impl Display for TranslationResponseFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                TranslationResponseFormat::Json => "json",
+                TranslationResponseFormat::Srt => "srt",
+                TranslationResponseFormat::Text => "text",
+                TranslationResponseFormat::VerboseJson => "verbose_json",
+                TranslationResponseFormat::Vtt => "vtt",
             }
         )
     }
