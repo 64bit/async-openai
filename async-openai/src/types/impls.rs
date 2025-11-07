@@ -942,7 +942,7 @@ impl AsyncTryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
                 TranscriptionChunkingStrategy::ServerVad(vad_config) => {
                     form = form.text(
                         "chunking_strategy",
-                        format!("{}", serde_json::to_string(&vad_config).unwrap()),
+                        serde_json::to_string(&vad_config).unwrap().to_string(),
                     );
                 }
             }

@@ -58,10 +58,9 @@ impl<'c, C: Config> Transcriptions<'c, C> {
             request.stream = Some(true);
         }
 
-        Ok(self
-            .client
+        self.client
             .post_form_stream("/audio/transcriptions", request)
-            .await?)
+            .await
     }
 
     /// Transcribes audio into the input language.
