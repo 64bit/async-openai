@@ -44,7 +44,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("{}", serde_json::to_string(&request).unwrap());
 
     let response = client.responses().create(request).await?;
+    let output_text = response.output_text().unwrap_or("Empty text output".into());
 
+    println!("\nOutput Text: {output_text:?}\n",);
     for output in response.output {
         println!("\nOutput: {:?}\n", output);
     }
