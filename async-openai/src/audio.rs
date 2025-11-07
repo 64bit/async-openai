@@ -3,11 +3,11 @@ use bytes::Bytes;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::audio::{
         CreateSpeechRequest, CreateSpeechResponse, CreateTranscriptionRequest,
         CreateTranscriptionResponseJson, CreateTranscriptionResponseVerboseJson,
         CreateTranslationRequest, CreateTranslationResponseJson,
-        CreateTranslationResponseVerboseJson,
+        CreateTranslationResponseVerboseJson, SpeechResponseStream,
     },
     Client,
 };
@@ -107,5 +107,32 @@ impl<'c, C: Config> Audio<'c, C> {
         let bytes = self.client.post_raw("/audio/speech", request).await?;
 
         Ok(CreateSpeechResponse { bytes })
+    }
+
+    /// Generates audio from the input text in SSE stream format.
+    #[crate::byot(
+        T0 = serde::Serialize,
+        R = serde::de::DeserializeOwned,
+        stream = "true",
+        where_clause = "R: std::marker::Send + 'static"
+    )]
+    #[allow(unused_mut)]
+    pub async fn speech_stream(
+        &self,
+        mut request: CreateSpeechRequest,
+    ) -> Result<SpeechResponseStream, OpenAIError> {
+        #[cfg(not(feature = "byot"))]
+        {
+            if let Some(stream_format) = request.stream_format {
+                if stream_format != StreamFormat::SSE {
+                    return Err(OpenAIError::InvalidArgument(
+                        "When stream_format is not SSE, use Audio::speech".into(),
+                    ));
+                }
+            }
+
+            request.stream_format = Some(StreamFormat::SSE);
+        }
+        Ok(self.client.post_stream("/audio/speech", request).await)
     }
 }

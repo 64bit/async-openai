@@ -3,7 +3,7 @@
 mod assistant;
 mod assistant_impls;
 mod assistant_stream;
-mod audio;
+pub mod audio;
 mod audit_log;
 mod batch;
 mod chat;
@@ -40,7 +40,6 @@ pub mod webhooks;
 
 pub use assistant::*;
 pub use assistant_stream::*;
-pub use audio::*;
 pub use audit_log::*;
 pub use batch::*;
 pub use chat::*;

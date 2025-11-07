@@ -2,8 +2,25 @@ use bytes::Bytes;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use super::InputSource;
-use crate::{error::OpenAIError, types::Voice};
+use crate::error::OpenAIError;
+use crate::types::common::InputSource;
+
+// openapi spec type: VoiceIdsShared
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum Voice {
+    #[default]
+    Alloy,
+    Ash,
+    Ballad,
+    Coral,
+    Echo,
+    Sage,
+    Shimmer,
+    Verse,
+    Marin,
+    Cedar,
+}
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct AudioInput {

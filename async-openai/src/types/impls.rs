@@ -14,9 +14,13 @@ use crate::{
 use bytes::Bytes;
 
 use super::{
+    audio::{
+        AudioInput, AudioResponseFormat, CreateSpeechResponse, CreateTranscriptionRequest,
+        CreateTranslationRequest, TimestampGranularity,
+    },
     responses::{EasyInputContent, Role as ResponsesRole},
-    AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
-    ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
+    AddUploadPartRequest, ChatCompletionFunctionCall, ChatCompletionFunctions,
+    ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
     ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestDeveloperMessage,
     ChatCompletionRequestDeveloperMessageContent, ChatCompletionRequestFunctionMessage,
     ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPartAudio,
@@ -26,11 +30,10 @@ use super::{
     ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
     ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption,
     CreateContainerFileRequest, CreateFileRequest, CreateImageEditRequest,
-    CreateImageVariationRequest, CreateMessageRequestContent, CreateSpeechResponse,
-    CreateTranscriptionRequest, CreateTranslationRequest, CreateVideoRequest, DallE2ImageSize,
+    CreateImageVariationRequest, CreateMessageRequestContent, CreateVideoRequest, DallE2ImageSize,
     EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, Image,
     ImageInput, ImageModel, ImageResponseFormat, ImageSize, ImageUrl, ImagesResponse,
-    ModerationInput, Prompt, Role, Stop, TimestampGranularity,
+    ModerationInput, Prompt, Role, Stop,
 };
 
 /// for `impl_from!(T, Enum)`, implements
