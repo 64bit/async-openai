@@ -21,7 +21,7 @@ pub enum OpenAIError {
     FileReadError(String),
     /// Error on SSE streaming
     #[error("stream failed: {0}")]
-    StreamError(StreamError),
+    StreamError(Box<StreamError>),
     /// Error from client side validation
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]
@@ -36,6 +36,9 @@ pub enum StreamError {
     /// Error when a stream event does not match one of the expected values
     #[error("Unknown event: {0:#?}")]
     UnknownEvent(eventsource_stream::Event),
+    /// Error from eventsource_stream when parsing SSE
+    #[error("EventStream error: {0}")]
+    EventStream(String),
 }
 
 /// OpenAI API returns error object on failure

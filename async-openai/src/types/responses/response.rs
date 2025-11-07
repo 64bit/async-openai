@@ -583,10 +583,10 @@ pub struct CreateResponse {
     /// - `web_search_call.action.sources`: Include the sources of the web search tool call.
     ///
     /// - `code_interpreter_call.outputs`: Includes the outputs of python code execution in code
-    ///    interpreter tool call items.
+    ///   interpreter tool call items.
     ///
     /// - `computer_call_output.output.image_url`: Include image urls from the computer call
-    ///    output.
+    ///   output.
     ///
     /// - `file_search_call.results`: Include the search results of the file search tool call.
     ///
@@ -595,9 +595,9 @@ pub struct CreateResponse {
     /// - `message.output_text.logprobs`: Include logprobs with assistant messages.
     ///
     /// - `reasoning.encrypted_content`: Includes an encrypted version of reasoning tokens in
-    ///    reasoning item outputs. This enables reasoning items to be used in multi-turn
-    ///    conversations when using the Responses API statelessly (like when the `store` parameter is
-    ///    set to `false`, or when an organization is enrolled in the zero data retention program).
+    ///   reasoning item outputs. This enables reasoning items to be used in multi-turn
+    ///   conversations when using the Responses API statelessly (like when the `store` parameter is
+    ///   set to `false`, or when an organization is enrolled in the zero data retention program).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub include: Option<Vec<IncludeEnum>>,
 
@@ -760,10 +760,10 @@ pub struct CreateResponse {
 
     ///The truncation strategy to use for the model response.
     /// - `auto`: If the input to this Response exceeds
-    /// the model's context window size, the model will truncate the
-    /// response to fit the context window by dropping items from the beginning of the conversation.
+    ///   the model's context window size, the model will truncate the
+    ///   response to fit the context window by dropping items from the beginning of the conversation.
     /// - `disabled` (default): If the input size will exceed the context window
-    /// size for a model, the request will fail with a 400 error.
+    ///   size for a model, the request will fail with a 400 error.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub truncation: Option<Truncation>,
 }
@@ -2333,10 +2333,10 @@ pub struct Response {
 
     ///The truncation strategy to use for the model response.
     /// - `auto`: If the input to this Response exceeds
-    /// the model's context window size, the model will truncate the
-    /// response to fit the context window by dropping items from the beginning of the conversation.
+    ///   the model's context window size, the model will truncate the
+    ///   response to fit the context window by dropping items from the beginning of the conversation.
     /// - `disabled` (default): If the input size will exceed the context window
-    /// size for a model, the request will fail with a 400 error.
+    ///   size for a model, the request will fail with a 400 error.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub truncation: Option<Truncation>,
 
@@ -2569,10 +2569,10 @@ pub struct TokenCountsBody {
 
     ///The truncation strategy to use for the model response.
     /// - `auto`: If the input to this Response exceeds
-    /// the model's context window size, the model will truncate the
-    /// response to fit the context window by dropping items from the beginning of the conversation.
+    ///   the model's context window size, the model will truncate the
+    ///   response to fit the context window by dropping items from the beginning of the conversation.
     /// - `disabled` (default): If the input size will exceed the context window
-    /// size for a model, the request will fail with a 400 error.
+    ///   size for a model, the request will fail with a 400 error.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub truncation: Option<Truncation>,
 }

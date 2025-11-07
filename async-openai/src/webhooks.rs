@@ -8,8 +8,11 @@ use std::time::{SystemTime, UNIX_EPOCH};
 #[derive(Debug, thiserror::Error)]
 pub enum WebhookError {
     /// Invalid webhook signature or signature verification failed
-    #[error("invalid webhook signature: {0}")]
-    InvalidSignature(String),
+    #[error("invalid webhook signature")]
+    InvalidSignature,
+    /// Invalid input (timestamp or secret key)
+    #[error("invalid input ")]
+    Invalid(String),
     /// Failed to deserialize webhook payload
     #[error("failed to deserialize webhook payload: error:{0} content:{1}")]
     Deserialization(serde_json::Error, String),
@@ -92,7 +95,7 @@ impl Webhooks {
         // Validate timestamp to prevent replay attacks
         let timestamp_seconds = timestamp
             .parse::<i64>()
-            .map_err(|_| WebhookError::InvalidSignature("invalid timestamp format".to_string()))?;
+            .map_err(|_| WebhookError::Invalid("invalid timestamp format".to_string()))?;
 
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -100,13 +103,13 @@ impl Webhooks {
             .as_secs() as i64;
 
         if now - timestamp_seconds > tolerance_seconds {
-            return Err(WebhookError::InvalidSignature(
+            return Err(WebhookError::Invalid(
                 "webhook timestamp is too old".to_string(),
             ));
         }
 
         if timestamp_seconds > now + tolerance_seconds {
-            return Err(WebhookError::InvalidSignature(
+            return Err(WebhookError::Invalid(
                 "webhook timestamp is too new".to_string(),
             ));
         }
@@ -119,12 +122,12 @@ impl Webhooks {
 
         // Decode the secret from base64 (Standard Webhooks uses base64-encoded secrets)
         let secret_bytes = BASE64.decode(secret_key).map_err(|_| {
-            WebhookError::InvalidSignature("failed to decode secret from base64".to_string())
+            WebhookError::Invalid("failed to decode secret from base64".to_string())
         })?;
 
         // Compute HMAC-SHA256
         let mut mac = HmacSha256::new_from_slice(&secret_bytes)
-            .map_err(|_| WebhookError::InvalidSignature("invalid secret key length".to_string()))?;
+            .map_err(|_| WebhookError::Invalid("invalid secret key length".to_string()))?;
         mac.update(signed_payload.as_bytes());
 
         // Get the expected signature in base64
@@ -156,9 +159,7 @@ impl Webhooks {
             }
         }
 
-        Err(WebhookError::InvalidSignature(
-            "signature mismatch".to_string(),
-        ))
+        Err(WebhookError::InvalidSignature)
     }
 }
 
