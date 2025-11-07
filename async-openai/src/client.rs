@@ -381,7 +381,7 @@ impl<C: Config> Client<C> {
         // Convert response body to EventSource stream
         let stream = response
             .bytes_stream()
-            .map(|result| result.map_err(|e| std::io::Error::other(e)));
+            .map(|result| result.map_err(std::io::Error::other));
         let event_stream = eventsource_stream::EventStream::new(stream);
 
         // Convert EventSource stream to our expected format
