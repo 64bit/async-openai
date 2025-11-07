@@ -1,5 +1,5 @@
 use async_openai::{
-    types::audio::{AudioResponseFormat, CreateTranslationRequestArgs},
+    types::audio::{CreateTranslationRequestArgs, TranslationResponseFormat},
     Client,
 };
 use std::error::Error;
@@ -9,7 +9,7 @@ async fn translate_srt() -> Result<(), Box<dyn Error>> {
     let request = CreateTranslationRequestArgs::default()
         .file("./audio/koshish karne walon ki haar nahi hoti by amitabh bachchan_320kbps.mp3")
         .model("whisper-1")
-        .response_format(AudioResponseFormat::Srt)
+        .response_format(TranslationResponseFormat::Srt)
         .build()?;
 
     let response = client.audio().translate_raw(request).await?;
