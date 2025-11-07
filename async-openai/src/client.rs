@@ -351,6 +351,79 @@ impl<C: Config> Client<C> {
         self.execute(request_maker).await
     }
 
+    pub(crate) async fn post_form_stream<O, F>(
+        &self,
+        path: &str,
+        form: F,
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
+    where
+        F: Clone,
+        Form: AsyncTryFrom<F, Error = OpenAIError>,
+        O: DeserializeOwned + std::marker::Send + 'static,
+    {
+        // Build and execute request manually since multipart::Form is not Clone
+        // and .eventsource() requires cloneability
+        let response = self
+            .http_client
+            .post(self.config.url(path))
+            .query(&self.config.query())
+            .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
+            .headers(self.config.headers())
+            .send()
+            .await
+            .map_err(OpenAIError::Reqwest)?;
+
+        // Check for error status
+        if !response.status().is_success() {
+            return Err(read_response(response).await.unwrap_err());
+        }
+
+        // Convert response body to EventSource stream
+        let stream = response
+            .bytes_stream()
+            .map(|result| result.map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e)));
+        let event_stream = eventsource_stream::EventStream::new(stream);
+
+        // Convert EventSource stream to our expected format
+        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+
+        tokio::spawn(async move {
+            use futures::StreamExt;
+            let mut event_stream = std::pin::pin!(event_stream);
+
+            while let Some(event_result) = event_stream.next().await {
+                match event_result {
+                    Err(e) => {
+                        if let Err(_e) = tx.send(Err(OpenAIError::StreamError(
+                            StreamError::EventStream(e.to_string()),
+                        ))) {
+                            break;
+                        }
+                    }
+                    Ok(event) => {
+                        // eventsource_stream::Event is a struct with data field
+                        if event.data == "[DONE]" {
+                            break;
+                        }
+
+                        let response = match serde_json::from_str::<O>(&event.data) {
+                            Err(e) => Err(map_deserialization_error(e, event.data.as_bytes())),
+                            Ok(output) => Ok(output),
+                        };
+
+                        if let Err(_e) = tx.send(response) {
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+
+        Ok(Box::pin(
+            tokio_stream::wrappers::UnboundedReceiverStream::new(rx),
+        ))
+    }
+
     /// Execute a HTTP request and retry on rate limit
     ///
     /// request_maker serves one purpose: to be able to create request again

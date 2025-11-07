@@ -8,6 +8,7 @@ use crate::{
         CreateTranscriptionResponseDiarizedJson, CreateTranscriptionResponseJson,
         CreateTranscriptionResponseVerboseJson, CreateTranslationRequest,
         CreateTranslationResponseJson, CreateTranslationResponseVerboseJson, SpeechResponseStream,
+        TranscriptionResponseStream,
     },
     Client,
 };
@@ -36,6 +37,35 @@ impl<'c, C: Config> Audio<'c, C> {
         self.client
             .post_form("/audio/transcriptions", request)
             .await
+    }
+
+    #[crate::byot(
+        T0 = Clone,
+        R = serde::de::DeserializeOwned,
+        stream = "true",
+        where_clause = "R: std::marker::Send + 'static, reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>"
+    )]
+    #[allow(unused_mut)]
+    pub async fn transcribe_stream(
+        &self,
+        mut request: CreateTranscriptionRequest,
+    ) -> Result<TranscriptionResponseStream, OpenAIError> {
+        #[cfg(not(feature = "byot"))]
+        {
+            if let Some(stream) = request.stream {
+                if !stream {
+                    return Err(OpenAIError::InvalidArgument(
+                        "When stream is not true, use Audio::transcribe".into(),
+                    ));
+                }
+            }
+            request.stream = Some(true);
+        }
+
+        Ok(self
+            .client
+            .post_form_stream("/audio/transcriptions", request)
+            .await?)
     }
 
     /// Transcribes audio into the input language.

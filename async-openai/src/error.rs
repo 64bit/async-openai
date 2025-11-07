@@ -36,6 +36,9 @@ pub enum StreamError {
     /// Error when a stream event does not match one of the expected values
     #[error("Unknown event: {0:#?}")]
     UnknownEvent(eventsource_stream::Event),
+    /// Error from eventsource_stream when parsing SSE
+    #[error("EventStream error: {0}")]
+    EventStream(String),
 }
 
 /// OpenAI API returns error object on failure
