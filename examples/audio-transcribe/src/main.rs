@@ -1,11 +1,14 @@
 use async_openai::{
     types::audio::{
-        AudioResponseFormat, CreateTranscriptionRequestArgs, TimestampGranularity,
+        AudioResponseFormat, CreateTranscriptionRequestArgs,
+        CreateTranscriptionResponseStreamEvent, TimestampGranularity,
         TranscriptionChunkingStrategy,
     },
     Client,
 };
+use futures::StreamExt;
 use std::error::Error;
+use std::io::{stdout, Write};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -13,6 +16,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     transcribe_verbose_json().await?;
     transcribe_diarized_json().await?;
     transcribe_srt().await?;
+    transcribe_stream().await?;
     Ok(())
 }
 
@@ -91,5 +95,36 @@ async fn transcribe_srt() -> Result<(), Box<dyn Error>> {
 
     let response = client.audio().transcribe_raw(request).await?;
     println!("{}", String::from_utf8_lossy(response.as_ref()));
+    Ok(())
+}
+
+async fn transcribe_stream() -> Result<(), Box<dyn Error>> {
+    println!("\ntranscribe_stream:");
+    let client = Client::new();
+    let request = CreateTranscriptionRequestArgs::default()
+        .file(
+            "./audio/A Message From Sir David Attenborough A Perfect Planet BBC Earth_320kbps.mp3",
+        )
+        .model("gpt-4o-mini-transcribe")
+        .build()?;
+
+    let mut lock = stdout().lock();
+    let mut response = client.audio().transcribe_stream(request).await?;
+    while let Some(event) = response.next().await {
+        match event {
+            Ok(event) => match event {
+                CreateTranscriptionResponseStreamEvent::TranscriptTextDelta(delta) => {
+                    writeln!(lock, "[delta] {}", delta.delta).unwrap();
+                }
+                CreateTranscriptionResponseStreamEvent::TranscriptTextDone(done) => {
+                    writeln!(lock, "[done]: \n{}", done.text).unwrap();
+                }
+                CreateTranscriptionResponseStreamEvent::TranscriptTextSegment(segment) => {
+                    writeln!(lock, "[segment] {}", segment.text).unwrap();
+                }
+            },
+            Err(e) => println!("Error: {:?}", e),
+        }
+    }
     Ok(())
 }
