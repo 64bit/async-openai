@@ -22,7 +22,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .stream_format(StreamFormat::SSE)
         .build()?;
 
-    let mut response = client.audio().speech_stream(request).await?;
+    let mut response = client.audio().speech().create_stream(request).await?;
 
     let mut file = OpenOptions::new()
         .create(true)

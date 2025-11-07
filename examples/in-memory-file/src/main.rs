@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .model("whisper-1")
         .build()?;
 
-    let response = client.audio().transcribe(request).await?;
+    let response = client.audio().transcription().create(request).await?;
 
     println!("{}", response.text);
 

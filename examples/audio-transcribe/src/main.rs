@@ -32,7 +32,7 @@ async fn transcribe_json() -> Result<(), Box<dyn Error>> {
         .response_format(AudioResponseFormat::Json)
         .build()?;
 
-    let response = client.audio().transcribe(request).await?;
+    let response = client.audio().transcription().create(request).await?;
     println!("{}", response.text);
     Ok(())
 }
@@ -52,7 +52,11 @@ async fn transcribe_verbose_json() -> Result<(), Box<dyn Error>> {
         ])
         .build()?;
 
-    let response = client.audio().transcribe_verbose_json(request).await?;
+    let response = client
+        .audio()
+        .transcription()
+        .create_verbose_json(request)
+        .await?;
 
     println!("{}", response.text);
     if let Some(words) = &response.words {
@@ -77,7 +81,11 @@ async fn transcribe_diarized_json() -> Result<(), Box<dyn Error>> {
         .response_format(AudioResponseFormat::DiarizedJson)
         .build()?;
 
-    let response = client.audio().transcribe_diarized_json(request).await?;
+    let response = client
+        .audio()
+        .transcription()
+        .create_diarized_json(request)
+        .await?;
     println!("{:?}", response);
     Ok(())
 }
@@ -93,7 +101,7 @@ async fn transcribe_srt() -> Result<(), Box<dyn Error>> {
         .response_format(AudioResponseFormat::Srt)
         .build()?;
 
-    let response = client.audio().transcribe_raw(request).await?;
+    let response = client.audio().transcription().create_raw(request).await?;
     println!("{}", String::from_utf8_lossy(response.as_ref()));
     Ok(())
 }
@@ -109,7 +117,11 @@ async fn transcribe_stream() -> Result<(), Box<dyn Error>> {
         .build()?;
 
     let mut lock = stdout().lock();
-    let mut response = client.audio().transcribe_stream(request).await?;
+    let mut response = client
+        .audio()
+        .transcription()
+        .create_stream(request)
+        .await?;
     while let Some(event) = response.next().await {
         match event {
             Ok(event) => match event {

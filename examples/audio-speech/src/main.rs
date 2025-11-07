@@ -14,7 +14,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .model(SpeechModel::Tts1)
         .build()?;
 
-    let response = client.audio().speech(request).await?;
+    let response = client.audio().speech().create(request).await?;
 
     response.save("./data/audio.mp3").await?;
 

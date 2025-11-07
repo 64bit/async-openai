@@ -12,7 +12,7 @@ async fn translate_srt() -> Result<(), Box<dyn Error>> {
         .response_format(TranslationResponseFormat::Srt)
         .build()?;
 
-    let response = client.audio().translate_raw(request).await?;
+    let response = client.audio().translation().create_raw(request).await?;
 
     println!("translate_srt:");
     println!("{}", String::from_utf8_lossy(response.as_ref()));
@@ -27,7 +27,7 @@ async fn translate_verbose_json() -> Result<(), Box<dyn Error>> {
         .model("whisper-1")
         .build()?;
 
-    let response = client.audio().translate(request).await?;
+    let response = client.audio().translation().create(request).await?;
 
     println!("translate_verbose_json:");
     println!("{}", response.text);
