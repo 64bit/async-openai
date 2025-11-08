@@ -1,7 +1,7 @@
 use async_openai::{
     traits::EventType,
     types::images::{
-        CreateImageEditRequestArgs, ImageEditStreamEvent, ImageOutputFormat, ImageSize,
+        CreateImageEditRequestArgs, ImageEditStreamEvent, ImageModel, ImageOutputFormat, ImageSize,
     },
     Client,
 };
@@ -64,8 +64,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .image("./images/sunlit_lounge.png")
         .mask("./images/mask.png")
         .prompt("A sunlit indoor lounge area with a duck in the pool")
+        .partial_images(2)
         .n(1)
         .size(ImageSize::S1024x1024)
+        .model(ImageModel::GptImage1)
         .stream(true)
         .user("async-openai")
         .build()?;
