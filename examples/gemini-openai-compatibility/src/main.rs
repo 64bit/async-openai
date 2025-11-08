@@ -202,7 +202,7 @@ async fn generate_image(prompt: &str) -> Result<(), Box<dyn Error>> {
         .response_format(ImageResponseFormat::B64Json)
         .build()?;
 
-    let response: GeminiImagesResponse = client.images().create_byot(request).await?;
+    let response: GeminiImagesResponse = client.images().generate_byot(request).await?;
 
     let images = response.data;
 
