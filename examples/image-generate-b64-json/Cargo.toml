@@ -1,5 +1,5 @@
 [package]
-name = "create-image-b64-json"
+name = "image-generate-b64-json"
 version = "0.1.0"
 edition = "2021"
 publish = false
