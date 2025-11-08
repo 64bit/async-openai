@@ -21,6 +21,10 @@ use super::{
         AudioInput, AudioResponseFormat, CreateSpeechResponse, CreateTranscriptionRequest,
         CreateTranslationRequest, TimestampGranularity, TranscriptionInclude,
     },
+    images::{
+        CreateImageEditRequest, CreateImageVariationRequest, DallE2ImageSize, Image, ImageInput,
+        ImageModel, ImageResponseFormat, ImageSize, ImagesResponse,
+    },
     responses::{EasyInputContent, Role as ResponsesRole},
     AddUploadPartRequest, ChatCompletionFunctionCall, ChatCompletionFunctions,
     ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
@@ -32,10 +36,8 @@ use super::{
     ChatCompletionRequestToolMessage, ChatCompletionRequestToolMessageContent,
     ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
     ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption,
-    CreateContainerFileRequest, CreateFileRequest, CreateImageEditRequest,
-    CreateImageVariationRequest, CreateMessageRequestContent, CreateVideoRequest, DallE2ImageSize,
-    EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, Image,
-    ImageInput, ImageModel, ImageResponseFormat, ImageSize, ImageUrl, ImagesResponse,
+    CreateContainerFileRequest, CreateFileRequest, CreateMessageRequestContent, CreateVideoRequest,
+    EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageUrl,
     ModerationInput, Prompt, Role, Stop,
 };
 
