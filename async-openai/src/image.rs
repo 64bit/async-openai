@@ -22,7 +22,10 @@ impl<'c, C: Config> Images<'c, C> {
 
     /// Creates an image given a prompt.
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn create(&self, request: CreateImageRequest) -> Result<ImagesResponse, OpenAIError> {
+    pub async fn generate(
+        &self,
+        request: CreateImageRequest,
+    ) -> Result<ImagesResponse, OpenAIError> {
         self.client.post("/images/generations", request).await
     }
 
