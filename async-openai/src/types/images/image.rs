@@ -395,7 +395,8 @@ pub struct CreateImageEditRequest {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateImageVariationRequest {
-    /// The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and square.
+    /// The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and
+    /// square.
     pub image: ImageInput,
 
     /// The model to use for image generation. Only `dall-e-2` is supported at this time.
@@ -404,12 +405,14 @@ pub struct CreateImageVariationRequest {
     /// The number of images to generate. Must be between 1 and 10.
     pub n: Option<u8>, // min:1 max:10 default:1
 
+    /// The format in which the generated images are returned. Must be one of `url` or `b64_json`. URLs
+    /// are only valid for 60 minutes after the image has been generated.
+    pub response_format: Option<ImageResponseFormat>,
+
     /// The size of the generated images. Must be one of `256x256`, `512x512`, or `1024x1024`.
     pub size: Option<DallE2ImageSize>,
 
-    /// The format in which the generated images are returned. Must be one of `url` or `b64_json`.
-    pub response_format: Option<ImageResponseFormat>,
-
-    /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
+    /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
+    /// [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
     pub user: Option<String>,
 }

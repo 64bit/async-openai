@@ -99,7 +99,7 @@ impl<'c, C: Config> Images<'c, C> {
         self.client.post_form_stream("/images/edits", request).await
     }
 
-    /// Creates a variation of a given image.
+    /// Creates a variation of a given image. This endpoint only supports dall-e-2.
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
