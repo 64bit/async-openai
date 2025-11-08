@@ -17,7 +17,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .user("async-openai")
         .build()?;
 
-    let response = client.images().create(request).await?;
+    let response = client.images().generate(request).await?;
 
     // Download and save images to ./data directory.
     // Each url is downloaded and saved in dedicated Tokio task.
