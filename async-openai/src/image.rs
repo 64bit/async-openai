@@ -2,7 +2,8 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::images::{
-        CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImagesResponse,
+        CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImageGenStream,
+        ImagesResponse,
     },
     Client,
 };
@@ -23,6 +24,35 @@ impl<'c, C: Config> Images<'c, C> {
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: CreateImageRequest) -> Result<ImagesResponse, OpenAIError> {
         self.client.post("/images/generations", request).await
+    }
+
+    /// Creates an image given a prompt.
+    #[crate::byot(
+        T0 = serde::Serialize,
+        R = serde::de::DeserializeOwned,
+        stream = "true",
+        where_clause = "R: std::marker::Send + 'static"
+    )]
+    #[allow(unused_mut)]
+    pub async fn generate_stream(
+        &self,
+        mut request: CreateImageRequest,
+    ) -> Result<ImageGenStream, OpenAIError> {
+        #[cfg(not(feature = "byot"))]
+        {
+            if request.stream.is_some() && !request.stream.unwrap() {
+                return Err(OpenAIError::InvalidArgument(
+                    "When stream is false, use Image::generate".into(),
+                ));
+            }
+
+            request.stream = Some(true);
+        }
+
+        Ok(self
+            .client
+            .post_stream("/images/generations", request)
+            .await)
     }
 
     /// Creates an edited or extended image given an original image and a prompt.
