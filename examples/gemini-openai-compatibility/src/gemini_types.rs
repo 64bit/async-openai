@@ -3,7 +3,7 @@ use std::pin::Pin;
 /// Gemini types (Generally user defined types) for Gemini API
 use async_openai::{
     error::OpenAIError,
-    types::{ChatChoice, ChatChoiceStream, CompletionUsage, Image},
+    types::{images::Image, ChatChoice, ChatChoiceStream, CompletionUsage},
 };
 use futures::Stream;
 use serde::{Deserialize, Serialize};

@@ -1,10 +1,10 @@
 use async_openai::{
     config::OpenAIConfig,
     types::{
+        images::{CreateImageRequestArgs, Image, ImageModel, ImageResponseFormat},
         ChatCompletionRequestMessage, ChatCompletionRequestUserMessage,
         ChatCompletionRequestUserMessageContentPart, CreateChatCompletionRequestArgs,
-        CreateEmbeddingRequestArgs, CreateImageRequestArgs, Image, ImageModel, ImageResponseFormat,
-        InputAudio, ResponseFormat, ResponseFormatJsonSchema,
+        CreateEmbeddingRequestArgs, InputAudio, ResponseFormat, ResponseFormatJsonSchema,
     },
     Client,
 };
