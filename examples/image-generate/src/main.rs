@@ -1,5 +1,5 @@
 use async_openai::{
-    types::{CreateImageRequestArgs, ImageResponseFormat, ImageSize},
+    types::images::{CreateImageRequestArgs, ImageResponseFormat, ImageSize},
     Client,
 };
 use std::error::Error;
@@ -10,17 +10,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let request = CreateImageRequestArgs::default()
-        .prompt("Generate a logo for github repository async-openai")
+        .prompt("cats on sofa and carpet in living room")
         .n(2)
-        .response_format(ImageResponseFormat::B64Json)
+        .response_format(ImageResponseFormat::Url)
         .size(ImageSize::S256x256)
         .user("async-openai")
         .build()?;
 
-    let response = client.images().create(request).await?;
+    let response = client.images().generate(request).await?;
 
-    // Response already contains image data in base64 format.
-    // Save each image to ./data directory in dedicated Tokio task.
+    // Download and save images to ./data directory.
+    // Each url is downloaded and saved in dedicated Tokio task.
     // Directory is created if it doesn't exist.
     let paths = response.save("./data").await?;
 

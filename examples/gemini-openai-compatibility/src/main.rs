@@ -1,10 +1,10 @@
 use async_openai::{
     config::OpenAIConfig,
     types::{
+        images::{CreateImageRequestArgs, Image, ImageModel, ImageResponseFormat},
         ChatCompletionRequestMessage, ChatCompletionRequestUserMessage,
         ChatCompletionRequestUserMessageContentPart, CreateChatCompletionRequestArgs,
-        CreateEmbeddingRequestArgs, CreateImageRequestArgs, Image, ImageModel, ImageResponseFormat,
-        InputAudio, ResponseFormat, ResponseFormatJsonSchema,
+        CreateEmbeddingRequestArgs, InputAudio, ResponseFormat, ResponseFormatJsonSchema,
     },
     Client,
 };
@@ -202,7 +202,7 @@ async fn generate_image(prompt: &str) -> Result<(), Box<dyn Error>> {
         .response_format(ImageResponseFormat::B64Json)
         .build()?;
 
-    let response: GeminiImagesResponse = client.images().create_byot(request).await?;
+    let response: GeminiImagesResponse = client.images().generate_byot(request).await?;
 
     let images = response.data;
 

@@ -16,11 +16,12 @@ pub enum Voice {
     Ballad,
     Coral,
     Echo,
+    Fable,
+    Onyx,
+    Nova,
     Sage,
     Shimmer,
     Verse,
-    Marin,
-    Cedar,
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]

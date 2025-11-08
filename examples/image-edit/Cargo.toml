@@ -1,5 +1,5 @@
 [package]
-name = "create-image-b64-json"
+name = "image-edit"
 version = "0.1.0"
 edition = "2021"
 publish = false
