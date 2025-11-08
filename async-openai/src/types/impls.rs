@@ -993,11 +993,13 @@ impl AsyncTryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateImageEditRequest) -> Result<Self, Self::Error> {
-        let image_part = create_file_part(request.image.source).await?;
-
         let mut form = reqwest::multipart::Form::new()
-            .part("image", image_part)
             .text("prompt", request.prompt);
+
+        for image in request.image {
+            let image_part = create_file_part(image.source).await?;
+            form = form.part("image[]", image_part);
+        }
 
         if let Some(mask) = request.mask {
             let mask_part = create_file_part(mask.source).await?;
