@@ -9,7 +9,7 @@ use crate::{
     traits::AsyncTryFrom,
     types::{
         audio::{TranscriptionChunkingStrategy, TranslationResponseFormat},
-        images::{ImageBackground, ImageOutputFormat, ImageQuality, InputFidelity},
+        images::{ImageBackground, ImageEditInput, ImageOutputFormat, ImageQuality, InputFidelity},
         InputSource, VideoSize,
     },
     util::{create_all_dir, create_file_part},
@@ -170,6 +170,92 @@ macro_rules! impl_input {
 impl_input!(AudioInput);
 impl_input!(FileInput);
 impl_input!(ImageInput);
+
+impl Default for ImageEditInput {
+    fn default() -> Self {
+        Self::Image(ImageInput::default())
+    }
+}
+
+impl From<ImageInput> for ImageEditInput {
+    fn from(value: ImageInput) -> Self {
+        Self::Image(value)
+    }
+}
+// Single path-like values
+impl From<&str> for ImageEditInput {
+    fn from(value: &str) -> Self {
+        Self::Image(value.into())
+    }
+}
+
+impl From<String> for ImageEditInput {
+    fn from(value: String) -> Self {
+        Self::Image(value.into())
+    }
+}
+
+impl From<&Path> for ImageEditInput {
+    fn from(value: &Path) -> Self {
+        Self::Image(value.into())
+    }
+}
+
+impl From<PathBuf> for ImageEditInput {
+    fn from(value: PathBuf) -> Self {
+        Self::Image(value.into())
+    }
+}
+
+// Arrays of path-like values
+impl<const N: usize> From<[&str; N]> for ImageEditInput {
+    fn from(value: [&str; N]) -> Self {
+        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+    }
+}
+
+impl<const N: usize> From<[String; N]> for ImageEditInput {
+    fn from(value: [String; N]) -> Self {
+        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+    }
+}
+
+impl<const N: usize> From<[&Path; N]> for ImageEditInput {
+    fn from(value: [&Path; N]) -> Self {
+        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+    }
+}
+
+impl<const N: usize> From<[PathBuf; N]> for ImageEditInput {
+    fn from(value: [PathBuf; N]) -> Self {
+        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+    }
+}
+
+// Vectors of path-like values
+impl<'a> From<Vec<&'a str>> for ImageEditInput {
+    fn from(value: Vec<&'a str>) -> Self {
+        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+    }
+}
+
+impl From<Vec<String>> for ImageEditInput {
+    fn from(value: Vec<String>) -> Self {
+        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+    }
+}
+
+impl From<Vec<&Path>> for ImageEditInput {
+    fn from(value: Vec<&Path>) -> Self {
+        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+    }
+}
+
+impl From<Vec<PathBuf>> for ImageEditInput {
+    fn from(value: Vec<PathBuf>) -> Self {
+        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+    }
+}
 
 impl Display for VideoSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -1061,9 +1147,17 @@ impl AsyncTryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
     async fn try_from(request: CreateImageEditRequest) -> Result<Self, Self::Error> {
         let mut form = reqwest::multipart::Form::new().text("prompt", request.prompt);
 
-        for image in request.image {
-            let image_part = create_file_part(image.source).await?;
-            form = form.part("image[]", image_part);
+        match request.image {
+            ImageEditInput::Image(image) => {
+                let image_part = create_file_part(image.source).await?;
+                form = form.part("image", image_part);
+            }
+            ImageEditInput::Images(images) => {
+                for image in images {
+                    let image_part = create_file_part(image.source).await?;
+                    form = form.part("image[]", image_part);
+                }
+            }
         }
 
         if let Some(mask) = request.mask {

@@ -286,12 +286,18 @@ pub struct ImageInput {
     pub source: InputSource,
 }
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum InputFidelity {
     High,
     #[default]
     Low,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ImageEditInput {
+    Image(ImageInput),
+    Images(Vec<ImageInput>),
 }
 
 #[derive(Debug, Clone, Default, Builder, PartialEq)]
@@ -308,7 +314,7 @@ pub struct CreateImageEditRequest {
     ///
     /// For `dall-e-2`, you can only provide one image, and it should be a square
     /// `png` file less than 4MB.
-    pub image: Vec<ImageInput>,
+    pub image: ImageEditInput,
 
     /// A text description of the desired image(s). The maximum length is 1000 characters
     /// for `dall-e-2`, and 32000 characters for `gpt-image-1`.

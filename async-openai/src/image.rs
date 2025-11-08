@@ -61,7 +61,7 @@ impl<'c, C: Config> Images<'c, C> {
         R = serde::de::DeserializeOwned,
         where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
     )]
-    pub async fn create_edit(
+    pub async fn edit(
         &self,
         request: CreateImageEditRequest,
     ) -> Result<ImagesResponse, OpenAIError> {
