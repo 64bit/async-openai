@@ -2,8 +2,8 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::images::{
-        CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImageGenStream,
-        ImagesResponse,
+        CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImageEditStream,
+        ImageGenStream, ImagesResponse,
     },
     Client,
 };
@@ -55,7 +55,8 @@ impl<'c, C: Config> Images<'c, C> {
             .await)
     }
 
-    /// Creates an edited or extended image given an original image and a prompt.
+    /// Creates an edited or extended image given one or more source images and a prompt.
+    /// This endpoint only supports gpt-image-1 and dall-e-2.
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
@@ -66,6 +67,33 @@ impl<'c, C: Config> Images<'c, C> {
         request: CreateImageEditRequest,
     ) -> Result<ImagesResponse, OpenAIError> {
         self.client.post_form("/images/edits", request).await
+    }
+
+    /// Creates an edited or extended image given one or more source images and a prompt.
+    /// This endpoint only supports gpt-image-1 and dall-e-2.
+    #[crate::byot(
+        T0 = Clone,
+        R = serde::de::DeserializeOwned,
+        stream = "true",
+        where_clause = "R: std::marker::Send + 'static, reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>"
+    )]
+    #[allow(unused_mut)]
+    pub async fn edit_stream(
+        &self,
+        mut request: CreateImageEditRequest,
+    ) -> Result<ImageEditStream, OpenAIError> {
+        #[cfg(not(feature = "byot"))]
+        {
+            if let Some(stream) = request.stream {
+                if !stream {
+                    return Err(OpenAIError::InvalidArgument(
+                        "When stream is false, use Image::edit".into(),
+                    ));
+                }
+            }
+            request.stream = Some(true);
+        }
+        self.client.post_form_stream("/images/edits", request).await
     }
 
     /// Creates a variation of a given image.
