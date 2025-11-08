@@ -182,6 +182,13 @@ impl From<ImageInput> for ImageEditInput {
         Self::Image(value)
     }
 }
+
+impl From<Vec<ImageInput>> for ImageEditInput {
+    fn from(value: Vec<ImageInput>) -> Self {
+        Self::Images(value)
+    }
+}
+
 // Single path-like values
 impl From<&str> for ImageEditInput {
     fn from(value: &str) -> Self {
