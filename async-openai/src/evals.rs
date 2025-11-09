@@ -4,7 +4,7 @@ use crate::{
     config::Config,
     error::OpenAIError,
     eval_runs::EvalRuns,
-    types::{CreateEvalRequest, DeleteEvalResponse, Eval, EvalList, UpdateEvalRequest},
+    types::evals::{CreateEvalRequest, DeleteEvalResponse, Eval, EvalList, UpdateEvalRequest},
     Client,
 };
 
