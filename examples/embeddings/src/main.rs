@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use async_openai::{types::CreateEmbeddingRequestArgs, Client};
+use async_openai::{types::embeddings::CreateEmbeddingRequestArgs, Client};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
