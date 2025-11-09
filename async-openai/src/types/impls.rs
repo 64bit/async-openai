@@ -22,6 +22,7 @@ use super::{
         AudioInput, AudioResponseFormat, CreateSpeechResponse, CreateTranscriptionRequest,
         CreateTranslationRequest, TimestampGranularity, TranscriptionInclude,
     },
+    embeddings::EmbeddingInput,
     images::{
         CreateImageEditRequest, CreateImageVariationRequest, DallE2ImageSize, Image, ImageInput,
         ImageModel, ImageResponseFormat, ImageSize, ImagesResponse,
@@ -38,8 +39,8 @@ use super::{
     ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
     ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption,
     CreateContainerFileRequest, CreateFileRequest, CreateMessageRequestContent, CreateVideoRequest,
-    EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageUrl,
-    ModerationInput, Prompt, Role, Stop,
+    FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageUrl, ModerationInput,
+    Prompt, Role, Stop,
 };
 
 /// for `impl_from!(T, Enum)`, implements
