@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::finetuning::{
         CreateFineTuningCheckpointPermissionRequest, CreateFineTuningJobRequest,
         DeleteFineTuningCheckpointPermissionResponse, FineTuningJob,
         ListFineTuningCheckpointPermissionResponse, ListFineTuningJobCheckpointsResponse,
