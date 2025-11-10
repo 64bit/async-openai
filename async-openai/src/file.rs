@@ -18,13 +18,13 @@ impl<'c, C: Config> Files<'c, C> {
         Self { client }
     }
 
-    /// Upload a file that can be used across various endpoints. Individual files can be up to 512 MB, and the size of all files uploaded by one organization can be up to 100 GB.
+    /// Upload a file that can be used across various endpoints. Individual files can be up to 512 MB, and the size of all files uploaded by one organization can be up to 1 TB.
     ///
     /// The Assistants API supports files up to 2 million tokens and of specific file types. See the [Assistants Tools guide](https://platform.openai.com/docs/assistants/tools) for details.
     ///
     /// The Fine-tuning API only supports `.jsonl` files. The input also has certain required formats for fine-tuning [chat](https://platform.openai.com/docs/api-reference/fine-tuning/chat-input) or [completions](https://platform.openai.com/docs/api-reference/fine-tuning/completions-input) models.
     ///
-    ///The Batch API only supports `.jsonl` files up to 100 MB in size. The input also has a specific required [format](https://platform.openai.com/docs/api-reference/batch/request-input).
+    /// The Batch API only supports `.jsonl` files up to 200 MB in size. The input also has a specific required [format](https://platform.openai.com/docs/api-reference/batch/request-input).
     ///
     /// Please [contact us](https://help.openai.com/) if you need to increase these storage limits.
     #[crate::byot(
@@ -70,7 +70,9 @@ impl<'c, C: Config> Files<'c, C> {
 #[cfg(test)]
 mod tests {
     use crate::{
-        types::{CreateFileRequestArgs, FileExpiresAfter, FileExpiresAfterAnchor, FilePurpose},
+        types::{
+            CreateFileRequestArgs, FileExpirationAfter, FileExpirationAfterAnchor, FilePurpose,
+        },
         Client,
     };
 
@@ -89,8 +91,8 @@ mod tests {
         let request = CreateFileRequestArgs::default()
             .file(test_file_path)
             .purpose(FilePurpose::FineTune)
-            .expires_after(FileExpiresAfter {
-                anchor: FileExpiresAfterAnchor::CreatedAt,
+            .expires_after(FileExpirationAfter {
+                anchor: FileExpirationAfterAnchor::CreatedAt,
                 seconds: 3600,
             })
             .build()

@@ -39,7 +39,7 @@ use super::{
     ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
     ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption,
     CreateContainerFileRequest, CreateFileRequest, CreateMessageRequestContent, CreateVideoRequest,
-    FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageUrl, ModerationInput,
+    FileExpirationAfterAnchor, FileInput, FilePurpose, FunctionName, ImageUrl, ModerationInput,
     Prompt, Role, Stop,
 };
 
@@ -484,12 +484,14 @@ impl Display for FilePurpose {
                 Self::Batch => "batch",
                 Self::FineTune => "fine-tune",
                 Self::Vision => "vision",
+                Self::UserData => "user_data",
+                Self::Evals => "evals",
             }
         )
     }
 }
 
-impl Display for FileExpiresAfterAnchor {
+impl Display for FileExpirationAfterAnchor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,

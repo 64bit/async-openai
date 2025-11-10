@@ -17,19 +17,21 @@ pub enum FilePurpose {
     #[default]
     FineTune,
     Vision,
+    UserData,
+    Evals,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
-pub enum FileExpiresAfterAnchor {
+pub enum FileExpirationAfterAnchor {
     #[default]
     #[serde(rename = "created_at")]
     CreatedAt,
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
-pub struct FileExpiresAfter {
+pub struct FileExpirationAfter {
     /// Anchor timestamp after which the expiration policy applies. Supported anchors: `created_at`.
-    pub anchor: FileExpiresAfterAnchor,
+    pub anchor: FileExpirationAfterAnchor,
 
     /// The number of seconds after the anchor time that the file will expire. Must be between 3600 (1 hour) and 2592000 (30 days).
     pub seconds: u32,
@@ -47,17 +49,20 @@ pub struct CreateFileRequest {
 
     /// The intended purpose of the uploaded file.
     ///
-    /// Use "assistants" for [Assistants](https://platform.openai.com/docs/api-reference/assistants) and [Message](https://platform.openai.com/docs/api-reference/messages) files, "vision" for Assistants image file inputs, "batch" for [Batch API](https://platform.openai.com/docs/guides/batch), and "fine-tune" for [Fine-tuning](https://platform.openai.com/docs/api-reference/fine-tuning).
+    /// Use "assistants" for [Assistants](https://platform.openai.com/docs/api-reference/assistants) and [Message](https://platform.openai.com/docs/api-reference/messages) files, "vision" for Assistants image file inputs, "batch" for [Batch API](https://platform.openai.com/docs/guides/batch), "fine-tune" for [Fine-tuning](https://platform.openai.com/docs/api-reference/fine-tuning), "user_data" for flexible file type for any purpose, and "evals" for eval data sets.
     pub purpose: FilePurpose,
 
     /// The expiration policy for a file. By default, files with `purpose=batch` expire after 30 days and all other files are persisted until they are manually deleted.
-    pub expires_after: Option<FileExpiresAfter>,
+    pub expires_after: Option<FileExpirationAfter>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct ListFilesResponse {
     pub object: String,
     pub data: Vec<OpenAIFile>,
+    pub first_id: String,
+    pub last_id: String,
+    pub has_more: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -83,6 +88,8 @@ pub enum OpenAIFilePurpose {
     FineTuneResults,
     #[serde(rename = "vision")]
     Vision,
+    #[serde(rename = "user_data")]
+    UserData,
 }
 
 /// The `File` object represents a document that has been uploaded to OpenAI.
@@ -100,7 +107,7 @@ pub struct OpenAIFile {
     pub expires_at: Option<u32>,
     /// The name of the file.
     pub filename: String,
-    /// The intended purpose of the file. Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`, `fine-tune`, `fine-tune-results` and `vision`.
+    /// The intended purpose of the file. Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`, `fine-tune`, `fine-tune-results`, `vision`, and `user_data`.
     pub purpose: OpenAIFilePurpose,
     /// Deprecated. The current status of the file, which can be either `uploaded`, `processed`, or `error`.
     #[deprecated]
