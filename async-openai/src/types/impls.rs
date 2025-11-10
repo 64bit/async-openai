@@ -28,6 +28,7 @@ use super::{
         CreateImageEditRequest, CreateImageVariationRequest, DallE2ImageSize, Image, ImageInput,
         ImageModel, ImageResponseFormat, ImageSize, ImagesResponse,
     },
+    moderations::ModerationInput,
     responses::{EasyInputContent, Role as ResponsesRole},
     uploads::AddUploadPartRequest,
     ChatCompletionFunctionCall, ChatCompletionFunctions, ChatCompletionNamedToolChoice,
@@ -40,7 +41,7 @@ use super::{
     ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
     ChatCompletionToolChoiceOption, CreateContainerFileRequest, CreateMessageRequestContent,
-    CreateVideoRequest, FunctionName, ImageUrl, ModerationInput, Prompt, Role, Stop,
+    CreateVideoRequest, FunctionName, ImageUrl, Prompt, Role, Stop,
 };
 
 /// for `impl_from!(T, Enum)`, implements

@@ -1,7 +1,7 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{CreateModerationRequest, CreateModerationResponse},
+    types::moderations::{CreateModerationRequest, CreateModerationResponse},
     Client,
 };
 
