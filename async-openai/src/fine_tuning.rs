@@ -4,7 +4,9 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::{
-        CreateFineTuningJobRequest, FineTuningJob, ListFineTuningJobCheckpointsResponse,
+        CreateFineTuningCheckpointPermissionRequest, CreateFineTuningJobRequest,
+        DeleteFineTuningCheckpointPermissionResponse, FineTuningJob,
+        ListFineTuningCheckpointPermissionResponse, ListFineTuningJobCheckpointsResponse,
         ListFineTuningJobEventsResponse, ListPaginatedFineTuningJobsResponse,
     },
     Client,
@@ -125,6 +127,53 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .get_with_query(
                 format!("/fine_tuning/jobs/{fine_tuning_job_id}/checkpoints").as_str(),
                 &query,
+            )
+            .await
+    }
+
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn create_checkpoint_permissions(
+        &self,
+        fine_tuned_model_checkpoint: &str,
+        request: CreateFineTuningCheckpointPermissionRequest,
+    ) -> Result<ListFineTuningCheckpointPermissionResponse, OpenAIError> {
+        self.client
+            .post(
+                format!("/fine_tuning/checkpoints/{fine_tuned_model_checkpoint}/permissions")
+                    .as_str(),
+                request,
+            )
+            .await
+    }
+
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn list_checkpoint_permissions<Q>(
+        &self,
+        fine_tuned_model_checkpoint: &str,
+        query: &Q,
+    ) -> Result<ListFineTuningCheckpointPermissionResponse, OpenAIError>
+    where
+        Q: Serialize + ?Sized,
+    {
+        self.client
+            .get_with_query(
+                format!("/fine_tuning/checkpoints/{fine_tuned_model_checkpoint}/permissions")
+                    .as_str(),
+                &query,
+            )
+            .await
+    }
+
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn delete_checkpoint_permissions(
+        &self,
+        fine_tuned_model_checkpoint: &str,
+        permission_id: &str,
+    ) -> Result<DeleteFineTuningCheckpointPermissionResponse, OpenAIError> {
+        self.client
+            .delete(
+                format!("/fine_tuning/checkpoints/{fine_tuned_model_checkpoint}/permissions/{permission_id}")
+                    .as_str(),
             )
             .await
     }

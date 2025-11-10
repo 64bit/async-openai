@@ -442,3 +442,38 @@ pub struct FineTuningJobCheckpointMetrics {
     pub full_valid_loss: f32,
     pub full_valid_mean_token_accuracy: f32,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct CreateFineTuningCheckpointPermissionRequest {
+    /// The project identifiers to grant access to.
+    pub project_ids: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ListFineTuningCheckpointPermissionResponse {
+    pub data: Vec<FineTuningCheckpointPermission>,
+    pub object: String,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
+    pub has_more: bool,
+}
+
+/// The `checkpoint.permission` object represents a permission for a fine-tuned model checkpoint.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct FineTuningCheckpointPermission {
+    /// The permission identifier, which can be referenced in the API endpoints.
+    pub id: String,
+    /// The Unix timestamp (in seconds) for when the permission was created.
+    pub created_at: u64,
+    /// The project identifier that the permission is for.
+    pub project_id: String,
+    /// The object type, which is always "checkpoint.permission".
+    pub object: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct DeleteFineTuningCheckpointPermissionResponse {
+    pub object: String,
+    pub id: String,
+    pub deleted: bool,
+}
