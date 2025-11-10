@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{Batch, BatchRequest, ListBatchesResponse},
+    types::batches::{Batch, BatchRequest, ListBatchesResponse},
     Client,
 };
 

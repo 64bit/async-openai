@@ -1,8 +1,8 @@
-use crate::error::OpenAIError;
+use crate::{error::OpenAIError, types::files::FileExpirationAfter};
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use super::{InputSource, OpenAIFile};
+use crate::types::{files::OpenAIFile, InputSource};
 
 /// Request to create an upload object that can accept byte chunks in the form of Parts.
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
@@ -28,20 +28,27 @@ pub struct CreateUploadRequest {
     /// This must fall within the supported MIME types for your file purpose. See the supported MIME
     /// types for assistants and vision.
     pub mime_type: String,
+
+    /// The expiration policy for a file. By default, files with `purpose=batch` expire after 30 days and all
+    /// other files are persisted until they are manually deleted.
+    pub expires_after: Option<FileExpirationAfter>,
 }
 
 /// The intended purpose of the uploaded file.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
-#[serde(rename_all = "snake_case")]
 pub enum UploadPurpose {
     /// For use with Assistants and Message files
+    #[serde(rename = "assistants")]
     Assistants,
     /// For Assistants image file inputs
+    #[serde(rename = "vision")]
     Vision,
     /// For use with the Batch API
+    #[serde(rename = "batch")]
     Batch,
     /// For use with Fine-tuning
     #[default]
+    #[serde(rename = "fine-tune")]
     FineTune,
 }
 
@@ -60,13 +67,13 @@ pub struct Upload {
     /// The intended number of bytes to be uploaded
     pub bytes: u64,
 
-    /// The intended purpose of the file. [Pelase refer here]([Please refer here](/docs/api-reference/files/object#files/object-purpose) for acceptable values.)
+    /// The intended purpose of the file. [Please refer here](https://platform.openai.com/docs/api-reference/files/object#files/object-purpose) for acceptable values.
     pub purpose: UploadPurpose,
 
     /// The status of the Upload.
     pub status: UploadStatus,
 
-    /// The Unix timestamp (in seconds) for when the Upload was created
+    /// The Unix timestamp (in seconds) for when the Upload will expire
     pub expires_at: u32,
 
     /// The object type, which is always "upload"

@@ -14,7 +14,7 @@ use crate::{
     moderation::Moderations,
     traits::AsyncTryFrom,
     Assistants, Audio, AuditLogs, Batches, Chat, Completions, Containers, Conversations,
-    Embeddings, FineTuning, Invites, Models, Projects, Responses, Threads, Uploads, Users,
+    Embeddings, Evals, FineTuning, Invites, Models, Projects, Responses, Threads, Uploads, Users,
     VectorStores, Videos,
 };
 
@@ -181,6 +181,11 @@ impl<C: Config> Client<C> {
     /// To call [Containers] group related APIs using this client.
     pub fn containers(&self) -> Containers<'_, C> {
         Containers::new(self)
+    }
+
+    /// To call [Evals] group related APIs using this client.
+    pub fn evals(&self) -> Evals<'_, C> {
+        Evals::new(self)
     }
 
     pub fn config(&self) -> &C {

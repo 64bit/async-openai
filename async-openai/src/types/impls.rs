@@ -22,24 +22,26 @@ use super::{
         AudioInput, AudioResponseFormat, CreateSpeechResponse, CreateTranscriptionRequest,
         CreateTranslationRequest, TimestampGranularity, TranscriptionInclude,
     },
+    embeddings::EmbeddingInput,
+    files::{CreateFileRequest, FileExpirationAfterAnchor, FileInput, FilePurpose},
     images::{
         CreateImageEditRequest, CreateImageVariationRequest, DallE2ImageSize, Image, ImageInput,
         ImageModel, ImageResponseFormat, ImageSize, ImagesResponse,
     },
+    moderations::ModerationInput,
     responses::{EasyInputContent, Role as ResponsesRole},
-    AddUploadPartRequest, ChatCompletionFunctionCall, ChatCompletionFunctions,
-    ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
-    ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestDeveloperMessage,
-    ChatCompletionRequestDeveloperMessageContent, ChatCompletionRequestFunctionMessage,
-    ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPartAudio,
-    ChatCompletionRequestMessageContentPartImage, ChatCompletionRequestMessageContentPartText,
-    ChatCompletionRequestSystemMessage, ChatCompletionRequestSystemMessageContent,
-    ChatCompletionRequestToolMessage, ChatCompletionRequestToolMessageContent,
-    ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
-    ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption,
-    CreateContainerFileRequest, CreateFileRequest, CreateMessageRequestContent, CreateVideoRequest,
-    EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageUrl,
-    ModerationInput, Prompt, Role, Stop,
+    uploads::AddUploadPartRequest,
+    ChatCompletionFunctionCall, ChatCompletionFunctions, ChatCompletionNamedToolChoice,
+    ChatCompletionRequestAssistantMessage, ChatCompletionRequestAssistantMessageContent,
+    ChatCompletionRequestDeveloperMessage, ChatCompletionRequestDeveloperMessageContent,
+    ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
+    ChatCompletionRequestMessageContentPartAudio, ChatCompletionRequestMessageContentPartImage,
+    ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
+    ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
+    ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
+    ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
+    ChatCompletionToolChoiceOption, CreateContainerFileRequest, CreateMessageRequestContent,
+    CreateVideoRequest, FunctionName, ImageUrl, Prompt, Role, Stop,
 };
 
 /// for `impl_from!(T, Enum)`, implements
@@ -483,12 +485,14 @@ impl Display for FilePurpose {
                 Self::Batch => "batch",
                 Self::FineTune => "fine-tune",
                 Self::Vision => "vision",
+                Self::UserData => "user_data",
+                Self::Evals => "evals",
             }
         )
     }
 }
 
-impl Display for FileExpiresAfterAnchor {
+impl Display for FileExpirationAfterAnchor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,

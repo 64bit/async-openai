@@ -29,22 +29,26 @@ pub enum EncodingFormat {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateEmbeddingRequest {
-    /// ID of the model to use. You can use the
-    /// [List models](https://platform.openai.com/docs/api-reference/models/list)
-    /// API to see all of your available models, or see our
-    /// [Model overview](https://platform.openai.com/docs/models/overview)
+    /// ID of the model to use. You can use the [List models](https://platform.openai.com/docs/api-reference/models/list)
+    /// API to see all of your available models, or see our [Model overview](https://platform.openai.com/docs/models)
     /// for descriptions of them.
     pub model: String,
 
-    ///  Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or array of token arrays. The input must not exceed the max input tokens for the model (8192 tokens for `text-embedding-ada-002`), cannot be an empty string, and any array must be 2048 dimensions or less. [Example Python code](https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken) for counting tokens.
+    /// Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single
+    /// request, pass an array of strings or array of token arrays. The input must not exceed the max
+    /// input tokens for the model (8192 tokens for all embedding models), cannot be an empty string, and
+    /// any array must be 2048 dimensions or less. [Example Python
+    /// code](https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken) for counting tokens.
+    /// In addition to the per-input token limit, all embedding  models enforce a maximum of 300,000
+    /// tokens summed across all inputs in a  single request.
     pub input: EmbeddingInput,
 
-    /// The format to return the embeddings in. Can be either `float` or [`base64`](https://pypi.org/project/pybase64/). Defaults to float
+    /// The format to return the embeddings in. Can be either `float` or [`base64`](https://pypi.org/project/pybase64/).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub encoding_format: Option<EncodingFormat>,
 
-    /// A unique identifier representing your end-user, which will help OpenAI
-    ///  to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
+    /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
+    /// [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 

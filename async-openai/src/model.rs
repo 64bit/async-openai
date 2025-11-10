@@ -1,7 +1,7 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{DeleteModelResponse, ListModelResponse, Model},
+    types::models::{DeleteModelResponse, ListModelResponse, Model},
     Client,
 };
 
@@ -27,8 +27,8 @@ impl<'c, C: Config> Models<'c, C> {
     /// Retrieves a model instance, providing basic information about the model
     /// such as the owner and permissioning.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
-    pub async fn retrieve(&self, id: &str) -> Result<Model, OpenAIError> {
-        self.client.get(format!("/models/{id}").as_str()).await
+    pub async fn retrieve(&self, model: &str) -> Result<Model, OpenAIError> {
+        self.client.get(format!("/models/{model}").as_str()).await
     }
 
     /// Delete a fine-tuned model. You must have the Owner role in your organization.

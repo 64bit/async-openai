@@ -16,30 +16,29 @@ pub enum ModerationInput {
     MultiModal(Vec<ModerationContentPart>),
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ModerationTextInput {
+    /// A string of text to classify
+    pub text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ModerationImageURLInput {
+    /// Either a URL of the image or the base64 encoded image data.
+    pub image_url: String,
+}
+
 /// Content part for multi-modal moderation input
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type")]
 pub enum ModerationContentPart {
     /// An object describing text to classify
     #[serde(rename = "text")]
-    Text {
-        /// A string of text to classify
-        text: String,
-    },
+    Text(ModerationTextInput),
 
     /// An object describing an image to classify
     #[serde(rename = "image_url")]
-    ImageUrl {
-        /// Contains either an image URL or a data URL for a base64 encoded image
-        image_url: ModerationImageUrl,
-    },
-}
-
-/// Image URL configuration for image moderation
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ModerationImageUrl {
-    /// Either a URL of the image or the base64 encoded image data
-    pub url: String,
+    ImageUrl(ModerationImageURLInput),
 }
 
 #[derive(Debug, Default, Clone, Serialize, Builder, PartialEq, Deserialize)]
@@ -53,15 +52,15 @@ pub struct CreateModerationRequest {
     /// an array of multi-modal input objects similar to other models.
     pub input: ModerationInput,
 
-    /// The content moderation model you would like to use. Learn more in the
-    /// [moderation guide](https://platform.openai.com/docs/guides/moderation), and learn about
-    /// available models [here](https://platform.openai.com/docs/models/moderation).
+    /// The content moderation model you would like to use. Learn more in
+    /// [the moderation guide](https://platform.openai.com/docs/guides/moderation), and learn about
+    /// available models [here](https://platform.openai.com/docs/models#moderation).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct Category {
+pub struct Categories {
     /// Content that expresses, incites, or promotes hate based on race, gender,
     /// ethnicity, religion, nationality, sexual orientation, disability status, or
     /// caste. Hateful content aimed at non-protected groups (e.g., chess players)
@@ -147,7 +146,7 @@ pub struct ContentModerationResult {
     /// Whether any of the below categories are flagged.
     pub flagged: bool,
     /// A list of the categories, and whether they are flagged or not.
-    pub categories: Category,
+    pub categories: Categories,
     /// A list of the categories along with their scores as predicted by model.
     pub category_scores: CategoryScore,
     /// A list of the categories along with the input type(s) that the score applies to.

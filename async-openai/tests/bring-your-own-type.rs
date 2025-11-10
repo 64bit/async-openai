@@ -58,8 +58,8 @@ async fn test_byot_moderations() {
 async fn test_byot_images() {
     let client = Client::new();
 
-    let _r: Result<Value, OpenAIError> = client.images().create_byot(json!({})).await;
-    let _r: Result<Value, OpenAIError> = client.images().create_edit_byot(MyJson(json!({}))).await;
+    let _r: Result<Value, OpenAIError> = client.images().generate_byot(json!({})).await;
+    let _r: Result<Value, OpenAIError> = client.images().edit_byot(MyJson(json!({}))).await;
     let _r: Result<Value, OpenAIError> = client
         .images()
         .create_variation_byot(MyJson(json!({})))

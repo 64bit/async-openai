@@ -288,7 +288,7 @@ mod tests {
             Webhooks::verify_signature(body, &signature, old_timestamp, webhook_id, &secret);
         assert!(result.is_err());
         match result.unwrap_err() {
-            WebhookError::InvalidSignature(msg) => {
+            WebhookError::Invalid(msg) => {
                 assert!(msg.contains("too old"));
             }
             _ => panic!("Expected InvalidSignature error"),
@@ -319,7 +319,7 @@ mod tests {
             Webhooks::verify_signature(body, &signature, &future_timestamp, webhook_id, &secret);
         assert!(result.is_err());
         match result.unwrap_err() {
-            WebhookError::InvalidSignature(msg) => {
+            WebhookError::Invalid(msg) => {
                 assert!(msg.contains("too new"));
             }
             _ => panic!("Expected InvalidSignature error"),
@@ -342,7 +342,7 @@ mod tests {
         );
         assert!(result.is_err());
         match result.unwrap_err() {
-            WebhookError::InvalidSignature(msg) => {
+            WebhookError::Invalid(msg) => {
                 assert!(msg.contains("timestamp"));
             }
             _ => panic!("Expected InvalidSignature error"),

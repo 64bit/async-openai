@@ -4,7 +4,7 @@ use std::pin::Pin;
 
 use crate::{
     error::OpenAIError,
-    types::responses::{OutputContent, OutputItem, Response, ResponseLogProb, Summary},
+    types::responses::{OutputContent, OutputItem, Response, ResponseLogProb, SummaryPart},
 };
 
 /// Stream of response events
@@ -322,12 +322,6 @@ pub struct ResponseWebSearchCallCompletedEvent {
     pub sequence_number: u64,
     pub output_index: u32,
     pub item_id: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(tag = "type", rename_all = "snake_case")]
-pub enum SummaryPart {
-    SummaryText(Summary),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
