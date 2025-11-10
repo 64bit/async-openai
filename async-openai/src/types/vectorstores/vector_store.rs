@@ -8,7 +8,7 @@ use crate::{
     types::{responses::Filter, Metadata},
 };
 
-use super::StaticChunkingStrategy;
+use crate::types::StaticChunkingStrategy;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateVectorStoreRequestArgs")]

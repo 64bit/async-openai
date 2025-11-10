@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::vectorstores::{
         CreateVectorStoreFileRequest, DeleteVectorStoreFileResponse, ListVectorStoreFilesResponse,
         UpdateVectorStoreFileAttributesRequest, VectorStoreFileContentResponse,
         VectorStoreFileObject,
@@ -113,7 +113,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
 #[cfg(test)]
 mod tests {
     use crate::types::files::{CreateFileRequest, FileInput, FilePurpose};
-    use crate::types::CreateVectorStoreRequest;
+    use crate::types::vectorstores::CreateVectorStoreRequest;
     use crate::Client;
 
     #[tokio::test]

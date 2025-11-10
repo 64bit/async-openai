@@ -35,7 +35,7 @@ mod step;
 mod thread;
 pub mod uploads;
 mod users;
-mod vector_store;
+pub mod vectorstores;
 mod video;
 #[cfg_attr(docsrs, doc(cfg(feature = "webhook")))]
 #[cfg(feature = "webhook")]
@@ -60,7 +60,6 @@ pub use run::*;
 pub use step::*;
 pub use thread::*;
 pub use users::*;
-pub use vector_store::*;
 pub use video::*;
 
 mod impls;
