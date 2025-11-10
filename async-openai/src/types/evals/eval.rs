@@ -2,11 +2,12 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
+use crate::types::chat::{ChatCompletionTool, ImageDetail, InputAudio, ResponseFormat};
 use crate::types::graders::{
     GraderLabelModel, GraderPython, GraderScoreModel, GraderStringCheck, GraderTextSimilarity,
 };
 use crate::types::responses::{ResponseTextParam, Tool};
-use crate::types::{ChatCompletionTool, ImageDetail, InputAudio, Metadata, ResponseFormat};
+use crate::types::Metadata;
 
 // Re-export commonly used types
 pub use crate::types::responses::{EasyInputMessage, InputTextContent, ReasoningEffort};

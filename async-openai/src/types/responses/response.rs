@@ -1,5 +1,5 @@
 use crate::error::OpenAIError;
-pub use crate::types::{
+pub use crate::types::chat::{
     CompletionTokensDetails, ImageDetail, PromptTokensDetails, ReasoningEffort,
     ResponseFormatJsonSchema,
 };

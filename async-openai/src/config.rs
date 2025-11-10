@@ -241,7 +241,7 @@ impl Config for AzureConfig {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::types::{
+    use crate::types::chat::{
         ChatCompletionRequestMessage, ChatCompletionRequestUserMessage, CreateChatCompletionRequest,
     };
     use crate::Client;

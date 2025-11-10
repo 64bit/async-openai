@@ -6,7 +6,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-use super::{ChatCompletionStreamOptions, Choice, CompletionUsage, Prompt, StopConfiguration};
+use crate::types::chat::{
+    ChatCompletionStreamOptions, Choice, CompletionUsage, Prompt, StopConfiguration,
+};
 
 #[derive(Clone, Serialize, Deserialize, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateCompletionRequestArgs")]

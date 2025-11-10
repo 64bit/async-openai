@@ -1,7 +1,7 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::chat::{
         ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse,
     },
     Client,
