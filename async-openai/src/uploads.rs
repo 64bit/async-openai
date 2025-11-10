@@ -1,7 +1,9 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{AddUploadPartRequest, CompleteUploadRequest, CreateUploadRequest, Upload, UploadPart},
+    types::uploads::{
+        AddUploadPartRequest, CompleteUploadRequest, CreateUploadRequest, Upload, UploadPart,
+    },
     Client,
 };
 
