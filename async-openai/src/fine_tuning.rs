@@ -71,6 +71,28 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .await
     }
 
+    /// Pause a fine-tune job.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn pause(&self, fine_tuning_job_id: &str) -> Result<FineTuningJob, OpenAIError> {
+        self.client
+            .post(
+                format!("/fine_tuning/jobs/{fine_tuning_job_id}/pause").as_str(),
+                (),
+            )
+            .await
+    }
+
+    /// Resume a fine-tune job.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn resume(&self, fine_tuning_job_id: &str) -> Result<FineTuningJob, OpenAIError> {
+        self.client
+            .post(
+                format!("/fine_tuning/jobs/{fine_tuning_job_id}/resume").as_str(),
+                (),
+            )
+            .await
+    }
+
     /// Get status updates for a fine-tuning job.
     #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn list_events<Q>(
