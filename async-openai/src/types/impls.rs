@@ -23,6 +23,7 @@ use super::{
         CreateTranslationRequest, TimestampGranularity, TranscriptionInclude,
     },
     embeddings::EmbeddingInput,
+    files::{CreateFileRequest, FileExpirationAfterAnchor, FileInput, FilePurpose},
     images::{
         CreateImageEditRequest, CreateImageVariationRequest, DallE2ImageSize, Image, ImageInput,
         ImageModel, ImageResponseFormat, ImageSize, ImagesResponse,
@@ -38,9 +39,8 @@ use super::{
     ChatCompletionRequestToolMessage, ChatCompletionRequestToolMessageContent,
     ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
     ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption,
-    CreateContainerFileRequest, CreateFileRequest, CreateMessageRequestContent, CreateVideoRequest,
-    FileExpirationAfterAnchor, FileInput, FilePurpose, FunctionName, ImageUrl, ModerationInput,
-    Prompt, Role, Stop,
+    CreateContainerFileRequest, CreateMessageRequestContent, CreateVideoRequest, FunctionName,
+    ImageUrl, ModerationInput, Prompt, Role, Stop,
 };
 
 /// for `impl_from!(T, Enum)`, implements

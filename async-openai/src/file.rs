@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{CreateFileRequest, DeleteFileResponse, ListFilesResponse, OpenAIFile},
+    types::files::{CreateFileRequest, DeleteFileResponse, ListFilesResponse, OpenAIFile},
     Client,
 };
 
