@@ -70,7 +70,7 @@ impl<'c, C: Config> Files<'c, C> {
 #[cfg(test)]
 mod tests {
     use crate::{
-        types::{
+        types::files::{
             CreateFileRequestArgs, FileExpirationAfter, FileExpirationAfterAnchor, FilePurpose,
         },
         Client,
