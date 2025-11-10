@@ -28,7 +28,7 @@ pub enum FileExpirationAfterAnchor {
     CreatedAt,
 }
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Deserialize, Serialize, Clone, PartialEq)]
 pub struct FileExpirationAfter {
     /// Anchor timestamp after which the expiration policy applies. Supported anchors: `created_at`.
     pub anchor: FileExpirationAfterAnchor,
