@@ -164,7 +164,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .await
     }
 
-    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    #[crate::byot(T0 = std::fmt::Display, T1 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete_checkpoint_permissions(
         &self,
         fine_tuned_model_checkpoint: &str,
