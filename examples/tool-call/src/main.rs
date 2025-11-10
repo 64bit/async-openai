@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 use std::io::{stdout, Write};
 
-use async_openai::types::{
+use async_openai::types::chat::{
     ChatCompletionMessageToolCalls, ChatCompletionRequestAssistantMessageArgs,
     ChatCompletionRequestMessage, ChatCompletionRequestToolMessageArgs,
     ChatCompletionRequestUserMessageArgs, ChatCompletionTool, ChatCompletionTools,
     FunctionObjectArgs,
 };
-use async_openai::{types::CreateChatCompletionRequestArgs, Client};
+use async_openai::{types::chat::CreateChatCompletionRequestArgs, Client};
 use futures::StreamExt;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};

@@ -3,13 +3,13 @@ use std::error::Error;
 use std::io::{stdout, Write};
 use std::sync::Arc;
 
-use async_openai::types::{
+use async_openai::types::chat::{
     ChatCompletionMessageToolCall, ChatCompletionMessageToolCalls,
     ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestMessage,
     ChatCompletionRequestToolMessageArgs, ChatCompletionRequestUserMessageArgs, ChatCompletionTool,
     ChatCompletionTools, FinishReason, FunctionCall, FunctionObjectArgs,
 };
-use async_openai::{types::CreateChatCompletionRequestArgs, Client};
+use async_openai::{types::chat::CreateChatCompletionRequestArgs, Client};
 use futures::StreamExt;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};

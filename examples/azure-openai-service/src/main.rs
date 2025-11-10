@@ -3,8 +3,8 @@ use std::error::Error;
 use async_openai::{
     config::AzureConfig,
     types::{
-        embeddings::CreateEmbeddingRequestArgs, ChatCompletionRequestSystemMessageArgs,
-        ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
+        chat::ChatCompletionRequestSystemMessageArgs, chat::ChatCompletionRequestUserMessageArgs,
+        chat::CreateChatCompletionRequestArgs, embeddings::CreateEmbeddingRequestArgs,
     },
     Client,
 };

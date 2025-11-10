@@ -3,9 +3,9 @@ use std::error::Error;
 use async_openai::{
     config::OpenAIConfig,
     types::{
-        AssistantStreamEvent, CreateAssistantRequestArgs, CreateMessageRequest, CreateRunRequest,
-        CreateThreadRequest, FunctionObject, MessageDeltaContent, MessageRole, RunObject,
-        SubmitToolOutputsRunRequest, ToolsOutputs,
+        chat::FunctionObject, AssistantStreamEvent, CreateAssistantRequestArgs,
+        CreateMessageRequest, CreateRunRequest, CreateThreadRequest, MessageDeltaContent,
+        MessageRole, RunObject, SubmitToolOutputsRunRequest, ToolsOutputs,
     },
     Client,
 };
