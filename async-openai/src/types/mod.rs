@@ -14,6 +14,7 @@ pub mod embeddings;
 pub mod evals;
 mod file;
 mod fine_tuning;
+pub mod graders;
 pub mod images;
 mod invites;
 mod logprob;

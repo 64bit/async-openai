@@ -1,37 +1,45 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::error::OpenAIError;
+use crate::{
+    error::OpenAIError,
+    types::{
+        graders::{
+            GraderMulti, GraderPython, GraderScoreModel, GraderStringCheck, GraderTextSimilarity,
+        },
+        Metadata,
+    },
+};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
-#[serde(untagged)]
 pub enum NEpochs {
+    #[default]
+    #[serde(rename = "auto")]
+    Auto,
+    #[serde(untagged)]
     NEpochs(u8),
-    #[default]
-    #[serde(rename = "auto")]
-    Auto,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
-#[serde(untagged)]
 pub enum BatchSize {
+    #[default]
+    #[serde(rename = "auto")]
+    Auto,
+    #[serde(untagged)]
     BatchSize(u16),
-    #[default]
-    #[serde(rename = "auto")]
-    Auto,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
-#[serde(untagged)]
 pub enum LearningRateMultiplier {
-    LearningRateMultiplier(f32),
     #[default]
     #[serde(rename = "auto")]
     Auto,
+    #[serde(untagged)]
+    LearningRateMultiplier(f32),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
-pub struct Hyperparameters {
+pub struct FineTuneSupervisedHyperparameters {
     /// Number of examples in each batch. A larger batch size means that model parameters
     /// are updated less frequently, but with lower variance.
     pub batch_size: BatchSize,
@@ -43,16 +51,16 @@ pub struct Hyperparameters {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
-#[serde(untagged)]
 pub enum Beta {
-    Beta(f32),
     #[default]
     #[serde(rename = "auto")]
     Auto,
+    #[serde(untagged)]
+    Beta(f32),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
-pub struct DPOHyperparameters {
+pub struct FineTuneDPOHyperparameters {
     /// The beta value for the DPO method. A higher beta value will increase the weight of the penalty between the policy and reference model.
     pub beta: Beta,
     /// Number of examples in each batch. A larger batch size means that model parameters
@@ -82,15 +90,14 @@ pub struct CreateFineTuningJobRequest {
     ///
     /// Your dataset must be formatted as a JSONL file. Additionally, you must upload your file with the purpose `fine-tune`.
     ///
-    /// The contents of the file should differ depending on if the model uses the [chat](https://platform.openai.com/docs/api-reference/fine-tuning/chat-input), [completions](https://platform.openai.com/docs/api-reference/fine-tuning/completions-input) format, or if the fine-tuning method uses the [preference](https://platform.openai.com/docs/api-reference/fine-tuning/preference-input) format.
+    /// The contents of the file should differ depending on if the model uses the [chat](https://platform.openai.com/docs/api-reference/fine-tuning/chat-input),
+    /// [completions](https://platform.openai.com/docs/api-reference/fine-tuning/completions-input)
+    /// format, or if the fine-tuning method uses the
+    /// [preference](https://platform.openai.com/docs/api-reference/fine-tuning/preference-input) format.
     ///
-    /// See the [fine-tuning guide](https://platform.openai.com/docs/guides/fine-tuning) for more details.
+    /// See the [fine-tuning guide](https://platform.openai.com/docs/guides/model-optimization) for more
+    /// details.
     pub training_file: String,
-
-    /// The hyperparameters used for the fine-tuning job.
-    /// This value is now deprecated in favor of `method`, and should be passed in under the `method` parameter.
-    #[deprecated]
-    pub hyperparameters: Option<Hyperparameters>,
 
     /// A string of up to 64 characters that will be added to your fine-tuned model name.
     ///
@@ -107,7 +114,8 @@ pub struct CreateFineTuningJobRequest {
     ///
     /// Your dataset must be formatted as a JSONL file. You must upload your file with the purpose `fine-tune`.
     ///
-    /// See the [fine-tuning guide](https://platform.openai.com/docs/guides/fine-tuning) for more details.
+    /// See the [fine-tuning guide](https://platform.openai.com/docs/guides/model-optimization) for more
+    /// details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub validation_file: Option<String>,
 
@@ -122,6 +130,9 @@ pub struct CreateFineTuningJobRequest {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub method: Option<FineTuneMethod>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<Metadata>,
 }
 
 /// The method used for fine-tuning.
@@ -134,16 +145,92 @@ pub enum FineTuneMethod {
     DPO {
         dpo: FineTuneDPOMethod,
     },
+    Reinforcement {
+        reinforcement: FineTuneReinforcementMethod,
+    },
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct FineTuneSupervisedMethod {
-    pub hyperparameters: Hyperparameters,
+    pub hyperparameters: FineTuneSupervisedHyperparameters,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct FineTuneDPOMethod {
-    pub hyperparameters: DPOHyperparameters,
+    pub hyperparameters: FineTuneDPOHyperparameters,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum FineTuneReinforcementMethodGrader {
+    StringCheck(GraderStringCheck),
+    TextSimilarity(GraderTextSimilarity),
+    Python(GraderPython),
+    ScoreModel(GraderScoreModel),
+    Multi(GraderMulti),
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum FineTuneReasoningEffort {
+    #[default]
+    Default,
+    Low,
+    Medium,
+    High,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
+pub enum ComputeMultiplier {
+    #[default]
+    #[serde(rename = "auto")]
+    Auto,
+    #[serde(untagged)]
+    ComputeMultiplier(f32),
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
+pub enum EvalInterval {
+    #[default]
+    #[serde(rename = "auto")]
+    Auto,
+    #[serde(untagged)]
+    EvalInterval(u32),
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
+pub enum EvalSamples {
+    #[default]
+    #[serde(rename = "auto")]
+    Auto,
+    #[serde(untagged)]
+    EvalSamples(u32),
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct FineTuneReinforcementHyperparameters {
+    /// Number of examples in each batch. A larger batch size means that model parameters
+    /// are updated less frequently, but with lower variance.
+    pub batch_size: BatchSize,
+    /// Scaling factor for the learning rate. A smaller learning rate may be useful to avoid
+    /// overfitting.
+    pub learning_rate_multiplier: LearningRateMultiplier,
+    /// The number of epochs to train the model for. An epoch refers to one full cycle through the training dataset.
+    pub n_epochs: NEpochs,
+    /// Level of reasoning effort.
+    pub reasoning_effort: FineTuneReasoningEffort,
+    /// Multiplier on amount of compute used for exploring search space during training.
+    pub compute_multiplier: ComputeMultiplier,
+    /// The number of training steps between evaluation runs.
+    pub eval_interval: EvalInterval,
+    /// Number of evaluation samples to generate per training step.
+    pub eval_samples: EvalSamples,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct FineTuneReinforcementMethod {
+    pub grader: FineTuneReinforcementMethodGrader,
+    pub hyperparameters: FineTuneReinforcementHyperparameters,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
@@ -204,6 +291,13 @@ pub enum FineTuningJobStatus {
     Cancelled,
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct Hyperparameters {
+    pub batch_size: BatchSize,
+    pub learning_rate_multiplier: LearningRateMultiplier,
+    pub n_epochs: NEpochs,
+}
+
 /// The `fine_tuning.job` object represents a fine-tuning job that has been created through the API.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct FineTuningJob {
@@ -220,8 +314,8 @@ pub struct FineTuningJob {
     /// The value will be null if the fine-tuning job is still running.
     pub finished_at: Option<u32>, // nullable true
 
-    /// The hyperparameters used for the fine-tuning job.
-    /// See the [fine-tuning guide](/docs/guides/fine-tuning) for more details.
+    /// The hyperparameters used for the fine-tuning job. This value will only be returned when running
+    /// `supervised` jobs.
     pub hyperparameters: Hyperparameters,
 
     ///  The base model that is being fine-tuned.
@@ -259,6 +353,8 @@ pub struct FineTuningJob {
     pub estimated_finish: Option<u32>,
 
     pub method: Option<FineTuneMethod>,
+
+    pub metadata: Option<Metadata>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

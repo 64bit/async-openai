@@ -2,10 +2,11 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
-use crate::types::responses::{ResponseTextParam, Tool};
-use crate::types::{
-    ChatCompletionTool, ImageDetail, InputAudio, Metadata, ResponseFormat, ResponseFormatJsonSchema,
+use crate::types::graders::{
+    GraderLabelModel, GraderPython, GraderScoreModel, GraderStringCheck, GraderTextSimilarity,
 };
+use crate::types::responses::{ResponseTextParam, Tool};
+use crate::types::{ChatCompletionTool, ImageDetail, InputAudio, Metadata, ResponseFormat};
 
 // Re-export commonly used types
 pub use crate::types::responses::{EasyInputMessage, InputTextContent, ReasoningEffort};
@@ -87,85 +88,32 @@ pub struct EvalStoredCompletionsDataSourceConfig {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum EvalTestingCriterion {
     /// Label model grader.
-    #[serde(rename = "label_model")]
     LabelModel(EvalGraderLabelModel),
     /// String check grader.
-    #[serde(rename = "string_check")]
-    StringCheck(GraderStringCheck),
+    StringCheck(EvalGraderStringCheck),
     /// Text similarity grader.
-    #[serde(rename = "text_similarity")]
     TextSimilarity(EvalGraderTextSimilarity),
     /// Python grader.
     Python(EvalGraderPython),
     /// Score model grader.
-    #[serde(rename = "score_model")]
     ScoreModel(EvalGraderScoreModel),
 }
 
 /// Label model grader.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct EvalGraderLabelModel {
-    /// The object type, which is always "label_model".
-    #[serde(rename = "type")]
-    pub r#type: String,
-    /// The name of the grader.
-    pub name: String,
-    /// The model to use for the evaluation. Must support structured outputs.
-    pub model: String,
-    /// A list of chat messages forming the prompt or context.
-    pub input: Vec<EvalItem>,
-    /// The labels to classify to each item in the evaluation.
-    pub labels: Vec<String>,
-    /// The labels that indicate a passing result. Must be a subset of labels.
-    pub passing_labels: Vec<String>,
-    /// Optional ID for the grader.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<String>,
-    /// Optional sampling parameters.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub sampling_params: Option<serde_json::Value>,
-}
+#[serde(transparent)]
+pub struct EvalGraderLabelModel(pub GraderLabelModel);
 
 /// String check grader.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct GraderStringCheck {
-    /// The name of the grader.
-    pub name: String,
-    /// The input text. This may include template strings.
-    pub input: String,
-    /// The reference text. This may include template strings.
-    pub reference: String,
-    /// The string check operation to perform. One of `eq`, `ne`, `like`, or `ilike`.
-    pub operation: StringCheckOperation,
-}
-
-/// String check operation.
-#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum StringCheckOperation {
-    /// Equal.
-    Eq,
-    /// Not equal.
-    Ne,
-    /// Like.
-    Like,
-    /// Case-insensitive like.
-    Ilike,
-}
+#[serde(transparent)]
+pub struct EvalGraderStringCheck(pub GraderStringCheck);
 
 /// Text similarity grader.
-/// also in openapi spec: GraderTextSimilarity
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct EvalGraderTextSimilarity {
-    /// The name of the grader.
-    pub name: String,
-    /// The text being graded.
-    pub input: String,
-    /// The text being graded against.
-    pub reference: String,
-    /// The evaluation metric to use.
-    pub evaluation_metric: TextSimilarityMetric,
-    /// The threshold for the score.
+    #[serde(flatten)]
+    pub grader: GraderTextSimilarity,
     pub pass_threshold: f64,
 }
 
@@ -201,13 +149,8 @@ pub enum TextSimilarityMetric {
 /// also in openapi spec: GraderPython
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct EvalGraderPython {
-    /// The name of the grader.
-    pub name: String,
-    /// The source code of the python script.
-    pub source: String,
-    /// The image tag to use for the python script.
-    pub image_tag: Option<String>,
-    /// The threshold for the score.
+    #[serde(flatten)]
+    pub grader: GraderPython,
     pub pass_threshold: Option<f64>,
 }
 
@@ -234,20 +177,10 @@ pub struct SamplingParams {
 /// also in openapi spec: GraderScoreModel
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct EvalGraderScoreModel {
-    /// The name of the grader.
-    pub name: String,
-    /// The model to use for the evaluation.
-    pub model: String,
-    /// A list of chat messages forming the prompt or context.
-    pub input: Vec<EvalItem>,
+    #[serde(flatten)]
+    pub grader: GraderScoreModel,
     /// The threshold for the score.
     pub pass_threshold: Option<f64>,
-    /// Optional sampling parameters.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub sampling_params: Option<SamplingParams>,
-    /// The range of the score. Defaults to [0, 1].
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub range: Option<Vec<f64>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
@@ -398,7 +331,7 @@ pub enum CreateEvalTestingCriterion {
     LabelModel(CreateEvalLabelModelGrader),
     /// A StringCheckGrader object that performs a string comparison between input and reference using a
     /// specified operation.
-    StringCheck(GraderStringCheck),
+    StringCheck(EvalGraderStringCheck),
     /// Text similarity grader.
     TextSimilarity(EvalGraderTextSimilarity),
     /// Python grader.

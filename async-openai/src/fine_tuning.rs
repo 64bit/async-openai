@@ -22,11 +22,12 @@ impl<'c, C: Config> FineTuning<'c, C> {
         Self { client }
     }
 
-    /// Creates a job that fine-tunes a specified model from a given dataset.
+    /// Creates a fine-tuning job which begins the process of creating a new model from a given dataset.
     ///
-    /// Response includes details of the enqueued job including job status and the name of the fine-tuned models once complete.
+    /// Response includes details of the enqueued job including job status and the name of the fine-tuned
+    /// models once complete.
     ///
-    /// [Learn more about Fine-tuning](https://platform.openai.com/docs/guides/fine-tuning)
+    /// [Learn more about fine-tuning](https://platform.openai.com/docs/guides/model-optimization)
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(
         &self,
@@ -49,9 +50,9 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .await
     }
 
-    /// Gets info about the fine-tune job.
+    /// Get info about a fine-tuning job.
     ///
-    /// [Learn more about Fine-tuning](https://platform.openai.com/docs/guides/fine-tuning)
+    /// [Learn more about fine-tuning](https://platform.openai.com/docs/guides/model-optimization)
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, fine_tuning_job_id: &str) -> Result<FineTuningJob, OpenAIError> {
         self.client
@@ -70,7 +71,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .await
     }
 
-    /// Get fine-grained status updates for a fine-tune job.
+    /// Get status updates for a fine-tuning job.
     #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn list_events<Q>(
         &self,
@@ -88,6 +89,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .await
     }
 
+    /// List checkpoints for a fine-tuning job.
     #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn list_checkpoints<Q>(
         &self,
