@@ -35,7 +35,7 @@ use crate::{
         ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
         ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
         ChatCompletionToolChoiceOption, CreateMessageRequestContent, FunctionName, ImageUrl,
-        InputSource, Prompt, Role, Stop,
+        InputSource, Prompt, Role, StopConfiguration,
     },
     util::{create_all_dir, create_file_part},
 };
@@ -94,10 +94,10 @@ impl_from!(&str, Prompt);
 impl_from!(String, Prompt);
 impl_from!(&String, Prompt);
 
-// From String "family" to Stop
-impl_from!(&str, Stop);
-impl_from!(String, Stop);
-impl_from!(&String, Stop);
+// From String "family" to StopConfiguration
+impl_from!(&str, StopConfiguration);
+impl_from!(String, StopConfiguration);
+impl_from!(&String, StopConfiguration);
 
 // From String "family" to ModerationInput
 impl_from!(&str, ModerationInput);
@@ -720,7 +720,6 @@ impl From<String> for FunctionName {
 impl From<&str> for ChatCompletionNamedToolChoice {
     fn from(value: &str) -> Self {
         Self {
-            r#type: super::ChatCompletionToolType::Function,
             function: value.into(),
         }
     }
@@ -729,28 +728,7 @@ impl From<&str> for ChatCompletionNamedToolChoice {
 impl From<String> for ChatCompletionNamedToolChoice {
     fn from(value: String) -> Self {
         Self {
-            r#type: super::ChatCompletionToolType::Function,
             function: value.into(),
-        }
-    }
-}
-
-impl From<&str> for ChatCompletionToolChoiceOption {
-    fn from(value: &str) -> Self {
-        match value {
-            "auto" => Self::Auto,
-            "none" => Self::None,
-            _ => Self::Named(value.into()),
-        }
-    }
-}
-
-impl From<String> for ChatCompletionToolChoiceOption {
-    fn from(value: String) -> Self {
-        match value.as_str() {
-            "auto" => Self::Auto,
-            "none" => Self::None,
-            _ => Self::Named(value.into()),
         }
     }
 }
