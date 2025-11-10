@@ -6,7 +6,7 @@ use async_openai::{
     },
     Client,
 };
-use std::collections::HashMap;
+use serde_json::json;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -21,11 +21,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .conversations()
         .create(
             CreateConversationRequestArgs::default()
-                .metadata({
-                    let mut metadata = HashMap::new();
-                    metadata.insert("topic".to_string(), "demo".to_string());
-                    metadata
-                })
+                .metadata(json!({
+                    "topic": "demo",
+                }))
                 .items(vec![InputItem::from_easy_message(EasyInputMessage {
                     r#type: MessageType::Message,
                     role: Role::User,
@@ -108,12 +106,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .update(
             &conversation.id,
             UpdateConversationRequestArgs::default()
-                .metadata({
-                    let mut metadata = HashMap::new();
-                    metadata.insert("topic".to_string(), "updated-demo".into());
-                    metadata.insert("status".to_string(), "active".into());
-                    metadata
-                })
+                .metadata(json!({
+                    "topic": "updated-demo",
+                }))
                 .build()?,
         )
         .await?;
