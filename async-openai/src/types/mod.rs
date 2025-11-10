@@ -36,7 +36,7 @@ mod thread;
 pub mod uploads;
 mod users;
 pub mod vectorstores;
-mod video;
+pub mod videos;
 #[cfg_attr(docsrs, doc(cfg(feature = "webhook")))]
 #[cfg(feature = "webhook")]
 pub mod webhooks;
@@ -60,7 +60,6 @@ pub use run::*;
 pub use step::*;
 pub use thread::*;
 pub use users::*;
-pub use video::*;
 
 mod impls;
 use derive_builder::UninitializedFieldError;

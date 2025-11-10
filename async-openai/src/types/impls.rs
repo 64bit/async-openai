@@ -8,41 +8,38 @@ use crate::{
     error::OpenAIError,
     traits::AsyncTryFrom,
     types::{
+        audio::{
+            AudioInput, AudioResponseFormat, CreateSpeechResponse, CreateTranscriptionRequest,
+            CreateTranslationRequest, TimestampGranularity, TranscriptionInclude,
+        },
         audio::{TranscriptionChunkingStrategy, TranslationResponseFormat},
+        embeddings::EmbeddingInput,
+        files::{CreateFileRequest, FileExpirationAfterAnchor, FileInput, FilePurpose},
+        images::{
+            CreateImageEditRequest, CreateImageVariationRequest, DallE2ImageSize, Image,
+            ImageInput, ImageModel, ImageResponseFormat, ImageSize, ImagesResponse,
+        },
         images::{ImageBackground, ImageEditInput, ImageOutputFormat, ImageQuality, InputFidelity},
-        InputSource, VideoSize,
+        moderations::ModerationInput,
+        responses::{EasyInputContent, Role as ResponsesRole},
+        uploads::AddUploadPartRequest,
+        videos::{CreateVideoRequest, VideoSize},
+        ChatCompletionFunctionCall, ChatCompletionFunctions, ChatCompletionNamedToolChoice,
+        ChatCompletionRequestAssistantMessage, ChatCompletionRequestAssistantMessageContent,
+        ChatCompletionRequestDeveloperMessage, ChatCompletionRequestDeveloperMessageContent,
+        ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
+        ChatCompletionRequestMessageContentPartAudio, ChatCompletionRequestMessageContentPartImage,
+        ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
+        ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
+        ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
+        ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
+        ChatCompletionToolChoiceOption, CreateContainerFileRequest, CreateMessageRequestContent,
+        FunctionName, ImageUrl, InputSource, Prompt, Role, Stop,
     },
     util::{create_all_dir, create_file_part},
 };
 
 use bytes::Bytes;
-
-use super::{
-    audio::{
-        AudioInput, AudioResponseFormat, CreateSpeechResponse, CreateTranscriptionRequest,
-        CreateTranslationRequest, TimestampGranularity, TranscriptionInclude,
-    },
-    embeddings::EmbeddingInput,
-    files::{CreateFileRequest, FileExpirationAfterAnchor, FileInput, FilePurpose},
-    images::{
-        CreateImageEditRequest, CreateImageVariationRequest, DallE2ImageSize, Image, ImageInput,
-        ImageModel, ImageResponseFormat, ImageSize, ImagesResponse,
-    },
-    moderations::ModerationInput,
-    responses::{EasyInputContent, Role as ResponsesRole},
-    uploads::AddUploadPartRequest,
-    ChatCompletionFunctionCall, ChatCompletionFunctions, ChatCompletionNamedToolChoice,
-    ChatCompletionRequestAssistantMessage, ChatCompletionRequestAssistantMessageContent,
-    ChatCompletionRequestDeveloperMessage, ChatCompletionRequestDeveloperMessageContent,
-    ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
-    ChatCompletionRequestMessageContentPartAudio, ChatCompletionRequestMessageContentPartImage,
-    ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
-    ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
-    ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
-    ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
-    ChatCompletionToolChoiceOption, CreateContainerFileRequest, CreateMessageRequestContent,
-    CreateVideoRequest, FunctionName, ImageUrl, Prompt, Role, Stop,
-};
 
 /// for `impl_from!(T, Enum)`, implements
 /// - `From<T>`
