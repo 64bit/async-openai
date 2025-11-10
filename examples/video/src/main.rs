@@ -1,6 +1,6 @@
 use async_openai::{
     config::OpenAIConfig,
-    types::{CreateVideoRequestArgs, VideoJob, VideoSize, VideoVariant},
+    types::videos::{CreateVideoRequestArgs, VideoJob, VideoSize, VideoVariant},
     Client,
 };
 use bytes::Bytes;
