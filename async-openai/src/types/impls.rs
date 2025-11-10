@@ -13,6 +13,7 @@ use crate::{
             CreateTranslationRequest, TimestampGranularity, TranscriptionInclude,
         },
         audio::{TranscriptionChunkingStrategy, TranslationResponseFormat},
+        containers::CreateContainerFileRequest,
         embeddings::EmbeddingInput,
         files::{CreateFileRequest, FileExpirationAfterAnchor, FileInput, FilePurpose},
         images::{
@@ -33,8 +34,8 @@ use crate::{
         ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
         ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
         ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
-        ChatCompletionToolChoiceOption, CreateContainerFileRequest, CreateMessageRequestContent,
-        FunctionName, ImageUrl, InputSource, Prompt, Role, Stop,
+        ChatCompletionToolChoiceOption, CreateMessageRequestContent, FunctionName, ImageUrl,
+        InputSource, Prompt, Role, Stop,
     },
     util::{create_all_dir, create_file_part},
 };
