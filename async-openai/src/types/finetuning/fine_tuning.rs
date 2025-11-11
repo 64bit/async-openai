@@ -146,7 +146,8 @@ pub enum FineTuneMethod {
         dpo: FineTuneDPOMethod,
     },
     Reinforcement {
-        reinforcement: FineTuneReinforcementMethod,
+        // Boxed because https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#large_enum_variant
+        reinforcement: Box<FineTuneReinforcementMethod>,
     },
 }
 

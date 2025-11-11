@@ -1,3 +1,3 @@
-mod chat;
+mod chat_types;
 
-pub use chat::*;
+pub use chat_types::*;

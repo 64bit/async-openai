@@ -26,8 +26,7 @@ use crate::{
             ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
             ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
             ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
-            ChatCompletionToolChoiceOption, FunctionName, ImageUrl, Prompt, Role,
-            StopConfiguration,
+            FunctionName, ImageUrl, Prompt, Role, StopConfiguration,
         },
         containers::CreateContainerFileRequest,
         embeddings::EmbeddingInput,
@@ -38,7 +37,7 @@ use crate::{
         },
         images::{ImageBackground, ImageEditInput, ImageOutputFormat, ImageQuality, InputFidelity},
         moderations::ModerationInput,
-        responses::{EasyInputContent, Role as ResponsesRole},
+        responses::EasyInputContent,
         uploads::AddUploadPartRequest,
         videos::{CreateVideoRequest, VideoSize},
         CreateMessageRequestContent, InputSource,
@@ -223,50 +222,50 @@ impl From<PathBuf> for ImageEditInput {
 // Arrays of path-like values
 impl<const N: usize> From<[&str; N]> for ImageEditInput {
     fn from(value: [&str; N]) -> Self {
-        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+        Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
 impl<const N: usize> From<[String; N]> for ImageEditInput {
     fn from(value: [String; N]) -> Self {
-        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+        Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
 impl<const N: usize> From<[&Path; N]> for ImageEditInput {
     fn from(value: [&Path; N]) -> Self {
-        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+        Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
 impl<const N: usize> From<[PathBuf; N]> for ImageEditInput {
     fn from(value: [PathBuf; N]) -> Self {
-        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+        Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
 // Vectors of path-like values
 impl<'a> From<Vec<&'a str>> for ImageEditInput {
     fn from(value: Vec<&'a str>) -> Self {
-        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+        Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
 impl From<Vec<String>> for ImageEditInput {
     fn from(value: Vec<String>) -> Self {
-        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+        Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
 impl From<Vec<&Path>> for ImageEditInput {
     fn from(value: Vec<&Path>) -> Self {
-        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+        Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
 impl From<Vec<PathBuf>> for ImageEditInput {
     fn from(value: Vec<PathBuf>) -> Self {
-        Self::Images(value.into_iter().map(|v| ImageInput::from(v)).collect())
+        Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
@@ -1324,12 +1323,6 @@ impl AsyncTryFrom<CreateVideoRequest> for reqwest::multipart::Form {
 impl Default for EasyInputContent {
     fn default() -> Self {
         Self::Text("".to_string())
-    }
-}
-
-impl Default for ResponsesRole {
-    fn default() -> Self {
-        Self::User
     }
 }
 
