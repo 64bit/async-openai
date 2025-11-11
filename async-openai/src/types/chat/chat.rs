@@ -1316,3 +1316,78 @@ pub struct CreateChatCompletionStreamResponse {
     /// When present, it contains a null value except for the last chunk which contains the token usage statistics for the entire request.
     pub usage: Option<CompletionUsage>,
 }
+
+/// An object representing a list of Chat Completions.
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct ChatCompletionList {
+    /// The type of this object. It is always set to "list".
+    pub object: String,
+    /// An array of chat completion objects.
+    pub data: Vec<CreateChatCompletionResponse>,
+    /// The identifier of the first chat completion in the data array.
+    pub first_id: String,
+    /// The identifier of the last chat completion in the data array.
+    pub last_id: String,
+    /// Indicates whether there are more Chat Completions available.
+    pub has_more: bool,
+}
+
+/// Response when deleting a chat completion.
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct ChatCompletionDeleted {
+    /// The type of object being deleted.
+    pub object: String,
+    /// The ID of the chat completion that was deleted.
+    pub id: String,
+    /// Whether the chat completion was deleted.
+    pub deleted: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
+
+pub enum ContentPart {
+    Text(ChatCompletionRequestMessageContentPartText),
+    ImageUrl(ChatCompletionRequestMessageContentPartImage),
+}
+
+/// A chat completion message with additional fields for listing.
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct ChatCompletionMessageListItem {
+    /// The identifier of the chat message.
+    pub id: String,
+    /// If a content parts array was provided, this is an array of `text` and `image_url` parts. Otherwise, null.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub content_parts: Option<Vec<ContentPart>>,
+
+    #[serde(flatten)]
+    pub message: ChatCompletionResponseMessage,
+}
+
+/// An object representing a list of chat completion messages.
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct ChatCompletionMessageList {
+    /// The type of this object. It is always set to "list".
+    pub object: String,
+    /// An array of chat completion message objects.
+    pub data: Vec<ChatCompletionMessageListItem>,
+    /// The identifier of the first chat message in the data array.
+    pub first_id: String,
+    /// The identifier of the last chat message in the data array.
+    pub last_id: String,
+    /// Indicates whether there are more chat messages available.
+    pub has_more: bool,
+}
+
+/// Request to update a chat completion.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[builder(name = "UpdateChatCompletionRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct UpdateChatCompletionRequest {
+    /// Set of 16 key-value pairs that can be attached to an object.
+    pub metadata: Metadata,
+}

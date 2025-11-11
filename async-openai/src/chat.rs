@@ -1,8 +1,12 @@
+use serde::Serialize;
+
 use crate::{
     config::Config,
     error::OpenAIError,
     types::chat::{
+        ChatCompletionDeleted, ChatCompletionList, ChatCompletionMessageList,
         ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse,
+        UpdateChatCompletionRequest,
     },
     Client,
 };
@@ -78,5 +82,74 @@ impl<'c, C: Config> Chat<'c, C> {
             request.stream = Some(true);
         }
         Ok(self.client.post_stream("/chat/completions", request).await)
+    }
+
+    /// List stored Chat Completions. Only Chat Completions that have been stored
+    /// with the `store` parameter set to `true` will be returned.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn list<Q>(&self, query: &Q) -> Result<ChatCompletionList, OpenAIError>
+    where
+        Q: Serialize + ?Sized,
+    {
+        self.client
+            .get_with_query("/chat/completions", &query)
+            .await
+    }
+
+    /// Get a stored chat completion. Only Chat Completions that have been created
+    /// with the `store` parameter set to `true` will be returned.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve(
+        &self,
+        completion_id: &str,
+    ) -> Result<CreateChatCompletionResponse, OpenAIError> {
+        self.client
+            .get(&format!("/chat/completions/{completion_id}"))
+            .await
+    }
+
+    /// Modify a stored chat completion. Only Chat Completions that have been
+    /// created with the `store` parameter set to `true` can be modified. Currently,
+    /// the only supported modification is to update the `metadata` field.
+    #[crate::byot(
+        T0 = std::fmt::Display,
+        T1 = serde::Serialize,
+        R = serde::de::DeserializeOwned
+    )]
+    pub async fn update(
+        &self,
+        completion_id: &str,
+        request: UpdateChatCompletionRequest,
+    ) -> Result<CreateChatCompletionResponse, OpenAIError> {
+        self.client
+            .post(&format!("/chat/completions/{completion_id}"), request)
+            .await
+    }
+
+    /// Delete a stored chat completion. Only Chat Completions that have been
+    /// created with the `store` parameter set to `true` can be deleted.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn delete(&self, completion_id: &str) -> Result<ChatCompletionDeleted, OpenAIError> {
+        self.client
+            .delete(&format!("/chat/completions/{completion_id}"))
+            .await
+    }
+
+    /// Get a list of messages for the specified chat completion.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn messages<Q>(
+        &self,
+        completion_id: &str,
+        query: &Q,
+    ) -> Result<ChatCompletionMessageList, OpenAIError>
+    where
+        Q: Serialize + ?Sized,
+    {
+        self.client
+            .get_with_query(
+                &format!("/chat/completions/{completion_id}/messages"),
+                &query,
+            )
+            .await
     }
 }
