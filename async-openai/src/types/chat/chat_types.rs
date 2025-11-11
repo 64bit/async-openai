@@ -1346,7 +1346,6 @@ pub struct ChatCompletionDeleted {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
-
 pub enum ContentPart {
     Text(ChatCompletionRequestMessageContentPartText),
     ImageUrl(ChatCompletionRequestMessageContentPartImage),
