@@ -1,6 +1,6 @@
 use async_openai::{
     config::OpenAIConfig,
-    types::{CreateVideoRequestArgs, VideoJob, VideoSize, VideoVariant},
+    types::videos::{CreateVideoRequestArgs, VideoJob, VideoSize, VideoVariant},
     Client,
 };
 use bytes::Bytes;
@@ -69,7 +69,7 @@ async fn create_video(client: &Client<OpenAIConfig>) -> Result<VideoJob, Box<dyn
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
-    let _video = create_video(&client).await?;
+    let video = create_video(&client).await?;
     // wait for above video to be "completed"
     tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
     let videos = client.videos().list(&[("limit", "100")]).await?;
@@ -92,12 +92,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    for video in videos.data {
-        println!(
-            "\nVideo deleted: {:?}",
-            client.videos().delete(&video.id).await?
-        );
-    }
+    println!(
+        "\nVideo deleted: {:?}",
+        client.videos().delete(&video.id).await?
+    );
 
     Ok(())
 }

@@ -3,13 +3,13 @@ use std::error::Error;
 use std::io::{stdout, Write};
 use std::sync::Arc;
 
-use async_openai::types::{
-    ChatCompletionMessageToolCall, ChatCompletionRequestAssistantMessageArgs,
-    ChatCompletionRequestMessage, ChatCompletionRequestToolMessageArgs,
-    ChatCompletionRequestUserMessageArgs, ChatCompletionToolArgs, ChatCompletionToolType,
-    FinishReason, FunctionCall, FunctionObjectArgs,
+use async_openai::types::chat::{
+    ChatCompletionMessageToolCall, ChatCompletionMessageToolCalls,
+    ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestMessage,
+    ChatCompletionRequestToolMessageArgs, ChatCompletionRequestUserMessageArgs, ChatCompletionTool,
+    ChatCompletionTools, FinishReason, FunctionCall, FunctionObjectArgs,
 };
-use async_openai::{types::CreateChatCompletionRequestArgs, Client};
+use async_openai::{types::chat::CreateChatCompletionRequestArgs, Client};
 use futures::StreamExt;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
@@ -28,26 +28,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .content(user_prompt)
             .build()?
             .into()])
-        .tools(vec![ChatCompletionToolArgs::default()
-            .r#type(ChatCompletionToolType::Function)
-            .function(
-                FunctionObjectArgs::default()
-                    .name("get_current_weather")
-                    .description("Get the current weather in a given location")
-                    .parameters(json!({
-                        "type": "object",
-                        "properties": {
-                            "location": {
-                                "type": "string",
-                                "description": "The city and state, e.g. San Francisco, CA",
-                            },
-                            "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] },
+        .tools(vec![ChatCompletionTools::Function(ChatCompletionTool {
+            function: FunctionObjectArgs::default()
+                .name("get_current_weather")
+                .description("Get the current weather in a given location")
+                .parameters(json!({
+                    "type": "object",
+                    "properties": {
+                        "location": {
+                            "type": "string",
+                            "description": "The city and state, e.g. San Francisco, CA",
                         },
-                        "required": ["location"],
-                    }))
-                    .build()?,
-            )
-            .build()?])
+                        "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] },
+                    },
+                    "required": ["location"],
+                }))
+                .build()?,
+        })])
         .build()?;
 
     let mut stream = client.chat().create_stream(request).await?;
@@ -72,7 +69,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             let state = states_lock.entry(key).or_insert_with(|| {
                                 ChatCompletionMessageToolCall {
                                     id: tool_call_data.id.clone().unwrap_or_default(),
-                                    r#type: ChatCompletionToolType::Function,
                                     function: FunctionCall {
                                         name: tool_call_data
                                             .function
@@ -138,10 +134,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     .build()?
                                     .into()];
 
-                            let tool_calls: Vec<ChatCompletionMessageToolCall> =
+                            let tool_calls: Vec<ChatCompletionMessageToolCalls> =
                                 function_responses_lock
                                     .iter()
-                                    .map(|tc| tc.0.clone())
+                                    .map(|tc| {
+                                        ChatCompletionMessageToolCalls::Function(tc.0.clone())
+                                    })
                                     .collect();
 
                             let assistant_messages: ChatCompletionRequestMessage =

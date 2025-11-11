@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::{error::OpenAIError, types::FunctionCall};
+use crate::{error::OpenAIError, types::chat::FunctionCall};
 
 use super::{
     AssistantTools, AssistantsApiResponseFormatOption, AssistantsApiToolChoiceOption,

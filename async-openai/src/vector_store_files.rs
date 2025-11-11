@@ -3,9 +3,10 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::vectorstores::{
         CreateVectorStoreFileRequest, DeleteVectorStoreFileResponse, ListVectorStoreFilesResponse,
-        VectorStoreFileContentResponse, VectorStoreFileObject,
+        UpdateVectorStoreFileAttributesRequest, VectorStoreFileContentResponse,
+        VectorStoreFileObject,
     },
     Client,
 };
@@ -79,6 +80,21 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
             .await
     }
 
+    /// Update attributes on a vector store file.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn update(
+        &self,
+        file_id: &str,
+        request: UpdateVectorStoreFileAttributesRequest,
+    ) -> Result<VectorStoreFileObject, OpenAIError> {
+        self.client
+            .post(
+                &format!("/vector_stores/{}/files/{file_id}", &self.vector_store_id),
+                request,
+            )
+            .await
+    }
+
     /// Retrieve the parsed contents of a vector store file.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve_file_content(
@@ -97,7 +113,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
 #[cfg(test)]
 mod tests {
     use crate::types::files::{CreateFileRequest, FileInput, FilePurpose};
-    use crate::types::CreateVectorStoreRequest;
+    use crate::types::vectorstores::CreateVectorStoreRequest;
     use crate::Client;
 
     #[tokio::test]
@@ -124,6 +140,7 @@ mod tests {
             .create(CreateVectorStoreRequest {
                 file_ids: Some(vec![file_handle.id.clone()]),
                 name: None,
+                description: None,
                 expires_after: None,
                 chunking_strategy: None,
                 metadata: None,

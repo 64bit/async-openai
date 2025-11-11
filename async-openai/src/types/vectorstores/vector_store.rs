@@ -3,9 +3,12 @@ use std::collections::HashMap;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::error::OpenAIError;
+use crate::{
+    error::OpenAIError,
+    types::{responses::Filter, Metadata},
+};
 
-use super::StaticChunkingStrategy;
+use crate::types::StaticChunkingStrategy;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateVectorStoreRequestArgs")]
@@ -20,23 +23,27 @@ pub struct CreateVectorStoreRequest {
     /// The name of the vector store.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    /// A description for the vector store. Can be used to describe the vector store's purpose.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 
     /// The expiration policy for a vector store.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after: Option<VectorStoreExpirationAfter>,
 
-    /// The chunking strategy used to chunk the file(s). If not set, will use the `auto` strategy. Only applicable if `file_ids` is non-empty.
+    /// The chunking strategy used to chunk the file(s). If not set, will use the `auto` strategy. Only
+    /// applicable if `file_ids` is non-empty.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub chunking_strategy: Option<VectorStoreChunkingStrategy>,
+    pub chunking_strategy: Option<ChunkingStrategyRequestParam>,
 
     /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<HashMap<String, serde_json::Value>>,
+    pub metadata: Option<Metadata>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
 #[serde(tag = "type")]
-pub enum VectorStoreChunkingStrategy {
+pub enum ChunkingStrategyRequestParam {
     /// The default strategy. This strategy currently uses a `max_chunk_size_tokens` of `800` and `chunk_overlap_tokens` of `400`.
     #[default]
     #[serde(rename = "auto")]
@@ -80,7 +87,7 @@ pub struct VectorStoreObject {
     pub last_active_at: Option<u32>,
 
     /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long.
-    pub metadata: Option<HashMap<String, serde_json::Value>>,
+    pub metadata: Option<Metadata>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -133,7 +140,7 @@ pub struct UpdateVectorStoreRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after: Option<VectorStoreExpirationAfter>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<HashMap<String, serde_json::Value>>,
+    pub metadata: Option<Metadata>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -162,7 +169,9 @@ pub struct VectorStoreFileObject {
     /// The last error associated with this vector store file. Will be `null` if there are no errors.
     pub last_error: Option<VectorStoreFileError>,
     /// The strategy used to chunk the file.
-    pub chunking_strategy: Option<VectorStoreFileObjectChunkingStrategy>,
+    pub chunking_strategy: Option<ChunkingStrategyResponse>,
+    /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format, and querying for objects via API or the dashboard. Keys are strings with a maximum length of 64 characters. Values are strings with a maximum length of 512 characters, booleans, or numbers.
+    pub attributes: Option<VectorStoreFileAttributes>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -192,12 +201,22 @@ pub enum VectorStoreFileErrorCode {
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 #[serde(tag = "type")]
 #[serde(rename_all = "lowercase")]
-pub enum VectorStoreFileObjectChunkingStrategy {
+pub enum ChunkingStrategyResponse {
     /// This is returned when the chunking strategy is unknown. Typically, this is because the file was indexed before the `chunking_strategy` concept was introduced in the API.
+    #[serde(rename = "other")]
     Other,
-    Static {
-        r#static: StaticChunkingStrategy,
-    },
+    #[serde(rename = "static")]
+    Static { r#static: StaticChunkingStrategy },
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
+#[serde(transparent)]
+pub struct VectorStoreFileAttributes(pub HashMap<String, AttributeValue>);
+
+impl From<HashMap<String, AttributeValue>> for VectorStoreFileAttributes {
+    fn from(attributes: HashMap<String, AttributeValue>) -> Self {
+        Self(attributes)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
@@ -210,9 +229,9 @@ pub struct CreateVectorStoreFileRequest {
     /// A [File](https://platform.openai.com/docs/api-reference/files) ID that the vector store should use. Useful for tools like `file_search` that can access files.
     pub file_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub chunking_strategy: Option<VectorStoreChunkingStrategy>,
+    pub chunking_strategy: Option<ChunkingStrategyRequestParam>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub attributes: Option<HashMap<String, AttributeValue>>,
+    pub attributes: Option<VectorStoreFileAttributes>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -229,9 +248,23 @@ pub struct DeleteVectorStoreFileResponse {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateVectorStoreFileBatchRequest {
-    /// A list of [File](https://platform.openai.com/docs/api-reference/files) IDs that the vector store should use. Useful for tools like `file_search` that can access files.
-    pub file_ids: Vec<String>, // minItems: 1, maxItems: 500
-    pub chunking_strategy: Option<VectorStoreChunkingStrategy>,
+    /// A list of [File](https://platform.openai.com/docs/api-reference/files) IDs that the vector store
+    /// should use. Useful for tools like `file_search` that can access files. If `attributes` or
+    /// `chunking_strategy` are provided, they will be applied to all files in the batch. Mutually
+    /// exclusive with `files`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub file_ids: Option<Vec<String>>, // minItems: 1, maxItems: 500
+    /// A list of objects that each include a `file_id` plus optional `attributes` or `chunking_strategy`.
+    /// Use this when you need to override metadata for specific files. The global `attributes` or
+    /// `chunking_strategy` will be ignored and must be specified for each file. Mutually exclusive
+    /// with `file_ids`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub files: Option<Vec<CreateVectorStoreFileRequest>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chunking_strategy: Option<ChunkingStrategyRequestParam>,
+    /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format, and querying for objects via API or the dashboard. Keys are strings with a maximum length of 64 characters. Values are strings with a maximum length of 512 characters, booleans, or numbers.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attributes: Option<VectorStoreFileAttributes>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -247,7 +280,7 @@ pub enum VectorStoreFileBatchStatus {
 pub struct VectorStoreFileBatchCounts {
     /// The number of files that are currently being processed.
     pub in_progress: u32,
-    /// The number of files that have been successfully processed.
+    /// The number of files that have been processed.
     pub completed: u32,
     /// The number of files that have failed to process.
     pub failed: u32,
@@ -257,12 +290,12 @@ pub struct VectorStoreFileBatchCounts {
     pub total: u32,
 }
 
-///  A batch of files attached to a vector store.
+/// A batch of files attached to a vector store.
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
 pub struct VectorStoreFileBatchObject {
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,
-    /// The object type, which is always `vector_store.file_batch`.
+    /// The object type, which is always `vector_store.files_batch`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the vector store files batch was created.
     pub created_at: u32,
@@ -319,7 +352,7 @@ pub struct VectorStoreSearchRequest {
 
     /// A filter to apply based on file attributes.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub filters: Option<VectorStoreSearchFilter>,
+    pub filters: Option<Filter>,
 
     /// Ranking options for search.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -357,50 +390,6 @@ impl From<Vec<String>> for VectorStoreSearchQuery {
     fn from(query: Vec<String>) -> Self {
         Self::Array(query)
     }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(untagged)]
-pub enum VectorStoreSearchFilter {
-    Comparison(ComparisonFilter),
-    Compound(CompoundFilter),
-}
-
-impl From<ComparisonFilter> for VectorStoreSearchFilter {
-    fn from(filter: ComparisonFilter) -> Self {
-        Self::Comparison(filter)
-    }
-}
-
-impl From<CompoundFilter> for VectorStoreSearchFilter {
-    fn from(filter: CompoundFilter) -> Self {
-        Self::Compound(filter)
-    }
-}
-
-/// A filter used to compare a specified attribute key to a given value using a defined comparison operation.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ComparisonFilter {
-    /// Specifies the comparison operator: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`.
-    pub r#type: ComparisonType,
-
-    /// The key to compare against the value.
-    pub key: String,
-
-    /// The value to compare against the attribute key; supports string, number, or boolean types.
-    pub value: AttributeValue,
-}
-
-/// Specifies the comparison operator: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum ComparisonType {
-    Eq,
-    Ne,
-    Gt,
-    Gte,
-    Lt,
-    Lte,
 }
 
 /// The value to compare against the attribute key; supports string, number, or boolean types.
@@ -448,28 +437,13 @@ pub struct RankingOptions {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum Ranker {
+    /// Enable re-ranking; set to `none` to disable, which can help reduce latency.
+    #[serde(rename = "none")]
+    None,
     #[serde(rename = "auto")]
     Auto,
     #[serde(rename = "default-2024-11-15")]
     Default20241115,
-}
-
-/// Combine multiple filters using `and` or `or`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CompoundFilter {
-    /// Type of operation: `and` or `or`.
-    pub r#type: CompoundFilterType,
-
-    /// Array of filters to combine. Items can be `ComparisonFilter` or `CompoundFilter`
-    pub filters: Vec<VectorStoreSearchFilter>,
-}
-
-/// Type of operation: `and` or `or`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CompoundFilterType {
-    And,
-    Or,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
@@ -502,7 +476,7 @@ pub struct VectorStoreSearchResultItem {
     pub score: f32, // minimum: 0, maximum: 1
 
     /// Attributes of the vector store file.
-    pub attributes: HashMap<String, AttributeValue>,
+    pub attributes: VectorStoreFileAttributes,
 
     /// Content chunks from the file.
     pub content: Vec<VectorStoreSearchResultContentObject>,
@@ -515,4 +489,9 @@ pub struct VectorStoreSearchResultContentObject {
 
     /// The text content returned from search.
     pub text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
+pub struct UpdateVectorStoreFileAttributesRequest {
+    pub attributes: VectorStoreFileAttributes,
 }

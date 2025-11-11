@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::{evals::EvalItem, ReasoningEffort};
+use crate::types::{chat::ReasoningEffort, evals::EvalItem};
 
 /// String check operation.
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq)]

@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::containers::{
         ContainerFileListResource, ContainerFileResource, CreateContainerFileRequest,
         DeleteContainerFileResponse,
     },

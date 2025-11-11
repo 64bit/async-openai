@@ -88,15 +88,25 @@ async fn test_byot_completions() {
 async fn test_byot_audio() {
     let client = Client::new();
 
-    let _r: Result<Value, OpenAIError> = client.audio().transcribe_byot(MyJson(json!({}))).await;
     let _r: Result<Value, OpenAIError> = client
         .audio()
-        .transcribe_verbose_json_byot(MyJson(json!({})))
+        .transcription()
+        .create_byot(MyJson(json!({})))
         .await;
-    let _r: Result<Value, OpenAIError> = client.audio().translate_byot(MyJson(json!({}))).await;
     let _r: Result<Value, OpenAIError> = client
         .audio()
-        .translate_verbose_json_byot(MyJson(json!({})))
+        .transcription()
+        .create_verbose_json_byot(MyJson(json!({})))
+        .await;
+    let _r: Result<Value, OpenAIError> = client
+        .audio()
+        .translation()
+        .create_byot(MyJson(json!({})))
+        .await;
+    let _r: Result<Value, OpenAIError> = client
+        .audio()
+        .translation()
+        .create_verbose_json_byot(MyJson(json!({})))
         .await;
 }
 

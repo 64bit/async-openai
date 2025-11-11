@@ -6,7 +6,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-use super::{ChatCompletionStreamOptions, Choice, CompletionUsage, Prompt, Stop};
+use crate::types::chat::{
+    ChatCompletionStreamOptions, Choice, CompletionUsage, Prompt, StopConfiguration,
+};
 
 #[derive(Clone, Serialize, Deserialize, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateCompletionRequestArgs")]
@@ -74,7 +76,7 @@ pub struct CreateCompletionRequest {
 
     ///  Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub stop: Option<Stop>,
+    pub stop: Option<StopConfiguration>,
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
     ///

@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::vectorstores::{
         CreateVectorStoreFileBatchRequest, ListVectorStoreFilesResponse, VectorStoreFileBatchObject,
     },
     Client,
@@ -69,7 +69,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
 
     /// Returns a list of vector store files in a batch.
     #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(
+    pub async fn list_files<Q>(
         &self,
         batch_id: &str,
         query: &Q,

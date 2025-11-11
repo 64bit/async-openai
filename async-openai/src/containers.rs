@@ -4,7 +4,7 @@ use crate::{
     config::Config,
     container_files::ContainerFiles,
     error::OpenAIError,
-    types::{
+    types::containers::{
         ContainerListResource, ContainerResource, CreateContainerRequest, DeleteContainerResponse,
     },
     Client,

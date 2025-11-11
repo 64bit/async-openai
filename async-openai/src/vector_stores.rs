@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::vectorstores::{
         CreateVectorStoreRequest, DeleteVectorStoreResponse, ListVectorStoresResponse,
         UpdateVectorStoreRequest, VectorStoreObject, VectorStoreSearchRequest,
         VectorStoreSearchResultsPage,

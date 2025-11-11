@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-use super::InputSource;
+use crate::types::InputSource;
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ContainerResource {

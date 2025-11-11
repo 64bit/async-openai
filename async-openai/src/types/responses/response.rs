@@ -1,5 +1,5 @@
 use crate::error::OpenAIError;
-pub use crate::types::{
+pub use crate::types::chat::{
     CompletionTokensDetails, ImageDetail, PromptTokensDetails, ReasoningEffort,
     ResponseFormatJsonSchema,
 };
@@ -1394,7 +1394,7 @@ pub struct ToolChoiceAllowed {
     /// message.
     ///
     /// `required` requires the model to call one or more of the allowed tools.
-    mode: ToolChoiceAllowedMode,
+    pub mode: ToolChoiceAllowedMode,
     /// A list of tool definitions that the model should be allowed to call.
     ///
     /// For the Responses API, the list of tool definitions might look like:
@@ -1405,7 +1405,7 @@ pub struct ToolChoiceAllowed {
     ///   { "type": "image_generation" }
     /// ]
     /// ```
-    tools: Vec<serde_json::Value>,
+    pub tools: Vec<serde_json::Value>,
 }
 
 /// The type of hosted tool the model should to use. Learn more about

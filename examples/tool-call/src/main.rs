@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 use std::io::{stdout, Write};
 
-use async_openai::types::{
-    ChatCompletionMessageToolCall, ChatCompletionRequestAssistantMessageArgs,
+use async_openai::types::chat::{
+    ChatCompletionMessageToolCalls, ChatCompletionRequestAssistantMessageArgs,
     ChatCompletionRequestMessage, ChatCompletionRequestToolMessageArgs,
-    ChatCompletionRequestUserMessageArgs, ChatCompletionToolArgs, ChatCompletionToolType,
+    ChatCompletionRequestUserMessageArgs, ChatCompletionTool, ChatCompletionTools,
     FunctionObjectArgs,
 };
-use async_openai::{types::CreateChatCompletionRequestArgs, Client};
+use async_openai::{types::chat::CreateChatCompletionRequestArgs, Client};
 use futures::StreamExt;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
@@ -25,26 +25,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .content(user_prompt)
             .build()?
             .into()])
-        .tools(vec![ChatCompletionToolArgs::default()
-            .r#type(ChatCompletionToolType::Function)
-            .function(
-                FunctionObjectArgs::default()
-                    .name("get_current_weather")
-                    .description("Get the current weather in a given location")
-                    .parameters(json!({
-                        "type": "object",
-                        "properties": {
-                            "location": {
-                                "type": "string",
-                                "description": "The city and state, e.g. San Francisco, CA",
-                            },
-                            "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] },
+        .tools(vec![ChatCompletionTools::Function(ChatCompletionTool {
+            function: FunctionObjectArgs::default()
+                .name("get_current_weather")
+                .description("Get the current weather in a given location")
+                .parameters(json!({
+                    "type": "object",
+                    "properties": {
+                        "location": {
+                            "type": "string",
+                            "description": "The city and state, e.g. San Francisco, CA",
                         },
-                        "required": ["location"],
-                    }))
-                    .build()?,
-            )
-            .build()?])
+                        "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] },
+                    },
+                    "required": ["location"],
+                }))
+                .build()?,
+        })])
         .build()?;
 
     let response_message = client
@@ -59,14 +56,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if let Some(tool_calls) = response_message.tool_calls {
         let mut handles = Vec::new();
-        for tool_call in tool_calls {
-            let name = tool_call.function.name.clone();
-            let args = tool_call.function.arguments.clone();
-            let tool_call_clone = tool_call.clone();
+        for tool_call_enum in tool_calls {
+            // Extract the function tool call from the enum
+            if let ChatCompletionMessageToolCalls::Function(tool_call) = tool_call_enum {
+                let name = tool_call.function.name.clone();
+                let args = tool_call.function.arguments.clone();
+                let tool_call_clone = tool_call.clone();
 
-            let handle =
-                tokio::spawn(async move { call_fn(&name, &args).await.unwrap_or_default() });
-            handles.push((handle, tool_call_clone));
+                let handle =
+                    tokio::spawn(async move { call_fn(&name, &args).await.unwrap_or_default() });
+                handles.push((handle, tool_call_clone));
+            }
         }
 
         let mut function_responses = Vec::new();
@@ -83,9 +83,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .build()?
                 .into()];
 
-        let tool_calls: Vec<ChatCompletionMessageToolCall> = function_responses
+        // Convert ChatCompletionMessageToolCall to ChatCompletionMessageToolCalls enum
+        let tool_calls: Vec<ChatCompletionMessageToolCalls> = function_responses
             .iter()
-            .map(|(tool_call, _response_content)| tool_call.clone())
+            .map(|(tool_call, _response_content)| {
+                ChatCompletionMessageToolCalls::Function(tool_call.clone())
+            })
             .collect();
 
         let assistant_messages: ChatCompletionRequestMessage =
