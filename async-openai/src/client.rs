@@ -7,7 +7,7 @@ use reqwest_eventsource::{Error as EventSourceError, Event, EventSource, Request
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
-    beta::Beta,
+    chatkit::Chatkit,
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, ApiError, OpenAIError, StreamError, WrappedError},
     file::Files,
@@ -189,24 +189,12 @@ impl<C: Config> Client<C> {
         Evals::new(self)
     }
 
-    /// Access beta APIs like ChatKit.
-    ///
-    /// Beta APIs require special headers that are automatically added.
-    /// Use `client.beta().chatkit()` to access ChatKit APIs.
-    pub fn beta(&self) -> Beta<'_, C> {
-        Beta::new_generic(self)
+    pub fn chatkit(&self) -> Chatkit<'_, C> {
+        Chatkit::new(self)
     }
 
     pub fn config(&self) -> &C {
         &self.config
-    }
-
-    pub(crate) fn http_client(&self) -> &reqwest::Client {
-        &self.http_client
-    }
-
-    pub(crate) fn backoff(&self) -> &backoff::ExponentialBackoff {
-        &self.backoff
     }
 
     /// Make a GET request to {path} and deserialize the response body

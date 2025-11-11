@@ -39,7 +39,7 @@ pub enum ThreadStatus {
 }
 
 /// A paginated list of ChatKit threads.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ThreadListResource {
     /// The type of object returned, must be `list`.
     #[serde(default = "default_list_object")]
@@ -59,7 +59,7 @@ fn default_list_object() -> String {
 }
 
 /// Confirmation payload returned after deleting a thread.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct DeletedThreadResource {
     /// Identifier of the deleted thread.
     pub id: String,
@@ -75,7 +75,7 @@ fn default_deleted_object() -> String {
 }
 
 /// A paginated list of thread items rendered for the ChatKit API.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ThreadItemListResource {
     /// The type of object returned, must be `list`.
     #[serde(default = "default_list_object")]
@@ -115,7 +115,7 @@ pub enum ThreadItem {
 }
 
 /// User-authored messages within a thread.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct UserMessageItem {
     /// Identifier of the thread item.
     pub id: String,
@@ -177,7 +177,7 @@ pub enum AttachmentType {
 }
 
 /// Model and tool overrides applied when generating the assistant response.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct InferenceOptions {
     /// Preferred tool to invoke. Defaults to null when ChatKit should auto-select.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -188,14 +188,14 @@ pub struct InferenceOptions {
 }
 
 /// Tool selection that the assistant should honor when executing the item.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ToolChoice {
     /// Identifier of the requested tool.
     pub id: String,
 }
 
 /// Assistant-authored message within a thread.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct AssistantMessageItem {
     /// Identifier of the thread item.
     pub id: String,
@@ -397,4 +397,3 @@ pub struct TaskGroupTask {
     /// Optional summary that describes the grouped task. Defaults to null when omitted.
     pub summary: Option<String>,
 }
-

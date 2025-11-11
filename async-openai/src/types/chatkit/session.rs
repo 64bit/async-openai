@@ -41,8 +41,10 @@ pub struct ChatkitWorkflow {
     /// Identifier of the workflow backing the session.
     pub id: String,
     /// Specific workflow version used for the session. Defaults to null when using the latest deployment.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
     /// State variable key-value pairs applied when invoking the workflow. Defaults to null when no overrides were provided.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub state_variables: Option<HashMap<String, serde_json::Value>>,
     /// Tracing settings applied to the workflow.
     pub tracing: ChatkitWorkflowTracing,
@@ -95,8 +97,10 @@ pub struct ChatSessionFileUpload {
     /// Indicates if uploads are enabled for the session.
     pub enabled: bool,
     /// Maximum upload size in megabytes.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_file_size: Option<i32>,
     /// Maximum number of uploads allowed during the session.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_files: Option<i32>,
 }
 
@@ -106,14 +110,15 @@ pub struct ChatSessionHistory {
     /// Indicates if chat history is persisted for the session.
     pub enabled: bool,
     /// Number of prior threads surfaced in history views. Defaults to null when all history is retained.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub recent_threads: Option<i32>,
 }
 
 /// Parameters for provisioning a new ChatKit session.
-#[derive(Clone, Serialize, Debug, Deserialize, Builder, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, Builder, PartialEq, Default)]
 #[builder(name = "CreateChatSessionRequestArgs")]
 #[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option))]
+#[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateChatSessionBody {
@@ -133,10 +138,10 @@ pub struct CreateChatSessionBody {
 }
 
 /// Workflow reference and overrides applied to the chat session.
-#[derive(Clone, Serialize, Debug, Deserialize, Builder, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, Builder, PartialEq, Default)]
 #[builder(name = "WorkflowParamArgs")]
 #[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option))]
+#[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct WorkflowParam {
@@ -167,10 +172,10 @@ pub struct WorkflowTracingParam {
 }
 
 /// Controls when the session expires relative to an anchor timestamp.
-#[derive(Clone, Serialize, Debug, Deserialize, Builder, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, Builder, PartialEq, Default)]
 #[builder(name = "ExpiresAfterParamArgs")]
 #[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option))]
+#[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ExpiresAfterParam {
@@ -187,7 +192,7 @@ fn default_anchor() -> String {
 }
 
 /// Controls request rate limits for the session.
-#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, Builder, PartialEq, Default)]
 #[builder(name = "RateLimitsParamArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
@@ -200,7 +205,7 @@ pub struct RateLimitsParam {
 }
 
 /// Optional per-session configuration settings for ChatKit behavior.
-#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, Builder, PartialEq, Default)]
 #[builder(name = "ChatkitConfigurationParamArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
@@ -219,7 +224,7 @@ pub struct ChatkitConfigurationParam {
 }
 
 /// Controls whether ChatKit automatically generates thread titles.
-#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, Builder, PartialEq, Default)]
 #[builder(name = "AutomaticThreadTitlingParamArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
@@ -232,7 +237,7 @@ pub struct AutomaticThreadTitlingParam {
 }
 
 /// Controls whether users can upload files.
-#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, Builder, PartialEq, Default)]
 #[builder(name = "FileUploadParamArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
@@ -251,7 +256,7 @@ pub struct FileUploadParam {
 }
 
 /// Controls how much historical context is retained for the session.
-#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, Builder, PartialEq, Default)]
 #[builder(name = "HistoryParamArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
