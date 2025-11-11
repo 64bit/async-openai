@@ -7,6 +7,7 @@ use reqwest_eventsource::{Error as EventSourceError, Event, EventSource, Request
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
+    chatkit::Chatkit,
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, ApiError, OpenAIError, StreamError, WrappedError},
     file::Files,
@@ -186,6 +187,10 @@ impl<C: Config> Client<C> {
     /// To call [Evals] group related APIs using this client.
     pub fn evals(&self) -> Evals<'_, C> {
         Evals::new(self)
+    }
+
+    pub fn chatkit(&self) -> Chatkit<'_, C> {
+        Chatkit::new(self)
     }
 
     pub fn config(&self) -> &C {
