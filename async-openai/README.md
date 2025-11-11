@@ -23,24 +23,28 @@
 
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
-  - [x] Assistants (v2)
+  - [x] Administration (partially implemented)
+  - [x] Assistants (beta)
   - [x] Audio
   - [x] Batch
   - [x] Chat
-  - [x] Completions (Legacy)
+  - [x] ChatKit (beta)
+  - [x] Completions (legacy)
   - [x] Conversations
-  - [x] Containers | Container Files
+  - [x] Containers
   - [x] Embeddings
+  - [x] Evals
   - [x] Files
   - [x] Fine-Tuning
   - [x] Images
   - [x] Models
   - [x] Moderations
-  - [x] Organizations | Administration (partially implemented)
-  - [x] Realtime GA (partially implemented)
+  - [x] Realtime (partially implemented)
   - [x] Responses
   - [x] Uploads
+  - [x] Vector Stores
   - [x] Videos
+  - [x] Webhooks
 - Bring your own custom types for Request or Response objects.
 - SSE streaming on available APIs
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
