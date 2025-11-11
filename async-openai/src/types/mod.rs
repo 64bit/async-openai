@@ -7,6 +7,7 @@ pub mod audio;
 mod audit_log;
 pub mod batches;
 pub mod chat;
+pub mod chatkit;
 mod common;
 mod completion;
 pub mod containers;
