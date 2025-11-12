@@ -1,13 +1,13 @@
 use std::error::Error;
 
 use async_openai::{
-    types::files::{CreateFileRequest, FilePurpose},
-    types::{
-        vectorstores::CreateVectorStoreRequest, AssistantToolFileSearchResources,
-        AssistantToolsFileSearch, CreateAssistantRequestArgs, CreateMessageRequestArgs,
-        CreateRunRequest, CreateThreadRequest, MessageAttachment, MessageAttachmentTool,
-        MessageContent, MessageRole, ModifyAssistantRequest, RunStatus,
+    types::assistants::{
+        AssistantToolFileSearchResources, AssistantToolsFileSearch, CreateAssistantRequestArgs,
+        CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest, MessageAttachment,
+        MessageAttachmentTool, MessageContent, MessageRole, ModifyAssistantRequest, RunStatus,
     },
+    types::files::{CreateFileRequest, FilePurpose},
+    types::vectorstores::CreateVectorStoreRequest,
     Client,
 };
 
