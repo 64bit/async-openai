@@ -1,4 +1,4 @@
-use async_openai::types::{
+use async_openai::types::chat::{
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
     CreateChatCompletionRequest, CreateChatCompletionRequestArgs,
 };
