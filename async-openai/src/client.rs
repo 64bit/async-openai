@@ -7,6 +7,7 @@ use reqwest_eventsource::{Error as EventSourceError, Event, EventSource, Request
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
+    admin::Admin,
     chatkit::Chatkit,
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, ApiError, OpenAIError, StreamError, WrappedError},
@@ -14,9 +15,9 @@ use crate::{
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
-    AdminAPIKeys, Assistants, Audio, AuditLogs, Batches, Certificates, Chat, Completions, Containers,
-    Conversations, Embeddings, Evals, FineTuning, Invites, Models, Projects, Responses, Threads,
-    Uploads, Usage, Users, VectorStores, Videos,
+    Assistants, Audio, Batches, Chat, Completions, Containers,
+    Conversations, Embeddings, Evals, FineTuning, Models, Responses, Threads,
+    Uploads, Usage, VectorStores, Videos,
 };
 
 #[derive(Debug, Clone, Default)]
@@ -149,34 +150,10 @@ impl<C: Config> Client<C> {
         Batches::new(self)
     }
 
-    /// To call [Certificates] group related APIs using this client.
-    pub fn certificates(&self) -> Certificates<'_, C> {
-        Certificates::new(self)
-    }
-
-    /// To call [AuditLogs] group related APIs using this client.
-    pub fn audit_logs(&self) -> AuditLogs<'_, C> {
-        AuditLogs::new(self)
-    }
-
-    /// To call [AdminAPIKeys] group related APIs using this client.
-    pub fn admin_api_keys(&self) -> AdminAPIKeys<'_, C> {
-        AdminAPIKeys::new(self)
-    }
-
-    /// To call [Invites] group related APIs using this client.
-    pub fn invites(&self) -> Invites<'_, C> {
-        Invites::new(self)
-    }
-
-    /// To call [Users] group related APIs using this client.
-    pub fn users(&self) -> Users<'_, C> {
-        Users::new(self)
-    }
-
-    /// To call [Projects] group related APIs using this client.
-    pub fn projects(&self) -> Projects<'_, C> {
-        Projects::new(self)
+    /// To call [Admin] group related APIs using this client.
+    /// This groups together admin API keys, invites, users, projects, audit logs, and certificates.
+    pub fn admin(&self) -> Admin<'_, C> {
+        Admin::new(self)
     }
 
     /// To call [Usage] group related APIs using this client.

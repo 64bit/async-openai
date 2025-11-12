@@ -140,6 +140,7 @@ pub(crate) use async_openai_macros::byot;
 #[cfg(not(feature = "byot"))]
 pub(crate) use async_openai_macros::byot_passthrough as byot;
 
+mod admin;
 mod admin_api_keys;
 mod assistants;
 mod audio;
@@ -194,6 +195,7 @@ mod video;
 #[cfg(feature = "webhook")]
 pub mod webhooks;
 
+pub use admin::Admin;
 pub use admin_api_keys::AdminAPIKeys;
 pub use assistants::Assistants;
 pub use audio::Audio;

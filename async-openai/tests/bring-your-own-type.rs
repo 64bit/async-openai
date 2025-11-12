@@ -325,28 +325,34 @@ async fn test_byot_batches() {
 #[tokio::test]
 async fn test_byot_audit_logs() {
     let client = Client::new();
-    let _r: Result<Value, OpenAIError> = client.audit_logs().get_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> =
+        client.admin().audit_logs().get_byot([("limit", "2")]).await;
 }
 
 #[tokio::test]
 async fn test_byot_invites() {
     let client = Client::new();
-    let _r: Result<Value, OpenAIError> = client.invites().create_byot(json!({})).await;
-    let _r: Result<Value, OpenAIError> = client.invites().retrieve_byot("invite_id").await;
-    let _r: Result<Value, OpenAIError> = client.invites().delete_byot("invite_id").await;
-    let _r: Result<Value, OpenAIError> = client.invites().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client.admin().invites().create_byot(json!({})).await;
+    let _r: Result<Value, OpenAIError> = client.admin().invites().retrieve_byot("invite_id").await;
+    let _r: Result<Value, OpenAIError> = client.admin().invites().delete_byot("invite_id").await;
+    let _r: Result<Value, OpenAIError> = client.admin().invites().list_byot([("limit", "2")]).await;
 }
 
 #[tokio::test]
 async fn test_byot_projects() {
     let client = Client::new();
 
-    let _r: Result<Value, OpenAIError> = client.projects().list_byot([("limit", "2")]).await;
-    let _r: Result<Value, OpenAIError> = client.projects().create_byot(json!({})).await;
-    let _r: Result<Value, OpenAIError> = client.projects().retrieve_byot("project_id").await;
     let _r: Result<Value, OpenAIError> =
-        client.projects().modify_byot("project_id", json!({})).await;
-    let _r: Result<Value, OpenAIError> = client.projects().archive_byot("project_id").await;
+        client.admin().projects().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client.admin().projects().create_byot(json!({})).await;
+    let _r: Result<Value, OpenAIError> =
+        client.admin().projects().retrieve_byot("project_id").await;
+    let _r: Result<Value, OpenAIError> = client
+        .admin()
+        .projects()
+        .modify_byot("project_id", json!({}))
+        .await;
+    let _r: Result<Value, OpenAIError> = client.admin().projects().archive_byot("project_id").await;
 }
 
 #[tokio::test]
@@ -406,6 +412,7 @@ async fn test_byot_project_users() {
     let client = Client::new();
 
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .projects()
         .users("project_id")
         .create_byot(json!({}))
@@ -447,8 +454,12 @@ async fn test_byot_uploads() {
 async fn test_byot_users() {
     let client = Client::new();
 
-    let _r: Result<Value, OpenAIError> = client.users().list_byot([("limit", "2")]).await;
-    let _r: Result<Value, OpenAIError> = client.users().modify_byot("user_id", json!({})).await;
-    let _r: Result<Value, OpenAIError> = client.users().retrieve_byot("user_id").await;
-    let _r: Result<Value, OpenAIError> = client.users().delete_byot("user_id").await;
+    let _r: Result<Value, OpenAIError> = client.admin().users().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .admin()
+        .users()
+        .modify_byot("user_id", json!({}))
+        .await;
+    let _r: Result<Value, OpenAIError> = client.admin().users().retrieve_byot("user_id").await;
+    let _r: Result<Value, OpenAIError> = client.admin().users().delete_byot("user_id").await;
 }

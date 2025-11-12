@@ -1,8 +1,7 @@
 use crate::types::OpenAIError;
+use crate::types::OrganizationRole;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
-
-use super::OrganizationRole;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
