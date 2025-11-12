@@ -309,7 +309,7 @@ async fn test_byot_vector_store_file_batches() {
     let _r: Result<Value, OpenAIError> = client
         .vector_stores()
         .file_batches("vector_store_id")
-        .list_byot("batch_id", [("limit", "2")])
+        .list_files_byot("batch_id", [("limit", "2")])
         .await;
 }
 
