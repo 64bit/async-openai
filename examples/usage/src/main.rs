@@ -1,7 +1,10 @@
 use std::error::Error;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use async_openai::{types::UsageQueryParams, Client};
+use async_openai::{
+    types::admin::usage::{UsageQueryParams, UsageResult},
+    Client,
+};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -53,7 +56,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     );
                 }
                 for result in &bucket.results {
-                    if let async_openai::types::UsageResult::AudioSpeeches(audio) = result {
+                    if let UsageResult::AudioSpeeches(audio) = result {
                         println!(
                             "    Characters: {}, Requests: {}",
                             audio.characters, audio.num_model_requests
@@ -94,7 +97,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     );
                 }
                 for result in &bucket.results {
-                    if let async_openai::types::UsageResult::AudioTranscriptions(trans) = result {
+                    if let UsageResult::AudioTranscriptions(trans) = result {
                         println!(
                             "    Seconds: {}, Requests: {}",
                             trans.seconds, trans.num_model_requests
@@ -135,9 +138,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     );
                 }
                 for result in &bucket.results {
-                    if let async_openai::types::UsageResult::CodeInterpreterSessions(sessions) =
-                        result
-                    {
+                    if let UsageResult::CodeInterpreterSessions(sessions) = result {
                         println!("    Sessions: {}", sessions.num_sessions);
                         if let Some(project_id) = &sessions.project_id {
                             println!("      Project ID: {}", project_id);
@@ -175,7 +176,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     );
                 }
                 for result in &bucket.results {
-                    if let async_openai::types::UsageResult::Completions(comp) = result {
+                    if let UsageResult::Completions(comp) = result {
                         println!(
                             "    Input tokens: {}, Output tokens: {}, Requests: {}",
                             comp.input_tokens, comp.output_tokens, comp.num_model_requests
@@ -240,7 +241,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     );
                 }
                 for result in &bucket.results {
-                    if let async_openai::types::UsageResult::Embeddings(emb) = result {
+                    if let UsageResult::Embeddings(emb) = result {
                         println!(
                             "    Input tokens: {}, Requests: {}",
                             emb.input_tokens, emb.num_model_requests
@@ -281,7 +282,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     );
                 }
                 for result in &bucket.results {
-                    if let async_openai::types::UsageResult::Images(img) = result {
+                    if let UsageResult::Images(img) = result {
                         println!(
                             "    Images: {}, Requests: {}",
                             img.images, img.num_model_requests
@@ -328,7 +329,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     );
                 }
                 for result in &bucket.results {
-                    if let async_openai::types::UsageResult::Moderations(mod_result) = result {
+                    if let UsageResult::Moderations(mod_result) = result {
                         println!(
                             "    Input tokens: {}, Requests: {}",
                             mod_result.input_tokens, mod_result.num_model_requests
@@ -369,7 +370,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     );
                 }
                 for result in &bucket.results {
-                    if let async_openai::types::UsageResult::VectorStores(vs) = result {
+                    if let UsageResult::VectorStores(vs) = result {
                         println!(
                             "    Usage bytes: {} ({:.2} MB)",
                             vs.usage_bytes,
@@ -409,7 +410,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     );
                 }
                 for result in &bucket.results {
-                    if let async_openai::types::UsageResult::Costs(cost) = result {
+                    if let UsageResult::Costs(cost) = result {
                         println!(
                             "    Amount: {:.4} {}",
                             cost.amount.value,
