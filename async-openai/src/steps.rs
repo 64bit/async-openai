@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{ListRunStepsResponse, RunStepObject},
+    types::assistants::{ListRunStepsResponse, RunStepObject},
     Client,
 };
 

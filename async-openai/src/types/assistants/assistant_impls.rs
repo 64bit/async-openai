@@ -1,8 +1,9 @@
-use crate::types::{
-    chat::FunctionObject, AssistantToolCodeInterpreterResources, AssistantToolFileSearchResources,
+use crate::types::assistants::{
+    AssistantToolCodeInterpreterResources, AssistantToolFileSearchResources,
     AssistantToolResources, AssistantTools, AssistantToolsFileSearch, AssistantToolsFunction,
     CreateAssistantToolFileSearchResources, CreateAssistantToolResources,
 };
+use crate::types::chat::FunctionObject;
 
 impl From<AssistantToolsFileSearch> for AssistantTools {
     fn from(value: AssistantToolsFileSearch) -> Self {

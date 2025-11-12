@@ -8,6 +8,7 @@ use crate::{
     error::OpenAIError,
     traits::AsyncTryFrom,
     types::{
+        assistants::CreateMessageRequestContent,
         audio::{
             AudioInput, AudioResponseFormat, CreateSpeechResponse, CreateTranscriptionRequest,
             CreateTranslationRequest, TimestampGranularity, TranscriptionInclude,
@@ -40,7 +41,7 @@ use crate::{
         responses::EasyInputContent,
         uploads::AddUploadPartRequest,
         videos::{CreateVideoRequest, VideoSize},
-        CreateMessageRequestContent, InputSource,
+        InputSource,
     },
     util::{create_all_dir, create_file_part},
 };

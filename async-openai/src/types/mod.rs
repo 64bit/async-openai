@@ -1,9 +1,7 @@
 //! Types used in OpenAI API requests and responses.
 //! These types are created from component schemas in the [OpenAPI spec](https://github.com/openai/openai-openapi)
 pub mod admin;
-mod assistant;
-mod assistant_impls;
-mod assistant_stream;
+pub mod assistants;
 pub mod audio;
 pub mod batches;
 pub mod chat;
@@ -19,16 +17,12 @@ pub mod graders;
 pub mod images;
 mod logprob;
 mod mcp;
-mod message;
 pub mod models;
 pub mod moderations;
 #[cfg_attr(docsrs, doc(cfg(feature = "realtime")))]
 #[cfg(feature = "realtime")]
 pub mod realtime;
 pub mod responses;
-mod run;
-mod step;
-mod thread;
 pub mod uploads;
 pub mod vectorstores;
 pub mod videos;
@@ -36,16 +30,10 @@ pub mod videos;
 #[cfg(feature = "webhook")]
 pub mod webhooks;
 
-pub use assistant::*;
-pub use assistant_stream::*;
 pub use common::*;
 pub use completion::*;
 pub use logprob::*;
 pub use mcp::*;
-pub use message::*;
-pub use run::*;
-pub use step::*;
-pub use thread::*;
 
 mod impls;
 use derive_builder::UninitializedFieldError;

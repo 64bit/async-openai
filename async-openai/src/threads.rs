@@ -1,7 +1,7 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::assistants::{
         AssistantEventStream, CreateThreadAndRunRequest, CreateThreadRequest, DeleteThreadResponse,
         ModifyThreadRequest, RunObject, ThreadObject,
     },
