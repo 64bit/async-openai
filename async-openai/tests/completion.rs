@@ -1,5 +1,5 @@
 //! This test is primarily to make sure that macros_rules for From traits are correct.
-use async_openai::types::Prompt;
+use async_openai::types::chat::Prompt;
 
 fn prompt_input<T>(input: T) -> Prompt
 where
