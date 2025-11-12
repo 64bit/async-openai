@@ -14,7 +14,7 @@ use crate::{
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
-    AdminAPIKeys, Assistants, Audio, AuditLogs, Batches, Chat, Completions, Containers,
+    AdminAPIKeys, Assistants, Audio, AuditLogs, Batches, Certificates, Chat, Completions, Containers,
     Conversations, Embeddings, Evals, FineTuning, Invites, Models, Projects, Responses, Threads,
     Uploads, Usage, Users, VectorStores, Videos,
 };
@@ -147,6 +147,11 @@ impl<C: Config> Client<C> {
     /// To call [Batches] group related APIs using this client.
     pub fn batches(&self) -> Batches<'_, C> {
         Batches::new(self)
+    }
+
+    /// To call [Certificates] group related APIs using this client.
+    pub fn certificates(&self) -> Certificates<'_, C> {
+        Certificates::new(self)
     }
 
     /// To call [AuditLogs] group related APIs using this client.
