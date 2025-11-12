@@ -36,6 +36,7 @@ mod run;
 mod step;
 mod thread;
 pub mod uploads;
+mod usage;
 mod users;
 pub mod vectorstores;
 pub mod videos;
@@ -60,6 +61,7 @@ pub use projects::*;
 pub use run::*;
 pub use step::*;
 pub use thread::*;
+pub use usage::*;
 pub use users::*;
 
 mod impls;

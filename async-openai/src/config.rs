@@ -70,7 +70,13 @@ impl Default for OpenAIConfig {
         Self {
             api_base: OPENAI_API_BASE.to_string(),
             api_key: std::env::var("OPENAI_API_KEY")
-                .unwrap_or_else(|_| "".to_string())
+                .or_else(|_| {
+                    std::env::var("OPENAI_ADMIN_KEY").map(|admin_key| {
+                        tracing::warn!("Using OPENAI_ADMIN_KEY, OPENAI_API_KEY not set");
+                        admin_key
+                    })
+                })
+                .unwrap_or_default()
                 .into(),
             org_id: Default::default(),
             project_id: Default::default(),
