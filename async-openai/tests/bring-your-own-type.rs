@@ -360,18 +360,21 @@ async fn test_byot_project_api_keys() {
     let client = Client::new();
 
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .projects()
         .api_keys("project_id")
         .list_byot([("query", "2")])
         .await;
 
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .projects()
         .api_keys("project_id")
         .retrieve_byot("api_key")
         .await;
 
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .projects()
         .api_keys("project_id")
         .delete_byot("api_key")
@@ -383,6 +386,7 @@ async fn test_byot_project_service_accounts() {
     let client = Client::new();
 
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .projects()
         .service_accounts("project_id")
         .create_byot(json!({}))
@@ -395,12 +399,14 @@ async fn test_byot_project_service_accounts() {
         .await;
 
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .projects()
         .service_accounts("project_id")
         .retrieve_byot("service_account_id")
         .await;
 
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .projects()
         .service_accounts("project_id")
         .list_byot([("limit", "2")])
@@ -418,18 +424,21 @@ async fn test_byot_project_users() {
         .create_byot(json!({}))
         .await;
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .projects()
         .users("project_id")
         .delete_byot("user_id")
         .await;
 
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .projects()
         .users("project_id")
         .list_byot([("limit", "2")])
         .await;
 
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .projects()
         .users("project_id")
         .retrieve_byot("user_id")
