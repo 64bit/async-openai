@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::ProjectUserRole;
+use crate::types::admin::project_users::ProjectUserRole;
 
 /// Represents an individual service account in a project.
 #[derive(Debug, Serialize, Deserialize)]

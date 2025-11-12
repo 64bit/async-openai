@@ -3,7 +3,9 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{ProjectApiKey, ProjectApiKeyDeleteResponse, ProjectApiKeyListResponse},
+    types::admin::project_api_keys::{
+        ProjectApiKey, ProjectApiKeyDeleteResponse, ProjectApiKeyListResponse,
+    },
     Client,
 };
 

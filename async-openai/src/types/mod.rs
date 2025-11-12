@@ -22,10 +22,6 @@ mod mcp;
 mod message;
 pub mod models;
 pub mod moderations;
-mod project_api_key;
-mod project_rate_limits;
-mod project_service_account;
-mod project_users;
 #[cfg_attr(docsrs, doc(cfg(feature = "realtime")))]
 #[cfg(feature = "realtime")]
 pub mod realtime;
@@ -34,14 +30,12 @@ mod run;
 mod step;
 mod thread;
 pub mod uploads;
-mod usage;
 pub mod vectorstores;
 pub mod videos;
 #[cfg_attr(docsrs, doc(cfg(feature = "webhook")))]
 #[cfg(feature = "webhook")]
 pub mod webhooks;
 
-pub use admin::*;
 pub use assistant::*;
 pub use assistant_stream::*;
 pub use common::*;
@@ -49,14 +43,9 @@ pub use completion::*;
 pub use logprob::*;
 pub use mcp::*;
 pub use message::*;
-pub use project_api_key::*;
-pub use project_rate_limits::*;
-pub use project_service_account::*;
-pub use project_users::*;
 pub use run::*;
 pub use step::*;
 pub use thread::*;
-pub use usage::*;
 
 mod impls;
 use derive_builder::UninitializedFieldError;

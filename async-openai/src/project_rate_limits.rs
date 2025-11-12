@@ -3,7 +3,9 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{ProjectRateLimit, ProjectRateLimitListResponse, ProjectRateLimitUpdateRequest},
+    types::admin::project_rate_limits::{
+        ProjectRateLimit, ProjectRateLimitListResponse, ProjectRateLimitUpdateRequest,
+    },
     Client,
 };
 

@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use super::{ProjectServiceAccount, ProjectUser};
+use crate::types::admin::project_service_accounts::ProjectServiceAccount;
+use crate::types::admin::project_users::ProjectUser;
 
 /// Represents an individual API key in a project.
 #[derive(Debug, Serialize, Deserialize)]

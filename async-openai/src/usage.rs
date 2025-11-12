@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::{config::Config, error::OpenAIError, types::UsageResponse, Client};
+use crate::{config::Config, error::OpenAIError, types::admin::usage::UsageResponse, Client};
 
 /// Manage organization usage data. Get usage details for various API endpoints including
 /// completions, embeddings, images, audio, moderations, vector stores, and code interpreter sessions.

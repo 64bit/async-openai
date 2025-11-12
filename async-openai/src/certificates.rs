@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::admin::certificates::{
         Certificate, DeleteCertificateResponse, ListCertificatesResponse, ModifyCertificateRequest,
         ToggleCertificatesRequest, UploadCertificateRequest,
     },

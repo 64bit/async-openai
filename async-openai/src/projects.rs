@@ -6,7 +6,9 @@ use crate::{
     project_api_keys::ProjectAPIKeys,
     project_certificates::ProjectCertificates,
     project_rate_limits::ProjectRateLimits,
-    types::{Project, ProjectCreateRequest, ProjectListResponse, ProjectUpdateRequest},
+    types::admin::projects::{
+        Project, ProjectCreateRequest, ProjectListResponse, ProjectUpdateRequest,
+    },
     Client, ProjectServiceAccounts, ProjectUsers,
 };
 

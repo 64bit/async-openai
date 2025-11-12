@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{Invite, InviteDeleteResponse, InviteListResponse, InviteRequest},
+    types::admin::invites::{Invite, InviteDeleteResponse, InviteListResponse, InviteRequest},
     Client,
 };
 
