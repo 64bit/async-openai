@@ -1,5 +1,6 @@
 //! Types used in OpenAI API requests and responses.
 //! These types are created from component schemas in the [OpenAPI spec](https://github.com/openai/openai-openapi)
+mod admin_api_key;
 mod assistant;
 mod assistant_impls;
 mod assistant_stream;
@@ -44,6 +45,7 @@ pub mod videos;
 #[cfg(feature = "webhook")]
 pub mod webhooks;
 
+pub use admin_api_key::*;
 pub use assistant::*;
 pub use assistant_stream::*;
 pub use audit_log::*;

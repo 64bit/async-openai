@@ -14,9 +14,9 @@ use crate::{
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
-    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Containers, Conversations,
-    Embeddings, Evals, FineTuning, Invites, Models, Projects, Responses, Threads, Uploads, Usage,
-    Users, VectorStores, Videos,
+    AdminAPIKeys, Assistants, Audio, AuditLogs, Batches, Chat, Completions, Containers,
+    Conversations, Embeddings, Evals, FineTuning, Invites, Models, Projects, Responses, Threads,
+    Uploads, Usage, Users, VectorStores, Videos,
 };
 
 #[derive(Debug, Clone, Default)]
@@ -152,6 +152,11 @@ impl<C: Config> Client<C> {
     /// To call [AuditLogs] group related APIs using this client.
     pub fn audit_logs(&self) -> AuditLogs<'_, C> {
         AuditLogs::new(self)
+    }
+
+    /// To call [AdminAPIKeys] group related APIs using this client.
+    pub fn admin_api_keys(&self) -> AdminAPIKeys<'_, C> {
+        AdminAPIKeys::new(self)
     }
 
     /// To call [Invites] group related APIs using this client.
