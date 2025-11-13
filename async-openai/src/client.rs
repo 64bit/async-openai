@@ -2,7 +2,7 @@ use std::pin::Pin;
 
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
-use reqwest::{multipart::Form, Response};
+use reqwest::{header::HeaderMap, multipart::Form, Response};
 use reqwest_eventsource::{Error as EventSourceError, Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -15,10 +15,12 @@ use crate::{
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
-    Assistants, Audio, Batches, Chat, Completions, Containers,
-    Conversations, Embeddings, Evals, FineTuning, Models, Responses, Threads,
-    Uploads, Usage, VectorStores, Videos,
+    Assistants, Audio, Batches, Chat, Completions, Containers, Conversations, Embeddings, Evals,
+    FineTuning, Models, Responses, Threads, Uploads, Usage, VectorStores, Videos,
 };
+
+#[cfg(feature = "realtime")]
+use crate::Realtime;
 
 #[derive(Debug, Clone, Default)]
 /// Client is a container for config, backoff and http_client
@@ -185,6 +187,12 @@ impl<C: Config> Client<C> {
         Chatkit::new(self)
     }
 
+    #[cfg(feature = "realtime")]
+    /// To call [Realtime] group related APIs using this client.
+    pub fn realtime(&self) -> Realtime<'_, C> {
+        Realtime::new(self)
+    }
+
     pub fn config(&self) -> &C {
         &self.config
     }
@@ -243,7 +251,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a GET request to {path} and return the response body
-    pub(crate) async fn get_raw(&self, path: &str) -> Result<Bytes, OpenAIError> {
+    pub(crate) async fn get_raw(&self, path: &str) -> Result<(Bytes, HeaderMap), OpenAIError> {
         let request_maker = || async {
             Ok(self
                 .http_client
@@ -260,7 +268,7 @@ impl<C: Config> Client<C> {
         &self,
         path: &str,
         query: &Q,
-    ) -> Result<Bytes, OpenAIError>
+    ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
         Q: Serialize + ?Sized,
     {
@@ -278,7 +286,11 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a POST request to {path} and return the response body
-    pub(crate) async fn post_raw<I>(&self, path: &str, request: I) -> Result<Bytes, OpenAIError>
+    pub(crate) async fn post_raw<I>(
+        &self,
+        path: &str,
+        request: I,
+    ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
         I: Serialize,
     {
@@ -315,7 +327,11 @@ impl<C: Config> Client<C> {
     }
 
     /// POST a form at {path} and return the response body
-    pub(crate) async fn post_form_raw<F>(&self, path: &str, form: F) -> Result<Bytes, OpenAIError>
+    pub(crate) async fn post_form_raw<F>(
+        &self,
+        path: &str,
+        form: F,
+    ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
         Form: AsyncTryFrom<F, Error = OpenAIError>,
         F: Clone,
@@ -431,7 +447,7 @@ impl<C: Config> Client<C> {
     /// request_maker serves one purpose: to be able to create request again
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
-    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
+    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
         M: Fn() -> Fut,
         Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
@@ -449,7 +465,7 @@ impl<C: Config> Client<C> {
             let status = response.status();
 
             match read_response(response).await {
-                Ok(bytes) => Ok(bytes),
+                Ok((bytes, headers)) => Ok((bytes, headers)),
                 Err(e) => {
                     match e {
                         OpenAIError::ApiError(api_error) => {
@@ -490,7 +506,7 @@ impl<C: Config> Client<C> {
         M: Fn() -> Fut,
         Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
     {
-        let bytes = self.execute_raw(request_maker).await?;
+        let (bytes, _headers) = self.execute_raw(request_maker).await?;
 
         let response: O = serde_json::from_slice(bytes.as_ref())
             .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
@@ -565,8 +581,9 @@ impl<C: Config> Client<C> {
     }
 }
 
-async fn read_response(response: Response) -> Result<Bytes, OpenAIError> {
+async fn read_response(response: Response) -> Result<(Bytes, HeaderMap), OpenAIError> {
     let status = response.status();
+    let headers = response.headers().clone();
     let bytes = response.bytes().await.map_err(OpenAIError::Reqwest)?;
 
     if status.is_server_error() {
@@ -589,7 +606,7 @@ async fn read_response(response: Response) -> Result<Bytes, OpenAIError> {
         return Err(OpenAIError::ApiError(wrapped_error.error));
     }
 
-    Ok(bytes)
+    Ok((bytes, headers))
 }
 
 async fn map_stream_error(value: EventSourceError) -> OpenAIError {

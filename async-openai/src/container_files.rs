@@ -69,8 +69,10 @@ impl<'c, C: Config> ContainerFiles<'c, C> {
 
     /// Returns the content of a container file.
     pub async fn content(&self, file_id: &str) -> Result<Bytes, OpenAIError> {
-        self.client
+        let (bytes, _headers) = self
+            .client
             .get_raw(format!("/containers/{}/files/{file_id}/content", self.container_id).as_str())
-            .await
+            .await?;
+        Ok(bytes)
     }
 }
