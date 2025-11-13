@@ -151,6 +151,8 @@ directory to learn more.
 
 ## Dynamic Dispatch for OpenAI-compatible Providers
 
+This allows you to use same code (say a `fn`) to call APIs on different OpenAI-compatible providers.
+
 For any struct that implements `Config` trait, wrap it in a smart pointer and cast the pointer to `dyn Config`
 trait object, then create a client with `Box` or `Arc` wrapped configuration.
 
@@ -161,9 +163,14 @@ use async_openai::{Client, config::{Config, OpenAIConfig}};
 
 // Use `Box` or `std::sync::Arc` to wrap the config
 let config = Box::new(OpenAIConfig::default()) as Box<dyn Config>;
+// create client
+let client: Client<Box<dyn Config>> = Client::with_config(config);
+
 // A function can now accept a `&Client<Box<dyn Config>>` parameter
 // which can invoke any openai compatible api
-let client: Client<Box<dyn Config>> = Client::with_config(config);
+fn chat_completion(client: &Client<Box<dyn Config>>) { 
+    todo!() 
+}
 ```
 
 ## Contributing
