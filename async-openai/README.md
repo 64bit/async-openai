@@ -19,32 +19,23 @@
 
 ## Overview
 
-`async-openai` is an unofficial Rust library for OpenAI.
+`async-openai` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi). It implements all APIs from the spec:
 
-- It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
-- Current features:
-  - [x] Administration (partially implemented)
-  - [x] Assistants (beta)
-  - [x] Audio
-  - [x] Batch
-  - [x] Chat
-  - [x] ChatKit (beta)
-  - [x] Completions (legacy)
-  - [x] Conversations
-  - [x] Containers
-  - [x] Embeddings
-  - [x] Evals
-  - [x] Files
-  - [x] Fine-Tuning
-  - [x] Images
-  - [x] Models
-  - [x] Moderations
-  - [x] Realtime (partially implemented)
-  - [x] Responses
-  - [x] Uploads
-  - [x] Vector Stores
-  - [x] Videos
-  - [x] Webhooks
+| Features | APIs |
+|---|---|
+| **Responses API** | Responses, Conversations, Streaming events |
+| **Webhooks** | Webhook Events |
+| **Platform APIs** | Audio, Audio Streaming, Videos, Images, Image Streaming, Embeddings, Evals, Fine-tuning, Graders, Batch, Files, Uploads, Models, Moderations |
+| **Vector stores** | Vector stores, Vector store files, Vector store file batches |
+| **ChatKit** <sub>(Beta)</sub> | ChatKit |
+| **Containers** | Containers, Container Files |
+| **Realtime** | Realtime Calls, Client secrets, Client events, Server events |
+| **Chat Completions** | Chat Completions, Streaming |
+| **Assistants** <sub>(Beta)</sub> | Assistants, Threads, Messages, Runs, Run steps, Streaming |
+| **Administration** | Administration, Admin API Keys, Invites, Users, Projects, Project users, Project service accounts, Project API keys, Project rate limits, Audit logs, Usage, Certificates |
+| **Legacy** | Completions |
+
+Features that makes `async-openai` unique:
 - Bring your own custom types for Request or Response objects.
 - SSE streaming on available APIs
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
@@ -68,9 +59,9 @@ $Env:OPENAI_API_KEY='sk-...'
 - Visit [examples](https://github.com/64bit/async-openai/tree/main/examples) directory on how to use `async-openai`.
 - Visit [docs.rs/async-openai](https://docs.rs/async-openai) for docs.
 
-## Realtime API
+## Realtime
 
-Only types for Realtime API are implemented, and can be enabled with feature flag `realtime`.
+Realtime types and APIs can be enabled with feature flag `realtime`.
 
 ## Webhooks
 
