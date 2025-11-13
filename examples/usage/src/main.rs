@@ -14,7 +14,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
-        .as_secs() as i64;
+        .as_secs();
     let start_time = now - (7 * 24 * 60 * 60); // 7 days ago
 
     // Create query parameters
