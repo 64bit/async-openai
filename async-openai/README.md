@@ -182,6 +182,7 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 
 ## Complimentary Crates
 - [async-openai-wasm](https://github.com/ifsheldon/async-openai-wasm) provides WASM support.
+- [openai-func-enums](https://github.com/frankfralick/openai-func-enums) macros for working with function/tool calls.
 
 ## License
 
