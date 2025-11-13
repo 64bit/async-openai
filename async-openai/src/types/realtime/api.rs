@@ -76,7 +76,7 @@ pub struct RealtimeCreateClientSecretResponse {
     /// The generated client secret value.
     pub value: String,
     /// Expiration timestamp for the client secret, in seconds since epoch.
-    pub expires_at: u32,
+    pub expires_at: u64,
     /// The session configuration for either a realtime or transcription session.
     pub session: Session,
 }

@@ -20,9 +20,9 @@ pub struct Project {
     /// The name of the project. This appears in reporting.
     pub name: String,
     /// The Unix timestamp (in seconds) of when the project was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The Unix timestamp (in seconds) of when the project was archived or `null`.
-    pub archived_at: Option<u32>,
+    pub archived_at: Option<u64>,
     /// `active` or `archived`
     pub status: ProjectStatus,
 }

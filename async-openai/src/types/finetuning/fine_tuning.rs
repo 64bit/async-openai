@@ -305,7 +305,7 @@ pub struct FineTuningJob {
     /// The object identifier, which can be referenced in the API endpoints.
     pub id: String,
     /// The Unix timestamp (in seconds) for when the fine-tuning job was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// For fine-tuning jobs that have `failed`, this will contain more information on the cause of the failure.
     pub error: Option<FineTuneJobError>,
     /// The name of the fine-tuned model that is being created.
@@ -313,7 +313,7 @@ pub struct FineTuningJob {
     pub fine_tuned_model: Option<String>, // nullable: true
     /// The Unix timestamp (in seconds) for when the fine-tuning job was finished.
     /// The value will be null if the fine-tuning job is still running.
-    pub finished_at: Option<u32>, // nullable true
+    pub finished_at: Option<u64>, // nullable true
 
     /// The hyperparameters used for the fine-tuning job. This value will only be returned when running
     /// `supervised` jobs.
@@ -394,7 +394,7 @@ pub struct FineTuningJobEvent {
     /// The object identifier.
     pub id: String,
     /// The Unix timestamp (in seconds) for when the fine-tuning job event was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The log level of the event.
     pub level: Level,
     /// The message of the event.
@@ -420,7 +420,7 @@ pub struct FineTuningJobCheckpoint {
     /// The checkpoint identifier, which can be referenced in the API endpoints.
     pub id: String,
     /// The Unix timestamp (in seconds) for when the checkpoint was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The name of the fine-tuned checkpoint model that is created.
     pub fine_tuned_model_checkpoint: String,
     /// The step number that the checkpoint was created at.
@@ -465,7 +465,7 @@ pub struct FineTuningCheckpointPermission {
     /// The permission identifier, which can be referenced in the API endpoints.
     pub id: String,
     /// The Unix timestamp (in seconds) for when the permission was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The project identifier that the permission is for.
     pub project_id: String,
     /// The object type, which is always "checkpoint.permission".

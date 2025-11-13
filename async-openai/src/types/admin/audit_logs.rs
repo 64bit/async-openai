@@ -133,7 +133,7 @@ pub struct AuditLog {
     /// The event type.
     pub r#type: AuditLogEventType,
     /// The Unix timestamp (in seconds) of the event.
-    pub effective_at: u32,
+    pub effective_at: u64,
     /// The project that the action was scoped to. Absent for actions not scoped to projects.
     pub project: Option<AuditLogProject>,
     /// The actor who performed the audit logged action.

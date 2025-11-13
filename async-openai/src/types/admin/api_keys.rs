@@ -17,9 +17,9 @@ pub struct AdminApiKey {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<String>,
     /// The Unix timestamp (in seconds) of when the API key was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The Unix timestamp (in seconds) of when the API key was last used.
-    pub last_used_at: Option<u32>,
+    pub last_used_at: Option<u64>,
     /// The owner of the API key.
     pub owner: AdminApiKeyOwner,
 }
@@ -35,7 +35,7 @@ pub struct AdminApiKeyOwner {
     /// The name of the owner.
     pub name: String,
     /// The Unix timestamp (in seconds) of when the owner was created.
-    pub created_at: u32,
+    pub created_at: u64,
 
     pub role: String,
 }

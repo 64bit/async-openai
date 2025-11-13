@@ -14,7 +14,7 @@ pub struct ChatSessionResource {
     #[serde(default = "default_session_object")]
     pub object: String,
     /// Unix timestamp (in seconds) for when the session expires.
-    pub expires_at: u32,
+    pub expires_at: u64,
     /// Ephemeral client secret that authenticates session requests.
     pub client_secret: String,
     /// Workflow metadata for the session.

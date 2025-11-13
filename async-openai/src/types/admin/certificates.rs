@@ -12,7 +12,7 @@ pub struct Certificate {
     /// The name of the certificate.
     pub name: String,
     /// The Unix timestamp (in seconds) of when the certificate was uploaded.
-    pub created_at: u32,
+    pub created_at: u64,
     /// Details about the certificate.
     pub certificate_details: CertificateDetails,
     /// Whether the certificate is currently active at the specified scope.
@@ -25,9 +25,9 @@ pub struct Certificate {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CertificateDetails {
     /// The Unix timestamp (in seconds) of when the certificate becomes valid.
-    pub valid_at: u32,
+    pub valid_at: u64,
     /// The Unix timestamp (in seconds) of when the certificate expires.
-    pub expires_at: u32,
+    pub expires_at: u64,
     /// The content of the certificate in PEM format.
     /// Only included when requested via the `include[]=content` query parameter.
     #[serde(skip_serializing_if = "Option::is_none")]

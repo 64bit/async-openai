@@ -19,7 +19,7 @@ pub struct ThreadObject {
     /// The object type, which is always `thread`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the thread was created.
-    pub created_at: u32,
+    pub created_at: u64,
 
     /// A set of resources that are made available to the assistant's tools in this thread. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
     pub tool_resources: Option<AssistantToolResources>,

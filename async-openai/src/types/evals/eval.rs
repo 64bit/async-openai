@@ -31,7 +31,7 @@ pub struct Eval {
     /// A list of testing criteria.
     pub testing_criteria: Vec<EvalTestingCriterion>,
     /// The Unix timestamp (in seconds) for when the eval was created.
-    pub created_at: u32,
+    pub created_at: u64,
     pub metadata: Metadata,
 }
 
@@ -431,7 +431,7 @@ pub struct EvalRun {
     /// The name of the evaluation run.
     pub name: String,
     /// Unix timestamp (in seconds) when the evaluation run was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The URL to the rendered evaluation run report on the UI dashboard.
     pub report_url: String,
     /// Counters summarizing the outcomes of the evaluation run.
@@ -677,10 +677,10 @@ pub struct EvalStoredCompletionsSource {
     pub model: Option<String>,
     /// An optional Unix timestamp to filter items created after this time.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_after: Option<u32>,
+    pub created_after: Option<u64>,
     /// An optional Unix timestamp to filter items created before this time.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_before: Option<u32>,
+    pub created_before: Option<u64>,
     /// An optional maximum number of items to return.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i32>,
@@ -825,7 +825,7 @@ pub struct EvalRunOutputItem {
     /// The identifier of the evaluation group.
     pub eval_id: String,
     /// Unix timestamp (in seconds) when the evaluation run was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The status of the evaluation run.
     pub status: String,
     /// The identifier for the data source item.

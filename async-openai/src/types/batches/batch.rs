@@ -92,23 +92,23 @@ pub struct Batch {
     /// The ID of the file containing the outputs of requests with errors.
     pub error_file_id: Option<String>,
     /// The Unix timestamp (in seconds) for when the batch was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The Unix timestamp (in seconds) for when the batch started processing.
-    pub in_progress_at: Option<u32>,
+    pub in_progress_at: Option<u64>,
     /// The Unix timestamp (in seconds) for when the batch will expire.
-    pub expires_at: Option<u32>,
+    pub expires_at: Option<u64>,
     /// The Unix timestamp (in seconds) for when the batch started finalizing.
-    pub finalizing_at: Option<u32>,
+    pub finalizing_at: Option<u64>,
     /// The Unix timestamp (in seconds) for when the batch was completed.
-    pub completed_at: Option<u32>,
+    pub completed_at: Option<u64>,
     /// The Unix timestamp (in seconds) for when the batch failed.
-    pub failed_at: Option<u32>,
+    pub failed_at: Option<u64>,
     /// The Unix timestamp (in seconds) for when the batch expired.
-    pub expired_at: Option<u32>,
+    pub expired_at: Option<u64>,
     /// The Unix timestamp (in seconds) for when the batch started cancelling.
-    pub cancelling_at: Option<u32>,
+    pub cancelling_at: Option<u64>,
     /// The Unix timestamp (in seconds) for when the batch was cancelled.
-    pub cancelled_at: Option<u32>,
+    pub cancelled_at: Option<u64>,
     /// The request counts for different statuses within the batch.
     pub request_counts: Option<BatchRequestCounts>,
     /// Represents token usage details including input tokens, output tokens, a breakdown of output tokens, and the total tokens used. Only populated on batches created after September 7, 2025.

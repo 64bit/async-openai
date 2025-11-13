@@ -13,7 +13,7 @@ pub struct ProjectApiKey {
     /// The name of the API key.
     pub name: String,
     /// The Unix timestamp (in seconds) of when the API key was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,
     /// The owner of the API key.

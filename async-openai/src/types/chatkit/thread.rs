@@ -9,7 +9,7 @@ pub struct ThreadResource {
     #[serde(default = "default_thread_object")]
     pub object: String,
     /// Unix timestamp (in seconds) for when the thread was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// Optional human-readable title for the thread. Defaults to null when no title has been generated.
     pub title: Option<String>,
     /// Current status for the thread. Defaults to `active` for newly created threads.
@@ -123,7 +123,7 @@ pub struct UserMessageItem {
     #[serde(default = "default_thread_item_object")]
     pub object: String,
     /// Unix timestamp (in seconds) for when the item was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// Identifier of the parent thread.
     pub thread_id: String,
     /// Ordered content elements supplied by the user.
@@ -203,7 +203,7 @@ pub struct AssistantMessageItem {
     #[serde(default = "default_thread_item_object")]
     pub object: String,
     /// Unix timestamp (in seconds) for when the item was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// Identifier of the parent thread.
     pub thread_id: String,
     /// Ordered assistant response segments.
@@ -304,7 +304,7 @@ pub struct WidgetMessageItem {
     #[serde(default = "default_thread_item_object")]
     pub object: String,
     /// Unix timestamp (in seconds) for when the item was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// Identifier of the parent thread.
     pub thread_id: String,
     /// Serialized widget payload rendered in the UI.
@@ -320,7 +320,7 @@ pub struct ClientToolCallItem {
     #[serde(default = "default_thread_item_object")]
     pub object: String,
     /// Unix timestamp (in seconds) for when the item was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// Identifier of the parent thread.
     pub thread_id: String,
     /// Execution status for the tool call.
@@ -352,7 +352,7 @@ pub struct TaskItem {
     #[serde(default = "default_thread_item_object")]
     pub object: String,
     /// Unix timestamp (in seconds) for when the item was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// Identifier of the parent thread.
     pub thread_id: String,
     /// Subtype for the task.
@@ -380,7 +380,7 @@ pub struct TaskGroupItem {
     #[serde(default = "default_thread_item_object")]
     pub object: String,
     /// Unix timestamp (in seconds) for when the item was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// Identifier of the parent thread.
     pub thread_id: String,
     /// Tasks included in the group.

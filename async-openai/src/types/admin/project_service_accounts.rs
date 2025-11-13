@@ -14,7 +14,7 @@ pub struct ProjectServiceAccount {
     /// `owner` or `member`.
     pub role: ProjectUserRole,
     /// The Unix timestamp (in seconds) of when the service account was created.
-    pub created_at: u32,
+    pub created_at: u64,
 }
 
 /// Represents the response object for listing project service accounts.
@@ -51,7 +51,7 @@ pub struct ProjectServiceAccountCreateResponse {
     /// Service accounts can only have one role of type `member`.
     pub role: String,
     /// The Unix timestamp (in seconds) of when the service account was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The API key associated with the created service account.
     pub api_key: ProjectServiceAccountApiKey,
 }
@@ -66,7 +66,7 @@ pub struct ProjectServiceAccountApiKey {
     /// The name of the API key.
     pub name: String,
     /// The Unix timestamp (in seconds) of when the API key was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The ID of the API key.
     pub id: String,
 }
