@@ -1,12 +1,6 @@
 use crate::{
-    admin_api_keys::AdminAPIKeys,
-    audit_logs::AuditLogs,
-    certificates::Certificates,
-    config::Config,
-    invites::Invites,
-    projects::Projects,
-    users::Users,
-    Client,
+    admin_api_keys::AdminAPIKeys, audit_logs::AuditLogs, certificates::Certificates,
+    config::Config, invites::Invites, projects::Projects, users::Users, Client,
 };
 
 /// Admin group for all administration APIs.
@@ -50,4 +44,3 @@ impl<'c, C: Config> Admin<'c, C> {
         Certificates::new(self.client)
     }
 }
-

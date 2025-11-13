@@ -98,7 +98,8 @@ impl<'c, C: Config> Transcriptions<'c, C> {
         &self,
         request: CreateTranscriptionRequest,
     ) -> Result<Bytes, OpenAIError> {
-        let (bytes, _headers) = self.client
+        let (bytes, _headers) = self
+            .client
             .post_form_raw("/audio/transcriptions", request)
             .await?;
         Ok(bytes)
