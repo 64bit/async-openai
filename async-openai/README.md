@@ -178,6 +178,8 @@ To maintain quality of the project, a minimum of the following is a must for cod
 
 This project adheres to [Rust Code of Conduct](https://www.rust-lang.org/policies/code-of-conduct)
 
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in async-openai by you, shall be licensed as MIT, without any additional terms or conditions.
+
 ## Complimentary Crates
 - [async-openai-wasm](https://github.com/ifsheldon/async-openai-wasm) provides WASM support.
 
