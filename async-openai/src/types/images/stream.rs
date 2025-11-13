@@ -15,7 +15,7 @@ pub struct ImageGenPartialImageEvent {
     /// Base64-encoded partial image data, suitable for rendering as an image.
     pub b64_json: String,
     /// The Unix timestamp when the event was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The size of the requested image.
     pub size: ImageSize,
     /// The quality setting for the requested image.
@@ -34,7 +34,7 @@ pub struct ImageGenCompletedEvent {
     /// Base64-encoded image data, suitable for rendering as an image.
     pub b64_json: String,
     /// The Unix timestamp when the event was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The size of the generated image.
     pub size: ImageSize,
     /// The quality setting for the generated image.
@@ -67,7 +67,7 @@ pub struct ImageEditPartialImageEvent {
     /// Base64-encoded partial image data, suitable for rendering as an image.
     pub b64_json: String,
     /// The Unix timestamp when the event was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The size of the requested edited image.
     pub size: ImageSize,
     /// The quality setting for the requested edited image.
@@ -86,7 +86,7 @@ pub struct ImageEditCompletedEvent {
     /// Base64-encoded final image data, suitable for rendering as an image.
     pub b64_json: String,
     /// The Unix timestamp when the event was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The size of the edited image.
     pub size: ImageSize,
     /// The quality setting for the edited image.

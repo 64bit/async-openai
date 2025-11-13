@@ -6,7 +6,7 @@ use crate::traits::{EventId, EventType};
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookBatchCancelled {
     /// The Unix timestamp (in seconds) of when the batch API request was cancelled.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -23,7 +23,7 @@ pub struct WebhookBatchCancelled {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookBatchCompleted {
     /// The Unix timestamp (in seconds) of when the batch API request was completed.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -40,7 +40,7 @@ pub struct WebhookBatchCompleted {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookBatchExpired {
     /// The Unix timestamp (in seconds) of when the batch API request expired.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -57,7 +57,7 @@ pub struct WebhookBatchExpired {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookBatchFailed {
     /// The Unix timestamp (in seconds) of when the batch API request failed.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -131,7 +131,7 @@ impl EventId for WebhookBatchFailed {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookEvalRunCanceled {
     /// The Unix timestamp (in seconds) of when the eval run was canceled.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -148,7 +148,7 @@ pub struct WebhookEvalRunCanceled {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookEvalRunFailed {
     /// The Unix timestamp (in seconds) of when the eval run failed.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -165,7 +165,7 @@ pub struct WebhookEvalRunFailed {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookEvalRunSucceeded {
     /// The Unix timestamp (in seconds) of when the eval run succeeded.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -227,7 +227,7 @@ impl EventId for WebhookEvalRunSucceeded {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookFineTuningJobCancelled {
     /// The Unix timestamp (in seconds) of when the fine-tuning job was cancelled.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -244,7 +244,7 @@ pub struct WebhookFineTuningJobCancelled {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookFineTuningJobFailed {
     /// The Unix timestamp (in seconds) of when the fine-tuning job failed.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -261,7 +261,7 @@ pub struct WebhookFineTuningJobFailed {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookFineTuningJobSucceeded {
     /// The Unix timestamp (in seconds) of when the fine-tuning job succeeded.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -323,7 +323,7 @@ impl EventId for WebhookFineTuningJobSucceeded {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookRealtimeCallIncoming {
     /// The Unix timestamp (in seconds) of when the model response was completed.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -374,7 +374,7 @@ impl EventId for WebhookRealtimeCallIncoming {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookResponseCancelled {
     /// The Unix timestamp (in seconds) of when the model response was cancelled.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -391,7 +391,7 @@ pub struct WebhookResponseCancelled {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookResponseCompleted {
     /// The Unix timestamp (in seconds) of when the model response was completed.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -408,7 +408,7 @@ pub struct WebhookResponseCompleted {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookResponseFailed {
     /// The Unix timestamp (in seconds) of when the model response failed.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -425,7 +425,7 @@ pub struct WebhookResponseFailed {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookResponseIncomplete {
     /// The Unix timestamp (in seconds) of when the model response was interrupted.
-    pub created_at: i64,
+    pub created_at: u64,
 
     /// The unique ID of the event.
     pub id: String,
@@ -592,7 +592,7 @@ impl EventId for WebhookEvent {
 
 impl WebhookEvent {
     /// Get the timestamp when the event was created
-    pub fn created_at(&self) -> i64 {
+    pub fn created_at(&self) -> u64 {
         match self {
             WebhookEvent::BatchCancelled(w) => w.created_at,
             WebhookEvent::BatchCompleted(w) => w.created_at,

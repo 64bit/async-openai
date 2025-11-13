@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::assistants::{
         AssistantObject, CreateAssistantRequest, DeleteAssistantResponse, ListAssistantsResponse,
         ModifyAssistantRequest,
     },

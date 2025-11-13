@@ -4,7 +4,11 @@ use crate::{
     config::Config,
     error::OpenAIError,
     project_api_keys::ProjectAPIKeys,
-    types::{Project, ProjectCreateRequest, ProjectListResponse, ProjectUpdateRequest},
+    project_certificates::ProjectCertificates,
+    project_rate_limits::ProjectRateLimits,
+    types::admin::projects::{
+        Project, ProjectCreateRequest, ProjectListResponse, ProjectUpdateRequest,
+    },
     Client, ProjectServiceAccounts, ProjectUsers,
 };
 
@@ -32,6 +36,16 @@ impl<'c, C: Config> Projects<'c, C> {
     // call [ProjectAPIKeys] group APIs
     pub fn api_keys(&self, project_id: &str) -> ProjectAPIKeys<'_, C> {
         ProjectAPIKeys::new(self.client, project_id)
+    }
+
+    // call [ProjectRateLimits] group APIs
+    pub fn rate_limits(&self, project_id: &str) -> ProjectRateLimits<'_, C> {
+        ProjectRateLimits::new(self.client, project_id)
+    }
+
+    // call [ProjectCertificates] group APIs
+    pub fn certificates(&self, project_id: &str) -> ProjectCertificates<'_, C> {
+        ProjectCertificates::new(self.client, project_id)
     }
 
     /// Returns a list of projects.

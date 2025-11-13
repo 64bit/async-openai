@@ -1,6 +1,8 @@
 use serde::Serialize;
 
-use crate::{config::Config, error::OpenAIError, types::ListAuditLogsResponse, Client};
+use crate::{
+    config::Config, error::OpenAIError, types::admin::audit_logs::ListAuditLogsResponse, Client,
+};
 
 /// Logs of user actions and configuration changes within this organization.
 /// To log events, you must activate logging in the [Organization Settings](https://platform.openai.com/settings/organization/general).

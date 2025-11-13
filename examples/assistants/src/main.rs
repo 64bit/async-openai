@@ -1,5 +1,5 @@
 use async_openai::{
-    types::{
+    types::assistants::{
         CreateAssistantRequestArgs, CreateMessageRequestArgs, CreateRunRequestArgs,
         CreateThreadRequestArgs, MessageContent, MessageRole, RunStatus,
     },

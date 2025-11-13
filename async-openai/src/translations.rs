@@ -50,8 +50,10 @@ impl<'c, C: Config> Translations<'c, C> {
         &self,
         request: CreateTranslationRequest,
     ) -> Result<Bytes, OpenAIError> {
-        self.client
+        let (bytes, _headers) = self
+            .client
             .post_form_raw("/audio/translations", request)
-            .await
+            .await?;
+        Ok(bytes)
     }
 }

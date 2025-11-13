@@ -47,7 +47,7 @@ pub struct MessageObject {
     /// The object type, which is always `thread.message`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the message was created.
-    pub created_at: i32,
+    pub created_at: u64,
     /// The [thread](https://platform.openai.com/docs/api-reference/threads) ID that this message belongs to.
     pub thread_id: String,
 
@@ -58,10 +58,10 @@ pub struct MessageObject {
     pub incomplete_details: Option<MessageIncompleteDetails>,
 
     /// The Unix timestamp (in seconds) for when the message was completed.
-    pub completed_at: Option<u32>,
+    pub completed_at: Option<u64>,
 
     /// The Unix timestamp (in seconds) for when the message was marked as incomplete.
-    pub incomplete_at: Option<u32>,
+    pub incomplete_at: Option<u64>,
 
     /// The entity that produced the message. One of `user` or `assistant`.
     pub role: MessageRole,
@@ -286,7 +286,7 @@ pub enum MessageDeltaContent {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageDeltaContentRefusalObject {
     /// The index of the refusal part in the message.
-    pub index: i32,
+    pub index: u32,
     pub refusal: Option<String>,
 }
 

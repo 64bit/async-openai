@@ -19,7 +19,7 @@ pub struct RunStepObject {
     /// The object type, which is always `thread.run.step`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the run step was created.
-    pub created_at: i32,
+    pub created_at: u64,
 
     /// The ID of the [assistant](https://platform.openai.com/docs/api-reference/assistants) associated with the run step.
     pub assistant_id: Option<String>,
@@ -43,16 +43,16 @@ pub struct RunStepObject {
     pub last_error: Option<LastError>,
 
     ///The Unix timestamp (in seconds) for when the run step expired. A step is considered expired if the parent run is expired.
-    pub expires_at: Option<i32>,
+    pub expires_at: Option<u64>,
 
     /// The Unix timestamp (in seconds) for when the run step was cancelled.
-    pub cancelled_at: Option<i32>,
+    pub cancelled_at: Option<u64>,
 
     /// The Unix timestamp (in seconds) for when the run step failed.
-    pub failed_at: Option<i32>,
+    pub failed_at: Option<u64>,
 
     /// The Unix timestamp (in seconds) for when the run step completed.
-    pub completed_at: Option<i32>,
+    pub completed_at: Option<u64>,
 
     pub metadata: Option<HashMap<String, serde_json::Value>>,
 

@@ -70,11 +70,13 @@ impl<'c, C: Config> Videos<'c, C> {
         video_id: &str,
         variant: VideoVariant,
     ) -> Result<Bytes, OpenAIError> {
-        self.client
+        let (bytes, _headers) = self
+            .client
             .get_raw_with_query(
                 &format!("/videos/{video_id}/content"),
                 &[("variant", variant)],
             )
-            .await
+            .await?;
+        Ok(bytes)
     }
 }

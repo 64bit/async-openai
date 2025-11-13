@@ -18,7 +18,7 @@ pub struct RunObject {
     /// The object type, which is always `thread.run`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the run was created.
-    pub created_at: i32,
+    pub created_at: u64,
     ///The ID of the [thread](https://platform.openai.com/docs/api-reference/threads) that was executed on as a part of this run.
     pub thread_id: String,
 
@@ -35,15 +35,15 @@ pub struct RunObject {
     pub last_error: Option<LastError>,
 
     /// The Unix timestamp (in seconds) for when the run will expire.
-    pub expires_at: Option<i32>,
+    pub expires_at: Option<u64>,
     ///  The Unix timestamp (in seconds) for when the run was started.
-    pub started_at: Option<i32>,
+    pub started_at: Option<u64>,
     /// The Unix timestamp (in seconds) for when the run was cancelled.
-    pub cancelled_at: Option<i32>,
+    pub cancelled_at: Option<u64>,
     /// The Unix timestamp (in seconds) for when the run failed.
-    pub failed_at: Option<i32>,
+    pub failed_at: Option<u64>,
     ///The Unix timestamp (in seconds) for when the run was completed.
-    pub completed_at: Option<i32>,
+    pub completed_at: Option<u64>,
 
     /// Details on why the run is incomplete. Will be `null` if the run is not incomplete.
     pub incomplete_details: Option<RunObjectIncompleteDetails>,

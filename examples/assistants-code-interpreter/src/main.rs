@@ -1,12 +1,12 @@
 use std::error::Error;
 
 use async_openai::{
-    types::files::{CreateFileRequest, FilePurpose},
-    types::{
+    types::assistants::{
         AssistantToolCodeInterpreterResources, AssistantTools, CreateAssistantRequestArgs,
         CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest, MessageContent,
         MessageContentTextAnnotations, MessageRole, RunStatus,
     },
+    types::files::{CreateFileRequest, FilePurpose},
     Client,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};

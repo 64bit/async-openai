@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::admin::project_users::{
         ProjectUser, ProjectUserCreateRequest, ProjectUserDeleteResponse, ProjectUserListResponse,
         ProjectUserUpdateRequest,
     },

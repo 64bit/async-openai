@@ -307,11 +307,24 @@ pub enum Session {
     RealtimeTranscriptionSession(RealtimeTranscriptionSession),
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(tag = "type")]
+pub enum RealtimeSessionConfiguration {
+    Realtime(RealtimeSession),
+}
+
+impl Default for RealtimeSessionConfiguration {
+    fn default() -> Self {
+        Self::Realtime(RealtimeSession::default())
+    }
+}
+
 /// Realtime session object configuration.
 /// openapi spec type: RealtimeSessionCreateRequestGA
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeSession {
-    pub audio: Audio,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub audio: Option<Audio>,
 
     /// Additional fields to include in server outputs.
     ///

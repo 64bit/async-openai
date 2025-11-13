@@ -4,7 +4,7 @@ use crate::{
     config::Config,
     error::OpenAIError,
     steps::Steps,
-    types::{
+    types::assistants::{
         AssistantEventStream, CreateRunRequest, ListRunsResponse, ModifyRunRequest, RunObject,
         SubmitToolOutputsRunRequest,
     },

@@ -56,16 +56,16 @@ pub struct VideoJobError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VideoJob {
     /// Unix timestamp (seconds) for when the job completed, if finished.
-    pub completed_at: Option<u32>,
+    pub completed_at: Option<u64>,
 
     /// Unix timestamp (seconds) for when the job was created.
-    pub created_at: u32,
+    pub created_at: u64,
 
     /// Error payload that explains why generation failed, if applicable.
     pub error: Option<VideoJobError>,
 
     /// Unix timestamp (seconds) for when the downloadable assets expire, if set.
-    pub expires_at: Option<u32>,
+    pub expires_at: Option<u64>,
 
     /// Unique identifier for the video job.
     pub id: String,

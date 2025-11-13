@@ -2,11 +2,12 @@ use std::error::Error;
 
 use async_openai::{
     config::OpenAIConfig,
-    types::{
-        chat::FunctionObject, AssistantStreamEvent, CreateAssistantRequestArgs,
-        CreateMessageRequest, CreateRunRequest, CreateThreadRequest, MessageDeltaContent,
-        MessageRole, RunObject, SubmitToolOutputsRunRequest, ToolsOutputs,
+    types::assistants::{
+        AssistantStreamEvent, CreateAssistantRequestArgs, CreateMessageRequest, CreateRunRequest,
+        CreateThreadRequest, MessageDeltaContent, MessageRole, RunObject,
+        SubmitToolOutputsRunRequest, ToolsOutputs,
     },
+    types::chat::FunctionObject,
     Client,
 };
 use futures::StreamExt;

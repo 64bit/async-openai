@@ -16,7 +16,7 @@ pub struct ProjectUser {
     /// `owner` or `member`
     pub role: ProjectUserRole,
     /// The Unix timestamp (in seconds) of when the project was added.
-    pub added_at: u32,
+    pub added_at: u64,
 }
 
 /// `owner` or `member`

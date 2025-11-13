@@ -94,20 +94,20 @@
 //! # });
 //!```
 //!
-//! ## Dynamic Dispatch for Different Providers
+//! ## Dynamic Dispatch for OpenAI-compatible Providers
 //!
-//! For any struct that implements `Config` trait, you can wrap it in a smart pointer and cast the pointer to `dyn Config`
-//! trait object, then your client can accept any wrapped configuration type.
+//! For any struct that implements `Config` trait, wrap it in a smart pointer and cast the pointer to `dyn Config`
+//! trait object, then create a client with `Box` or `Arc` wrapped configuration.
 //!
-//! For example,
+//! For example:
 //! ```
-//! use async_openai::{Client, config::Config, config::OpenAIConfig};
-//! unsafe { std::env::set_var("OPENAI_API_KEY", "only for doc test") }
+//! use async_openai::{Client, config::{Config, OpenAIConfig}};
 //!
-//! let openai_config = OpenAIConfig::default();
-//! // You can use `std::sync::Arc` to wrap the config as well
-//! let config = Box::new(openai_config) as Box<dyn Config>;
-//! let client: Client<Box<dyn Config> > = Client::with_config(config);
+//! // Use `Box` or `std::sync::Arc` to wrap the config
+//! let config = Box::new(OpenAIConfig::default()) as Box<dyn Config>;
+//! // A function can now accept a `&Client<Box<dyn Config>>` parameter
+//! // which can invoke any openai compatible api
+//! let client: Client<Box<dyn Config>> = Client::with_config(config);
 //! ```
 //!
 //! ## Microsoft Azure
@@ -140,10 +140,13 @@ pub(crate) use async_openai_macros::byot;
 #[cfg(not(feature = "byot"))]
 pub(crate) use async_openai_macros::byot_passthrough as byot;
 
+mod admin;
+mod admin_api_keys;
 mod assistants;
 mod audio;
 mod audit_logs;
 mod batches;
+mod certificates;
 mod chat;
 mod chatkit;
 mod client;
@@ -167,9 +170,13 @@ mod messages;
 mod model;
 mod moderation;
 mod project_api_keys;
+mod project_certificates;
+mod project_rate_limits;
 mod project_service_accounts;
 mod project_users;
 mod projects;
+#[cfg(feature = "realtime")]
+mod realtime;
 mod responses;
 mod runs;
 mod speech;
@@ -180,6 +187,7 @@ mod transcriptions;
 mod translations;
 pub mod types;
 mod uploads;
+mod usage;
 mod users;
 mod util;
 mod vector_store_file_batches;
@@ -189,10 +197,13 @@ mod video;
 #[cfg(feature = "webhook")]
 pub mod webhooks;
 
+pub use admin::Admin;
+pub use admin_api_keys::AdminAPIKeys;
 pub use assistants::Assistants;
 pub use audio::Audio;
 pub use audit_logs::AuditLogs;
 pub use batches::Batches;
+pub use certificates::Certificates;
 pub use chat::Chat;
 pub use chatkit::Chatkit;
 pub use client::Client;
@@ -213,9 +224,13 @@ pub use messages::Messages;
 pub use model::Models;
 pub use moderation::Moderations;
 pub use project_api_keys::ProjectAPIKeys;
+pub use project_certificates::ProjectCertificates;
+pub use project_rate_limits::ProjectRateLimits;
 pub use project_service_accounts::ProjectServiceAccounts;
 pub use project_users::ProjectUsers;
 pub use projects::Projects;
+#[cfg(feature = "realtime")]
+pub use realtime::Realtime;
 pub use responses::Responses;
 pub use runs::Runs;
 pub use speech::Speech;
@@ -224,6 +239,7 @@ pub use threads::Threads;
 pub use transcriptions::Transcriptions;
 pub use translations::Translations;
 pub use uploads::Uploads;
+pub use usage::Usage;
 pub use users::Users;
 pub use vector_store_file_batches::VectorStoreFileBatches;
 pub use vector_store_files::VectorStoreFiles;

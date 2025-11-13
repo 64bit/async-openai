@@ -14,7 +14,7 @@ pub struct ContainerResource {
     /// Name of the container.
     pub name: String,
     /// Unix timestamp (in seconds) when the container was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// Status of the container (e.g., active, deleted).
     pub status: String,
     /// The container will expire after this time period. The anchor is the reference point for the expiration.
@@ -23,7 +23,7 @@ pub struct ContainerResource {
     pub expires_after: Option<ContainerExpiresAfter>,
     /// Unix timestamp (in seconds) when the container was last active.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub last_active_at: Option<u32>,
+    pub last_active_at: Option<u64>,
 }
 
 /// Expiration policy for containers.
@@ -114,7 +114,7 @@ pub struct ContainerFileResource {
     /// The container this file belongs to.
     pub container_id: String,
     /// Unix timestamp (in seconds) when the file was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// Size of the file in bytes.
     pub bytes: u32,
     /// Path of the file in the container.

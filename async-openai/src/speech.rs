@@ -19,7 +19,7 @@ impl<'c, C: Config> Speech<'c, C> {
         &self,
         request: CreateSpeechRequest,
     ) -> Result<CreateSpeechResponse, OpenAIError> {
-        let bytes = self.client.post_raw("/audio/speech", request).await?;
+        let (bytes, _headers) = self.client.post_raw("/audio/speech", request).await?;
 
         Ok(CreateSpeechResponse { bytes })
     }

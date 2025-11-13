@@ -1,8 +1,7 @@
 use crate::types::OpenAIError;
+use crate::types::OrganizationRole;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
-
-use super::OrganizationRole;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -54,9 +53,9 @@ pub struct Invite {
     /// `accepted`, `expired`, or `pending`
     pub status: InviteStatus,
     /// The Unix timestamp (in seconds) of when the invite was sent.
-    pub invited_at: u32,
+    pub invited_at: u64,
     /// The Unix timestamp (in seconds) of when the invite expires.
-    pub expires_at: u32,
+    pub expires_at: u64,
     /// The Unix timestamp (in seconds) of when the invite was accepted.
-    pub accepted_at: Option<u32>,
+    pub accepted_at: Option<u64>,
 }

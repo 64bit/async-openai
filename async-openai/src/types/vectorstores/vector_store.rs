@@ -8,7 +8,7 @@ use crate::{
     types::{responses::Filter, Metadata},
 };
 
-use crate::types::StaticChunkingStrategy;
+use crate::types::assistants::StaticChunkingStrategy;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateVectorStoreRequestArgs")]
@@ -72,7 +72,7 @@ pub struct VectorStoreObject {
     /// The object type, which is always `vector_store`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the vector store was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The name of the vector store.
     pub name: Option<String>,
     /// The total number of bytes used by the files in the vector store.
@@ -82,9 +82,9 @@ pub struct VectorStoreObject {
     pub status: VectorStoreStatus,
     pub expires_after: Option<VectorStoreExpirationAfter>,
     /// The Unix timestamp (in seconds) for when the vector store will expire.
-    pub expires_at: Option<u32>,
+    pub expires_at: Option<u64>,
     /// The Unix timestamp (in seconds) for when the vector store was last active.
-    pub last_active_at: Option<u32>,
+    pub last_active_at: Option<u64>,
 
     /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long.
     pub metadata: Option<Metadata>,
@@ -161,7 +161,7 @@ pub struct VectorStoreFileObject {
     /// The total vector store usage in bytes. Note that this may be different from the original file size.
     pub usage_bytes: u64,
     /// The Unix timestamp (in seconds) for when the vector store file was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The ID of the [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) that the [File](https://platform.openai.com/docs/api-reference/files) is attached to.
     pub vector_store_id: String,
     /// The status of the vector store file, which can be either `in_progress`, `completed`, `cancelled`, or `failed`. The status `completed` indicates that the vector store file is ready for use.
@@ -298,7 +298,7 @@ pub struct VectorStoreFileBatchObject {
     /// The object type, which is always `vector_store.files_batch`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the vector store files batch was created.
-    pub created_at: u32,
+    pub created_at: u64,
     /// The ID of the [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) that the [File](https://platform.openai.com/docs/api-reference/files) is attached to.
     pub vector_store_id: String,
     /// The status of the vector store files batch, which can be either `in_progress`, `completed`, `cancelled` or `failed`.

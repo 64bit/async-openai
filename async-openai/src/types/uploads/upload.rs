@@ -59,7 +59,7 @@ pub struct Upload {
     pub id: String,
 
     /// The Unix timestamp (in seconds) for when the Upload was created
-    pub created_at: u32,
+    pub created_at: u64,
 
     /// The name of the file to be uploaded
     pub filename: String,
@@ -74,7 +74,7 @@ pub struct Upload {
     pub status: UploadStatus,
 
     /// The Unix timestamp (in seconds) for when the Upload will expire
-    pub expires_at: u32,
+    pub expires_at: u64,
 
     /// The object type, which is always "upload"
     pub object: String,
@@ -105,7 +105,7 @@ pub struct UploadPart {
     pub id: String,
 
     /// The Unix timestamp (in seconds) for when the Part was created
-    pub created_at: u32,
+    pub created_at: u64,
 
     /// The ID of the Upload object that this Part was added to
     pub upload_id: String,

@@ -5,7 +5,7 @@ use serde::Deserialize;
 
 use crate::error::{map_deserialization_error, ApiError, OpenAIError, StreamError};
 
-use super::{
+use crate::types::assistants::{
     MessageDeltaObject, MessageObject, RunObject, RunStepDeltaObject, RunStepObject, ThreadObject,
 };
 

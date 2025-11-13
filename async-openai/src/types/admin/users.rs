@@ -1,8 +1,7 @@
 use crate::types::OpenAIError;
+use crate::types::OrganizationRole;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
-
-use super::OrganizationRole;
 
 /// Represents an individual `user` within an organization.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -18,7 +17,7 @@ pub struct User {
     /// `owner` or `reader`
     pub role: OrganizationRole,
     /// The Unix timestamp (in seconds) of when the users was added.
-    pub added_at: u32,
+    pub added_at: u64,
 }
 
 /// A list of `User` objects.

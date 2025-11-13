@@ -25,7 +25,7 @@ pub struct ConversationResource {
     /// Set of 16 key-value pairs that can be attached to an object.
     pub metadata: Metadata,
     /// The time at which the conversation was created, measured in seconds since the Unix epoch.
-    pub created_at: i64,
+    pub created_at: u64,
 }
 
 /// Request to create a conversation.

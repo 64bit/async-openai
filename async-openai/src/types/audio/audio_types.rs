@@ -348,10 +348,10 @@ pub struct TranscriptionDiarizedSegment {
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct TranscriptionSegment {
     /// Unique identifier of the segment.
-    pub id: i32,
+    pub id: u32,
 
     // Seek offset of the segment.
-    pub seek: i32,
+    pub seek: u32,
 
     /// Start time of the segment in seconds.
     pub start: f32,
@@ -363,7 +363,7 @@ pub struct TranscriptionSegment {
     pub text: String,
 
     /// Array of token IDs for the text content.
-    pub tokens: Vec<i32>,
+    pub tokens: Vec<u32>,
 
     /// Temperature parameter used for generating the segment.
     pub temperature: f32,
