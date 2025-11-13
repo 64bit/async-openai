@@ -85,7 +85,7 @@ pub struct AssistantObject {
     /// The object type, which is always `assistant`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the assistant was created.
-    pub created_at: i32,
+    pub created_at: u32,
     /// The name of the assistant. The maximum length is 256 characters.
     pub name: Option<String>,
     /// The description of the assistant. The maximum length is 512 characters.

@@ -28,10 +28,10 @@ pub enum UsageGroupBy {
 #[derive(Debug, Clone, Serialize, Default)]
 pub struct UsageQueryParams {
     /// Start time (Unix seconds) of the query time range, inclusive.
-    pub start_time: i64,
+    pub start_time: u32,
     /// End time (Unix seconds) of the query time range, exclusive.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub end_time: Option<i64>,
+    pub end_time: Option<u32>,
     /// Width of each time bucket in response. Currently `1m`, `1h` and `1d` are supported, default to `1d`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bucket_width: Option<UsageBucketWidth>,
@@ -80,9 +80,9 @@ pub struct UsageTimeBucket {
     /// The object type, which is always `bucket`.
     pub object: String,
     /// Start time of the bucket (Unix seconds).
-    pub start_time: i64,
+    pub start_time: u32,
     /// End time of the bucket (Unix seconds).
-    pub end_time: i64,
+    pub end_time: u32,
     /// Start time of the bucket in ISO 8601 format.
     #[serde(default)]
     pub start_time_iso: Option<String>,

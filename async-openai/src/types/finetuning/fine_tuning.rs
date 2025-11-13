@@ -465,7 +465,7 @@ pub struct FineTuningCheckpointPermission {
     /// The permission identifier, which can be referenced in the API endpoints.
     pub id: String,
     /// The Unix timestamp (in seconds) for when the permission was created.
-    pub created_at: u64,
+    pub created_at: u32,
     /// The project identifier that the permission is for.
     pub project_id: String,
     /// The object type, which is always "checkpoint.permission".

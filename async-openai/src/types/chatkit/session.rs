@@ -14,7 +14,7 @@ pub struct ChatSessionResource {
     #[serde(default = "default_session_object")]
     pub object: String,
     /// Unix timestamp (in seconds) for when the session expires.
-    pub expires_at: i64,
+    pub expires_at: u32,
     /// Ephemeral client secret that authenticates session requests.
     pub client_secret: String,
     /// Workflow metadata for the session.
@@ -24,7 +24,7 @@ pub struct ChatSessionResource {
     /// Resolved rate limit values.
     pub rate_limits: ChatSessionRateLimits,
     /// Convenience copy of the per-minute request limit.
-    pub max_requests_per_1_minute: i32,
+    pub max_requests_per_1_minute: u32,
     /// Current lifecycle state of the session.
     pub status: ChatSessionStatus,
     /// Resolved ChatKit feature configuration for the session.
@@ -61,7 +61,7 @@ pub struct ChatkitWorkflowTracing {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct ChatSessionRateLimits {
     /// Maximum allowed requests per one-minute window.
-    pub max_requests_per_1_minute: i32,
+    pub max_requests_per_1_minute: u32,
 }
 
 /// Current lifecycle state of the session.
@@ -98,10 +98,10 @@ pub struct ChatSessionFileUpload {
     pub enabled: bool,
     /// Maximum upload size in megabytes.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_file_size: Option<i32>,
+    pub max_file_size: Option<u32>,
     /// Maximum number of uploads allowed during the session.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_files: Option<i32>,
+    pub max_files: Option<u32>,
 }
 
 /// History retention preferences returned for the session.
@@ -111,7 +111,7 @@ pub struct ChatSessionHistory {
     pub enabled: bool,
     /// Number of prior threads surfaced in history views. Defaults to null when all history is retained.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub recent_threads: Option<i32>,
+    pub recent_threads: Option<u32>,
 }
 
 /// Parameters for provisioning a new ChatKit session.
@@ -184,7 +184,7 @@ pub struct ExpiresAfterParam {
     #[builder(default = "default_anchor()")]
     pub anchor: String,
     /// Number of seconds after the anchor when the session expires.
-    pub seconds: i32,
+    pub seconds: u32,
 }
 
 fn default_anchor() -> String {
@@ -201,7 +201,7 @@ fn default_anchor() -> String {
 pub struct RateLimitsParam {
     /// Maximum number of requests allowed per minute for the session. Defaults to 10.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_requests_per_1_minute: Option<i32>,
+    pub max_requests_per_1_minute: Option<u32>,
 }
 
 /// Optional per-session configuration settings for ChatKit behavior.
@@ -249,10 +249,10 @@ pub struct FileUploadParam {
     pub enabled: Option<bool>,
     /// Maximum size in megabytes for each uploaded file. Defaults to 512 MB, which is the maximum allowable size.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_file_size: Option<i32>,
+    pub max_file_size: Option<u32>,
     /// Maximum number of files that can be uploaded to the session. Defaults to 10.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_files: Option<i32>,
+    pub max_files: Option<u32>,
 }
 
 /// Controls how much historical context is retained for the session.
@@ -268,5 +268,5 @@ pub struct HistoryParam {
     pub enabled: Option<bool>,
     /// Number of recent ChatKit threads users have access to. Defaults to unlimited when unset.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub recent_threads: Option<i32>,
+    pub recent_threads: Option<u32>,
 }

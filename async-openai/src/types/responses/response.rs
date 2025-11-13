@@ -2179,7 +2179,7 @@ pub struct Response {
     pub conversation: Option<Conversation>,
 
     /// Unix timestamp (in seconds) when this Response was created.
-    pub created_at: u64,
+    pub created_at: u32,
 
     /// An error object returned when the model fails to generate a Response.
     #[serde(skip_serializing_if = "Option::is_none")]

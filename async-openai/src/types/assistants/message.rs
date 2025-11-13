@@ -47,7 +47,7 @@ pub struct MessageObject {
     /// The object type, which is always `thread.message`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the message was created.
-    pub created_at: i32,
+    pub created_at: u32,
     /// The [thread](https://platform.openai.com/docs/api-reference/threads) ID that this message belongs to.
     pub thread_id: String,
 
@@ -286,7 +286,7 @@ pub enum MessageDeltaContent {
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct MessageDeltaContentRefusalObject {
     /// The index of the refusal part in the message.
-    pub index: i32,
+    pub index: u32,
     pub refusal: Option<String>,
 }
 
