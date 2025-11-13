@@ -393,6 +393,7 @@ async fn test_byot_project_service_accounts() {
         .await;
 
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .projects()
         .service_accounts("project_id")
         .delete_byot("service_account_id")
