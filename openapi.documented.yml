@@ -311,7 +311,7 @@ paths:
                     option.WithAPIKey("My API Key"),
                   )
                   assistant, err := client.Beta.Assistants.New(context.TODO(), openai.BetaAssistantNewParams{
-                    Model: shared.ChatModelGPT5,
+                    Model: shared.ChatModelGPT5_1,
                   })
                   if err != nil {
                     panic(err.Error())
@@ -334,7 +334,7 @@ paths:
                         OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                         AssistantCreateParams params = AssistantCreateParams.builder()
-                            .model(ChatModel.GPT_5)
+                            .model(ChatModel.GPT_5_1)
                             .build();
                         Assistant assistant = client.beta().assistants().create(params);
                     }
@@ -344,7 +344,7 @@ paths:
 
                 openai = OpenAI::Client.new(api_key: "My API Key")
 
-                assistant = openai.beta.assistants.create(model: :"gpt-5")
+                assistant = openai.beta.assistants.create(model: :"gpt-5.1")
 
                 puts(assistant)
             response: |
@@ -416,7 +416,7 @@ paths:
                     option.WithAPIKey("My API Key"),
                   )
                   assistant, err := client.Beta.Assistants.New(context.TODO(), openai.BetaAssistantNewParams{
-                    Model: shared.ChatModelGPT5,
+                    Model: shared.ChatModelGPT5_1,
                   })
                   if err != nil {
                     panic(err.Error())
@@ -439,7 +439,7 @@ paths:
                         OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                         AssistantCreateParams params = AssistantCreateParams.builder()
-                            .model(ChatModel.GPT_5)
+                            .model(ChatModel.GPT_5_1)
                             .build();
                         Assistant assistant = client.beta().assistants().create(params);
                     }
@@ -449,7 +449,7 @@ paths:
 
                 openai = OpenAI::Client.new(api_key: "My API Key")
 
-                assistant = openai.beta.assistants.create(model: :"gpt-5")
+                assistant = openai.beta.assistants.create(model: :"gpt-5.1")
 
                 puts(assistant)
             response: |
@@ -2384,11 +2384,12 @@ paths:
                     - /v1/chat/completions
                     - /v1/embeddings
                     - /v1/completions
+                    - /v1/moderations
                   description: >-
                     The endpoint to be used for all requests in the batch. Currently `/v1/responses`,
-                    `/v1/chat/completions`, `/v1/embeddings`, and `/v1/completions` are supported. Note that
-                    `/v1/embeddings` batches are also restricted to a maximum of 50,000 embedding inputs
-                    across all requests in the batch.
+                    `/v1/chat/completions`, `/v1/embeddings`, `/v1/completions`, and `/v1/moderations` are
+                    supported. Note that `/v1/embeddings` batches are also restricted to a maximum of 50,000
+                    embedding inputs across all requests in the batch.
                 completion_window:
                   type: string
                   enum:
@@ -3307,7 +3308,7 @@ paths:
                         },
                       },
                     }},
-                    Model: shared.ChatModelGPT5,
+                    Model: shared.ChatModelGPT5_1,
                   })
                   if err != nil {
                     panic(err.Error())
@@ -3331,7 +3332,7 @@ paths:
 
                         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                             .addDeveloperMessage("string")
-                            .model(ChatModel.GPT_5)
+                            .model(ChatModel.GPT_5_1)
                             .build();
                         ChatCompletion chatCompletion = client.chat().completions().create(params);
                     }
@@ -3344,7 +3345,7 @@ paths:
 
 
                 chat_completion = openai.chat.completions.create(messages: [{content: "string", role:
-                :developer}], model: :"gpt-5")
+                :developer}], model: :"gpt-5.1")
 
 
                 puts(chat_completion)
@@ -3485,7 +3486,7 @@ paths:
                         },
                       },
                     }},
-                    Model: shared.ChatModelGPT5,
+                    Model: shared.ChatModelGPT5_1,
                   })
                   if err != nil {
                     panic(err.Error())
@@ -3509,7 +3510,7 @@ paths:
 
                         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                             .addDeveloperMessage("string")
-                            .model(ChatModel.GPT_5)
+                            .model(ChatModel.GPT_5_1)
                             .build();
                         ChatCompletion chatCompletion = client.chat().completions().create(params);
                     }
@@ -3522,7 +3523,7 @@ paths:
 
 
                 chat_completion = openai.chat.completions.create(messages: [{content: "string", role:
-                :developer}], model: :"gpt-5")
+                :developer}], model: :"gpt-5.1")
 
 
                 puts(chat_completion)
@@ -3672,7 +3673,7 @@ paths:
                         },
                       },
                     }},
-                    Model: shared.ChatModelGPT5,
+                    Model: shared.ChatModelGPT5_1,
                   })
                   if err != nil {
                     panic(err.Error())
@@ -3696,7 +3697,7 @@ paths:
 
                         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                             .addDeveloperMessage("string")
-                            .model(ChatModel.GPT_5)
+                            .model(ChatModel.GPT_5_1)
                             .build();
                         ChatCompletion chatCompletion = client.chat().completions().create(params);
                     }
@@ -3709,7 +3710,7 @@ paths:
 
 
                 chat_completion = openai.chat.completions.create(messages: [{content: "string", role:
-                :developer}], model: :"gpt-5")
+                :developer}], model: :"gpt-5.1")
 
 
                 puts(chat_completion)
@@ -3867,7 +3868,7 @@ paths:
                         },
                       },
                     }},
-                    Model: shared.ChatModelGPT5,
+                    Model: shared.ChatModelGPT5_1,
                   })
                   if err != nil {
                     panic(err.Error())
@@ -3891,7 +3892,7 @@ paths:
 
                         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                             .addDeveloperMessage("string")
-                            .model(ChatModel.GPT_5)
+                            .model(ChatModel.GPT_5_1)
                             .build();
                         ChatCompletion chatCompletion = client.chat().completions().create(params);
                     }
@@ -3904,7 +3905,7 @@ paths:
 
 
                 chat_completion = openai.chat.completions.create(messages: [{content: "string", role:
-                :developer}], model: :"gpt-5")
+                :developer}], model: :"gpt-5.1")
 
 
                 puts(chat_completion)
@@ -4039,7 +4040,7 @@ paths:
                         },
                       },
                     }},
-                    Model: shared.ChatModelGPT5,
+                    Model: shared.ChatModelGPT5_1,
                   })
                   if err != nil {
                     panic(err.Error())
@@ -4063,7 +4064,7 @@ paths:
 
                         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                             .addDeveloperMessage("string")
-                            .model(ChatModel.GPT_5)
+                            .model(ChatModel.GPT_5_1)
                             .build();
                         ChatCompletion chatCompletion = client.chat().completions().create(params);
                     }
@@ -4076,7 +4077,7 @@ paths:
 
 
                 chat_completion = openai.chat.completions.create(messages: [{content: "string", role:
-                :developer}], model: :"gpt-5")
+                :developer}], model: :"gpt-5.1")
 
 
                 puts(chat_completion)
@@ -31469,8 +31470,8 @@ components:
         url:
           type: string
           description: >-
-            The OpenAI API relative URL to be used for the request. Currently `/v1/chat/completions`,
-            `/v1/embeddings`, and `/v1/completions` are supported.
+            The OpenAI API relative URL to be used for the request. Currently `/v1/responses`,
+            `/v1/chat/completions`, `/v1/embeddings`, `/v1/completions`, and `/v1/moderations` are supported.
       x-oaiMeta:
         name: The request input object
         example: >
@@ -33406,6 +33407,10 @@ components:
         - $ref: '#/components/schemas/CodeInterpreterToolCall'
         - $ref: '#/components/schemas/LocalShellToolCall'
         - $ref: '#/components/schemas/LocalShellToolCallOutput'
+        - $ref: '#/components/schemas/FunctionShellCall'
+        - $ref: '#/components/schemas/FunctionShellCallOutput'
+        - $ref: '#/components/schemas/ApplyPatchToolCall'
+        - $ref: '#/components/schemas/ApplyPatchToolCallOutput'
         - $ref: '#/components/schemas/MCPListTools'
         - $ref: '#/components/schemas/MCPApprovalRequest'
         - $ref: '#/components/schemas/MCPApprovalResponseResource'
@@ -41910,6 +41915,10 @@ components:
         - $ref: '#/components/schemas/CodeInterpreterToolCall'
         - $ref: '#/components/schemas/LocalShellToolCall'
         - $ref: '#/components/schemas/LocalShellToolCallOutput'
+        - $ref: '#/components/schemas/FunctionShellCallItemParam'
+        - $ref: '#/components/schemas/FunctionShellCallOutputItemParam'
+        - $ref: '#/components/schemas/ApplyPatchToolCallItemParam'
+        - $ref: '#/components/schemas/ApplyPatchToolCallOutputItemParam'
         - $ref: '#/components/schemas/MCPListTools'
         - $ref: '#/components/schemas/MCPApprovalRequest'
         - $ref: '#/components/schemas/MCPApprovalResponse'
@@ -41934,6 +41943,10 @@ components:
         - $ref: '#/components/schemas/CodeInterpreterToolCall'
         - $ref: '#/components/schemas/LocalShellToolCall'
         - $ref: '#/components/schemas/LocalShellToolCallOutput'
+        - $ref: '#/components/schemas/FunctionShellCall'
+        - $ref: '#/components/schemas/FunctionShellCallOutput'
+        - $ref: '#/components/schemas/ApplyPatchToolCall'
+        - $ref: '#/components/schemas/ApplyPatchToolCallOutput'
         - $ref: '#/components/schemas/MCPListTools'
         - $ref: '#/components/schemas/MCPApprovalRequest'
         - $ref: '#/components/schemas/MCPApprovalResponseResource'
@@ -43630,6 +43643,17 @@ components:
             the `user` field. [Learn more](https://platform.openai.com/docs/guides/prompt-caching).
         service_tier:
           $ref: '#/components/schemas/ServiceTier'
+        prompt_cache_retention:
+          anyOf:
+            - type: string
+              enum:
+                - in-memory
+                - 24h
+              description: >
+                The retention policy for the prompt cache. Set to `24h` to enable extended prompt caching,
+                which keeps cached prefixes active for longer, up to a maximum of 24 hours. [Learn
+                more](https://platform.openai.com/docs/guides/prompt-caching#prompt-cache-retention).
+            - type: 'null'
     ModifyAssistantRequest:
       type: object
       additionalProperties: false
@@ -43970,6 +43994,10 @@ components:
         - $ref: '#/components/schemas/ImageGenToolCall'
         - $ref: '#/components/schemas/CodeInterpreterToolCall'
         - $ref: '#/components/schemas/LocalShellToolCall'
+        - $ref: '#/components/schemas/FunctionShellCall'
+        - $ref: '#/components/schemas/FunctionShellCallOutput'
+        - $ref: '#/components/schemas/ApplyPatchToolCall'
+        - $ref: '#/components/schemas/ApplyPatchToolCallOutput'
         - $ref: '#/components/schemas/MCPToolCall'
         - $ref: '#/components/schemas/MCPListTools'
         - $ref: '#/components/schemas/MCPApprovalRequest'
@@ -53015,19 +53043,31 @@ components:
       anyOf:
         - type: string
           enum:
+            - none
             - minimal
             - low
             - medium
             - high
           default: medium
-          description: |
+          description: >
             Constrains effort on reasoning for
+
             [reasoning models](https://platform.openai.com/docs/guides/reasoning).
-            Currently supported values are `minimal`, `low`, `medium`, and `high`. Reducing
+
+            Currently supported values are `none`, `minimal`, `low`, `medium`, and `high`. Reducing
+
             reasoning effort can result in faster responses and fewer tokens used
+
             on reasoning in a response.
 
-            Note: The `gpt-5-pro` model defaults to (and only supports) `high` reasoning effort.
+
+            - `gpt-5.1` defaults to `none`, which does not perform reasoning. The supported reasoning values
+            for `gpt-5.1` are `none`, `low`, `medium`, and `high`. Tool calls are supported for all reasoning
+            values in gpt-5.1.
+
+            - All models before `gpt-5.1` default to `medium` reasoning effort, and do not support `none`.
+
+            - The `gpt-5-pro` model defaults to (and only supports) `high` reasoning effort.
         - type: 'null'
     ReasoningItem:
       type: object
@@ -57809,8 +57849,10 @@ components:
         - $ref: '#/components/schemas/CodeInterpreterTool'
         - $ref: '#/components/schemas/ImageGenTool'
         - $ref: '#/components/schemas/LocalShellToolParam'
+        - $ref: '#/components/schemas/FunctionShellToolParam'
         - $ref: '#/components/schemas/CustomToolParam'
         - $ref: '#/components/schemas/WebSearchPreviewTool'
+        - $ref: '#/components/schemas/ApplyPatchToolParam'
     ToolChoiceAllowed:
       type: object
       title: Allowed tools
@@ -57947,6 +57989,8 @@ components:
         - $ref: '#/components/schemas/ToolChoiceFunction'
         - $ref: '#/components/schemas/ToolChoiceMCP'
         - $ref: '#/components/schemas/ToolChoiceCustom'
+        - $ref: '#/components/schemas/SpecificApplyPatchParam'
+        - $ref: '#/components/schemas/SpecificFunctionShellParam'
       discriminator:
         propertyName: type
     ToolChoiceTypes:
@@ -61459,6 +61503,309 @@ components:
         - env
       title: Local shell exec action
       description: Execute a shell command on the server.
+    FunctionShellAction:
+      properties:
+        commands:
+          items:
+            type: string
+            description: A list of commands to run.
+          type: array
+        timeout_ms:
+          anyOf:
+            - type: integer
+              description: Optional timeout in milliseconds for the commands.
+            - type: 'null'
+        max_output_length:
+          anyOf:
+            - type: integer
+              description: Optional maximum number of characters to return from each command.
+            - type: 'null'
+      type: object
+      required:
+        - commands
+        - timeout_ms
+        - max_output_length
+      title: Shell exec action
+      description: Execute a shell command.
+    LocalShellCallStatus:
+      type: string
+      enum:
+        - in_progress
+        - completed
+        - incomplete
+    FunctionShellCall:
+      properties:
+        type:
+          type: string
+          enum:
+            - shell_call
+          description: The type of the item. Always `shell_call`.
+          default: shell_call
+          x-stainless-const: true
+        id:
+          type: string
+          description: The unique ID of the function shell tool call. Populated when this item is returned via API.
+        call_id:
+          type: string
+          description: The unique ID of the function shell tool call generated by the model.
+        action:
+          $ref: '#/components/schemas/FunctionShellAction'
+          description: The shell commands and limits that describe how to run the tool call.
+        status:
+          $ref: '#/components/schemas/LocalShellCallStatus'
+          description: The status of the shell call. One of `in_progress`, `completed`, or `incomplete`.
+        created_by:
+          type: string
+          description: The ID of the entity that created this tool call.
+      type: object
+      required:
+        - type
+        - id
+        - call_id
+        - action
+        - status
+      title: Function shell tool call
+      description: A tool call that executes one or more shell commands in a managed environment.
+    FunctionShellCallOutputTimeoutOutcome:
+      properties:
+        type:
+          type: string
+          enum:
+            - timeout
+          description: The outcome type. Always `timeout`.
+          default: timeout
+          x-stainless-const: true
+      type: object
+      required:
+        - type
+      title: Function shell timeout outcome
+      description: Indicates that the function shell call exceeded its configured time limit.
+    FunctionShellCallOutputExitOutcome:
+      properties:
+        type:
+          type: string
+          enum:
+            - exit
+          description: The outcome type. Always `exit`.
+          default: exit
+          x-stainless-const: true
+        exit_code:
+          type: integer
+          description: Exit code from the shell process.
+      type: object
+      required:
+        - type
+        - exit_code
+      title: Function shell exit outcome
+      description: Indicates that the shell commands finished and returned an exit code.
+    FunctionShellCallOutputContent:
+      properties:
+        stdout:
+          type: string
+        stderr:
+          type: string
+        outcome:
+          title: Function shell call outcome
+          description: >-
+            Represents either an exit outcome (with an exit code) or a timeout outcome for a shell call output
+            chunk.
+          discriminator:
+            propertyName: type
+          anyOf:
+            - $ref: '#/components/schemas/FunctionShellCallOutputTimeoutOutcome'
+            - $ref: '#/components/schemas/FunctionShellCallOutputExitOutcome'
+        created_by:
+          type: string
+      type: object
+      required:
+        - stdout
+        - stderr
+        - outcome
+      title: Shell call output content
+      description: The content of a shell call output.
+    FunctionShellCallOutput:
+      properties:
+        type:
+          type: string
+          enum:
+            - shell_call_output
+          description: The type of the shell call output. Always `shell_call_output`.
+          default: shell_call_output
+          x-stainless-const: true
+        id:
+          type: string
+          description: The unique ID of the shell call output. Populated when this item is returned via API.
+        call_id:
+          type: string
+          description: The unique ID of the shell tool call generated by the model.
+        output:
+          items:
+            $ref: '#/components/schemas/FunctionShellCallOutputContent'
+          type: array
+          description: An array of shell call output contents
+        max_output_length:
+          anyOf:
+            - type: integer
+              description: >-
+                The maximum length of the shell command output. This is generated by the model and should be
+                passed back with the raw output.
+            - type: 'null'
+        created_by:
+          type: string
+      type: object
+      required:
+        - type
+        - id
+        - call_id
+        - output
+        - max_output_length
+      title: Shell call output
+      description: The output of a shell tool call.
+    ApplyPatchCallStatus:
+      type: string
+      enum:
+        - in_progress
+        - completed
+    ApplyPatchCreateFileOperation:
+      properties:
+        type:
+          type: string
+          enum:
+            - create_file
+          description: Create a new file with the provided diff.
+          default: create_file
+          x-stainless-const: true
+        path:
+          type: string
+          description: Path of the file to create.
+        diff:
+          type: string
+          description: Diff to apply.
+      type: object
+      required:
+        - type
+        - path
+        - diff
+      title: Apply patch create file operation
+      description: Instruction describing how to create a file via the apply_patch tool.
+    ApplyPatchDeleteFileOperation:
+      properties:
+        type:
+          type: string
+          enum:
+            - delete_file
+          description: Delete the specified file.
+          default: delete_file
+          x-stainless-const: true
+        path:
+          type: string
+          description: Path of the file to delete.
+      type: object
+      required:
+        - type
+        - path
+      title: Apply patch delete file operation
+      description: Instruction describing how to delete a file via the apply_patch tool.
+    ApplyPatchUpdateFileOperation:
+      properties:
+        type:
+          type: string
+          enum:
+            - update_file
+          description: Update an existing file with the provided diff.
+          default: update_file
+          x-stainless-const: true
+        path:
+          type: string
+          description: Path of the file to update.
+        diff:
+          type: string
+          description: Diff to apply.
+      type: object
+      required:
+        - type
+        - path
+        - diff
+      title: Apply patch update file operation
+      description: Instruction describing how to update a file via the apply_patch tool.
+    ApplyPatchToolCall:
+      properties:
+        type:
+          type: string
+          enum:
+            - apply_patch_call
+          description: The type of the item. Always `apply_patch_call`.
+          default: apply_patch_call
+          x-stainless-const: true
+        id:
+          type: string
+          description: The unique ID of the apply patch tool call. Populated when this item is returned via API.
+        call_id:
+          type: string
+          description: The unique ID of the apply patch tool call generated by the model.
+        status:
+          $ref: '#/components/schemas/ApplyPatchCallStatus'
+          description: The status of the apply patch tool call. One of `in_progress` or `completed`.
+        operation:
+          title: Apply patch operation
+          description: One of the create_file, delete_file, or update_file operations applied via apply_patch.
+          discriminator:
+            propertyName: type
+          anyOf:
+            - $ref: '#/components/schemas/ApplyPatchCreateFileOperation'
+            - $ref: '#/components/schemas/ApplyPatchDeleteFileOperation'
+            - $ref: '#/components/schemas/ApplyPatchUpdateFileOperation'
+        created_by:
+          type: string
+          description: The ID of the entity that created this tool call.
+      type: object
+      required:
+        - type
+        - id
+        - call_id
+        - status
+      title: Apply patch tool call
+      description: A tool call that applies file diffs by creating, deleting, or updating files.
+    ApplyPatchCallOutputStatus:
+      type: string
+      enum:
+        - completed
+        - failed
+    ApplyPatchToolCallOutput:
+      properties:
+        type:
+          type: string
+          enum:
+            - apply_patch_call_output
+          description: The type of the item. Always `apply_patch_call_output`.
+          default: apply_patch_call_output
+          x-stainless-const: true
+        id:
+          type: string
+          description: The unique ID of the apply patch tool call output. Populated when this item is returned via API.
+        call_id:
+          type: string
+          description: The unique ID of the apply patch tool call generated by the model.
+        status:
+          $ref: '#/components/schemas/ApplyPatchCallOutputStatus'
+          description: The status of the apply patch tool call output. One of `completed` or `failed`.
+        output:
+          anyOf:
+            - type: string
+              description: Optional textual output returned by the apply patch tool.
+            - type: 'null'
+        created_by:
+          type: string
+          description: The ID of the entity that created this tool call output.
+      type: object
+      required:
+        - type
+        - id
+        - call_id
+        - status
+        - output
+      title: Apply patch tool call output
+      description: The output emitted by an apply patch tool call.
     MCPToolCallStatus:
       type: string
       enum:
@@ -61662,6 +62009,330 @@ components:
         - output
       title: Function tool call output
       description: The output of a function tool call.
+    FunctionShellActionParam:
+      properties:
+        commands:
+          items:
+            type: string
+          type: array
+          description: Ordered shell commands for the execution environment to run.
+        timeout_ms:
+          anyOf:
+            - type: integer
+              description: Maximum wall-clock time in milliseconds to allow the shell commands to run.
+            - type: 'null'
+        max_output_length:
+          anyOf:
+            - type: integer
+              description: Maximum number of UTF-8 characters to capture from combined stdout and stderr output.
+            - type: 'null'
+      type: object
+      required:
+        - commands
+      title: Function shell action
+      description: Commands and limits describing how to run the function shell tool call.
+    FunctionShellCallItemStatus:
+      type: string
+      enum:
+        - in_progress
+        - completed
+        - incomplete
+      title: Function shell call status
+      description: Status values reported for function shell tool calls.
+    FunctionShellCallItemParam:
+      properties:
+        id:
+          anyOf:
+            - type: string
+              description: The unique ID of the function shell tool call. Populated when this item is returned via API.
+              example: sh_123
+            - type: 'null'
+        call_id:
+          type: string
+          maxLength: 64
+          minLength: 1
+          description: The unique ID of the function shell tool call generated by the model.
+        type:
+          type: string
+          enum:
+            - shell_call
+          description: The type of the item. Always `function_shell_call`.
+          default: shell_call
+          x-stainless-const: true
+        action:
+          $ref: '#/components/schemas/FunctionShellActionParam'
+          description: The shell commands and limits that describe how to run the tool call.
+        status:
+          anyOf:
+            - $ref: '#/components/schemas/FunctionShellCallItemStatus'
+              description: The status of the shell call. One of `in_progress`, `completed`, or `incomplete`.
+            - type: 'null'
+      type: object
+      required:
+        - call_id
+        - type
+        - action
+      title: Function shell tool call
+      description: A tool representing a request to execute one or more shell commands.
+    FunctionShellCallOutputTimeoutOutcomeParam:
+      properties:
+        type:
+          type: string
+          enum:
+            - timeout
+          description: The outcome type. Always `timeout`.
+          default: timeout
+          x-stainless-const: true
+      type: object
+      required:
+        - type
+      title: Function shell timeout outcome
+      description: Indicates that the function shell call exceeded its configured time limit.
+    FunctionShellCallOutputExitOutcomeParam:
+      properties:
+        type:
+          type: string
+          enum:
+            - exit
+          description: The outcome type. Always `exit`.
+          default: exit
+          x-stainless-const: true
+        exit_code:
+          type: integer
+          description: The exit code returned by the shell process.
+      type: object
+      required:
+        - type
+        - exit_code
+      title: Function shell exit outcome
+      description: Indicates that the shell commands finished and returned an exit code.
+    FunctionShellCallOutputOutcomeParam:
+      title: Function shell call outcome
+      description: The exit or timeout outcome associated with this chunk.
+      discriminator:
+        propertyName: type
+      anyOf:
+        - $ref: '#/components/schemas/FunctionShellCallOutputTimeoutOutcomeParam'
+        - $ref: '#/components/schemas/FunctionShellCallOutputExitOutcomeParam'
+    FunctionShellCallOutputContentParam:
+      properties:
+        stdout:
+          type: string
+          maxLength: 10485760
+          description: Captured stdout output for this chunk of the shell call.
+        stderr:
+          type: string
+          maxLength: 10485760
+          description: Captured stderr output for this chunk of the shell call.
+        outcome:
+          $ref: '#/components/schemas/FunctionShellCallOutputOutcomeParam'
+          description: The exit or timeout outcome associated with this chunk.
+      type: object
+      required:
+        - stdout
+        - stderr
+        - outcome
+      title: Function shell output chunk
+      description: Captured stdout and stderr for a portion of a function shell tool call output.
+    FunctionShellCallOutputItemParam:
+      properties:
+        id:
+          anyOf:
+            - type: string
+              description: >-
+                The unique ID of the function shell tool call output. Populated when this item is returned via
+                API.
+              example: sho_123
+            - type: 'null'
+        call_id:
+          type: string
+          maxLength: 64
+          minLength: 1
+          description: The unique ID of the function shell tool call generated by the model.
+        type:
+          type: string
+          enum:
+            - shell_call_output
+          description: The type of the item. Always `function_shell_call_output`.
+          default: shell_call_output
+          x-stainless-const: true
+        output:
+          items:
+            $ref: '#/components/schemas/FunctionShellCallOutputContentParam'
+          type: array
+          description: Captured chunks of stdout and stderr output, along with their associated outcomes.
+        max_output_length:
+          anyOf:
+            - type: integer
+              description: The maximum number of UTF-8 characters captured for this shell call's combined output.
+            - type: 'null'
+      type: object
+      required:
+        - call_id
+        - type
+        - output
+      title: Function shell tool call output
+      description: The streamed output items emitted by a function shell tool call.
+    ApplyPatchCallStatusParam:
+      type: string
+      enum:
+        - in_progress
+        - completed
+      title: Apply patch call status
+      description: Status values reported for apply_patch tool calls.
+    ApplyPatchCreateFileOperationParam:
+      properties:
+        type:
+          type: string
+          enum:
+            - create_file
+          description: The operation type. Always `create_file`.
+          default: create_file
+          x-stainless-const: true
+        path:
+          type: string
+          minLength: 1
+          description: Path of the file to create relative to the workspace root.
+        diff:
+          type: string
+          maxLength: 10485760
+          description: Unified diff content to apply when creating the file.
+      type: object
+      required:
+        - type
+        - path
+        - diff
+      title: Apply patch create file operation
+      description: Instruction for creating a new file via the apply_patch tool.
+    ApplyPatchDeleteFileOperationParam:
+      properties:
+        type:
+          type: string
+          enum:
+            - delete_file
+          description: The operation type. Always `delete_file`.
+          default: delete_file
+          x-stainless-const: true
+        path:
+          type: string
+          minLength: 1
+          description: Path of the file to delete relative to the workspace root.
+      type: object
+      required:
+        - type
+        - path
+      title: Apply patch delete file operation
+      description: Instruction for deleting an existing file via the apply_patch tool.
+    ApplyPatchUpdateFileOperationParam:
+      properties:
+        type:
+          type: string
+          enum:
+            - update_file
+          description: The operation type. Always `update_file`.
+          default: update_file
+          x-stainless-const: true
+        path:
+          type: string
+          minLength: 1
+          description: Path of the file to update relative to the workspace root.
+        diff:
+          type: string
+          maxLength: 10485760
+          description: Unified diff content to apply to the existing file.
+      type: object
+      required:
+        - type
+        - path
+        - diff
+      title: Apply patch update file operation
+      description: Instruction for updating an existing file via the apply_patch tool.
+    ApplyPatchOperationParam:
+      title: Apply patch operation
+      description: One of the create_file, delete_file, or update_file operations supplied to the apply_patch tool.
+      discriminator:
+        propertyName: type
+      anyOf:
+        - $ref: '#/components/schemas/ApplyPatchCreateFileOperationParam'
+        - $ref: '#/components/schemas/ApplyPatchDeleteFileOperationParam'
+        - $ref: '#/components/schemas/ApplyPatchUpdateFileOperationParam'
+    ApplyPatchToolCallItemParam:
+      properties:
+        type:
+          type: string
+          enum:
+            - apply_patch_call
+          description: The type of the item. Always `apply_patch_call`.
+          default: apply_patch_call
+          x-stainless-const: true
+        id:
+          anyOf:
+            - type: string
+              description: The unique ID of the apply patch tool call. Populated when this item is returned via API.
+              example: apc_123
+            - type: 'null'
+        call_id:
+          type: string
+          maxLength: 64
+          minLength: 1
+          description: The unique ID of the apply patch tool call generated by the model.
+        status:
+          $ref: '#/components/schemas/ApplyPatchCallStatusParam'
+          description: The status of the apply patch tool call. One of `in_progress` or `completed`.
+        operation:
+          $ref: '#/components/schemas/ApplyPatchOperationParam'
+          description: The specific create, delete, or update instruction for the apply_patch tool call.
+      type: object
+      required:
+        - type
+        - call_id
+        - status
+        - operation
+      title: Apply patch tool call
+      description: A tool call representing a request to create, delete, or update files using diff patches.
+    ApplyPatchCallOutputStatusParam:
+      type: string
+      enum:
+        - completed
+        - failed
+      title: Apply patch call output status
+      description: Outcome values reported for apply_patch tool call outputs.
+    ApplyPatchToolCallOutputItemParam:
+      properties:
+        type:
+          type: string
+          enum:
+            - apply_patch_call_output
+          description: The type of the item. Always `apply_patch_call_output`.
+          default: apply_patch_call_output
+          x-stainless-const: true
+        id:
+          anyOf:
+            - type: string
+              description: >-
+                The unique ID of the apply patch tool call output. Populated when this item is returned via
+                API.
+              example: apco_123
+            - type: 'null'
+        call_id:
+          type: string
+          maxLength: 64
+          minLength: 1
+          description: The unique ID of the apply patch tool call generated by the model.
+        status:
+          $ref: '#/components/schemas/ApplyPatchCallOutputStatusParam'
+          description: The status of the apply patch tool call output. One of `completed` or `failed`.
+        output:
+          type: string
+          maxLength: 10485760
+          description: Optional human-readable log text from the apply patch tool (e.g., patch results or errors).
+      type: object
+      required:
+        - type
+        - call_id
+        - status
+      title: Apply patch tool call output
+      description: The streamed output emitted by an apply patch tool call.
     ItemReferenceParam:
       properties:
         type:
@@ -61886,6 +62557,20 @@ components:
         - type
       title: Local shell tool
       description: A tool that allows the model to execute shell commands in a local environment.
+    FunctionShellToolParam:
+      properties:
+        type:
+          type: string
+          enum:
+            - shell
+          description: The type of the shell tool. Always `shell`.
+          default: shell
+          x-stainless-const: true
+      type: object
+      required:
+        - type
+      title: Shell tool
+      description: A tool that allows the model to execute shell commands.
     CustomTextFormatParam:
       properties:
         type:
@@ -62026,6 +62711,20 @@ components:
       description: >-
         This tool searches the web for relevant results to use in a response. Learn more about the [web search
         tool](https://platform.openai.com/docs/guides/tools-web-search).
+    ApplyPatchToolParam:
+      properties:
+        type:
+          type: string
+          enum:
+            - apply_patch
+          description: The type of the tool. Always `apply_patch`.
+          default: apply_patch
+          x-stainless-const: true
+      type: object
+      required:
+        - type
+      title: Apply patch tool
+      description: Allows the assistant to create, delete, or update files using unified diffs.
     ImageGenInputUsageDetails:
       properties:
         text_tokens:
@@ -62061,6 +62760,34 @@ components:
         - input_tokens_details
       title: Image generation usage
       description: For `gpt-image-1` only, the token usage information for the image generation.
+    SpecificApplyPatchParam:
+      properties:
+        type:
+          type: string
+          enum:
+            - apply_patch
+          description: The tool to call. Always `apply_patch`.
+          default: apply_patch
+          x-stainless-const: true
+      type: object
+      required:
+        - type
+      title: Specific apply patch tool choice
+      description: Forces the model to call the apply_patch tool when executing a tool call.
+    SpecificFunctionShellParam:
+      properties:
+        type:
+          type: string
+          enum:
+            - shell
+          description: The tool to call. Always `shell`.
+          default: shell
+          x-stainless-const: true
+      type: object
+      required:
+        - type
+      title: Specific shell tool choice
+      description: Forces the model to call the function shell tool when a tool call is required.
     ConversationParam-2:
       properties:
         id:
@@ -63669,6 +64396,11 @@ components:
     ChatModel:
       type: string
       enum:
+        - gpt-5.1
+        - gpt-5.1-2025-11-13
+        - gpt-5.1-codex
+        - gpt-5.1-mini
+        - gpt-5.1-chat-latest
         - gpt-5
         - gpt-5-mini
         - gpt-5-nano
