@@ -81,7 +81,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         if video.status == "completed" {
             let content = client
                 .videos()
-                .download_content(&video.id, VideoVariant::Video)
+                .query(&[("variant", VideoVariant::Video)])?
+                .download_content(&video.id)
                 .await;
             if let Ok(content) = content {
                 let output_path = &format!("./data/{}.mp4", video.id);

@@ -53,7 +53,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let chat_completion_messages = client
         .chat()
-        .messages(&response.id, &[("limit", 10)])
+        .query(&[("limit", 10)])?
+        .messages(&response.id)
         .await?;
 
     println!("--------------------------------");
