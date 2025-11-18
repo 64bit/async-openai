@@ -9,16 +9,20 @@ use crate::{
         VectorStoreSearchResultsPage,
     },
     vector_store_file_batches::VectorStoreFileBatches,
-    Client, VectorStoreFiles,
+    Client, RequestOptions, VectorStoreFiles,
 };
 
 pub struct VectorStores<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> VectorStores<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// [VectorStoreFiles] API group
@@ -37,14 +41,14 @@ impl<'c, C: Config> VectorStores<'c, C> {
         &self,
         request: CreateVectorStoreRequest,
     ) -> Result<VectorStoreObject, OpenAIError> {
-        self.client.post("/vector_stores", request).await
+        self.client.post("/vector_stores", request, &self.request_options).await
     }
 
     /// Retrieves a vector store.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, vector_store_id: &str) -> Result<VectorStoreObject, OpenAIError> {
         self.client
-            .get(&format!("/vector_stores/{vector_store_id}"))
+            .get(&format!("/vector_stores/{vector_store_id}"), &self.request_options)
             .await
     }
 
@@ -54,7 +58,7 @@ impl<'c, C: Config> VectorStores<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        self.client.get_with_query("/vector_stores", &query).await
+        self.client.get_with_query("/vector_stores", &query, &self.request_options).await
     }
 
     /// Delete a vector store.
@@ -64,7 +68,7 @@ impl<'c, C: Config> VectorStores<'c, C> {
         vector_store_id: &str,
     ) -> Result<DeleteVectorStoreResponse, OpenAIError> {
         self.client
-            .delete(&format!("/vector_stores/{vector_store_id}"))
+            .delete(&format!("/vector_stores/{vector_store_id}"), &self.request_options)
             .await
     }
 
@@ -76,7 +80,7 @@ impl<'c, C: Config> VectorStores<'c, C> {
         request: UpdateVectorStoreRequest,
     ) -> Result<VectorStoreObject, OpenAIError> {
         self.client
-            .post(&format!("/vector_stores/{vector_store_id}"), request)
+            .post(&format!("/vector_stores/{vector_store_id}"), request, &self.request_options)
             .await
     }
 
@@ -88,7 +92,7 @@ impl<'c, C: Config> VectorStores<'c, C> {
         request: VectorStoreSearchRequest,
     ) -> Result<VectorStoreSearchResultsPage, OpenAIError> {
         self.client
-            .post(&format!("/vector_stores/{vector_store_id}/search"), request)
+            .post(&format!("/vector_stores/{vector_store_id}/search"), request, &self.request_options)
             .await
     }
 }

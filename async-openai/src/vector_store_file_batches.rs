@@ -6,7 +6,7 @@ use crate::{
     types::vectorstores::{
         CreateVectorStoreFileBatchRequest, ListVectorStoreFilesResponse, VectorStoreFileBatchObject,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Vector store file batches represent operations to add multiple files to a vector store.
@@ -15,6 +15,7 @@ use crate::{
 pub struct VectorStoreFileBatches<'c, C: Config> {
     client: &'c Client<C>,
     pub vector_store_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
@@ -22,6 +23,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
         Self {
             client,
             vector_store_id: vector_store_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
@@ -35,6 +37,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
             .post(
                 &format!("/vector_stores/{}/file_batches", &self.vector_store_id),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -49,7 +52,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
             .get(&format!(
                 "/vector_stores/{}/file_batches/{batch_id}",
                 &self.vector_store_id
-            ))
+            ), &self.request_options)
             .await
     }
 
@@ -63,6 +66,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
                     &self.vector_store_id
                 ),
                 serde_json::json!({}),
+                &self.request_options,
             )
             .await
     }
@@ -84,6 +88,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
                     &self.vector_store_id
                 ),
                 &query,
+                &self.request_options,
             )
             .await
     }

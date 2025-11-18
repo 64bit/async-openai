@@ -8,7 +8,7 @@ use crate::{
         UpdateVectorStoreFileAttributesRequest, VectorStoreFileContentResponse,
         VectorStoreFileObject,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Vector store files represent files inside a vector store.
@@ -17,6 +17,7 @@ use crate::{
 pub struct VectorStoreFiles<'c, C: Config> {
     client: &'c Client<C>,
     pub vector_store_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> VectorStoreFiles<'c, C> {
@@ -24,6 +25,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
         Self {
             client,
             vector_store_id: vector_store_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
@@ -37,6 +39,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
             .post(
                 &format!("/vector_stores/{}/files", &self.vector_store_id),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -48,7 +51,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
             .get(&format!(
                 "/vector_stores/{}/files/{file_id}",
                 &self.vector_store_id
-            ))
+            ), &self.request_options)
             .await
     }
 
@@ -62,7 +65,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
             .delete(&format!(
                 "/vector_stores/{}/files/{file_id}",
                 &self.vector_store_id
-            ))
+            ), &self.request_options)
             .await
     }
 
@@ -76,6 +79,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
             .get_with_query(
                 &format!("/vector_stores/{}/files", &self.vector_store_id),
                 &query,
+                &self.request_options,
             )
             .await
     }
@@ -91,6 +95,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
             .post(
                 &format!("/vector_stores/{}/files/{file_id}", &self.vector_store_id),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -105,7 +110,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
             .get(&format!(
                 "/vector_stores/{}/files/{file_id}/content",
                 &self.vector_store_id
-            ))
+            ), &self.request_options)
             .await
     }
 }

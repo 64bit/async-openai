@@ -1,16 +1,20 @@
 use serde::Serialize;
 
-use crate::{config::Config, error::OpenAIError, types::admin::usage::UsageResponse, Client};
+use crate::{config::Config, error::OpenAIError, types::admin::usage::UsageResponse, Client, RequestOptions};
 
 /// Manage organization usage data. Get usage details for various API endpoints including
 /// completions, embeddings, images, audio, moderations, vector stores, and code interpreter sessions.
 pub struct Usage<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Usage<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Get audio speeches usage details for the organization.
@@ -20,7 +24,7 @@ impl<'c, C: Config> Usage<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/organization/usage/audio_speeches", &query)
+            .get_with_query("/organization/usage/audio_speeches", &query, &self.request_options)
             .await
     }
 
@@ -31,7 +35,7 @@ impl<'c, C: Config> Usage<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/organization/usage/audio_transcriptions", &query)
+            .get_with_query("/organization/usage/audio_transcriptions", &query, &self.request_options)
             .await
     }
 
@@ -45,7 +49,7 @@ impl<'c, C: Config> Usage<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/organization/usage/code_interpreter_sessions", &query)
+            .get_with_query("/organization/usage/code_interpreter_sessions", &query, &self.request_options)
             .await
     }
 
@@ -56,7 +60,7 @@ impl<'c, C: Config> Usage<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/organization/usage/completions", &query)
+            .get_with_query("/organization/usage/completions", &query, &self.request_options)
             .await
     }
 
@@ -67,7 +71,7 @@ impl<'c, C: Config> Usage<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/organization/usage/embeddings", &query)
+            .get_with_query("/organization/usage/embeddings", &query, &self.request_options)
             .await
     }
 
@@ -78,7 +82,7 @@ impl<'c, C: Config> Usage<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/organization/usage/images", &query)
+            .get_with_query("/organization/usage/images", &query, &self.request_options)
             .await
     }
 
@@ -89,7 +93,7 @@ impl<'c, C: Config> Usage<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/organization/usage/moderations", &query)
+            .get_with_query("/organization/usage/moderations", &query, &self.request_options)
             .await
     }
 
@@ -100,7 +104,7 @@ impl<'c, C: Config> Usage<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/organization/usage/vector_stores", &query)
+            .get_with_query("/organization/usage/vector_stores", &query, &self.request_options)
             .await
     }
 
@@ -111,7 +115,7 @@ impl<'c, C: Config> Usage<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/organization/costs", &query)
+            .get_with_query("/organization/costs", &query, &self.request_options)
             .await
     }
 }

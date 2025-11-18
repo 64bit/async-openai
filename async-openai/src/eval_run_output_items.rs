@@ -4,13 +4,14 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::evals::{EvalRunOutputItem, EvalRunOutputItemList},
-    Client,
+    Client, RequestOptions,
 };
 
 pub struct EvalRunOutputItems<'c, C: Config> {
     client: &'c Client<C>,
     pub eval_id: String,
     pub run_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> EvalRunOutputItems<'c, C> {
@@ -19,6 +20,7 @@ impl<'c, C: Config> EvalRunOutputItems<'c, C> {
             client,
             eval_id: eval_id.into(),
             run_id: run_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
@@ -32,6 +34,7 @@ impl<'c, C: Config> EvalRunOutputItems<'c, C> {
             .get_with_query(
                 &format!("/evals/{}/runs/{}/output_items", self.eval_id, self.run_id),
                 &query,
+                &self.request_options,
             )
             .await
     }
@@ -43,7 +46,7 @@ impl<'c, C: Config> EvalRunOutputItems<'c, C> {
             .get(&format!(
                 "/evals/{}/runs/{}/output_items/{}",
                 self.eval_id, self.run_id, output_item_id
-            ))
+            ), &self.request_options)
             .await
     }
 }

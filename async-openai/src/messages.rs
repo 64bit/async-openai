@@ -7,7 +7,7 @@ use crate::{
         CreateMessageRequest, DeleteMessageResponse, ListMessagesResponse, MessageObject,
         ModifyMessageRequest,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Represents a message within a [thread](https://platform.openai.com/docs/api-reference/threads).
@@ -15,6 +15,7 @@ pub struct Messages<'c, C: Config> {
     ///  The ID of the [thread](https://platform.openai.com/docs/api-reference/threads) to create a message for.
     pub thread_id: String,
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Messages<'c, C> {
@@ -22,6 +23,7 @@ impl<'c, C: Config> Messages<'c, C> {
         Self {
             client,
             thread_id: thread_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
@@ -32,7 +34,7 @@ impl<'c, C: Config> Messages<'c, C> {
         request: CreateMessageRequest,
     ) -> Result<MessageObject, OpenAIError> {
         self.client
-            .post(&format!("/threads/{}/messages", self.thread_id), request)
+            .post(&format!("/threads/{}/messages", self.thread_id), request, &self.request_options)
             .await
     }
 
@@ -43,7 +45,7 @@ impl<'c, C: Config> Messages<'c, C> {
             .get(&format!(
                 "/threads/{}/messages/{message_id}",
                 self.thread_id
-            ))
+            ), &self.request_options)
             .await
     }
 
@@ -58,6 +60,7 @@ impl<'c, C: Config> Messages<'c, C> {
             .post(
                 &format!("/threads/{}/messages/{message_id}", self.thread_id),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -69,7 +72,7 @@ impl<'c, C: Config> Messages<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query(&format!("/threads/{}/messages", self.thread_id), &query)
+            .get_with_query(&format!("/threads/{}/messages", self.thread_id), &query, &self.request_options)
             .await
     }
 
@@ -79,7 +82,7 @@ impl<'c, C: Config> Messages<'c, C> {
             .delete(&format!(
                 "/threads/{}/messages/{message_id}",
                 self.thread_id
-            ))
+            ), &self.request_options)
             .await
     }
 }

@@ -7,13 +7,14 @@ use crate::{
         ConversationItem, ConversationItemList, ConversationResource,
         CreateConversationItemsRequest,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Conversation items represent items within a conversation.
 pub struct ConversationItems<'c, C: Config> {
     client: &'c Client<C>,
     pub conversation_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> ConversationItems<'c, C> {
@@ -21,6 +22,7 @@ impl<'c, C: Config> ConversationItems<'c, C> {
         Self {
             client,
             conversation_id: conversation_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
@@ -34,6 +36,7 @@ impl<'c, C: Config> ConversationItems<'c, C> {
             .post(
                 &format!("/conversations/{}/items", &self.conversation_id),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -48,6 +51,7 @@ impl<'c, C: Config> ConversationItems<'c, C> {
             .get_with_query(
                 &format!("/conversations/{}/items", &self.conversation_id),
                 &query,
+                &self.request_options,
             )
             .await
     }
@@ -59,7 +63,7 @@ impl<'c, C: Config> ConversationItems<'c, C> {
             .get(&format!(
                 "/conversations/{}/items/{item_id}",
                 &self.conversation_id
-            ))
+            ), &self.request_options)
             .await
     }
 
@@ -70,7 +74,7 @@ impl<'c, C: Config> ConversationItems<'c, C> {
             .delete(&format!(
                 "/conversations/{}/items/{item_id}",
                 &self.conversation_id
-            ))
+            ), &self.request_options)
             .await
     }
 }

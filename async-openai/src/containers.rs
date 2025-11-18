@@ -7,16 +7,20 @@ use crate::{
     types::containers::{
         ContainerListResource, ContainerResource, CreateContainerRequest, DeleteContainerResponse,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 pub struct Containers<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Containers<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// [ContainerFiles] API group
@@ -30,7 +34,7 @@ impl<'c, C: Config> Containers<'c, C> {
         &self,
         request: CreateContainerRequest,
     ) -> Result<ContainerResource, OpenAIError> {
-        self.client.post("/containers", request).await
+        self.client.post("/containers", request, &self.request_options).await
     }
 
     /// List containers.
@@ -39,14 +43,14 @@ impl<'c, C: Config> Containers<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        self.client.get_with_query("/containers", &query).await
+        self.client.get_with_query("/containers", &query, &self.request_options).await
     }
 
     /// Retrieve a container.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, container_id: &str) -> Result<ContainerResource, OpenAIError> {
         self.client
-            .get(format!("/containers/{container_id}").as_str())
+            .get(format!("/containers/{container_id}").as_str(), &self.request_options)
             .await
     }
 
@@ -54,7 +58,7 @@ impl<'c, C: Config> Containers<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, container_id: &str) -> Result<DeleteContainerResponse, OpenAIError> {
         self.client
-            .delete(format!("/containers/{container_id}").as_str())
+            .delete(format!("/containers/{container_id}").as_str(), &self.request_options)
             .await
     }
 }

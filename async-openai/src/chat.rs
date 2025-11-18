@@ -8,7 +8,7 @@ use crate::{
         ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse,
         UpdateChatCompletionRequest,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Given a list of messages comprising a conversation, the model will return a response.
@@ -16,11 +16,15 @@ use crate::{
 /// Related guide: [Chat Completions](https://platform.openai.com/docs/guides/text-generation)
 pub struct Chat<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Chat<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Creates a model response for the given chat conversation.
@@ -48,7 +52,9 @@ impl<'c, C: Config> Chat<'c, C> {
                 ));
             }
         }
-        self.client.post("/chat/completions", request).await
+        self.client
+            .post("/chat/completions", request, &self.request_options)
+            .await
     }
 
     /// Creates a completion for the chat message.
@@ -81,7 +87,10 @@ impl<'c, C: Config> Chat<'c, C> {
 
             request.stream = Some(true);
         }
-        Ok(self.client.post_stream("/chat/completions", request).await)
+        Ok(self
+            .client
+            .post_stream("/chat/completions", request, &self.request_options)
+            .await)
     }
 
     /// List stored Chat Completions. Only Chat Completions that have been stored
@@ -92,7 +101,7 @@ impl<'c, C: Config> Chat<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/chat/completions", &query)
+            .get_with_query("/chat/completions", &query, &self.request_options)
             .await
     }
 
@@ -104,7 +113,10 @@ impl<'c, C: Config> Chat<'c, C> {
         completion_id: &str,
     ) -> Result<CreateChatCompletionResponse, OpenAIError> {
         self.client
-            .get(&format!("/chat/completions/{completion_id}"))
+            .get(
+                &format!("/chat/completions/{completion_id}"),
+                &self.request_options,
+            )
             .await
     }
 
@@ -122,7 +134,11 @@ impl<'c, C: Config> Chat<'c, C> {
         request: UpdateChatCompletionRequest,
     ) -> Result<CreateChatCompletionResponse, OpenAIError> {
         self.client
-            .post(&format!("/chat/completions/{completion_id}"), request)
+            .post(
+                &format!("/chat/completions/{completion_id}"),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -131,7 +147,10 @@ impl<'c, C: Config> Chat<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, completion_id: &str) -> Result<ChatCompletionDeleted, OpenAIError> {
         self.client
-            .delete(&format!("/chat/completions/{completion_id}"))
+            .delete(
+                &format!("/chat/completions/{completion_id}"),
+                &self.request_options,
+            )
             .await
     }
 
@@ -149,6 +168,7 @@ impl<'c, C: Config> Chat<'c, C> {
             .get_with_query(
                 &format!("/chat/completions/{completion_id}/messages"),
                 &query,
+                &self.request_options,
             )
             .await
     }

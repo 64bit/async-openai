@@ -6,13 +6,14 @@ use crate::{
     types::admin::project_rate_limits::{
         ProjectRateLimit, ProjectRateLimitListResponse, ProjectRateLimitUpdateRequest,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Manage rate limits for a given project. Supports listing and updating rate limits per model.
 pub struct ProjectRateLimits<'c, C: Config> {
     client: &'c Client<C>,
     pub project_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> ProjectRateLimits<'c, C> {
@@ -20,6 +21,7 @@ impl<'c, C: Config> ProjectRateLimits<'c, C> {
         Self {
             client,
             project_id: project_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
@@ -33,6 +35,7 @@ impl<'c, C: Config> ProjectRateLimits<'c, C> {
             .get_with_query(
                 format!("/organization/projects/{}/rate_limits", self.project_id).as_str(),
                 &query,
+                &self.request_options,
             )
             .await
     }
@@ -52,6 +55,7 @@ impl<'c, C: Config> ProjectRateLimits<'c, C> {
                 )
                 .as_str(),
                 request,
+                &self.request_options,
             )
             .await
     }

@@ -5,7 +5,7 @@ use crate::{
         CreateVideoRequest, ListVideosResponse, RemixVideoRequest, VideoJob, VideoJobMetadata,
         VideoVariant,
     },
-    Client,
+    Client, RequestOptions,
 };
 use bytes::Bytes;
 use serde::Serialize;
@@ -14,11 +14,15 @@ use serde::Serialize;
 /// Related guide: [Video generation](https://platform.openai.com/docs/guides/video-generation)
 pub struct Videos<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Videos<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Create a video
@@ -28,7 +32,7 @@ impl<'c, C: Config> Videos<'c, C> {
         where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
     )]
     pub async fn create(&self, request: CreateVideoRequest) -> Result<VideoJob, OpenAIError> {
-        self.client.post_form("/videos", request).await
+        self.client.post_form("/videos", request, &self.request_options).await
     }
 
     /// Create a video remix
@@ -39,20 +43,20 @@ impl<'c, C: Config> Videos<'c, C> {
         request: RemixVideoRequest,
     ) -> Result<VideoJob, OpenAIError> {
         self.client
-            .post(&format!("/videos/{video_id}/remix"), request)
+            .post(&format!("/videos/{video_id}/remix"), request, &self.request_options)
             .await
     }
 
     /// Retrieves a video by its ID.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, video_id: &str) -> Result<VideoJob, OpenAIError> {
-        self.client.get(&format!("/videos/{}", video_id)).await
+        self.client.get(&format!("/videos/{}", video_id), &self.request_options).await
     }
 
     /// Delete a Video
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, video_id: &str) -> Result<VideoJobMetadata, OpenAIError> {
-        self.client.delete(&format!("/videos/{}", video_id)).await
+        self.client.delete(&format!("/videos/{}", video_id), &self.request_options).await
     }
 
     /// List Videos
@@ -61,7 +65,7 @@ impl<'c, C: Config> Videos<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        self.client.get_with_query("/videos", &query).await
+        self.client.get_with_query("/videos", &query, &self.request_options).await
     }
 
     /// Download video content

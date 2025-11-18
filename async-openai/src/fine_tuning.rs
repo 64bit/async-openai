@@ -9,7 +9,7 @@ use crate::{
         ListFineTuningCheckpointPermissionResponse, ListFineTuningJobCheckpointsResponse,
         ListFineTuningJobEventsResponse, ListPaginatedFineTuningJobsResponse,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Manage fine-tuning jobs to tailor a model to your specific training data.
@@ -17,11 +17,15 @@ use crate::{
 /// Related guide: [Fine-tune models](https://platform.openai.com/docs/guides/fine-tuning)
 pub struct FineTuning<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> FineTuning<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Creates a fine-tuning job which begins the process of creating a new model from a given dataset.
@@ -35,7 +39,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
         &self,
         request: CreateFineTuningJobRequest,
     ) -> Result<FineTuningJob, OpenAIError> {
-        self.client.post("/fine_tuning/jobs", request).await
+        self.client.post("/fine_tuning/jobs", request, &self.request_options).await
     }
 
     /// List your organization's fine-tuning jobs
@@ -48,7 +52,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/fine_tuning/jobs", &query)
+            .get_with_query("/fine_tuning/jobs", &query, &self.request_options)
             .await
     }
 
@@ -58,7 +62,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, fine_tuning_job_id: &str) -> Result<FineTuningJob, OpenAIError> {
         self.client
-            .get(format!("/fine_tuning/jobs/{fine_tuning_job_id}").as_str())
+            .get(format!("/fine_tuning/jobs/{fine_tuning_job_id}").as_str(), &self.request_options)
             .await
     }
 
@@ -69,6 +73,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .post(
                 format!("/fine_tuning/jobs/{fine_tuning_job_id}/cancel").as_str(),
                 (),
+                &self.request_options,
             )
             .await
     }
@@ -80,6 +85,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .post(
                 format!("/fine_tuning/jobs/{fine_tuning_job_id}/pause").as_str(),
                 (),
+                &self.request_options,
             )
             .await
     }
@@ -91,6 +97,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .post(
                 format!("/fine_tuning/jobs/{fine_tuning_job_id}/resume").as_str(),
                 (),
+                &self.request_options,
             )
             .await
     }
@@ -109,6 +116,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .get_with_query(
                 format!("/fine_tuning/jobs/{fine_tuning_job_id}/events").as_str(),
                 &query,
+                &self.request_options,
             )
             .await
     }
@@ -127,6 +135,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .get_with_query(
                 format!("/fine_tuning/jobs/{fine_tuning_job_id}/checkpoints").as_str(),
                 &query,
+                &self.request_options,
             )
             .await
     }
@@ -142,6 +151,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
                 format!("/fine_tuning/checkpoints/{fine_tuned_model_checkpoint}/permissions")
                     .as_str(),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -160,6 +170,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
                 format!("/fine_tuning/checkpoints/{fine_tuned_model_checkpoint}/permissions")
                     .as_str(),
                 &query,
+                &self.request_options,
             )
             .await
     }
@@ -174,6 +185,7 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .delete(
                 format!("/fine_tuning/checkpoints/{fine_tuned_model_checkpoint}/permissions/{permission_id}")
                     .as_str(),
+                &self.request_options,
             )
             .await
     }

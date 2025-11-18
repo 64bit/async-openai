@@ -4,7 +4,7 @@ use crate::{
     types::embeddings::{
         CreateBase64EmbeddingResponse, CreateEmbeddingRequest, CreateEmbeddingResponse,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 #[cfg(not(feature = "byot"))]
@@ -16,11 +16,15 @@ use crate::types::embeddings::EncodingFormat;
 /// Related guide: [Embeddings](https://platform.openai.com/docs/guides/embeddings)
 pub struct Embeddings<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Embeddings<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Creates an embedding vector representing the input text.
@@ -39,7 +43,7 @@ impl<'c, C: Config> Embeddings<'c, C> {
                 ));
             }
         }
-        self.client.post("/embeddings", request).await
+        self.client.post("/embeddings", request, &self.request_options).await
     }
 
     /// Creates an embedding vector representing the input text.
@@ -60,7 +64,7 @@ impl<'c, C: Config> Embeddings<'c, C> {
                 ));
             }
         }
-        self.client.post("/embeddings", request).await
+        self.client.post("/embeddings", request, &self.request_options).await
     }
 }
 

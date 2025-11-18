@@ -7,18 +7,22 @@ use crate::{
         Certificate, DeleteCertificateResponse, ListCertificatesResponse, ModifyCertificateRequest,
         ToggleCertificatesRequest, UploadCertificateRequest,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Certificates enable Mutual TLS (mTLS) authentication for your organization.
 /// Manage certificates at the organization level.
 pub struct Certificates<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Certificates<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     // Organization-level certificate operations
@@ -33,7 +37,7 @@ impl<'c, C: Config> Certificates<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query("/organization/certificates", &query)
+            .get_with_query("/organization/certificates", &query, &self.request_options)
             .await
     }
 
@@ -44,7 +48,7 @@ impl<'c, C: Config> Certificates<'c, C> {
         request: UploadCertificateRequest,
     ) -> Result<Certificate, OpenAIError> {
         self.client
-            .post("/organization/certificates", request)
+            .post("/organization/certificates", request, &self.request_options)
             .await
     }
 
@@ -55,7 +59,7 @@ impl<'c, C: Config> Certificates<'c, C> {
         request: ToggleCertificatesRequest,
     ) -> Result<ListCertificatesResponse, OpenAIError> {
         self.client
-            .post("/organization/certificates/activate", request)
+            .post("/organization/certificates/activate", request, &self.request_options)
             .await
     }
 
@@ -66,7 +70,7 @@ impl<'c, C: Config> Certificates<'c, C> {
         request: ToggleCertificatesRequest,
     ) -> Result<ListCertificatesResponse, OpenAIError> {
         self.client
-            .post("/organization/certificates/deactivate", request)
+            .post("/organization/certificates/deactivate", request, &self.request_options)
             .await
     }
 
@@ -74,7 +78,7 @@ impl<'c, C: Config> Certificates<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, certificate_id: &str) -> Result<Certificate, OpenAIError> {
         self.client
-            .get(format!("/organization/certificates/{certificate_id}").as_str())
+            .get(format!("/organization/certificates/{certificate_id}").as_str(), &self.request_options)
             .await
     }
 
@@ -91,6 +95,7 @@ impl<'c, C: Config> Certificates<'c, C> {
             .get_with_query(
                 format!("/organization/certificates/{certificate_id}").as_str(),
                 query,
+                &self.request_options,
             )
             .await
     }
@@ -106,6 +111,7 @@ impl<'c, C: Config> Certificates<'c, C> {
             .post(
                 format!("/organization/certificates/{certificate_id}").as_str(),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -118,7 +124,7 @@ impl<'c, C: Config> Certificates<'c, C> {
         certificate_id: &str,
     ) -> Result<DeleteCertificateResponse, OpenAIError> {
         self.client
-            .delete(format!("/organization/certificates/{certificate_id}").as_str())
+            .delete(format!("/organization/certificates/{certificate_id}").as_str(), &self.request_options)
             .await
     }
 }

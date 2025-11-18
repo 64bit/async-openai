@@ -5,7 +5,7 @@ use crate::{
         CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImageEditStream,
         ImageGenStream, ImagesResponse,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Given a prompt and/or an input image, the model will generate a new image.
@@ -13,11 +13,15 @@ use crate::{
 /// Related guide: [Image generation](https://platform.openai.com/docs/guides/images)
 pub struct Images<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Images<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Creates an image given a prompt.
@@ -26,7 +30,7 @@ impl<'c, C: Config> Images<'c, C> {
         &self,
         request: CreateImageRequest,
     ) -> Result<ImagesResponse, OpenAIError> {
-        self.client.post("/images/generations", request).await
+        self.client.post("/images/generations", request, &self.request_options).await
     }
 
     /// Creates an image given a prompt.
@@ -54,7 +58,7 @@ impl<'c, C: Config> Images<'c, C> {
 
         Ok(self
             .client
-            .post_stream("/images/generations", request)
+            .post_stream("/images/generations", request, &self.request_options)
             .await)
     }
 
@@ -69,7 +73,7 @@ impl<'c, C: Config> Images<'c, C> {
         &self,
         request: CreateImageEditRequest,
     ) -> Result<ImagesResponse, OpenAIError> {
-        self.client.post_form("/images/edits", request).await
+        self.client.post_form("/images/edits", request, &self.request_options).await
     }
 
     /// Creates an edited or extended image given one or more source images and a prompt.
@@ -96,7 +100,7 @@ impl<'c, C: Config> Images<'c, C> {
             }
             request.stream = Some(true);
         }
-        self.client.post_form_stream("/images/edits", request).await
+        self.client.post_form_stream("/images/edits", request, &self.request_options).await
     }
 
     /// Creates a variation of a given image. This endpoint only supports dall-e-2.
@@ -109,6 +113,6 @@ impl<'c, C: Config> Images<'c, C> {
         &self,
         request: CreateImageVariationRequest,
     ) -> Result<ImagesResponse, OpenAIError> {
-        self.client.post_form("/images/variations", request).await
+        self.client.post_form("/images/variations", request, &self.request_options).await
     }
 }

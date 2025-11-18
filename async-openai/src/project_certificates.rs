@@ -4,13 +4,14 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::admin::certificates::{ListCertificatesResponse, ToggleCertificatesRequest},
-    Client,
+    Client, RequestOptions,
 };
 
 /// Manage certificates for a given project. Supports listing, activating, and deactivating certificates.
 pub struct ProjectCertificates<'c, C: Config> {
     client: &'c Client<C>,
     pub project_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> ProjectCertificates<'c, C> {
@@ -18,6 +19,7 @@ impl<'c, C: Config> ProjectCertificates<'c, C> {
         Self {
             client,
             project_id: project_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
@@ -30,6 +32,7 @@ impl<'c, C: Config> ProjectCertificates<'c, C> {
             .get_with_query(
                 format!("/organization/projects/{}/certificates", self.project_id).as_str(),
                 query,
+                &self.request_options,
             )
             .await
     }
@@ -48,6 +51,7 @@ impl<'c, C: Config> ProjectCertificates<'c, C> {
                 )
                 .as_str(),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -66,6 +70,7 @@ impl<'c, C: Config> ProjectCertificates<'c, C> {
                 )
                 .as_str(),
                 request,
+                &self.request_options,
             )
             .await
     }

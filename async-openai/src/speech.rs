@@ -2,16 +2,20 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::audio::{CreateSpeechRequest, CreateSpeechResponse, SpeechResponseStream},
-    Client,
+    Client, RequestOptions,
 };
 
 pub struct Speech<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Speech<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Generates audio from the input text.
@@ -19,7 +23,7 @@ impl<'c, C: Config> Speech<'c, C> {
         &self,
         request: CreateSpeechRequest,
     ) -> Result<CreateSpeechResponse, OpenAIError> {
-        let (bytes, _headers) = self.client.post_raw("/audio/speech", request).await?;
+        let (bytes, _headers) = self.client.post_raw("/audio/speech", request, &self.request_options).await?;
 
         Ok(CreateSpeechResponse { bytes })
     }
@@ -49,6 +53,6 @@ impl<'c, C: Config> Speech<'c, C> {
 
             request.stream_format = Some(StreamFormat::SSE);
         }
-        Ok(self.client.post_stream("/audio/speech", request).await)
+        Ok(self.client.post_stream("/audio/speech", request, &self.request_options).await)
     }
 }

@@ -5,7 +5,7 @@ use crate::{
         AssistantEventStream, CreateThreadAndRunRequest, CreateThreadRequest, DeleteThreadResponse,
         ModifyThreadRequest, RunObject, ThreadObject,
     },
-    Client, Messages, Runs,
+    Client, Messages, RequestOptions, Runs,
 };
 
 /// Create threads that assistants can interact with.
@@ -13,11 +13,15 @@ use crate::{
 /// Related guide: [Assistants](https://platform.openai.com/docs/assistants/overview)
 pub struct Threads<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Threads<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Call [Messages] group API to manage message in [thread_id] thread.
@@ -36,7 +40,7 @@ impl<'c, C: Config> Threads<'c, C> {
         &self,
         request: CreateThreadAndRunRequest,
     ) -> Result<RunObject, OpenAIError> {
-        self.client.post("/threads/runs", request).await
+        self.client.post("/threads/runs", request, &self.request_options).await
     }
 
     /// Create a thread and run it in one request (streaming).
@@ -65,20 +69,20 @@ impl<'c, C: Config> Threads<'c, C> {
         }
         Ok(self
             .client
-            .post_stream_mapped_raw_events("/threads/runs", request, TryFrom::try_from)
+            .post_stream_mapped_raw_events("/threads/runs", request, &self.request_options, TryFrom::try_from)
             .await)
     }
 
     /// Create a thread.
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: CreateThreadRequest) -> Result<ThreadObject, OpenAIError> {
-        self.client.post("/threads", request).await
+        self.client.post("/threads", request, &self.request_options).await
     }
 
     /// Retrieves a thread.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, thread_id: &str) -> Result<ThreadObject, OpenAIError> {
-        self.client.get(&format!("/threads/{thread_id}")).await
+        self.client.get(&format!("/threads/{thread_id}"), &self.request_options).await
     }
 
     /// Modifies a thread.
@@ -89,13 +93,13 @@ impl<'c, C: Config> Threads<'c, C> {
         request: ModifyThreadRequest,
     ) -> Result<ThreadObject, OpenAIError> {
         self.client
-            .post(&format!("/threads/{thread_id}"), request)
+            .post(&format!("/threads/{thread_id}"), request, &self.request_options)
             .await
     }
 
     /// Delete a thread.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, thread_id: &str) -> Result<DeleteThreadResponse, OpenAIError> {
-        self.client.delete(&format!("/threads/{thread_id}")).await
+        self.client.delete(&format!("/threads/{thread_id}"), &self.request_options).await
     }
 }

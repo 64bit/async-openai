@@ -7,7 +7,7 @@ use crate::{
         AssistantObject, CreateAssistantRequest, DeleteAssistantResponse, ListAssistantsResponse,
         ModifyAssistantRequest,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Build assistants that can call models and use tools to perform tasks.
@@ -15,11 +15,15 @@ use crate::{
 /// [Get started with the Assistants API](https://platform.openai.com/docs/assistants)
 pub struct Assistants<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Assistants<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Create an assistant with a model and instructions.
@@ -28,14 +32,14 @@ impl<'c, C: Config> Assistants<'c, C> {
         &self,
         request: CreateAssistantRequest,
     ) -> Result<AssistantObject, OpenAIError> {
-        self.client.post("/assistants", request).await
+        self.client.post("/assistants", request, &self.request_options).await
     }
 
     /// Retrieves an assistant.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, assistant_id: &str) -> Result<AssistantObject, OpenAIError> {
         self.client
-            .get(&format!("/assistants/{assistant_id}"))
+            .get(&format!("/assistants/{assistant_id}"), &self.request_options)
             .await
     }
 
@@ -47,7 +51,7 @@ impl<'c, C: Config> Assistants<'c, C> {
         request: ModifyAssistantRequest,
     ) -> Result<AssistantObject, OpenAIError> {
         self.client
-            .post(&format!("/assistants/{assistant_id}"), request)
+            .post(&format!("/assistants/{assistant_id}"), request, &self.request_options)
             .await
     }
 
@@ -55,7 +59,7 @@ impl<'c, C: Config> Assistants<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, assistant_id: &str) -> Result<DeleteAssistantResponse, OpenAIError> {
         self.client
-            .delete(&format!("/assistants/{assistant_id}"))
+            .delete(&format!("/assistants/{assistant_id}"), &self.request_options)
             .await
     }
 
@@ -65,6 +69,6 @@ impl<'c, C: Config> Assistants<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        self.client.get_with_query("/assistants", &query).await
+        self.client.get_with_query("/assistants", &query, &self.request_options).await
     }
 }

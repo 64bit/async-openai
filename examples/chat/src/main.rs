@@ -1,6 +1,7 @@
 use std::error::Error;
 
 use async_openai::{
+    traits::RequestOptionsBuilder,
     types::chat::{
         ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestSystemMessageArgs,
         ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
@@ -37,7 +38,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("{}", serde_json::to_string(&request).unwrap());
 
-    let response = client.chat().create(request).await?;
+    let response = client
+        .chat()
+        .query(&vec![("limit", 10)])?
+        .create(request)
+        .await?;
 
     println!("\nResponse:\n");
     for choice in response.choices {

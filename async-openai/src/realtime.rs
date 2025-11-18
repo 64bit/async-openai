@@ -6,18 +6,22 @@ use crate::{
         RealtimeCallReferRequest, RealtimeCallRejectRequest, RealtimeCreateClientSecretRequest,
         RealtimeCreateClientSecretResponse,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Realtime API for creating sessions, managing calls, and handling WebRTC connections.
 /// Related guide: [Realtime API](https://platform.openai.com/docs/guides/realtime)
 pub struct Realtime<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Realtime<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Create a new Realtime API call over WebRTC and receive the SDP answer needed
@@ -30,7 +34,7 @@ impl<'c, C: Config> Realtime<'c, C> {
     ) -> Result<RealtimeCallCreateResponse, OpenAIError> {
         let (bytes, headers) = self
             .client
-            .post_form_raw("/realtime/calls", request)
+            .post_form_raw("/realtime/calls", request, &self.request_options)
             .await?;
 
         // Extract Location header
@@ -57,14 +61,22 @@ impl<'c, C: Config> Realtime<'c, C> {
         request: RealtimeCallAcceptRequest,
     ) -> Result<(), OpenAIError> {
         self.client
-            .post(&format!("/realtime/calls/{}/accept", call_id), request)
+            .post(
+                &format!("/realtime/calls/{}/accept", call_id),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
     /// End an active Realtime API call, whether it was initiated over SIP or WebRTC.
     pub async fn hangup_call(&self, call_id: &str) -> Result<(), OpenAIError> {
         self.client
-            .post(&format!("/realtime/calls/{}/hangup", call_id), ())
+            .post(
+                &format!("/realtime/calls/{}/hangup", call_id),
+                (),
+                &self.request_options,
+            )
             .await
     }
 
@@ -75,7 +87,11 @@ impl<'c, C: Config> Realtime<'c, C> {
         request: RealtimeCallReferRequest,
     ) -> Result<(), OpenAIError> {
         self.client
-            .post(&format!("/realtime/calls/{}/refer", call_id), request)
+            .post(
+                &format!("/realtime/calls/{}/refer", call_id),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -89,6 +105,7 @@ impl<'c, C: Config> Realtime<'c, C> {
             .post(
                 &format!("/realtime/calls/{}/reject", call_id),
                 request.unwrap_or_default(),
+                &self.request_options,
             )
             .await
     }
@@ -98,6 +115,8 @@ impl<'c, C: Config> Realtime<'c, C> {
         &self,
         request: RealtimeCreateClientSecretRequest,
     ) -> Result<RealtimeCreateClientSecretResponse, OpenAIError> {
-        self.client.post("/realtime/client_secrets", request).await
+        self.client
+            .post("/realtime/client_secrets", request, &self.request_options)
+            .await
     }
 }

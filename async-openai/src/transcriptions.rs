@@ -8,16 +8,20 @@ use crate::{
         CreateTranscriptionResponseJson, CreateTranscriptionResponseVerboseJson,
         TranscriptionResponseStream,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 pub struct Transcriptions<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Transcriptions<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Transcribes audio into the input language.
@@ -31,7 +35,7 @@ impl<'c, C: Config> Transcriptions<'c, C> {
         request: CreateTranscriptionRequest,
     ) -> Result<CreateTranscriptionResponseJson, OpenAIError> {
         self.client
-            .post_form("/audio/transcriptions", request)
+            .post_form("/audio/transcriptions", request, &self.request_options)
             .await
     }
 
@@ -59,7 +63,7 @@ impl<'c, C: Config> Transcriptions<'c, C> {
         }
 
         self.client
-            .post_form_stream("/audio/transcriptions", request)
+            .post_form_stream("/audio/transcriptions", request, &self.request_options)
             .await
     }
 
@@ -74,7 +78,7 @@ impl<'c, C: Config> Transcriptions<'c, C> {
         request: CreateTranscriptionRequest,
     ) -> Result<CreateTranscriptionResponseVerboseJson, OpenAIError> {
         self.client
-            .post_form("/audio/transcriptions", request)
+            .post_form("/audio/transcriptions", request, &self.request_options)
             .await
     }
 
@@ -89,7 +93,7 @@ impl<'c, C: Config> Transcriptions<'c, C> {
         request: CreateTranscriptionRequest,
     ) -> Result<CreateTranscriptionResponseDiarizedJson, OpenAIError> {
         self.client
-            .post_form("/audio/transcriptions", request)
+            .post_form("/audio/transcriptions", request, &self.request_options)
             .await
     }
 
@@ -100,7 +104,7 @@ impl<'c, C: Config> Transcriptions<'c, C> {
     ) -> Result<Bytes, OpenAIError> {
         let (bytes, _headers) = self
             .client
-            .post_form_raw("/audio/transcriptions", request)
+            .post_form_raw("/audio/transcriptions", request, &self.request_options)
             .await?;
         Ok(bytes)
     }
