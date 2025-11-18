@@ -3,7 +3,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use async_openai::{
     traits::RequestOptionsBuilder,
-    types::admin::{usage::UsageResult, UsageQueryParams},
+    types::admin::usage::{UsageQueryParams, UsageResult},
     Client,
 };
 
