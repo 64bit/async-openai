@@ -6,14 +6,14 @@ use crate::{config::OPENAI_API_BASE, error::OpenAIError};
 
 #[derive(Clone, Debug, Default)]
 pub struct RequestOptions {
-    query: Vec<(String, String)>,
+    query: Option<Vec<(String, String)>>,
     headers: Option<HeaderMap>,
 }
 
 impl RequestOptions {
     pub(crate) fn new() -> Self {
         Self {
-            query: Vec::new(),
+            query: None,
             headers: None,
         }
     }
@@ -66,15 +66,16 @@ impl RequestOptions {
         }
 
         // Extract query pairs from the URL and append to our vec
+        let query = self.query.get_or_insert_with(Vec::new);
         for (key, value) in url.query_pairs() {
-            self.query.push((key.to_string(), value.to_string()));
+            query.push((key.to_string(), value.to_string()));
         }
 
         Ok(())
     }
 
     pub(crate) fn query(&self) -> &[(String, String)] {
-        &self.query
+        self.query.as_deref().unwrap_or(&[])
     }
 
     pub(crate) fn headers(&self) -> Option<&HeaderMap> {
