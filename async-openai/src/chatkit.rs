@@ -57,7 +57,9 @@ impl<'c, C: Config> ChatkitSessions<'c, C> {
         &self,
         request: CreateChatSessionBody,
     ) -> Result<ChatSessionResource, OpenAIError> {
-        self.client.post("/chatkit/sessions", request, &self.request_options).await
+        self.client
+            .post("/chatkit/sessions", request, &self.request_options)
+            .await
     }
 
     /// Cancel a ChatKit session.
@@ -93,14 +95,19 @@ impl<'c, C: Config> ChatkitThreads<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        self.client.get_with_query("/chatkit/threads", &query, &self.request_options).await
+        self.client
+            .get_with_query("/chatkit/threads", &query, &self.request_options)
+            .await
     }
 
     /// Retrieve a ChatKit thread.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, thread_id: &str) -> Result<ThreadResource, OpenAIError> {
         self.client
-            .get(&format!("/chatkit/threads/{thread_id}"), &self.request_options)
+            .get(
+                &format!("/chatkit/threads/{thread_id}"),
+                &self.request_options,
+            )
             .await
     }
 
@@ -108,7 +115,10 @@ impl<'c, C: Config> ChatkitThreads<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, thread_id: &str) -> Result<DeletedThreadResource, OpenAIError> {
         self.client
-            .delete(&format!("/chatkit/threads/{thread_id}"), &self.request_options)
+            .delete(
+                &format!("/chatkit/threads/{thread_id}"),
+                &self.request_options,
+            )
             .await
     }
 
@@ -123,7 +133,11 @@ impl<'c, C: Config> ChatkitThreads<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query(&format!("/chatkit/threads/{thread_id}/items"), &query, &self.request_options)
+            .get_with_query(
+                &format!("/chatkit/threads/{thread_id}/items"),
+                &query,
+                &self.request_options,
+            )
             .await
     }
 }

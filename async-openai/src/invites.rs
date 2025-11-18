@@ -36,21 +36,29 @@ impl<'c, C: Config> Invites<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, invite_id: &str) -> Result<Invite, OpenAIError> {
         self.client
-            .get(format!("/organization/invites/{invite_id}").as_str(), &self.request_options)
+            .get(
+                format!("/organization/invites/{invite_id}").as_str(),
+                &self.request_options,
+            )
             .await
     }
 
     /// Create an invite for a user to the organization. The invite must be accepted by the user before they have access to the organization.
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: InviteRequest) -> Result<Invite, OpenAIError> {
-        self.client.post("/organization/invites", request, &self.request_options).await
+        self.client
+            .post("/organization/invites", request, &self.request_options)
+            .await
     }
 
     /// Delete an invite. If the invite has already been accepted, it cannot be deleted.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, invite_id: &str) -> Result<InviteDeleteResponse, OpenAIError> {
         self.client
-            .delete(format!("/organization/invites/{invite_id}").as_str(), &self.request_options)
+            .delete(
+                format!("/organization/invites/{invite_id}").as_str(),
+                &self.request_options,
+            )
             .await
     }
 }

@@ -40,7 +40,11 @@ impl<'c, C: Config> Users<'c, C> {
         request: UserRoleUpdateRequest,
     ) -> Result<User, OpenAIError> {
         self.client
-            .post(format!("/organization/users/{user_id}").as_str(), request, &self.request_options)
+            .post(
+                format!("/organization/users/{user_id}").as_str(),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -48,7 +52,10 @@ impl<'c, C: Config> Users<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, user_id: &str) -> Result<User, OpenAIError> {
         self.client
-            .get(format!("/organization/users/{user_id}").as_str(), &self.request_options)
+            .get(
+                format!("/organization/users/{user_id}").as_str(),
+                &self.request_options,
+            )
             .await
     }
 
@@ -56,7 +63,10 @@ impl<'c, C: Config> Users<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, user_id: &str) -> Result<UserDeleteResponse, OpenAIError> {
         self.client
-            .delete(format!("/organizations/users/{user_id}").as_str(), &self.request_options)
+            .delete(
+                format!("/organizations/users/{user_id}").as_str(),
+                &self.request_options,
+            )
             .await
     }
 }

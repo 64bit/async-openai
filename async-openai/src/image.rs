@@ -30,7 +30,9 @@ impl<'c, C: Config> Images<'c, C> {
         &self,
         request: CreateImageRequest,
     ) -> Result<ImagesResponse, OpenAIError> {
-        self.client.post("/images/generations", request, &self.request_options).await
+        self.client
+            .post("/images/generations", request, &self.request_options)
+            .await
     }
 
     /// Creates an image given a prompt.
@@ -73,7 +75,9 @@ impl<'c, C: Config> Images<'c, C> {
         &self,
         request: CreateImageEditRequest,
     ) -> Result<ImagesResponse, OpenAIError> {
-        self.client.post_form("/images/edits", request, &self.request_options).await
+        self.client
+            .post_form("/images/edits", request, &self.request_options)
+            .await
     }
 
     /// Creates an edited or extended image given one or more source images and a prompt.
@@ -100,7 +104,9 @@ impl<'c, C: Config> Images<'c, C> {
             }
             request.stream = Some(true);
         }
-        self.client.post_form_stream("/images/edits", request, &self.request_options).await
+        self.client
+            .post_form_stream("/images/edits", request, &self.request_options)
+            .await
     }
 
     /// Creates a variation of a given image. This endpoint only supports dall-e-2.
@@ -113,6 +119,8 @@ impl<'c, C: Config> Images<'c, C> {
         &self,
         request: CreateImageVariationRequest,
     ) -> Result<ImagesResponse, OpenAIError> {
-        self.client.post_form("/images/variations", request, &self.request_options).await
+        self.client
+            .post_form("/images/variations", request, &self.request_options)
+            .await
     }
 }

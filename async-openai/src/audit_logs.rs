@@ -1,7 +1,8 @@
 use serde::Serialize;
 
 use crate::{
-    config::Config, error::OpenAIError, types::admin::audit_logs::ListAuditLogsResponse, Client, RequestOptions,
+    config::Config, error::OpenAIError, types::admin::audit_logs::ListAuditLogsResponse, Client,
+    RequestOptions,
 };
 
 /// Logs of user actions and configuration changes within this organization.

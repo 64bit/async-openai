@@ -33,7 +33,9 @@ impl<'c, C: Config> Translations<'c, C> {
         &self,
         request: CreateTranslationRequest,
     ) -> Result<CreateTranslationResponseJson, OpenAIError> {
-        self.client.post_form("/audio/translations", request, &self.request_options).await
+        self.client
+            .post_form("/audio/translations", request, &self.request_options)
+            .await
     }
 
     /// Translates audio into English.
@@ -46,7 +48,9 @@ impl<'c, C: Config> Translations<'c, C> {
         &self,
         request: CreateTranslationRequest,
     ) -> Result<CreateTranslationResponseVerboseJson, OpenAIError> {
-        self.client.post_form("/audio/translations", request, &self.request_options).await
+        self.client
+            .post_form("/audio/translations", request, &self.request_options)
+            .await
     }
 
     /// Transcribes audio into the input language.

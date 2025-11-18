@@ -61,7 +61,10 @@ impl<'c, C: Config> ProjectUsers<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, user_id: &str) -> Result<ProjectUser, OpenAIError> {
         self.client
-            .get(format!("/organization/projects/{}/users/{user_id}", self.project_id).as_str(), &self.request_options)
+            .get(
+                format!("/organization/projects/{}/users/{user_id}", self.project_id).as_str(),
+                &self.request_options,
+            )
             .await
     }
 
@@ -85,7 +88,10 @@ impl<'c, C: Config> ProjectUsers<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, user_id: &str) -> Result<ProjectUserDeleteResponse, OpenAIError> {
         self.client
-            .delete(format!("/organization/projects/{}/users/{user_id}", self.project_id).as_str(), &self.request_options)
+            .delete(
+                format!("/organization/projects/{}/users/{user_id}", self.project_id).as_str(),
+                &self.request_options,
+            )
             .await
     }
 }

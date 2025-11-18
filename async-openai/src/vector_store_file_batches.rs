@@ -49,10 +49,13 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
         batch_id: &str,
     ) -> Result<VectorStoreFileBatchObject, OpenAIError> {
         self.client
-            .get(&format!(
-                "/vector_stores/{}/file_batches/{batch_id}",
-                &self.vector_store_id
-            ), &self.request_options)
+            .get(
+                &format!(
+                    "/vector_stores/{}/file_batches/{batch_id}",
+                    &self.vector_store_id
+                ),
+                &self.request_options,
+            )
             .await
     }
 

@@ -28,6 +28,8 @@ impl<'c, C: Config> Moderations<'c, C> {
         &self,
         request: CreateModerationRequest,
     ) -> Result<CreateModerationResponse, OpenAIError> {
-        self.client.post("/moderations", request, &self.request_options).await
+        self.client
+            .post("/moderations", request, &self.request_options)
+            .await
     }
 }

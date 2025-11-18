@@ -44,7 +44,9 @@ impl<'c, C: Config> Completions<'c, C> {
                 ));
             }
         }
-        self.client.post("/completions", request, &self.request_options).await
+        self.client
+            .post("/completions", request, &self.request_options)
+            .await
     }
 
     /// Creates a completion request for the provided prompt and parameters
@@ -77,6 +79,9 @@ impl<'c, C: Config> Completions<'c, C> {
 
             request.stream = Some(true);
         }
-        Ok(self.client.post_stream("/completions", request, &self.request_options).await)
+        Ok(self
+            .client
+            .post_stream("/completions", request, &self.request_options)
+            .await)
     }
 }

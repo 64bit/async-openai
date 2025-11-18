@@ -66,14 +66,19 @@ impl<'c, C: Config> Projects<'c, C> {
     /// Create a new project in the organization. Projects can be created and archived, but cannot be deleted.
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: ProjectCreateRequest) -> Result<Project, OpenAIError> {
-        self.client.post("/organization/projects", request, &self.request_options).await
+        self.client
+            .post("/organization/projects", request, &self.request_options)
+            .await
     }
 
     /// Retrieves a project.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, project_id: String) -> Result<Project, OpenAIError> {
         self.client
-            .get(format!("/organization/projects/{project_id}").as_str(), &self.request_options)
+            .get(
+                format!("/organization/projects/{project_id}").as_str(),
+                &self.request_options,
+            )
             .await
     }
 

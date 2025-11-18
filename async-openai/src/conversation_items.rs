@@ -60,10 +60,10 @@ impl<'c, C: Config> ConversationItems<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, item_id: &str) -> Result<ConversationItem, OpenAIError> {
         self.client
-            .get(&format!(
-                "/conversations/{}/items/{item_id}",
-                &self.conversation_id
-            ), &self.request_options)
+            .get(
+                &format!("/conversations/{}/items/{item_id}", &self.conversation_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -71,10 +71,10 @@ impl<'c, C: Config> ConversationItems<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, item_id: &str) -> Result<ConversationResource, OpenAIError> {
         self.client
-            .delete(&format!(
-                "/conversations/{}/items/{item_id}",
-                &self.conversation_id
-            ), &self.request_options)
+            .delete(
+                &format!("/conversations/{}/items/{item_id}", &self.conversation_id),
+                &self.request_options,
+            )
             .await
     }
 }

@@ -26,7 +26,9 @@ impl<'c, C: Config> Batches<'c, C> {
     /// Creates and executes a batch from an uploaded file of requests
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: BatchRequest) -> Result<Batch, OpenAIError> {
-        self.client.post("/batches", request, &self.request_options).await
+        self.client
+            .post("/batches", request, &self.request_options)
+            .await
     }
 
     /// List your organization's batches.
@@ -35,13 +37,17 @@ impl<'c, C: Config> Batches<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        self.client.get_with_query("/batches", &query, &self.request_options).await
+        self.client
+            .get_with_query("/batches", &query, &self.request_options)
+            .await
     }
 
     /// Retrieves a batch.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, batch_id: &str) -> Result<Batch, OpenAIError> {
-        self.client.get(&format!("/batches/{batch_id}"), &self.request_options).await
+        self.client
+            .get(&format!("/batches/{batch_id}"), &self.request_options)
+            .await
     }
 
     /// Cancels an in-progress batch. The batch will be in status `cancelling` for up to 10 minutes, before changing to `cancelled`, where it will have partial results (if any) available in the output file.

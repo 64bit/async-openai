@@ -32,7 +32,9 @@ impl<'c, C: Config> Models<'c, C> {
     /// such as the owner and permissioning.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, model: &str) -> Result<Model, OpenAIError> {
-        self.client.get(format!("/models/{model}").as_str(), &self.request_options).await
+        self.client
+            .get(format!("/models/{model}").as_str(), &self.request_options)
+            .await
     }
 
     /// Delete a fine-tuned model. You must have the Owner role in your organization.

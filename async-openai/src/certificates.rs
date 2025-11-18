@@ -59,7 +59,11 @@ impl<'c, C: Config> Certificates<'c, C> {
         request: ToggleCertificatesRequest,
     ) -> Result<ListCertificatesResponse, OpenAIError> {
         self.client
-            .post("/organization/certificates/activate", request, &self.request_options)
+            .post(
+                "/organization/certificates/activate",
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -70,7 +74,11 @@ impl<'c, C: Config> Certificates<'c, C> {
         request: ToggleCertificatesRequest,
     ) -> Result<ListCertificatesResponse, OpenAIError> {
         self.client
-            .post("/organization/certificates/deactivate", request, &self.request_options)
+            .post(
+                "/organization/certificates/deactivate",
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -78,7 +86,10 @@ impl<'c, C: Config> Certificates<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, certificate_id: &str) -> Result<Certificate, OpenAIError> {
         self.client
-            .get(format!("/organization/certificates/{certificate_id}").as_str(), &self.request_options)
+            .get(
+                format!("/organization/certificates/{certificate_id}").as_str(),
+                &self.request_options,
+            )
             .await
     }
 
@@ -124,7 +135,10 @@ impl<'c, C: Config> Certificates<'c, C> {
         certificate_id: &str,
     ) -> Result<DeleteCertificateResponse, OpenAIError> {
         self.client
-            .delete(format!("/organization/certificates/{certificate_id}").as_str(), &self.request_options)
+            .delete(
+                format!("/organization/certificates/{certificate_id}").as_str(),
+                &self.request_options,
+            )
             .await
     }
 }

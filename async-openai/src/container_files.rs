@@ -38,7 +38,11 @@ impl<'c, C: Config> ContainerFiles<'c, C> {
         request: CreateContainerFileRequest,
     ) -> Result<ContainerFileResource, OpenAIError> {
         self.client
-            .post_form(&format!("/containers/{}/files", self.container_id), request, &self.request_options)
+            .post_form(
+                &format!("/containers/{}/files", self.container_id),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -49,7 +53,11 @@ impl<'c, C: Config> ContainerFiles<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query(&format!("/containers/{}/files", self.container_id), &query, &self.request_options)
+            .get_with_query(
+                &format!("/containers/{}/files", self.container_id),
+                &query,
+                &self.request_options,
+            )
             .await
     }
 
@@ -57,7 +65,10 @@ impl<'c, C: Config> ContainerFiles<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, file_id: &str) -> Result<ContainerFileResource, OpenAIError> {
         self.client
-            .get(format!("/containers/{}/files/{file_id}", self.container_id).as_str(), &self.request_options)
+            .get(
+                format!("/containers/{}/files/{file_id}", self.container_id).as_str(),
+                &self.request_options,
+            )
             .await
     }
 
@@ -65,7 +76,10 @@ impl<'c, C: Config> ContainerFiles<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, file_id: &str) -> Result<DeleteContainerFileResponse, OpenAIError> {
         self.client
-            .delete(format!("/containers/{}/files/{file_id}", self.container_id).as_str(), &self.request_options)
+            .delete(
+                format!("/containers/{}/files/{file_id}", self.container_id).as_str(),
+                &self.request_options,
+            )
             .await
     }
 

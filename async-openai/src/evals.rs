@@ -34,7 +34,9 @@ impl<'c, C: Config> Evals<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        self.client.get_with_query("/evals", &query, &self.request_options).await
+        self.client
+            .get_with_query("/evals", &query, &self.request_options)
+            .await
     }
 
     /// Create the structure of an evaluation that can be used to test a model's performance.
@@ -44,13 +46,17 @@ impl<'c, C: Config> Evals<'c, C> {
     /// datasources. For more information, see the [Evals guide](https://platform.openai.com/docs/guides/evals).
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: CreateEvalRequest) -> Result<Eval, OpenAIError> {
-        self.client.post("/evals", request, &self.request_options).await
+        self.client
+            .post("/evals", request, &self.request_options)
+            .await
     }
 
     /// Get an evaluation by ID.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, eval_id: &str) -> Result<Eval, OpenAIError> {
-        self.client.get(&format!("/evals/{eval_id}"), &self.request_options).await
+        self.client
+            .get(&format!("/evals/{eval_id}"), &self.request_options)
+            .await
     }
 
     /// Update certain properties of an evaluation.
@@ -68,6 +74,8 @@ impl<'c, C: Config> Evals<'c, C> {
     /// Delete an evaluation.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, eval_id: &str) -> Result<DeleteEvalResponse, OpenAIError> {
-        self.client.delete(&format!("/evals/{eval_id}"), &self.request_options).await
+        self.client
+            .delete(&format!("/evals/{eval_id}"), &self.request_options)
+            .await
     }
 }

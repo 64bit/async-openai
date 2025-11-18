@@ -34,7 +34,11 @@ impl<'c, C: Config> Messages<'c, C> {
         request: CreateMessageRequest,
     ) -> Result<MessageObject, OpenAIError> {
         self.client
-            .post(&format!("/threads/{}/messages", self.thread_id), request, &self.request_options)
+            .post(
+                &format!("/threads/{}/messages", self.thread_id),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -42,10 +46,10 @@ impl<'c, C: Config> Messages<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, message_id: &str) -> Result<MessageObject, OpenAIError> {
         self.client
-            .get(&format!(
-                "/threads/{}/messages/{message_id}",
-                self.thread_id
-            ), &self.request_options)
+            .get(
+                &format!("/threads/{}/messages/{message_id}", self.thread_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -72,17 +76,21 @@ impl<'c, C: Config> Messages<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query(&format!("/threads/{}/messages", self.thread_id), &query, &self.request_options)
+            .get_with_query(
+                &format!("/threads/{}/messages", self.thread_id),
+                &query,
+                &self.request_options,
+            )
             .await
     }
 
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, message_id: &str) -> Result<DeleteMessageResponse, OpenAIError> {
         self.client
-            .delete(&format!(
-                "/threads/{}/messages/{message_id}",
-                self.thread_id
-            ), &self.request_options)
+            .delete(
+                &format!("/threads/{}/messages/{message_id}", self.thread_id),
+                &self.request_options,
+            )
             .await
     }
 }

@@ -48,10 +48,10 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, file_id: &str) -> Result<VectorStoreFileObject, OpenAIError> {
         self.client
-            .get(&format!(
-                "/vector_stores/{}/files/{file_id}",
-                &self.vector_store_id
-            ), &self.request_options)
+            .get(
+                &format!("/vector_stores/{}/files/{file_id}", &self.vector_store_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -62,10 +62,10 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
         file_id: &str,
     ) -> Result<DeleteVectorStoreFileResponse, OpenAIError> {
         self.client
-            .delete(&format!(
-                "/vector_stores/{}/files/{file_id}",
-                &self.vector_store_id
-            ), &self.request_options)
+            .delete(
+                &format!("/vector_stores/{}/files/{file_id}", &self.vector_store_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -107,10 +107,13 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
         file_id: &str,
     ) -> Result<VectorStoreFileContentResponse, OpenAIError> {
         self.client
-            .get(&format!(
-                "/vector_stores/{}/files/{file_id}/content",
-                &self.vector_store_id
-            ), &self.request_options)
+            .get(
+                &format!(
+                    "/vector_stores/{}/files/{file_id}/content",
+                    &self.vector_store_id
+                ),
+                &self.request_options,
+            )
             .await
     }
 }

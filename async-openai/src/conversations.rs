@@ -33,7 +33,9 @@ impl<'c, C: Config> Conversations<'c, C> {
         &self,
         request: CreateConversationRequest,
     ) -> Result<ConversationResource, OpenAIError> {
-        self.client.post("/conversations", request, &self.request_options).await
+        self.client
+            .post("/conversations", request, &self.request_options)
+            .await
     }
 
     /// Retrieves a conversation.
@@ -43,7 +45,10 @@ impl<'c, C: Config> Conversations<'c, C> {
         conversation_id: &str,
     ) -> Result<ConversationResource, OpenAIError> {
         self.client
-            .get(&format!("/conversations/{conversation_id}"), &self.request_options)
+            .get(
+                &format!("/conversations/{conversation_id}"),
+                &self.request_options,
+            )
             .await
     }
 
@@ -54,7 +59,10 @@ impl<'c, C: Config> Conversations<'c, C> {
         conversation_id: &str,
     ) -> Result<DeleteConversationResponse, OpenAIError> {
         self.client
-            .delete(&format!("/conversations/{conversation_id}"), &self.request_options)
+            .delete(
+                &format!("/conversations/{conversation_id}"),
+                &self.request_options,
+            )
             .await
     }
 
@@ -66,7 +74,11 @@ impl<'c, C: Config> Conversations<'c, C> {
         request: UpdateConversationRequest,
     ) -> Result<ConversationResource, OpenAIError> {
         self.client
-            .post(&format!("/conversations/{conversation_id}"), request, &self.request_options)
+            .post(
+                &format!("/conversations/{conversation_id}"),
+                request,
+                &self.request_options,
+            )
             .await
     }
 }

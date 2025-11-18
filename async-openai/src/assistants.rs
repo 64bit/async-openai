@@ -32,14 +32,19 @@ impl<'c, C: Config> Assistants<'c, C> {
         &self,
         request: CreateAssistantRequest,
     ) -> Result<AssistantObject, OpenAIError> {
-        self.client.post("/assistants", request, &self.request_options).await
+        self.client
+            .post("/assistants", request, &self.request_options)
+            .await
     }
 
     /// Retrieves an assistant.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, assistant_id: &str) -> Result<AssistantObject, OpenAIError> {
         self.client
-            .get(&format!("/assistants/{assistant_id}"), &self.request_options)
+            .get(
+                &format!("/assistants/{assistant_id}"),
+                &self.request_options,
+            )
             .await
     }
 
@@ -51,7 +56,11 @@ impl<'c, C: Config> Assistants<'c, C> {
         request: ModifyAssistantRequest,
     ) -> Result<AssistantObject, OpenAIError> {
         self.client
-            .post(&format!("/assistants/{assistant_id}"), request, &self.request_options)
+            .post(
+                &format!("/assistants/{assistant_id}"),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -59,7 +68,10 @@ impl<'c, C: Config> Assistants<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, assistant_id: &str) -> Result<DeleteAssistantResponse, OpenAIError> {
         self.client
-            .delete(&format!("/assistants/{assistant_id}"), &self.request_options)
+            .delete(
+                &format!("/assistants/{assistant_id}"),
+                &self.request_options,
+            )
             .await
     }
 
@@ -69,6 +81,8 @@ impl<'c, C: Config> Assistants<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        self.client.get_with_query("/assistants", &query, &self.request_options).await
+        self.client
+            .get_with_query("/assistants", &query, &self.request_options)
+            .await
     }
 }

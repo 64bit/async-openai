@@ -36,7 +36,9 @@ impl<'c, C: Config> Uploads<'c, C> {
     /// [creating a File](https://platform.openai.com/docs/api-reference/files/create).
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: CreateUploadRequest) -> Result<Upload, OpenAIError> {
-        self.client.post("/uploads", request, &self.request_options).await
+        self.client
+            .post("/uploads", request, &self.request_options)
+            .await
     }
 
     /// Adds a [Part](https://platform.openai.com/docs/api-reference/uploads/part-object) to an
@@ -58,7 +60,11 @@ impl<'c, C: Config> Uploads<'c, C> {
         request: AddUploadPartRequest,
     ) -> Result<UploadPart, OpenAIError> {
         self.client
-            .post_form(&format!("/uploads/{upload_id}/parts"), request, &self.request_options)
+            .post_form(
+                &format!("/uploads/{upload_id}/parts"),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -79,7 +85,11 @@ impl<'c, C: Config> Uploads<'c, C> {
         request: CompleteUploadRequest,
     ) -> Result<Upload, OpenAIError> {
         self.client
-            .post(&format!("/uploads/{upload_id}/complete"), request, &self.request_options)
+            .post(
+                &format!("/uploads/{upload_id}/complete"),
+                request,
+                &self.request_options,
+            )
             .await
     }
 

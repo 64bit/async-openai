@@ -38,7 +38,11 @@ impl<'c, C: Config> Runs<'c, C> {
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: CreateRunRequest) -> Result<RunObject, OpenAIError> {
         self.client
-            .post(&format!("/threads/{}/runs", self.thread_id), request, &self.request_options)
+            .post(
+                &format!("/threads/{}/runs", self.thread_id),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -82,7 +86,10 @@ impl<'c, C: Config> Runs<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, run_id: &str) -> Result<RunObject, OpenAIError> {
         self.client
-            .get(&format!("/threads/{}/runs/{run_id}", self.thread_id), &self.request_options)
+            .get(
+                &format!("/threads/{}/runs/{run_id}", self.thread_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -109,7 +116,11 @@ impl<'c, C: Config> Runs<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query(&format!("/threads/{}/runs", self.thread_id), &query, &self.request_options)
+            .get_with_query(
+                &format!("/threads/{}/runs", self.thread_id),
+                &query,
+                &self.request_options,
+            )
             .await
     }
 

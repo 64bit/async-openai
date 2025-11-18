@@ -32,7 +32,9 @@ impl<'c, C: Config> Videos<'c, C> {
         where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
     )]
     pub async fn create(&self, request: CreateVideoRequest) -> Result<VideoJob, OpenAIError> {
-        self.client.post_form("/videos", request, &self.request_options).await
+        self.client
+            .post_form("/videos", request, &self.request_options)
+            .await
     }
 
     /// Create a video remix
@@ -43,20 +45,28 @@ impl<'c, C: Config> Videos<'c, C> {
         request: RemixVideoRequest,
     ) -> Result<VideoJob, OpenAIError> {
         self.client
-            .post(&format!("/videos/{video_id}/remix"), request, &self.request_options)
+            .post(
+                &format!("/videos/{video_id}/remix"),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
     /// Retrieves a video by its ID.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, video_id: &str) -> Result<VideoJob, OpenAIError> {
-        self.client.get(&format!("/videos/{}", video_id), &self.request_options).await
+        self.client
+            .get(&format!("/videos/{}", video_id), &self.request_options)
+            .await
     }
 
     /// Delete a Video
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, video_id: &str) -> Result<VideoJobMetadata, OpenAIError> {
-        self.client.delete(&format!("/videos/{}", video_id), &self.request_options).await
+        self.client
+            .delete(&format!("/videos/{}", video_id), &self.request_options)
+            .await
     }
 
     /// List Videos
@@ -65,7 +75,9 @@ impl<'c, C: Config> Videos<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        self.client.get_with_query("/videos", &query, &self.request_options).await
+        self.client
+            .get_with_query("/videos", &query, &self.request_options)
+            .await
     }
 
     /// Download video content

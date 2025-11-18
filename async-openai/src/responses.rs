@@ -38,7 +38,9 @@ impl<'c, C: Config> Responses<'c, C> {
         R = serde::de::DeserializeOwned
     )]
     pub async fn create(&self, request: CreateResponse) -> Result<Response, OpenAIError> {
-        self.client.post("/responses", request, &self.request_options).await
+        self.client
+            .post("/responses", request, &self.request_options)
+            .await
     }
 
     /// Creates a model response for the given input with streaming.
@@ -64,7 +66,10 @@ impl<'c, C: Config> Responses<'c, C> {
             }
             request.stream = Some(true);
         }
-        Ok(self.client.post_stream("/responses", request, &self.request_options).await)
+        Ok(self
+            .client
+            .post_stream("/responses", request, &self.request_options)
+            .await)
     }
 
     /// Retrieves a model response with the given ID.
@@ -74,7 +79,11 @@ impl<'c, C: Config> Responses<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query(&format!("/responses/{}", response_id), &query, &self.request_options)
+            .get_with_query(
+                &format!("/responses/{}", response_id),
+                &query,
+                &self.request_options,
+            )
             .await
     }
 
@@ -82,7 +91,10 @@ impl<'c, C: Config> Responses<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, response_id: &str) -> Result<DeleteResponse, OpenAIError> {
         self.client
-            .delete(&format!("/responses/{}", response_id), &self.request_options)
+            .delete(
+                &format!("/responses/{}", response_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -111,7 +123,11 @@ impl<'c, C: Config> Responses<'c, C> {
         Q: Serialize + ?Sized,
     {
         self.client
-            .get_with_query(&format!("/responses/{}/input_items", response_id), &query, &self.request_options)
+            .get_with_query(
+                &format!("/responses/{}/input_items", response_id),
+                &query,
+                &self.request_options,
+            )
             .await
     }
 
@@ -121,6 +137,8 @@ impl<'c, C: Config> Responses<'c, C> {
         &self,
         request: TokenCountsBody,
     ) -> Result<TokenCountsResource, OpenAIError> {
-        self.client.post("/responses/input_tokens", request, &self.request_options).await
+        self.client
+            .post("/responses/input_tokens", request, &self.request_options)
+            .await
     }
 }

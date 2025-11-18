@@ -23,7 +23,10 @@ impl<'c, C: Config> Speech<'c, C> {
         &self,
         request: CreateSpeechRequest,
     ) -> Result<CreateSpeechResponse, OpenAIError> {
-        let (bytes, _headers) = self.client.post_raw("/audio/speech", request, &self.request_options).await?;
+        let (bytes, _headers) = self
+            .client
+            .post_raw("/audio/speech", request, &self.request_options)
+            .await?;
 
         Ok(CreateSpeechResponse { bytes })
     }
@@ -53,6 +56,9 @@ impl<'c, C: Config> Speech<'c, C> {
 
             request.stream_format = Some(StreamFormat::SSE);
         }
-        Ok(self.client.post_stream("/audio/speech", request, &self.request_options).await)
+        Ok(self
+            .client
+            .post_stream("/audio/speech", request, &self.request_options)
+            .await)
     }
 }

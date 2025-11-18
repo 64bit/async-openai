@@ -39,7 +39,9 @@ impl<'c, C: Config> FineTuning<'c, C> {
         &self,
         request: CreateFineTuningJobRequest,
     ) -> Result<FineTuningJob, OpenAIError> {
-        self.client.post("/fine_tuning/jobs", request, &self.request_options).await
+        self.client
+            .post("/fine_tuning/jobs", request, &self.request_options)
+            .await
     }
 
     /// List your organization's fine-tuning jobs
@@ -62,7 +64,10 @@ impl<'c, C: Config> FineTuning<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, fine_tuning_job_id: &str) -> Result<FineTuningJob, OpenAIError> {
         self.client
-            .get(format!("/fine_tuning/jobs/{fine_tuning_job_id}").as_str(), &self.request_options)
+            .get(
+                format!("/fine_tuning/jobs/{fine_tuning_job_id}").as_str(),
+                &self.request_options,
+            )
             .await
     }
 

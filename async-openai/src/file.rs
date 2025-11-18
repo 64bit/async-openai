@@ -37,7 +37,9 @@ impl<'c, C: Config> Files<'c, C> {
         where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
     )]
     pub async fn create(&self, request: CreateFileRequest) -> Result<OpenAIFile, OpenAIError> {
-        self.client.post_form("/files", request, &self.request_options).await
+        self.client
+            .post_form("/files", request, &self.request_options)
+            .await
     }
 
     /// Returns a list of files that belong to the user's organization.
@@ -46,13 +48,17 @@ impl<'c, C: Config> Files<'c, C> {
     where
         Q: Serialize + ?Sized,
     {
-        self.client.get_with_query("/files", &query, &self.request_options).await
+        self.client
+            .get_with_query("/files", &query, &self.request_options)
+            .await
     }
 
     /// Returns information about a specific file.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, file_id: &str) -> Result<OpenAIFile, OpenAIError> {
-        self.client.get(format!("/files/{file_id}").as_str(), &self.request_options).await
+        self.client
+            .get(format!("/files/{file_id}").as_str(), &self.request_options)
+            .await
     }
 
     /// Delete a file.
