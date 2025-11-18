@@ -20,7 +20,7 @@ impl RequestOptions {
     pub fn with_headers(&mut self, headers: HeaderMap) {
         // merge with existing headers or update with new headers
         if let Some(existing_headers) = &mut self.headers {
-            existing_headers.extend(headers.into_iter());
+            existing_headers.extend(headers);
         } else {
             self.headers = Some(headers);
         }
@@ -39,7 +39,7 @@ impl RequestOptions {
             headers.insert(key, value);
         } else {
             let mut headers = HeaderMap::new();
-            headers.insert(key, value.into());
+            headers.insert(key, value);
             self.headers = Some(headers);
         }
         Ok(())
