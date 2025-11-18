@@ -1,4 +1,3 @@
-
 use crate::{
     config::Config,
     error::OpenAIError,
