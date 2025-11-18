@@ -71,7 +71,10 @@ impl<'c, C: Config> Messages<'c, C> {
     #[crate::byot(R = serde::de::DeserializeOwned)]
     pub async fn list(&self) -> Result<ListMessagesResponse, OpenAIError> {
         self.client
-            .get(&format!("/threads/{}/messages", self.thread_id), &self.request_options)
+            .get(
+                &format!("/threads/{}/messages", self.thread_id),
+                &self.request_options,
+            )
             .await
     }
 

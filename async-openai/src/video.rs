@@ -71,9 +71,7 @@ impl<'c, C: Config> Videos<'c, C> {
     /// List Videos
     #[crate::byot(R = serde::de::DeserializeOwned)]
     pub async fn list(&self) -> Result<ListVideosResponse, OpenAIError> {
-        self.client
-            .get("/videos", &self.request_options)
-            .await
+        self.client.get("/videos", &self.request_options).await
     }
 
     /// Download video content

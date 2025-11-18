@@ -29,7 +29,10 @@ impl<'c, C: Config> Usage<'c, C> {
     #[crate::byot(R = serde::de::DeserializeOwned)]
     pub async fn audio_transcriptions(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
-            .get("/organization/usage/audio_transcriptions", &self.request_options)
+            .get(
+                "/organization/usage/audio_transcriptions",
+                &self.request_options,
+            )
             .await
     }
 
@@ -37,7 +40,10 @@ impl<'c, C: Config> Usage<'c, C> {
     #[crate::byot(R = serde::de::DeserializeOwned)]
     pub async fn code_interpreter_sessions(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
-            .get("/organization/usage/code_interpreter_sessions", &self.request_options)
+            .get(
+                "/organization/usage/code_interpreter_sessions",
+                &self.request_options,
+            )
             .await
     }
 

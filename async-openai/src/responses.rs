@@ -74,7 +74,10 @@ impl<'c, C: Config> Responses<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, response_id: &str) -> Result<Response, OpenAIError> {
         self.client
-            .get(&format!("/responses/{}", response_id), &self.request_options)
+            .get(
+                &format!("/responses/{}", response_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -105,7 +108,10 @@ impl<'c, C: Config> Responses<'c, C> {
 
     /// Returns a list of input items for a given response.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
-    pub async fn list_input_items(&self, response_id: &str) -> Result<ResponseItemList, OpenAIError> {
+    pub async fn list_input_items(
+        &self,
+        response_id: &str,
+    ) -> Result<ResponseItemList, OpenAIError> {
         self.client
             .get(
                 &format!("/responses/{}/input_items", response_id),

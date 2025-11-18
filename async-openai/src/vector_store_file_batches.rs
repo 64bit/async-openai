@@ -74,7 +74,10 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
 
     /// Returns a list of vector store files in a batch.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
-    pub async fn list_files(&self, batch_id: &str) -> Result<ListVectorStoreFilesResponse, OpenAIError> {
+    pub async fn list_files(
+        &self,
+        batch_id: &str,
+    ) -> Result<ListVectorStoreFilesResponse, OpenAIError> {
         self.client
             .get(
                 &format!(

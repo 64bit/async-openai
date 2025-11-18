@@ -40,9 +40,7 @@ impl<'c, C: Config> Containers<'c, C> {
     /// List containers.
     #[crate::byot(R = serde::de::DeserializeOwned)]
     pub async fn list(&self) -> Result<ContainerListResource, OpenAIError> {
-        self.client
-            .get("/containers", &self.request_options)
-            .await
+        self.client.get("/containers", &self.request_options).await
     }
 
     /// Retrieve a container.

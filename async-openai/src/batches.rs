@@ -32,9 +32,7 @@ impl<'c, C: Config> Batches<'c, C> {
     /// List your organization's batches.
     #[crate::byot(R = serde::de::DeserializeOwned)]
     pub async fn list(&self) -> Result<ListBatchesResponse, OpenAIError> {
-        self.client
-            .get("/batches", &self.request_options)
-            .await
+        self.client.get("/batches", &self.request_options).await
     }
 
     /// Retrieves a batch.

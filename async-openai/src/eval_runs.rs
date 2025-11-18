@@ -30,7 +30,10 @@ impl<'c, C: Config> EvalRuns<'c, C> {
     #[crate::byot(R = serde::de::DeserializeOwned)]
     pub async fn list(&self) -> Result<EvalRunList, OpenAIError> {
         self.client
-            .get(&format!("/evals/{}/runs", self.eval_id), &self.request_options)
+            .get(
+                &format!("/evals/{}/runs", self.eval_id),
+                &self.request_options,
+            )
             .await
     }
 

@@ -111,7 +111,10 @@ impl<'c, C: Config> Runs<'c, C> {
     #[crate::byot(R = serde::de::DeserializeOwned)]
     pub async fn list(&self) -> Result<ListRunsResponse, OpenAIError> {
         self.client
-            .get(&format!("/threads/{}/runs", self.thread_id), &self.request_options)
+            .get(
+                &format!("/threads/{}/runs", self.thread_id),
+                &self.request_options,
+            )
             .await
     }
 
