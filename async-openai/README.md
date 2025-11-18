@@ -38,7 +38,7 @@
 Features that makes `async-openai` unique:
 - Bring your own custom types for Request or Response objects.
 - SSE streaming on available APIs.
-- Customize query and headers globally or per request.
+- Customize query and headers per request, customize headers globally.
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
 - Ergonomic builder pattern for all request objects.
 - Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec).
