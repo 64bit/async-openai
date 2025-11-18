@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -9,18 +7,22 @@ use crate::{
     types::admin::projects::{
         Project, ProjectCreateRequest, ProjectListResponse, ProjectUpdateRequest,
     },
-    Client, ProjectServiceAccounts, ProjectUsers,
+    Client, ProjectServiceAccounts, ProjectUsers, RequestOptions,
 };
 
 /// Manage the projects within an organization includes creation, updating, and archiving or projects.
 /// The Default project cannot be modified or archived.
 pub struct Projects<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Projects<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     // call [ProjectUsers] group APIs
@@ -49,27 +51,29 @@ impl<'c, C: Config> Projects<'c, C> {
     }
 
     /// Returns a list of projects.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ProjectListResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ProjectListResponse, OpenAIError> {
         self.client
-            .get_with_query("/organization/projects", &query)
+            .get("/organization/projects", &self.request_options)
             .await
     }
 
     /// Create a new project in the organization. Projects can be created and archived, but cannot be deleted.
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: ProjectCreateRequest) -> Result<Project, OpenAIError> {
-        self.client.post("/organization/projects", request).await
+        self.client
+            .post("/organization/projects", request, &self.request_options)
+            .await
     }
 
     /// Retrieves a project.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, project_id: String) -> Result<Project, OpenAIError> {
         self.client
-            .get(format!("/organization/projects/{project_id}").as_str())
+            .get(
+                format!("/organization/projects/{project_id}").as_str(),
+                &self.request_options,
+            )
             .await
     }
 
@@ -84,6 +88,7 @@ impl<'c, C: Config> Projects<'c, C> {
             .post(
                 format!("/organization/projects/{project_id}").as_str(),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -95,6 +100,7 @@ impl<'c, C: Config> Projects<'c, C> {
             .post(
                 format!("/organization/projects/{project_id}/archive").as_str(),
                 (),
+                &self.request_options,
             )
             .await
     }

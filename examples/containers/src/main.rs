@@ -1,4 +1,5 @@
 use async_openai::{
+    traits::RequestOptionsBuilder,
     types::containers::{
         ContainerExpiresAfter, ContainerExpiresAfterAnchor, CreateContainerFileRequest,
         CreateContainerRequestArgs,
@@ -30,7 +31,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // List all containers
     println!("\nListing all containers...");
     let query = [("limit", "10")];
-    let list_response = client.containers().list(&query).await?;
+    let list_response = client.containers().query(&query)?.list().await?;
     println!("Found {} containers", list_response.data.len());
     for c in &list_response.data {
         println!("  - {} ({})", c.name, c.id);
@@ -67,7 +68,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let files_list = client
         .containers()
         .files(&container.id)
-        .list(&files_query)
+        .query(&files_query)?
+        .list()
         .await?;
     println!("Found {} files", files_list.data.len());
     for f in &files_list.data {

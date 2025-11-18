@@ -1,21 +1,24 @@
 use bytes::Bytes;
-use serde::Serialize;
 
 use crate::{
     config::Config,
     error::OpenAIError,
     types::files::{CreateFileRequest, DeleteFileResponse, ListFilesResponse, OpenAIFile},
-    Client,
+    Client, RequestOptions,
 };
 
 /// Files are used to upload documents that can be used with features like Assistants and Fine-tuning.
 pub struct Files<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Files<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Upload a file that can be used across various endpoints. Individual files can be up to 512 MB, and the size of all files uploaded by one organization can be up to 1 TB.
@@ -33,29 +36,30 @@ impl<'c, C: Config> Files<'c, C> {
         where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
     )]
     pub async fn create(&self, request: CreateFileRequest) -> Result<OpenAIFile, OpenAIError> {
-        self.client.post_form("/files", request).await
+        self.client
+            .post_form("/files", request, &self.request_options)
+            .await
     }
 
     /// Returns a list of files that belong to the user's organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ListFilesResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
-        self.client.get_with_query("/files", &query).await
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ListFilesResponse, OpenAIError> {
+        self.client.get("/files", &self.request_options).await
     }
 
     /// Returns information about a specific file.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, file_id: &str) -> Result<OpenAIFile, OpenAIError> {
-        self.client.get(format!("/files/{file_id}").as_str()).await
+        self.client
+            .get(format!("/files/{file_id}").as_str(), &self.request_options)
+            .await
     }
 
     /// Delete a file.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, file_id: &str) -> Result<DeleteFileResponse, OpenAIError> {
         self.client
-            .delete(format!("/files/{file_id}").as_str())
+            .delete(format!("/files/{file_id}").as_str(), &self.request_options)
             .await
     }
 
@@ -63,7 +67,10 @@ impl<'c, C: Config> Files<'c, C> {
     pub async fn content(&self, file_id: &str) -> Result<Bytes, OpenAIError> {
         let (bytes, _headers) = self
             .client
-            .get_raw(format!("/files/{file_id}/content").as_str())
+            .get_raw(
+                format!("/files/{file_id}/content").as_str(),
+                &self.request_options,
+            )
             .await?;
         Ok(bytes)
     }
@@ -72,6 +79,7 @@ impl<'c, C: Config> Files<'c, C> {
 #[cfg(test)]
 mod tests {
     use crate::{
+        traits::RequestOptionsBuilder,
         types::files::{
             CreateFileRequestArgs, FileExpirationAfter, FileExpirationAfterAnchor, FilePurpose,
         },
@@ -109,7 +117,7 @@ mod tests {
         //assert_eq!(openai_file.status, Some("processed".to_owned())); // uploaded or processed
         let query = [("purpose", "fine-tune")];
 
-        let list_files = client.files().list(&query).await.unwrap();
+        let list_files = client.files().query(&query).unwrap().list().await.unwrap();
 
         assert_eq!(list_files.data.into_iter().last().unwrap(), openai_file);
 

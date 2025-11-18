@@ -7,3 +7,5 @@ Cargo.lock
 data
 
 *.mp3
+
+*.py

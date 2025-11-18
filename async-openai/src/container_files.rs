@@ -1,5 +1,4 @@
 use bytes::Bytes;
-use serde::Serialize;
 
 use crate::{
     config::Config,
@@ -8,13 +7,14 @@ use crate::{
         ContainerFileListResource, ContainerFileResource, CreateContainerFileRequest,
         DeleteContainerFileResponse,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Create and manage container files for use with the Code Interpreter tool.
 pub struct ContainerFiles<'c, C: Config> {
     client: &'c Client<C>,
     container_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> ContainerFiles<'c, C> {
@@ -22,6 +22,7 @@ impl<'c, C: Config> ContainerFiles<'c, C> {
         Self {
             client,
             container_id: container_id.to_string(),
+            request_options: RequestOptions::new(),
         }
     }
 
@@ -36,18 +37,22 @@ impl<'c, C: Config> ContainerFiles<'c, C> {
         request: CreateContainerFileRequest,
     ) -> Result<ContainerFileResource, OpenAIError> {
         self.client
-            .post_form(&format!("/containers/{}/files", self.container_id), request)
+            .post_form(
+                &format!("/containers/{}/files", self.container_id),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
     /// List container files.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ContainerFileListResource, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ContainerFileListResource, OpenAIError> {
         self.client
-            .get_with_query(&format!("/containers/{}/files", self.container_id), &query)
+            .get(
+                &format!("/containers/{}/files", self.container_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -55,7 +60,10 @@ impl<'c, C: Config> ContainerFiles<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, file_id: &str) -> Result<ContainerFileResource, OpenAIError> {
         self.client
-            .get(format!("/containers/{}/files/{file_id}", self.container_id).as_str())
+            .get(
+                format!("/containers/{}/files/{file_id}", self.container_id).as_str(),
+                &self.request_options,
+            )
             .await
     }
 
@@ -63,7 +71,10 @@ impl<'c, C: Config> ContainerFiles<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, file_id: &str) -> Result<DeleteContainerFileResponse, OpenAIError> {
         self.client
-            .delete(format!("/containers/{}/files/{file_id}", self.container_id).as_str())
+            .delete(
+                format!("/containers/{}/files/{file_id}", self.container_id).as_str(),
+                &self.request_options,
+            )
             .await
     }
 
@@ -71,7 +82,10 @@ impl<'c, C: Config> ContainerFiles<'c, C> {
     pub async fn content(&self, file_id: &str) -> Result<Bytes, OpenAIError> {
         let (bytes, _headers) = self
             .client
-            .get_raw(format!("/containers/{}/files/{file_id}/content", self.container_id).as_str())
+            .get_raw(
+                format!("/containers/{}/files/{file_id}/content", self.container_id).as_str(),
+                &self.request_options,
+            )
             .await?;
         Ok(bytes)
     }

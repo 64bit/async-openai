@@ -1,12 +1,10 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
     types::vectorstores::{
         CreateVectorStoreFileBatchRequest, ListVectorStoreFilesResponse, VectorStoreFileBatchObject,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Vector store file batches represent operations to add multiple files to a vector store.
@@ -15,6 +13,7 @@ use crate::{
 pub struct VectorStoreFileBatches<'c, C: Config> {
     client: &'c Client<C>,
     pub vector_store_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
@@ -22,6 +21,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
         Self {
             client,
             vector_store_id: vector_store_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
@@ -35,6 +35,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
             .post(
                 &format!("/vector_stores/{}/file_batches", &self.vector_store_id),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -46,10 +47,13 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
         batch_id: &str,
     ) -> Result<VectorStoreFileBatchObject, OpenAIError> {
         self.client
-            .get(&format!(
-                "/vector_stores/{}/file_batches/{batch_id}",
-                &self.vector_store_id
-            ))
+            .get(
+                &format!(
+                    "/vector_stores/{}/file_batches/{batch_id}",
+                    &self.vector_store_id
+                ),
+                &self.request_options,
+            )
             .await
     }
 
@@ -63,27 +67,24 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
                     &self.vector_store_id
                 ),
                 serde_json::json!({}),
+                &self.request_options,
             )
             .await
     }
 
     /// Returns a list of vector store files in a batch.
-    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list_files<Q>(
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn list_files(
         &self,
         batch_id: &str,
-        query: &Q,
-    ) -> Result<ListVectorStoreFilesResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    ) -> Result<ListVectorStoreFilesResponse, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 &format!(
                     "/vector_stores/{}/file_batches/{batch_id}/files",
                     &self.vector_store_id
                 ),
-                &query,
+                &self.request_options,
             )
             .await
     }

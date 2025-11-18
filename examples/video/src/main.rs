@@ -1,5 +1,6 @@
 use async_openai::{
     config::OpenAIConfig,
+    traits::RequestOptionsBuilder,
     types::videos::{CreateVideoRequestArgs, VideoJob, VideoSize, VideoVariant},
     Client,
 };
@@ -72,7 +73,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let video = create_video(&client).await?;
     // wait for above video to be "completed"
     tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-    let videos = client.videos().list(&[("limit", "100")]).await?;
+    let videos = client.videos().query(&[("limit", "100")])?.list().await?;
 
     for video in &videos.data {
         println!("Video: {:#?}", video);
@@ -80,7 +81,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         if video.status == "completed" {
             let content = client
                 .videos()
-                .download_content(&video.id, VideoVariant::Video)
+                .query(&[("variant", VideoVariant::Video)])?
+                .download_content(&video.id)
                 .await;
             if let Ok(content) = content {
                 let output_path = &format!("./data/{}.mp4", video.id);

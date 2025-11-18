@@ -1,29 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-/// Width of each time bucket in response.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum UsageBucketWidth {
-    #[serde(rename = "1m")]
-    OneMinute,
-    #[serde(rename = "1h")]
-    OneHour,
-    #[serde(rename = "1d")]
-    OneDay,
-}
-
-/// Fields to group usage data by.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum UsageGroupBy {
-    ProjectId,
-    UserId,
-    ApiKeyId,
-    Model,
-    Batch,
-    ServiceTier,
-}
-
 /// Query parameters for organization usage endpoints.
 #[derive(Debug, Clone, Serialize, Default)]
 pub struct UsageQueryParams {
@@ -59,6 +35,30 @@ pub struct UsageQueryParams {
     /// A cursor for use in pagination. Corresponding to the `next_page` field from the previous response.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<String>,
+}
+
+/// Width of each time bucket in response.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum UsageBucketWidth {
+    #[serde(rename = "1m")]
+    OneMinute,
+    #[serde(rename = "1h")]
+    OneHour,
+    #[serde(rename = "1d")]
+    OneDay,
+}
+
+/// Fields to group usage data by.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum UsageGroupBy {
+    ProjectId,
+    UserId,
+    ApiKeyId,
+    Model,
+    Batch,
+    ServiceTier,
 }
 
 /// Response structure for organization usage endpoints.

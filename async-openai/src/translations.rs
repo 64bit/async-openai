@@ -7,16 +7,20 @@ use crate::{
         CreateTranslationRequest, CreateTranslationResponseJson,
         CreateTranslationResponseVerboseJson,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 pub struct Translations<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Translations<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Translates audio into English.
@@ -29,7 +33,9 @@ impl<'c, C: Config> Translations<'c, C> {
         &self,
         request: CreateTranslationRequest,
     ) -> Result<CreateTranslationResponseJson, OpenAIError> {
-        self.client.post_form("/audio/translations", request).await
+        self.client
+            .post_form("/audio/translations", request, &self.request_options)
+            .await
     }
 
     /// Translates audio into English.
@@ -42,7 +48,9 @@ impl<'c, C: Config> Translations<'c, C> {
         &self,
         request: CreateTranslationRequest,
     ) -> Result<CreateTranslationResponseVerboseJson, OpenAIError> {
-        self.client.post_form("/audio/translations", request).await
+        self.client
+            .post_form("/audio/translations", request, &self.request_options)
+            .await
     }
 
     /// Transcribes audio into the input language.
@@ -52,7 +60,7 @@ impl<'c, C: Config> Translations<'c, C> {
     ) -> Result<Bytes, OpenAIError> {
         let (bytes, _headers) = self
             .client
-            .post_form_raw("/audio/translations", request)
+            .post_form_raw("/audio/translations", request, &self.request_options)
             .await?;
         Ok(bytes)
     }

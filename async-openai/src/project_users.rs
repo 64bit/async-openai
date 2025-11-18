@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -7,7 +5,7 @@ use crate::{
         ProjectUser, ProjectUserCreateRequest, ProjectUserDeleteResponse, ProjectUserListResponse,
         ProjectUserUpdateRequest,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Manage users within a project, including adding, updating roles, and removing users.
@@ -15,6 +13,7 @@ use crate::{
 pub struct ProjectUsers<'c, C: Config> {
     client: &'c Client<C>,
     pub project_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> ProjectUsers<'c, C> {
@@ -22,19 +21,17 @@ impl<'c, C: Config> ProjectUsers<'c, C> {
         Self {
             client,
             project_id: project_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
     /// Returns a list of users in the project.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ProjectUserListResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ProjectUserListResponse, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 format!("/organization/projects/{}/users", self.project_id).as_str(),
-                &query,
+                &self.request_options,
             )
             .await
     }
@@ -49,6 +46,7 @@ impl<'c, C: Config> ProjectUsers<'c, C> {
             .post(
                 format!("/organization/projects/{}/users", self.project_id).as_str(),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -57,7 +55,10 @@ impl<'c, C: Config> ProjectUsers<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, user_id: &str) -> Result<ProjectUser, OpenAIError> {
         self.client
-            .get(format!("/organization/projects/{}/users/{user_id}", self.project_id).as_str())
+            .get(
+                format!("/organization/projects/{}/users/{user_id}", self.project_id).as_str(),
+                &self.request_options,
+            )
             .await
     }
 
@@ -72,6 +73,7 @@ impl<'c, C: Config> ProjectUsers<'c, C> {
             .post(
                 format!("/organization/projects/{}/users/{user_id}", self.project_id).as_str(),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -80,7 +82,10 @@ impl<'c, C: Config> ProjectUsers<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, user_id: &str) -> Result<ProjectUserDeleteResponse, OpenAIError> {
         self.client
-            .delete(format!("/organization/projects/{}/users/{user_id}", self.project_id).as_str())
+            .delete(
+                format!("/organization/projects/{}/users/{user_id}", self.project_id).as_str(),
+                &self.request_options,
+            )
             .await
     }
 }

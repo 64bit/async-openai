@@ -1,12 +1,10 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
     types::admin::project_api_keys::{
         ProjectApiKey, ProjectApiKeyDeleteResponse, ProjectApiKeyListResponse,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Manage API keys for a given project. Supports listing and deleting keys for users.
@@ -14,6 +12,7 @@ use crate::{
 pub struct ProjectAPIKeys<'c, C: Config> {
     client: &'c Client<C>,
     pub project_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> ProjectAPIKeys<'c, C> {
@@ -21,19 +20,17 @@ impl<'c, C: Config> ProjectAPIKeys<'c, C> {
         Self {
             client,
             project_id: project_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
     /// Returns a list of API keys in the project.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ProjectApiKeyListResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ProjectApiKeyListResponse, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 format!("/organization/projects/{}/api_keys", self.project_id).as_str(),
-                &query,
+                &self.request_options,
             )
             .await
     }
@@ -48,6 +45,7 @@ impl<'c, C: Config> ProjectAPIKeys<'c, C> {
                     self.project_id
                 )
                 .as_str(),
+                &self.request_options,
             )
             .await
     }
@@ -62,6 +60,7 @@ impl<'c, C: Config> ProjectAPIKeys<'c, C> {
                     self.project_id
                 )
                 .as_str(),
+                &self.request_options,
             )
             .await
     }

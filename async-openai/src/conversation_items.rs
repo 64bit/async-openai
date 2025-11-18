@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -7,13 +5,14 @@ use crate::{
         ConversationItem, ConversationItemList, ConversationResource,
         CreateConversationItemsRequest,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Conversation items represent items within a conversation.
 pub struct ConversationItems<'c, C: Config> {
     client: &'c Client<C>,
     pub conversation_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> ConversationItems<'c, C> {
@@ -21,6 +20,7 @@ impl<'c, C: Config> ConversationItems<'c, C> {
         Self {
             client,
             conversation_id: conversation_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
@@ -34,20 +34,18 @@ impl<'c, C: Config> ConversationItems<'c, C> {
             .post(
                 &format!("/conversations/{}/items", &self.conversation_id),
                 request,
+                &self.request_options,
             )
             .await
     }
 
     /// List all items for a conversation.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ConversationItemList, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ConversationItemList, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 &format!("/conversations/{}/items", &self.conversation_id),
-                &query,
+                &self.request_options,
             )
             .await
     }
@@ -56,10 +54,10 @@ impl<'c, C: Config> ConversationItems<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, item_id: &str) -> Result<ConversationItem, OpenAIError> {
         self.client
-            .get(&format!(
-                "/conversations/{}/items/{item_id}",
-                &self.conversation_id
-            ))
+            .get(
+                &format!("/conversations/{}/items/{item_id}", &self.conversation_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -67,10 +65,10 @@ impl<'c, C: Config> ConversationItems<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, item_id: &str) -> Result<ConversationResource, OpenAIError> {
         self.client
-            .delete(&format!(
-                "/conversations/{}/items/{item_id}",
-                &self.conversation_id
-            ))
+            .delete(
+                &format!("/conversations/{}/items/{item_id}", &self.conversation_id),
+                &self.request_options,
+            )
             .await
     }
 }

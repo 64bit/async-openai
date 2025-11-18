@@ -1,22 +1,24 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
     eval_runs::EvalRuns,
     types::evals::{CreateEvalRequest, DeleteEvalResponse, Eval, EvalList, UpdateEvalRequest},
-    Client,
+    Client, RequestOptions,
 };
 
 /// Create, manage, and run evals in the OpenAI platform. Related guide:
 /// [Evals](https://platform.openai.com/docs/guides/evals)
 pub struct Evals<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Evals<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// [EvalRuns] API group
@@ -25,12 +27,9 @@ impl<'c, C: Config> Evals<'c, C> {
     }
 
     /// List evaluations for a project.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<EvalList, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
-        self.client.get_with_query("/evals", &query).await
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<EvalList, OpenAIError> {
+        self.client.get("/evals", &self.request_options).await
     }
 
     /// Create the structure of an evaluation that can be used to test a model's performance.
@@ -40,13 +39,17 @@ impl<'c, C: Config> Evals<'c, C> {
     /// datasources. For more information, see the [Evals guide](https://platform.openai.com/docs/guides/evals).
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: CreateEvalRequest) -> Result<Eval, OpenAIError> {
-        self.client.post("/evals", request).await
+        self.client
+            .post("/evals", request, &self.request_options)
+            .await
     }
 
     /// Get an evaluation by ID.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, eval_id: &str) -> Result<Eval, OpenAIError> {
-        self.client.get(&format!("/evals/{eval_id}")).await
+        self.client
+            .get(&format!("/evals/{eval_id}"), &self.request_options)
+            .await
     }
 
     /// Update certain properties of an evaluation.
@@ -57,13 +60,15 @@ impl<'c, C: Config> Evals<'c, C> {
         request: UpdateEvalRequest,
     ) -> Result<Eval, OpenAIError> {
         self.client
-            .post(&format!("/evals/{eval_id}"), request)
+            .post(&format!("/evals/{eval_id}"), request, &self.request_options)
             .await
     }
 
     /// Delete an evaluation.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, eval_id: &str) -> Result<DeleteEvalResponse, OpenAIError> {
-        self.client.delete(&format!("/evals/{eval_id}")).await
+        self.client
+            .delete(&format!("/evals/{eval_id}"), &self.request_options)
+            .await
     }
 }

@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -7,17 +5,21 @@ use crate::{
         CreateResponse, DeleteResponse, Response, ResponseItemList, ResponseStream,
         TokenCountsBody, TokenCountsResource,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 pub struct Responses<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Responses<'c, C> {
     /// Constructs a new Responses client.
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Creates a model response. Provide [text](https://platform.openai.com/docs/guides/text) or
@@ -34,7 +36,9 @@ impl<'c, C: Config> Responses<'c, C> {
         R = serde::de::DeserializeOwned
     )]
     pub async fn create(&self, request: CreateResponse) -> Result<Response, OpenAIError> {
-        self.client.post("/responses", request).await
+        self.client
+            .post("/responses", request, &self.request_options)
+            .await
     }
 
     /// Creates a model response for the given input with streaming.
@@ -60,17 +64,20 @@ impl<'c, C: Config> Responses<'c, C> {
             }
             request.stream = Some(true);
         }
-        Ok(self.client.post_stream("/responses", request).await)
+        Ok(self
+            .client
+            .post_stream("/responses", request, &self.request_options)
+            .await)
     }
 
     /// Retrieves a model response with the given ID.
-    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn retrieve<Q>(&self, response_id: &str, query: &Q) -> Result<Response, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve(&self, response_id: &str) -> Result<Response, OpenAIError> {
         self.client
-            .get_with_query(&format!("/responses/{}", response_id), &query)
+            .get(
+                &format!("/responses/{}", response_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -78,7 +85,10 @@ impl<'c, C: Config> Responses<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, response_id: &str) -> Result<DeleteResponse, OpenAIError> {
         self.client
-            .delete(&format!("/responses/{}", response_id))
+            .delete(
+                &format!("/responses/{}", response_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -91,22 +101,22 @@ impl<'c, C: Config> Responses<'c, C> {
             .post(
                 &format!("/responses/{}/cancel", response_id),
                 serde_json::json!({}),
+                &self.request_options,
             )
             .await
     }
 
     /// Returns a list of input items for a given response.
-    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list_input_items<Q>(
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn list_input_items(
         &self,
         response_id: &str,
-        query: &Q,
-    ) -> Result<ResponseItemList, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    ) -> Result<ResponseItemList, OpenAIError> {
         self.client
-            .get_with_query(&format!("/responses/{}/input_items", response_id), &query)
+            .get(
+                &format!("/responses/{}/input_items", response_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -116,6 +126,8 @@ impl<'c, C: Config> Responses<'c, C> {
         &self,
         request: TokenCountsBody,
     ) -> Result<TokenCountsResource, OpenAIError> {
-        self.client.post("/responses/input_tokens", request).await
+        self.client
+            .post("/responses/input_tokens", request, &self.request_options)
+            .await
     }
 }

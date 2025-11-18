@@ -1,16 +1,15 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
     eval_run_output_items::EvalRunOutputItems,
     types::evals::{CreateEvalRunRequest, DeleteEvalRunResponse, EvalRun, EvalRunList},
-    Client,
+    Client, RequestOptions,
 };
 
 pub struct EvalRuns<'c, C: Config> {
     client: &'c Client<C>,
     pub eval_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> EvalRuns<'c, C> {
@@ -18,6 +17,7 @@ impl<'c, C: Config> EvalRuns<'c, C> {
         Self {
             client,
             eval_id: eval_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
@@ -27,13 +27,13 @@ impl<'c, C: Config> EvalRuns<'c, C> {
     }
 
     /// Get a list of runs for an evaluation.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<EvalRunList, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<EvalRunList, OpenAIError> {
         self.client
-            .get_with_query(&format!("/evals/{}/runs", self.eval_id), &query)
+            .get(
+                &format!("/evals/{}/runs", self.eval_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -41,7 +41,11 @@ impl<'c, C: Config> EvalRuns<'c, C> {
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: CreateEvalRunRequest) -> Result<EvalRun, OpenAIError> {
         self.client
-            .post(&format!("/evals/{}/runs", self.eval_id), request)
+            .post(
+                &format!("/evals/{}/runs", self.eval_id),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -49,7 +53,10 @@ impl<'c, C: Config> EvalRuns<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, run_id: &str) -> Result<EvalRun, OpenAIError> {
         self.client
-            .get(&format!("/evals/{}/runs/{}", self.eval_id, run_id))
+            .get(
+                &format!("/evals/{}/runs/{}", self.eval_id, run_id),
+                &self.request_options,
+            )
             .await
     }
 
@@ -60,6 +67,7 @@ impl<'c, C: Config> EvalRuns<'c, C> {
             .post(
                 &format!("/evals/{}/runs/{}", self.eval_id, run_id),
                 serde_json::json!({}),
+                &self.request_options,
             )
             .await
     }
@@ -68,7 +76,10 @@ impl<'c, C: Config> EvalRuns<'c, C> {
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, run_id: &str) -> Result<DeleteEvalRunResponse, OpenAIError> {
         self.client
-            .delete(&format!("/evals/{}/runs/{}", self.eval_id, run_id))
+            .delete(
+                &format!("/evals/{}/runs/{}", self.eval_id, run_id),
+                &self.request_options,
+            )
             .await
     }
 }

@@ -1,16 +1,15 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
     types::admin::certificates::{ListCertificatesResponse, ToggleCertificatesRequest},
-    Client,
+    Client, RequestOptions,
 };
 
 /// Manage certificates for a given project. Supports listing, activating, and deactivating certificates.
 pub struct ProjectCertificates<'c, C: Config> {
     client: &'c Client<C>,
     pub project_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> ProjectCertificates<'c, C> {
@@ -18,18 +17,16 @@ impl<'c, C: Config> ProjectCertificates<'c, C> {
         Self {
             client,
             project_id: project_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
     /// List all certificates for this project.
-    pub async fn list<Q>(&self, query: &Q) -> Result<ListCertificatesResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    pub async fn list(&self) -> Result<ListCertificatesResponse, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 format!("/organization/projects/{}/certificates", self.project_id).as_str(),
-                query,
+                &self.request_options,
             )
             .await
     }
@@ -48,6 +45,7 @@ impl<'c, C: Config> ProjectCertificates<'c, C> {
                 )
                 .as_str(),
                 request,
+                &self.request_options,
             )
             .await
     }
@@ -66,6 +64,7 @@ impl<'c, C: Config> ProjectCertificates<'c, C> {
                 )
                 .as_str(),
                 request,
+                &self.request_options,
             )
             .await
     }

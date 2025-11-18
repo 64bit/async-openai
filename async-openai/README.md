@@ -14,7 +14,7 @@
     </a>
 </div>
 <div align="center">
-<sub>Logo created by this <a href="https://github.com/64bit/async-openai/tree/main/examples/create-image-b64-json">repo itself</a></sub>
+<sub>Logo created by this <a href="https://github.com/64bit/async-openai/tree/main/examples/image-generate-b64-json">repo itself</a></sub>
 </div>
 
 ## Overview
@@ -32,15 +32,16 @@
 | **Realtime** | Realtime Calls, Client secrets, Client events, Server events |
 | **Chat Completions** | Chat Completions, Streaming |
 | **Assistants** <sub>(Beta)</sub> | Assistants, Threads, Messages, Runs, Run steps, Streaming |
-| **Administration** | Administration, Admin API Keys, Invites, Users, Projects, Project users, Project service accounts, Project API keys, Project rate limits, Audit logs, Usage, Certificates |
+| **Administration** | Admin API Keys, Invites, Users, Projects, Project users, Project service accounts, Project API keys, Project rate limits, Audit logs, Usage, Certificates |
 | **Legacy** | Completions |
 
 Features that makes `async-openai` unique:
 - Bring your own custom types for Request or Response objects.
-- SSE streaming on available APIs
+- SSE streaming on available APIs.
+- Customize query and headers per request, customize headers globally.
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
 - Ergonomic builder pattern for all request objects.
-- Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec)
+- Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec).
 
 ## Usage
 

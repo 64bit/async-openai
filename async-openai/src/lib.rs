@@ -177,6 +177,7 @@ mod project_users;
 mod projects;
 #[cfg(feature = "realtime")]
 mod realtime;
+mod request_options;
 mod responses;
 mod runs;
 mod speech;
@@ -231,6 +232,7 @@ pub use project_users::ProjectUsers;
 pub use projects::Projects;
 #[cfg(feature = "realtime")]
 pub use realtime::Realtime;
+pub use request_options::RequestOptions;
 pub use responses::Responses;
 pub use runs::Runs;
 pub use speech::Speech;
