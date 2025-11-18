@@ -76,6 +76,7 @@ impl<'c, C: Config> Files<'c, C> {
 #[cfg(test)]
 mod tests {
     use crate::{
+        traits::RequestOptionsBuilder,
         types::files::{
             CreateFileRequestArgs, FileExpirationAfter, FileExpirationAfterAnchor, FilePurpose,
         },
@@ -113,7 +114,7 @@ mod tests {
         //assert_eq!(openai_file.status, Some("processed".to_owned())); // uploaded or processed
         let query = [("purpose", "fine-tune")];
 
-        let list_files = client.files().list(&query).await.unwrap();
+        let list_files = client.files().query(&query).unwrap().list().await.unwrap();
 
         assert_eq!(list_files.data.into_iter().last().unwrap(), openai_file);
 

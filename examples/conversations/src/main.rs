@@ -1,4 +1,5 @@
 use async_openai::{
+    traits::RequestOptionsBuilder,
     types::responses::{
         ConversationItem, CreateConversationItemsRequestArgs, CreateConversationRequestArgs,
         EasyInputContent, EasyInputMessage, InputItem, ListConversationItemsQuery, MessageType,
@@ -77,7 +78,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let all_items = client
         .conversations()
         .items(&conversation.id)
-        .list(&query)
+        .query(&query)?
+        .list()
         .await?;
 
     println!("Total items retrieved: {}", all_items.data.len());

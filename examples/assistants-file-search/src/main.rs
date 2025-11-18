@@ -1,6 +1,7 @@
 use std::error::Error;
 
 use async_openai::{
+    traits::RequestOptionsBuilder,
     types::assistants::{
         AssistantToolFileSearchResources, AssistantToolsFileSearch, CreateAssistantRequestArgs,
         CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest, MessageAttachment,
@@ -131,7 +132,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 let messages = client
                     .threads()
                     .messages(&thread.id)
-                    .list(&[("limit", "10")])
+                    .query(&[("limit", "10")])?
+                    .list()
                     .await?;
 
                 for message_obj in messages.data {

@@ -1,4 +1,5 @@
 use async_openai::{
+    traits::RequestOptionsBuilder,
     types::chat::{
         ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
         CreateChatCompletionRequestArgs,
@@ -60,7 +61,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("{:#?}", chat_completion_messages);
 
     // list all chat completions
-    let chat_completions = client.chat().list(&[("limit", 10)]).await?;
+    let chat_completions = client.chat().query(&[("limit", 10)])?.list().await?;
 
     println!("--------------------------------");
     println!("Retrieved chat completions:\n");

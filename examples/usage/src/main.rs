@@ -2,6 +2,7 @@ use std::error::Error;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use async_openai::{
+    traits::RequestOptionsBuilder,
     types::admin::usage::{UsageQueryParams, UsageResult},
     Client,
 };
@@ -36,7 +37,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Audio Speeches
     println!("=== Audio Speeches Usage ===");
-    match client.usage().audio_speeches(&query).await {
+    match client.usage().query(&query)?.audio_speeches().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -77,7 +78,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Audio Transcriptions
     println!("=== Audio Transcriptions Usage ===");
-    match client.usage().audio_transcriptions(&query).await {
+    match client.usage().query(&query)?.audio_transcriptions().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -118,7 +119,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Code Interpreter Sessions
     println!("=== Code Interpreter Sessions Usage ===");
-    match client.usage().code_interpreter_sessions(&query).await {
+    match client
+        .usage()
+        .query(&query)?
+        .code_interpreter_sessions()
+        .await
+    {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -156,7 +162,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Completions
     println!("=== Completions Usage ===");
-    match client.usage().completions(&query).await {
+    match client.usage().query(&query)?.completions().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -221,7 +227,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Embeddings
     println!("=== Embeddings Usage ===");
-    match client.usage().embeddings(&query).await {
+    match client.usage().query(&query)?.embeddings().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -262,7 +268,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Images
     println!("=== Images Usage ===");
-    match client.usage().images(&query).await {
+    match client.usage().query(&query)?.images().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -309,7 +315,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Moderations
     println!("=== Moderations Usage ===");
-    match client.usage().moderations(&query).await {
+    match client.usage().query(&query)?.moderations().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -350,7 +356,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Vector Stores
     println!("=== Vector Stores Usage ===");
-    match client.usage().vector_stores(&query).await {
+    match client.usage().query(&query)?.vector_stores().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -389,7 +395,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Costs
     println!("=== Costs ===");
-    match client.usage().costs(&query).await {
+    match client.usage().query(&query)?.costs().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             let mut total_cost = 0.0;

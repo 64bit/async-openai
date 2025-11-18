@@ -1,4 +1,5 @@
 use async_openai::{
+    traits::RequestOptionsBuilder,
     types::assistants::{
         CreateAssistantRequestArgs, CreateMessageRequestArgs, CreateRunRequestArgs,
         CreateThreadRequestArgs, MessageContent, MessageRole, RunStatus,
@@ -98,7 +99,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     // in the thread
 
                     //retrieve the response from the run
-                    let response = client.threads().messages(&thread.id).list(&query).await?;
+                    let response = client
+                        .threads()
+                        .messages(&thread.id)
+                        .query(&query)?
+                        .list()
+                        .await?;
                     //get the message id from the response
                     let message_id = response.data.first().unwrap().id.clone();
                     //get the message from the response
