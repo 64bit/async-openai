@@ -45,16 +45,10 @@ impl<'c, C: Config> FineTuning<'c, C> {
     }
 
     /// List your organization's fine-tuning jobs
-    #[crate::byot(T0 = serde::Serialize, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list_paginated<Q>(
-        &self,
-        query: &Q,
-    ) -> Result<ListPaginatedFineTuningJobsResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list_paginated(&self) -> Result<ListPaginatedFineTuningJobsResponse, OpenAIError> {
         self.client
-            .get_with_query("/fine_tuning/jobs", &query, &self.request_options)
+            .get("/fine_tuning/jobs", &self.request_options)
             .await
     }
 
@@ -108,38 +102,28 @@ impl<'c, C: Config> FineTuning<'c, C> {
     }
 
     /// Get status updates for a fine-tuning job.
-    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list_events<Q>(
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn list_events(
         &self,
         fine_tuning_job_id: &str,
-        query: &Q,
-    ) -> Result<ListFineTuningJobEventsResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    ) -> Result<ListFineTuningJobEventsResponse, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 format!("/fine_tuning/jobs/{fine_tuning_job_id}/events").as_str(),
-                &query,
                 &self.request_options,
             )
             .await
     }
 
     /// List checkpoints for a fine-tuning job.
-    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list_checkpoints<Q>(
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn list_checkpoints(
         &self,
         fine_tuning_job_id: &str,
-        query: &Q,
-    ) -> Result<ListFineTuningJobCheckpointsResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    ) -> Result<ListFineTuningJobCheckpointsResponse, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 format!("/fine_tuning/jobs/{fine_tuning_job_id}/checkpoints").as_str(),
-                &query,
                 &self.request_options,
             )
             .await
@@ -161,20 +145,15 @@ impl<'c, C: Config> FineTuning<'c, C> {
             .await
     }
 
-    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list_checkpoint_permissions<Q>(
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn list_checkpoint_permissions(
         &self,
         fine_tuned_model_checkpoint: &str,
-        query: &Q,
-    ) -> Result<ListFineTuningCheckpointPermissionResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    ) -> Result<ListFineTuningCheckpointPermissionResponse, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 format!("/fine_tuning/checkpoints/{fine_tuned_model_checkpoint}/permissions")
                     .as_str(),
-                &query,
                 &self.request_options,
             )
             .await

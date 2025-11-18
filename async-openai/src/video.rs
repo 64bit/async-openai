@@ -3,7 +3,6 @@ use crate::{
     error::OpenAIError,
     types::videos::{
         CreateVideoRequest, ListVideosResponse, RemixVideoRequest, VideoJob, VideoJobMetadata,
-        VideoVariant,
     },
     Client, RequestOptions,
 };
@@ -74,17 +73,14 @@ impl<'c, C: Config> Videos<'c, C> {
         self.client.get("/videos", &self.request_options).await
     }
 
-    /// Download video content
-    pub async fn download_content(
-        &self,
-        video_id: &str,
-        variant: VideoVariant,
-    ) -> Result<Bytes, OpenAIError> {
+    /// Download video content.
+    /// Variant can be provided as query parameter
+    pub async fn download_content(&self, video_id: &str) -> Result<Bytes, OpenAIError> {
         let (bytes, _headers) = self
             .client
-            .get_raw_with_query(
+            .get_raw(
                 &format!("/videos/{video_id}/content"),
-                &[("variant", variant)],
+                &self.request_options,
             )
             .await?;
         Ok(bytes)

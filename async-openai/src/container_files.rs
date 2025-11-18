@@ -82,7 +82,10 @@ impl<'c, C: Config> ContainerFiles<'c, C> {
     pub async fn content(&self, file_id: &str) -> Result<Bytes, OpenAIError> {
         let (bytes, _headers) = self
             .client
-            .get_raw(format!("/containers/{}/files/{file_id}/content", self.container_id).as_str())
+            .get_raw(
+                format!("/containers/{}/files/{file_id}/content", self.container_id).as_str(),
+                &self.request_options,
+            )
             .await?;
         Ok(bytes)
     }

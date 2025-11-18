@@ -227,39 +227,6 @@ impl<C: Config> Client<C> {
         self.execute(request_maker).await
     }
 
-    /// Make a GET request to {path} with given Query and deserialize the response body
-    pub(crate) async fn get_with_query<Q, O>(
-        &self,
-        path: &str,
-        query: &Q,
-        request_options: &RequestOptions,
-    ) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
-        Q: Serialize + ?Sized,
-    {
-        let request_maker = || async {
-            let mut request_builder = self
-                .http_client
-                .get(self.config.url(path))
-                .query(&self.config.query())
-                .query(query)
-                .headers(self.config.headers());
-
-            if let Some(headers) = request_options.headers() {
-                request_builder = request_builder.headers(headers.clone());
-            }
-
-            if let Some(query_str) = request_options.query() {
-                request_builder = request_builder.query(query_str);
-            }
-
-            Ok(request_builder.build()?)
-        };
-
-        self.execute(request_maker).await
-    }
-
     /// Make a DELETE request to {path} and deserialize the response body
     pub(crate) async fn delete<O>(
         &self,
@@ -291,35 +258,27 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a GET request to {path} and return the response body
-    pub(crate) async fn get_raw(&self, path: &str) -> Result<(Bytes, HeaderMap), OpenAIError> {
-        let request_maker = || async {
-            Ok(self
-                .http_client
-                .get(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .build()?)
-        };
-
-        self.execute_raw(request_maker).await
-    }
-
-    pub(crate) async fn get_raw_with_query<Q>(
+    pub(crate) async fn get_raw(
         &self,
         path: &str,
-        query: &Q,
-    ) -> Result<(Bytes, HeaderMap), OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+        request_options: &RequestOptions,
+    ) -> Result<(Bytes, HeaderMap), OpenAIError> {
         let request_maker = || async {
-            Ok(self
+            let mut request_builder = self
                 .http_client
                 .get(self.config.url(path))
                 .query(&self.config.query())
-                .query(query)
-                .headers(self.config.headers())
-                .build()?)
+                .headers(self.config.headers());
+
+            if let Some(headers) = request_options.headers() {
+                request_builder = request_builder.headers(headers.clone());
+            }
+
+            if let Some(query) = request_options.query() {
+                request_builder = request_builder.query(query);
+            }
+
+            Ok(request_builder.build()?)
         };
 
         self.execute_raw(request_maker).await

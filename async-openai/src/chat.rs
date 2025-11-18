@@ -152,19 +152,14 @@ impl<'c, C: Config> Chat<'c, C> {
     }
 
     /// Get a list of messages for the specified chat completion.
-    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn messages<Q>(
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn messages(
         &self,
         completion_id: &str,
-        query: &Q,
-    ) -> Result<ChatCompletionMessageList, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    ) -> Result<ChatCompletionMessageList, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 &format!("/chat/completions/{completion_id}/messages"),
-                &query,
                 &self.request_options,
             )
             .await
