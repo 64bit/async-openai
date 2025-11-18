@@ -10,14 +10,14 @@ pub struct RequestOptions {
 }
 
 impl RequestOptions {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             query: None,
             headers: None,
         }
     }
 
-    pub fn with_headers(&mut self, headers: HeaderMap) {
+    pub(crate) fn with_headers(&mut self, headers: HeaderMap) {
         // merge with existing headers or update with new headers
         if let Some(existing_headers) = &mut self.headers {
             existing_headers.extend(headers);
@@ -26,7 +26,7 @@ impl RequestOptions {
         }
     }
 
-    pub fn with_header<K, V>(&mut self, key: K, value: V) -> Result<(), OpenAIError>
+    pub(crate) fn with_header<K, V>(&mut self, key: K, value: V) -> Result<(), OpenAIError>
     where
         K: reqwest::header::IntoHeaderName,
         V: TryInto<reqwest::header::HeaderValue>,
@@ -45,7 +45,10 @@ impl RequestOptions {
         Ok(())
     }
 
-    pub fn with_query<Q: Serialize + ?Sized>(&mut self, query: &Q) -> Result<(), OpenAIError> {
+    pub(crate) fn with_query<Q: Serialize + ?Sized>(
+        &mut self,
+        query: &Q,
+    ) -> Result<(), OpenAIError> {
         let new_query = serde_urlencoded::to_string(query)
             .map_err(|e| OpenAIError::InvalidArgument(format!("Invalid query: {}", e)))?;
         if let Some(existing_query) = &self.query {
@@ -56,11 +59,11 @@ impl RequestOptions {
         Ok(())
     }
 
-    pub fn query(&self) -> Option<&str> {
+    pub(crate) fn query(&self) -> Option<&str> {
         self.query.as_deref()
     }
 
-    pub fn headers(&self) -> Option<&HeaderMap> {
+    pub(crate) fn headers(&self) -> Option<&HeaderMap> {
         self.headers.as_ref()
     }
 }
