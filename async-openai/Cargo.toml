@@ -51,6 +51,7 @@ secrecy = { version = "0.10.3", features = ["serde"] }
 bytes = "1.9.0"
 eventsource-stream = "0.2.3"
 serde_urlencoded = "0.7.1"
+url = "2.5"
 tokio-tungstenite = { version = "0.26.1", optional = true, default-features = false }
 hmac = { version = "0.12", optional = true, default-features = false}
 sha2 = { version = "0.10", optional = true, default-features = false }

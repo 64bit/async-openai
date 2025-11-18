@@ -217,8 +217,8 @@ impl<C: Config> Client<C> {
                 request_builder = request_builder.headers(headers.clone());
             }
 
-            if let Some(query) = request_options.query() {
-                request_builder = request_builder.query(query);
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
             }
 
             Ok(request_builder.build()?)
@@ -247,8 +247,8 @@ impl<C: Config> Client<C> {
                 request_builder = request_builder.headers(headers.clone());
             }
 
-            if let Some(query) = request_options.query() {
-                request_builder = request_builder.query(query);
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
             }
 
             Ok(request_builder.build()?)
@@ -274,8 +274,8 @@ impl<C: Config> Client<C> {
                 request_builder = request_builder.headers(headers.clone());
             }
 
-            if let Some(query) = request_options.query() {
-                request_builder = request_builder.query(query);
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
             }
 
             Ok(request_builder.build()?)
@@ -306,8 +306,8 @@ impl<C: Config> Client<C> {
                 request_builder = request_builder.headers(headers.clone());
             }
 
-            if let Some(query) = request_options.query() {
-                request_builder = request_builder.query(query);
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
             }
 
             Ok(request_builder.build()?)
@@ -339,8 +339,8 @@ impl<C: Config> Client<C> {
                 request_builder = request_builder.headers(headers.clone());
             }
 
-            if let Some(query) = request_options.query() {
-                request_builder = request_builder.query(query);
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
             }
 
             Ok(request_builder.build()?)
@@ -372,8 +372,8 @@ impl<C: Config> Client<C> {
                 request_builder = request_builder.headers(headers.clone());
             }
 
-            if let Some(query) = request_options.query() {
-                request_builder = request_builder.query(query);
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
             }
 
             Ok(request_builder.build()?)
@@ -406,8 +406,8 @@ impl<C: Config> Client<C> {
                 request_builder = request_builder.headers(headers.clone());
             }
 
-            if let Some(query) = request_options.query() {
-                request_builder = request_builder.query(query);
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
             }
 
             Ok(request_builder.build()?)
@@ -440,8 +440,8 @@ impl<C: Config> Client<C> {
             request_builder = request_builder.headers(headers.clone());
         }
 
-        if let Some(query) = request_options.query() {
-            request_builder = request_builder.query(query);
+        if !request_options.query().is_empty() {
+            request_builder = request_builder.query(request_options.query());
         }
 
         let response = request_builder.send().await.map_err(OpenAIError::Reqwest)?;
@@ -591,8 +591,8 @@ impl<C: Config> Client<C> {
             request_builder = request_builder.headers(headers.clone());
         }
 
-        if let Some(query) = request_options.query() {
-            request_builder = request_builder.query(query);
+        if !request_options.query().is_empty() {
+            request_builder = request_builder.query(request_options.query());
         }
 
         let event_source = request_builder.eventsource().unwrap();
@@ -622,8 +622,8 @@ impl<C: Config> Client<C> {
             request_builder = request_builder.headers(headers.clone());
         }
 
-        if let Some(query) = request_options.query() {
-            request_builder = request_builder.query(query);
+        if !request_options.query().is_empty() {
+            request_builder = request_builder.query(request_options.query());
         }
 
         let event_source = request_builder.eventsource().unwrap();

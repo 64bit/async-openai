@@ -1,18 +1,19 @@
 use reqwest::header::HeaderMap;
 use serde::Serialize;
+use url::Url;
 
-use crate::error::OpenAIError;
+use crate::{config::OPENAI_API_BASE, error::OpenAIError};
 
 #[derive(Clone, Debug, Default)]
 pub struct RequestOptions {
-    query: Option<String>,
+    query: Vec<(String, String)>,
     headers: Option<HeaderMap>,
 }
 
 impl RequestOptions {
     pub(crate) fn new() -> Self {
         Self {
-            query: None,
+            query: Vec::new(),
             headers: None,
         }
     }
@@ -49,18 +50,31 @@ impl RequestOptions {
         &mut self,
         query: &Q,
     ) -> Result<(), OpenAIError> {
-        let new_query = serde_urlencoded::to_string(query)
-            .map_err(|e| OpenAIError::InvalidArgument(format!("Invalid query: {}", e)))?;
-        if let Some(existing_query) = &self.query {
-            self.query = Some(format!("{}&{}", existing_query, new_query));
-        } else {
-            self.query = Some(new_query);
+        // Use serde_urlencoded::Serializer directly to handle any serializable type
+        // similar to how reqwest does it. We create a temporary URL to use query_pairs_mut()
+        // which allows us to handle any serializable type, not just top-level maps/structs.
+        let mut url = Url::parse(OPENAI_API_BASE)
+            .map_err(|e| OpenAIError::InvalidArgument(format!("Failed to create URL: {}", e)))?;
+
+        {
+            let mut pairs = url.query_pairs_mut();
+            let serializer = serde_urlencoded::Serializer::new(&mut pairs);
+
+            query
+                .serialize(serializer)
+                .map_err(|e| OpenAIError::InvalidArgument(format!("Invalid query: {}", e)))?;
         }
+
+        // Extract query pairs from the URL and append to our vec
+        for (key, value) in url.query_pairs() {
+            self.query.push((key.to_string(), value.to_string()));
+        }
+
         Ok(())
     }
 
-    pub(crate) fn query(&self) -> Option<&str> {
-        self.query.as_deref()
+    pub(crate) fn query(&self) -> &[(String, String)] {
+        &self.query
     }
 
     pub(crate) fn headers(&self) -> Option<&HeaderMap> {
