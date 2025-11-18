@@ -14,7 +14,7 @@
     </a>
 </div>
 <div align="center">
-<sub>Logo created by this <a href="https://github.com/64bit/async-openai/tree/main/examples/create-image-b64-json">repo itself</a></sub>
+<sub>Logo created by this <a href="https://github.com/64bit/async-openai/tree/main/examples/image-generate-b64-json">repo itself</a></sub>
 </div>
 
 ## Overview
