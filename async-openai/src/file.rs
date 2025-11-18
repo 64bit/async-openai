@@ -1,5 +1,4 @@
 use bytes::Bytes;
-use serde::Serialize;
 
 use crate::{
     config::Config,
@@ -43,14 +42,9 @@ impl<'c, C: Config> Files<'c, C> {
     }
 
     /// Returns a list of files that belong to the user's organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ListFilesResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
-        self.client
-            .get_with_query("/files", &query, &self.request_options)
-            .await
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ListFilesResponse, OpenAIError> {
+        self.client.get("/files", &self.request_options).await
     }
 
     /// Returns information about a specific file.

@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -24,14 +22,10 @@ impl<'c, C: Config> ProjectCertificates<'c, C> {
     }
 
     /// List all certificates for this project.
-    pub async fn list<Q>(&self, query: &Q) -> Result<ListCertificatesResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    pub async fn list(&self) -> Result<ListCertificatesResponse, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 format!("/organization/projects/{}/certificates", self.project_id).as_str(),
-                query,
                 &self.request_options,
             )
             .await

@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -28,16 +26,10 @@ impl<'c, C: Config> Certificates<'c, C> {
     // Organization-level certificate operations
 
     /// List all certificates for the organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list_organization<Q>(
-        &self,
-        query: &Q,
-    ) -> Result<ListCertificatesResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list_organization(&self) -> Result<ListCertificatesResponse, OpenAIError> {
         self.client
-            .get_with_query("/organization/certificates", &query, &self.request_options)
+            .get("/organization/certificates", &self.request_options)
             .await
     }
 
@@ -88,24 +80,6 @@ impl<'c, C: Config> Certificates<'c, C> {
         self.client
             .get(
                 format!("/organization/certificates/{certificate_id}").as_str(),
-                &self.request_options,
-            )
-            .await
-    }
-
-    /// Retrieve a single certificate with optional include parameters.
-    pub async fn retrieve_with_query<Q>(
-        &self,
-        certificate_id: &str,
-        query: &Q,
-    ) -> Result<Certificate, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
-        self.client
-            .get_with_query(
-                format!("/organization/certificates/{certificate_id}").as_str(),
-                query,
                 &self.request_options,
             )
             .await

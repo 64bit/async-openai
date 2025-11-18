@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -26,15 +24,11 @@ impl<'c, C: Config> ProjectRateLimits<'c, C> {
     }
 
     /// Returns the rate limits per model for a project.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ProjectRateLimitListResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ProjectRateLimitListResponse, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 format!("/organization/projects/{}/rate_limits", self.project_id).as_str(),
-                &query,
                 &self.request_options,
             )
             .await

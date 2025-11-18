@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -22,13 +20,10 @@ impl<'c, C: Config> Users<'c, C> {
     }
 
     /// Lists all of the users in the organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<UserListResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<UserListResponse, OpenAIError> {
         self.client
-            .get_with_query("/organization/users", &query, &self.request_options)
+            .get("/organization/users", &self.request_options)
             .await
     }
 

@@ -8,7 +8,6 @@ use crate::{
     Client, RequestOptions,
 };
 use bytes::Bytes;
-use serde::Serialize;
 
 /// Video generation with Sora
 /// Related guide: [Video generation](https://platform.openai.com/docs/guides/video-generation)
@@ -70,13 +69,10 @@ impl<'c, C: Config> Videos<'c, C> {
     }
 
     /// List Videos
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ListVideosResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ListVideosResponse, OpenAIError> {
         self.client
-            .get_with_query("/videos", &query, &self.request_options)
+            .get("/videos", &self.request_options)
             .await
     }
 

@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -70,17 +68,10 @@ impl<'c, C: Config> Messages<'c, C> {
     }
 
     /// Returns a list of messages for a given thread.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ListMessagesResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ListMessagesResponse, OpenAIError> {
         self.client
-            .get_with_query(
-                &format!("/threads/{}/messages", self.thread_id),
-                &query,
-                &self.request_options,
-            )
+            .get(&format!("/threads/{}/messages", self.thread_id), &self.request_options)
             .await
     }
 

@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config, error::OpenAIError, types::admin::usage::UsageResponse, Client, RequestOptions,
 };
@@ -20,132 +18,74 @@ impl<'c, C: Config> Usage<'c, C> {
     }
 
     /// Get audio speeches usage details for the organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn audio_speeches<Q>(&self, query: &Q) -> Result<UsageResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn audio_speeches(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
-            .get_with_query(
-                "/organization/usage/audio_speeches",
-                &query,
-                &self.request_options,
-            )
+            .get("/organization/usage/audio_speeches", &self.request_options)
             .await
     }
 
     /// Get audio transcriptions usage details for the organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn audio_transcriptions<Q>(&self, query: &Q) -> Result<UsageResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn audio_transcriptions(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
-            .get_with_query(
-                "/organization/usage/audio_transcriptions",
-                &query,
-                &self.request_options,
-            )
+            .get("/organization/usage/audio_transcriptions", &self.request_options)
             .await
     }
 
     /// Get code interpreter sessions usage details for the organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn code_interpreter_sessions<Q>(
-        &self,
-        query: &Q,
-    ) -> Result<UsageResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn code_interpreter_sessions(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
-            .get_with_query(
-                "/organization/usage/code_interpreter_sessions",
-                &query,
-                &self.request_options,
-            )
+            .get("/organization/usage/code_interpreter_sessions", &self.request_options)
             .await
     }
 
     /// Get completions usage details for the organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn completions<Q>(&self, query: &Q) -> Result<UsageResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn completions(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
-            .get_with_query(
-                "/organization/usage/completions",
-                &query,
-                &self.request_options,
-            )
+            .get("/organization/usage/completions", &self.request_options)
             .await
     }
 
     /// Get embeddings usage details for the organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn embeddings<Q>(&self, query: &Q) -> Result<UsageResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn embeddings(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
-            .get_with_query(
-                "/organization/usage/embeddings",
-                &query,
-                &self.request_options,
-            )
+            .get("/organization/usage/embeddings", &self.request_options)
             .await
     }
 
     /// Get images usage details for the organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn images<Q>(&self, query: &Q) -> Result<UsageResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn images(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
-            .get_with_query("/organization/usage/images", &query, &self.request_options)
+            .get("/organization/usage/images", &self.request_options)
             .await
     }
 
     /// Get moderations usage details for the organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn moderations<Q>(&self, query: &Q) -> Result<UsageResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn moderations(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
-            .get_with_query(
-                "/organization/usage/moderations",
-                &query,
-                &self.request_options,
-            )
+            .get("/organization/usage/moderations", &self.request_options)
             .await
     }
 
     /// Get vector stores usage details for the organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn vector_stores<Q>(&self, query: &Q) -> Result<UsageResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn vector_stores(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
-            .get_with_query(
-                "/organization/usage/vector_stores",
-                &query,
-                &self.request_options,
-            )
+            .get("/organization/usage/vector_stores", &self.request_options)
             .await
     }
 
     /// Get costs details for the organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn costs<Q>(&self, query: &Q) -> Result<UsageResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn costs(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
-            .get_with_query("/organization/costs", &query, &self.request_options)
+            .get("/organization/costs", &self.request_options)
             .await
     }
 }

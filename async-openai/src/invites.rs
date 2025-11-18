@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -22,13 +20,10 @@ impl<'c, C: Config> Invites<'c, C> {
     }
 
     /// Returns a list of invites in the organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<InviteListResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<InviteListResponse, OpenAIError> {
         self.client
-            .get_with_query("/organization/invites", &query, &self.request_options)
+            .get("/organization/invites", &self.request_options)
             .await
     }
 

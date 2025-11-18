@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -40,15 +38,11 @@ impl<'c, C: Config> Steps<'c, C> {
     }
 
     /// Returns a list of run steps belonging to a run.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ListRunStepsResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ListRunStepsResponse, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 &format!("/threads/{}/runs/{}/steps", self.thread_id, self.run_id),
-                &query,
                 &self.request_options,
             )
             .await

@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -58,13 +56,10 @@ impl<'c, C: Config> VectorStores<'c, C> {
     }
 
     /// Returns a list of vector stores.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ListVectorStoresResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ListVectorStoresResponse, OpenAIError> {
         self.client
-            .get_with_query("/vector_stores", &query, &self.request_options)
+            .get("/vector_stores", &self.request_options)
             .await
     }
 

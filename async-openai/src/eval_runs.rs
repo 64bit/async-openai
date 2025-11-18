@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -29,17 +27,10 @@ impl<'c, C: Config> EvalRuns<'c, C> {
     }
 
     /// Get a list of runs for an evaluation.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<EvalRunList, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<EvalRunList, OpenAIError> {
         self.client
-            .get_with_query(
-                &format!("/evals/{}/runs", self.eval_id),
-                &query,
-                &self.request_options,
-            )
+            .get(&format!("/evals/{}/runs", self.eval_id), &self.request_options)
             .await
     }
 

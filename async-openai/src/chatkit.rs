@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -90,13 +88,10 @@ impl<'c, C: Config> ChatkitThreads<'c, C> {
     }
 
     /// List ChatKit threads.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ThreadListResource, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ThreadListResource, OpenAIError> {
         self.client
-            .get_with_query("/chatkit/threads", &query, &self.request_options)
+            .get("/chatkit/threads", &self.request_options)
             .await
     }
 
@@ -123,19 +118,11 @@ impl<'c, C: Config> ChatkitThreads<'c, C> {
     }
 
     /// List ChatKit thread items.
-    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list_items<Q>(
-        &self,
-        thread_id: &str,
-        query: &Q,
-    ) -> Result<ThreadItemListResource, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn list_items(&self, thread_id: &str) -> Result<ThreadItemListResource, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 &format!("/chatkit/threads/{thread_id}/items"),
-                &query,
                 &self.request_options,
             )
             .await

@@ -95,13 +95,10 @@ impl<'c, C: Config> Chat<'c, C> {
 
     /// List stored Chat Completions. Only Chat Completions that have been stored
     /// with the `store` parameter set to `true` will be returned.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ChatCompletionList, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ChatCompletionList, OpenAIError> {
         self.client
-            .get_with_query("/chat/completions", &query, &self.request_options)
+            .get("/chat/completions", &self.request_options)
             .await
     }
 

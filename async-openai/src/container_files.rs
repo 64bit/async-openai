@@ -1,5 +1,4 @@
 use bytes::Bytes;
-use serde::Serialize;
 
 use crate::{
     config::Config,
@@ -47,15 +46,11 @@ impl<'c, C: Config> ContainerFiles<'c, C> {
     }
 
     /// List container files.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ContainerFileListResource, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ContainerFileListResource, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 &format!("/containers/{}/files", self.container_id),
-                &query,
                 &self.request_options,
             )
             .await

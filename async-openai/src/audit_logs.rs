@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config, error::OpenAIError, types::admin::audit_logs::ListAuditLogsResponse, Client,
     RequestOptions,
@@ -22,13 +20,10 @@ impl<'c, C: Config> AuditLogs<'c, C> {
     }
 
     /// List user actions and configuration changes within this organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn get<Q>(&self, query: &Q) -> Result<ListAuditLogsResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn get(&self) -> Result<ListAuditLogsResponse, OpenAIError> {
         self.client
-            .get_with_query("/organization/audit_logs", &query, &self.request_options)
+            .get("/organization/audit_logs", &self.request_options)
             .await
     }
 }

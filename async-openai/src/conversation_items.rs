@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -42,15 +40,11 @@ impl<'c, C: Config> ConversationItems<'c, C> {
     }
 
     /// List all items for a conversation.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ConversationItemList, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ConversationItemList, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 &format!("/conversations/{}/items", &self.conversation_id),
-                &query,
                 &self.request_options,
             )
             .await

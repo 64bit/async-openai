@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     container_files::ContainerFiles,
@@ -40,13 +38,10 @@ impl<'c, C: Config> Containers<'c, C> {
     }
 
     /// List containers.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ContainerListResource, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ContainerListResource, OpenAIError> {
         self.client
-            .get_with_query("/containers", &query, &self.request_options)
+            .get("/containers", &self.request_options)
             .await
     }
 

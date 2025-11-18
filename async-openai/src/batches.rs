@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -32,13 +30,10 @@ impl<'c, C: Config> Batches<'c, C> {
     }
 
     /// List your organization's batches.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ListBatchesResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ListBatchesResponse, OpenAIError> {
         self.client
-            .get_with_query("/batches", &query, &self.request_options)
+            .get("/batches", &self.request_options)
             .await
     }
 

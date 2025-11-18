@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -26,17 +24,10 @@ impl<'c, C: Config> AdminAPIKeys<'c, C> {
     }
 
     /// List all organization and project API keys.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ApiKeyList, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ApiKeyList, OpenAIError> {
         self.client
-            .get_with_query(
-                "/organization/admin_api_keys",
-                &query,
-                &self.request_options,
-            )
+            .get("/organization/admin_api_keys", &self.request_options)
             .await
     }
 
