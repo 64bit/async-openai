@@ -24,7 +24,6 @@ pub enum UsageGroupBy {
     ServiceTier,
 }
 
-
 /// Response structure for organization usage endpoints.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UsageResponse {

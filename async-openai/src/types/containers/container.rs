@@ -83,7 +83,6 @@ pub struct DeleteContainerResponse {
     pub deleted: bool,
 }
 
-
 // Container File types
 
 /// The container file object represents a file in a container.
@@ -137,4 +136,3 @@ pub struct DeleteContainerFileResponse {
     pub object: String,
     pub deleted: bool,
 }
-

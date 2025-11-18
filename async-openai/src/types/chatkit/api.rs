@@ -68,4 +68,3 @@ pub struct ListChatKitThreadItemsQuery {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
 }
-
