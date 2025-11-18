@@ -1,5 +1,6 @@
 //! Admin-related types for organization management APIs.
 
+pub mod api;
 pub mod api_keys;
 pub mod audit_logs;
 pub mod certificates;
@@ -11,3 +12,5 @@ pub mod project_users;
 pub mod projects;
 pub mod usage;
 pub mod users;
+
+pub use api::*;

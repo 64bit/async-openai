@@ -213,31 +213,6 @@ pub enum IncludeParam {
     ReasoningEncryptedContent,
 }
 
-/// Query parameters for listing conversation items.
-#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
-#[builder(name = "ListConversationItemsQueryArgs")]
-#[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = "OpenAIError"))]
-pub struct ListConversationItemsQuery {
-    /// A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub limit: Option<u32>,
-
-    /// The order to return the input items in. Default is `desc`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub order: Option<ListOrder>,
-
-    /// An item ID to list items after, used in pagination.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub after: Option<String>,
-
-    /// Specify additional output data to include in the model response.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub include: Option<Vec<IncludeParam>>,
-}
-
 /// The order to return items in.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]

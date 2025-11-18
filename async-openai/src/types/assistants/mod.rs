@@ -1,3 +1,4 @@
+mod api;
 mod assistant;
 mod assistant_impls;
 mod assistant_stream;
@@ -6,6 +7,7 @@ mod run;
 mod step;
 mod thread;
 
+pub use api::*;
 pub use assistant::*;
 pub use assistant_stream::*;
 pub use message::*;
