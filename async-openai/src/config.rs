@@ -68,7 +68,7 @@ pub struct OpenAIConfig {
 impl Default for OpenAIConfig {
     fn default() -> Self {
         Self {
-            api_base: std::env::var("OPENAI_API_BASE")
+            api_base: std::env::var("OPENAI_BASE_URL")
                 .unwrap_or_else(|_| OPENAI_API_BASE.to_string()),
             api_key: std::env::var("OPENAI_API_KEY")
                 .or_else(|_| {
