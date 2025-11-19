@@ -1,9 +1,7 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::admin::groups::{
-        GroupRoleAssignment, PublicAssignOrganizationGroupRoleBody,
-    },
+    types::admin::groups::{GroupRoleAssignment, PublicAssignOrganizationGroupRoleBody},
     types::admin::roles::{DeletedRoleAssignmentResource, RoleListResource},
     Client, RequestOptions,
 };
@@ -52,7 +50,10 @@ impl<'c, C: Config> GroupRoles<'c, C> {
 
     /// Unassigns a role from a group.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
-    pub async fn unassign(&self, role_id: &str) -> Result<DeletedRoleAssignmentResource, OpenAIError> {
+    pub async fn unassign(
+        &self,
+        role_id: &str,
+    ) -> Result<DeletedRoleAssignmentResource, OpenAIError> {
         self.client
             .delete(
                 format!("/organization/groups/{}/roles/{}", self.group_id, role_id).as_str(),
@@ -61,4 +62,3 @@ impl<'c, C: Config> GroupRoles<'c, C> {
             .await
     }
 }
-

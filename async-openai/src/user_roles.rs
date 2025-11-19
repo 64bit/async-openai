@@ -50,7 +50,10 @@ impl<'c, C: Config> UserRoles<'c, C> {
 
     /// Unassigns a role from a user.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
-    pub async fn unassign(&self, role_id: &str) -> Result<DeletedRoleAssignmentResource, OpenAIError> {
+    pub async fn unassign(
+        &self,
+        role_id: &str,
+    ) -> Result<DeletedRoleAssignmentResource, OpenAIError> {
         self.client
             .delete(
                 format!("/organization/users/{}/roles/{}", self.user_id, role_id).as_str(),
@@ -59,4 +62,3 @@ impl<'c, C: Config> UserRoles<'c, C> {
             .await
     }
 }
-
