@@ -197,6 +197,35 @@ impl<C: Config> Client<C> {
         &self.config
     }
 
+    /// Helper function to build a request builder with common configuration
+    fn build_request_builder(
+        &self,
+        method: reqwest::Method,
+        path: &str,
+        request_options: &RequestOptions,
+    ) -> reqwest::RequestBuilder {
+        let mut request_builder = if let Some(path) = request_options.path() {
+            self.http_client
+                .request(method, self.config.url(path.as_str()))
+        } else {
+            self.http_client.request(method, self.config.url(path))
+        };
+
+        request_builder = request_builder
+            .query(&self.config.query())
+            .headers(self.config.headers());
+
+        if let Some(headers) = request_options.headers() {
+            request_builder = request_builder.headers(headers.clone());
+        }
+
+        if !request_options.query().is_empty() {
+            request_builder = request_builder.query(request_options.query());
+        }
+
+        request_builder
+    }
+
     /// Make a GET request to {path} and deserialize the response body
     pub(crate) async fn get<O>(
         &self,
@@ -207,21 +236,9 @@ impl<C: Config> Client<C> {
         O: DeserializeOwned,
     {
         let request_maker = || async {
-            let mut request_builder = self
-                .http_client
-                .get(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers());
-
-            if let Some(headers) = request_options.headers() {
-                request_builder = request_builder.headers(headers.clone());
-            }
-
-            if !request_options.query().is_empty() {
-                request_builder = request_builder.query(request_options.query());
-            }
-
-            Ok(request_builder.build()?)
+            Ok(self
+                .build_request_builder(reqwest::Method::GET, path, request_options)
+                .build()?)
         };
 
         self.execute(request_maker).await
@@ -237,21 +254,9 @@ impl<C: Config> Client<C> {
         O: DeserializeOwned,
     {
         let request_maker = || async {
-            let mut request_builder = self
-                .http_client
-                .delete(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers());
-
-            if let Some(headers) = request_options.headers() {
-                request_builder = request_builder.headers(headers.clone());
-            }
-
-            if !request_options.query().is_empty() {
-                request_builder = request_builder.query(request_options.query());
-            }
-
-            Ok(request_builder.build()?)
+            Ok(self
+                .build_request_builder(reqwest::Method::DELETE, path, request_options)
+                .build()?)
         };
 
         self.execute(request_maker).await
@@ -264,21 +269,9 @@ impl<C: Config> Client<C> {
         request_options: &RequestOptions,
     ) -> Result<(Bytes, HeaderMap), OpenAIError> {
         let request_maker = || async {
-            let mut request_builder = self
-                .http_client
-                .get(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers());
-
-            if let Some(headers) = request_options.headers() {
-                request_builder = request_builder.headers(headers.clone());
-            }
-
-            if !request_options.query().is_empty() {
-                request_builder = request_builder.query(request_options.query());
-            }
-
-            Ok(request_builder.build()?)
+            Ok(self
+                .build_request_builder(reqwest::Method::GET, path, request_options)
+                .build()?)
         };
 
         self.execute_raw(request_maker).await
@@ -295,22 +288,10 @@ impl<C: Config> Client<C> {
         I: Serialize,
     {
         let request_maker = || async {
-            let mut request_builder = self
-                .http_client
-                .post(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .json(&request);
-
-            if let Some(headers) = request_options.headers() {
-                request_builder = request_builder.headers(headers.clone());
-            }
-
-            if !request_options.query().is_empty() {
-                request_builder = request_builder.query(request_options.query());
-            }
-
-            Ok(request_builder.build()?)
+            Ok(self
+                .build_request_builder(reqwest::Method::POST, path, request_options)
+                .json(&request)
+                .build()?)
         };
 
         self.execute_raw(request_maker).await
@@ -328,22 +309,10 @@ impl<C: Config> Client<C> {
         O: DeserializeOwned,
     {
         let request_maker = || async {
-            let mut request_builder = self
-                .http_client
-                .post(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .json(&request);
-
-            if let Some(headers) = request_options.headers() {
-                request_builder = request_builder.headers(headers.clone());
-            }
-
-            if !request_options.query().is_empty() {
-                request_builder = request_builder.query(request_options.query());
-            }
-
-            Ok(request_builder.build()?)
+            Ok(self
+                .build_request_builder(reqwest::Method::POST, path, request_options)
+                .json(&request)
+                .build()?)
         };
 
         self.execute(request_maker).await
@@ -361,22 +330,10 @@ impl<C: Config> Client<C> {
         F: Clone,
     {
         let request_maker = || async {
-            let mut request_builder = self
-                .http_client
-                .post(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?);
-
-            if let Some(headers) = request_options.headers() {
-                request_builder = request_builder.headers(headers.clone());
-            }
-
-            if !request_options.query().is_empty() {
-                request_builder = request_builder.query(request_options.query());
-            }
-
-            Ok(request_builder.build()?)
+            Ok(self
+                .build_request_builder(reqwest::Method::POST, path, request_options)
+                .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
+                .build()?)
         };
 
         self.execute_raw(request_maker).await
@@ -395,22 +352,10 @@ impl<C: Config> Client<C> {
         F: Clone,
     {
         let request_maker = || async {
-            let mut request_builder = self
-                .http_client
-                .post(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?);
-
-            if let Some(headers) = request_options.headers() {
-                request_builder = request_builder.headers(headers.clone());
-            }
-
-            if !request_options.query().is_empty() {
-                request_builder = request_builder.query(request_options.query());
-            }
-
-            Ok(request_builder.build()?)
+            Ok(self
+                .build_request_builder(reqwest::Method::POST, path, request_options)
+                .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
+                .build()?)
         };
 
         self.execute(request_maker).await
@@ -429,20 +374,9 @@ impl<C: Config> Client<C> {
     {
         // Build and execute request manually since multipart::Form is not Clone
         // and .eventsource() requires cloneability
-        let mut request_builder = self
-            .http_client
-            .post(self.config.url(path))
-            .query(&self.config.query())
-            .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
-            .headers(self.config.headers());
-
-        if let Some(headers) = request_options.headers() {
-            request_builder = request_builder.headers(headers.clone());
-        }
-
-        if !request_options.query().is_empty() {
-            request_builder = request_builder.query(request_options.query());
-        }
+        let request_builder = self
+            .build_request_builder(reqwest::Method::POST, path, request_options)
+            .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?);
 
         let response = request_builder.send().await.map_err(OpenAIError::Reqwest)?;
 
@@ -580,20 +514,9 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let mut request_builder = self
-            .http_client
-            .post(self.config.url(path))
-            .query(&self.config.query())
-            .headers(self.config.headers())
+        let request_builder = self
+            .build_request_builder(reqwest::Method::POST, path, request_options)
             .json(&request);
-
-        if let Some(headers) = request_options.headers() {
-            request_builder = request_builder.headers(headers.clone());
-        }
-
-        if !request_options.query().is_empty() {
-            request_builder = request_builder.query(request_options.query());
-        }
 
         let event_source = request_builder.eventsource().unwrap();
 
@@ -611,20 +534,9 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let mut request_builder = self
-            .http_client
-            .post(self.config.url(path))
-            .query(&self.config.query())
-            .headers(self.config.headers())
+        let request_builder = self
+            .build_request_builder(reqwest::Method::POST, path, request_options)
             .json(&request);
-
-        if let Some(headers) = request_options.headers() {
-            request_builder = request_builder.headers(headers.clone());
-        }
-
-        if !request_options.query().is_empty() {
-            request_builder = request_builder.query(request_options.query());
-        }
 
         let event_source = request_builder.eventsource().unwrap();
 

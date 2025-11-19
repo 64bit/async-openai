@@ -8,6 +8,7 @@ use crate::{config::OPENAI_API_BASE, error::OpenAIError};
 pub struct RequestOptions {
     query: Option<Vec<(String, String)>>,
     headers: Option<HeaderMap>,
+    path: Option<String>,
 }
 
 impl RequestOptions {
@@ -15,7 +16,18 @@ impl RequestOptions {
         Self {
             query: None,
             headers: None,
+            path: None,
         }
+    }
+
+    pub(crate) fn with_path(&mut self, path: &str) -> Result<(), OpenAIError> {
+        if path.is_empty() {
+            return Err(OpenAIError::InvalidArgument(
+                "Path cannot be empty".to_string(),
+            ));
+        }
+        self.path = Some(path.to_string());
+        Ok(())
     }
 
     pub(crate) fn with_headers(&mut self, headers: HeaderMap) {
@@ -80,5 +92,9 @@ impl RequestOptions {
 
     pub(crate) fn headers(&self) -> Option<&HeaderMap> {
         self.headers.as_ref()
+    }
+
+    pub(crate) fn path(&self) -> Option<&String> {
+        self.path.as_ref()
     }
 }
