@@ -50,7 +50,6 @@ The library reads [API key](https://platform.openai.com/account/api-keys) from t
 ```bash
 # On macOS/Linux
 export OPENAI_API_KEY='sk-...'
-export OPENAI_API_BASE='https://api.openai.com/v1'
 ```
 
 ```powershell
