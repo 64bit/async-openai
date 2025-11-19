@@ -2,6 +2,7 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::admin::users::{User, UserDeleteResponse, UserListResponse, UserRoleUpdateRequest},
+    user_roles::UserRoles,
     Client, RequestOptions,
 };
 
@@ -17,6 +18,11 @@ impl<'c, C: Config> Users<'c, C> {
             client,
             request_options: RequestOptions::new(),
         }
+    }
+
+    /// To call [UserRoles] group related APIs using this client.
+    pub fn roles(&self, user_id: &str) -> UserRoles<'_, C> {
+        UserRoles::new(self.client, user_id)
     }
 
     /// Lists all of the users in the organization.
@@ -59,7 +65,7 @@ impl<'c, C: Config> Users<'c, C> {
     pub async fn delete(&self, user_id: &str) -> Result<UserDeleteResponse, OpenAIError> {
         self.client
             .delete(
-                format!("/organizations/users/{user_id}").as_str(),
+                format!("/organization/users/{user_id}").as_str(),
                 &self.request_options,
             )
             .await
