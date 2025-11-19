@@ -204,9 +204,14 @@ impl<C: Config> Client<C> {
         path: &str,
         request_options: &RequestOptions,
     ) -> reqwest::RequestBuilder {
-        let mut request_builder = self
-            .http_client
-            .request(method, self.config.url(path))
+        let mut request_builder = if let Some(path) = request_options.path() {
+            self.http_client
+                .request(method, self.config.url(path.as_str()))
+        } else {
+            self.http_client.request(method, self.config.url(path))
+        };
+
+        request_builder = request_builder
             .query(&self.config.query())
             .headers(self.config.headers());
 

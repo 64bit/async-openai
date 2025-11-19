@@ -53,4 +53,10 @@ pub trait RequestOptionsBuilder: Sized {
         self.options_mut().with_query(query)?;
         Ok(self)
     }
+
+    /// Add a path to RequestOptions
+    fn path<P: Into<String>>(mut self, path: P) -> Result<Self, OpenAIError> {
+        self.options_mut().with_path(path.into().as_str())?;
+        Ok(self)
+    }
 }
