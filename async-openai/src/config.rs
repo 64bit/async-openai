@@ -87,7 +87,7 @@ impl Default for OpenAIConfig {
 }
 
 impl OpenAIConfig {
-    /// Create client with default API BASE from OPENAI_API_BASE env var or [OPENAI_API_BASE] and default API key from OPENAI_API_KEY env var
+    /// Create client with default [OPENAI_API_BASE] url (can also be changed with OPENAI_BASE_URL env var) and default API key from OPENAI_API_KEY env var
     pub fn new() -> Self {
         Default::default()
     }
