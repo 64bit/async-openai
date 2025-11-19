@@ -68,7 +68,8 @@ pub struct OpenAIConfig {
 impl Default for OpenAIConfig {
     fn default() -> Self {
         Self {
-            api_base: OPENAI_API_BASE.to_string(),
+            api_base: std::env::var("OPENAI_API_BASE")
+                .unwrap_or_else(|_| OPENAI_API_BASE.to_string()),
             api_key: std::env::var("OPENAI_API_KEY")
                 .or_else(|_| {
                     std::env::var("OPENAI_ADMIN_KEY").map(|admin_key| {
@@ -86,7 +87,7 @@ impl Default for OpenAIConfig {
 }
 
 impl OpenAIConfig {
-    /// Create client with default [OPENAI_API_BASE] url and default API key from OPENAI_API_KEY env var
+    /// Create client with default API BASE from OPENAI_API_BASE env var or [OPENAI_API_BASE] and default API key from OPENAI_API_KEY env var
     pub fn new() -> Self {
         Default::default()
     }
@@ -198,7 +199,8 @@ pub struct AzureConfig {
 impl Default for AzureConfig {
     fn default() -> Self {
         Self {
-            api_base: Default::default(),
+            api_base: std::env::var("OPENAI_API_BASE")
+                .unwrap_or_else(|_| Default::default()),
             api_key: std::env::var("OPENAI_API_KEY")
                 .unwrap_or_else(|_| "".to_string())
                 .into(),

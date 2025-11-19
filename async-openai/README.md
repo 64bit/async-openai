@@ -46,15 +46,18 @@ Features that makes `async-openai` unique:
 ## Usage
 
 The library reads [API key](https://platform.openai.com/account/api-keys) from the environment variable `OPENAI_API_KEY`.
+The library reads [API base](https://platform.openai.com/account/api-base) from the environment variable `OPENAI_API_BASE`.
 
 ```bash
 # On macOS/Linux
 export OPENAI_API_KEY='sk-...'
+export OPENAI_API_BASE='https://api.openai.com/v1'
 ```
 
 ```powershell
 # On Windows Powershell
 $Env:OPENAI_API_KEY='sk-...'
+$Env:OPENAI_API_BASE='https://api.openai.com/v1'
 ```
 
 - Visit [examples](https://github.com/64bit/async-openai/tree/main/examples) directory on how to use `async-openai`.
