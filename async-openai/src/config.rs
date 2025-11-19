@@ -199,8 +199,7 @@ pub struct AzureConfig {
 impl Default for AzureConfig {
     fn default() -> Self {
         Self {
-            api_base: std::env::var("OPENAI_API_BASE")
-                .unwrap_or_else(|_| Default::default()),
+            api_base: Default::default(),
             api_key: std::env::var("OPENAI_API_KEY")
                 .unwrap_or_else(|_| "".to_string())
                 .into(),
