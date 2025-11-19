@@ -55,7 +55,6 @@ export OPENAI_API_KEY='sk-...'
 ```powershell
 # On Windows Powershell
 $Env:OPENAI_API_KEY='sk-...'
-$Env:OPENAI_API_BASE='https://api.openai.com/v1'
 ```
 
 - Visit [examples](https://github.com/64bit/async-openai/tree/main/examples) directory on how to use `async-openai`.
