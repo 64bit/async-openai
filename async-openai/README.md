@@ -32,7 +32,7 @@
 | **Realtime** | Realtime Calls, Client secrets, Client events, Server events |
 | **Chat Completions** | Chat Completions, Streaming |
 | **Assistants** <sub>(Beta)</sub> | Assistants, Threads, Messages, Runs, Run steps, Streaming |
-| **Administration** | Admin API Keys, Invites, Users, Projects, Project users, Project service accounts, Project API keys, Project rate limits, Audit logs, Usage, Certificates |
+| **Administration** | Admin API Keys, Invites, Users, Groups, Roles, Role assignments, Projects, Project users, Project groups, Project service accounts, Project API keys, Project rate limits, Audit logs, Usage, Certificates |
 | **Legacy** | Completions |
 
 Features that makes `async-openai` unique:
