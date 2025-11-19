@@ -46,7 +46,6 @@ Features that makes `async-openai` unique:
 ## Usage
 
 The library reads [API key](https://platform.openai.com/account/api-keys) from the environment variable `OPENAI_API_KEY`.
-The library reads [API base](https://platform.openai.com/account/api-base) from the environment variable `OPENAI_API_BASE`.
 
 ```bash
 # On macOS/Linux
