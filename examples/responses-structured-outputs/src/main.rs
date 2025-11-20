@@ -6,12 +6,15 @@ use async_openai::{
         chat::ResponseFormatJsonSchema,
         responses::{
             CreateResponseArgs, InputMessage, InputRole, OutputItem, OutputMessageContent,
+            ResponseStreamEvent,
         },
     },
     Client,
 };
 use clap::Parser;
+use futures::StreamExt;
 use serde_json::json;
+use std::io::{stdout, Write};
 
 /// Chain of thought example: Guides the model through step-by-step reasoning
 async fn chain_of_thought(client: &Client<OpenAIConfig>) -> Result<(), Box<dyn Error>> {
@@ -289,6 +292,114 @@ async fn moderation(client: &Client<OpenAIConfig>) -> Result<(), Box<dyn Error>>
     Ok(())
 }
 
+/// Streaming structured output example: Extract entities from text with streaming
+async fn streaming_structured_output(client: &Client<OpenAIConfig>) -> Result<(), Box<dyn Error>> {
+    println!("=== Streaming Structured Output Example ===\n");
+
+    let schema = json!({
+        "type": "object",
+        "properties": {
+            "attributes": {
+                "type": "array",
+                "items": { "type": "string" }
+            },
+            "colors": {
+                "type": "array",
+                "items": { "type": "string" }
+            },
+            "animals": {
+                "type": "array",
+                "items": { "type": "string" }
+            }
+        },
+        "required": ["attributes", "colors", "animals"],
+        "additionalProperties": false
+    });
+
+    let request = CreateResponseArgs::default()
+        .model("gpt-4.1")
+        .stream(true)
+        .text(ResponseFormatJsonSchema {
+            description: Some("Extract entities from the input text".to_string()),
+            name: "entities".to_string(),
+            schema: Some(schema),
+            strict: Some(true),
+        })
+        .input(vec![
+            InputMessage {
+                role: InputRole::System,
+                content: vec!["Extract entities from the input text".into()],
+                status: None,
+            },
+            InputMessage {
+                role: InputRole::User,
+                content: vec![
+                    "The quick brown fox jumps over the lazy dog with piercing blue eyes".into(),
+                ],
+                status: None,
+            },
+        ])
+        .build()?;
+
+    let mut stream = client.responses().create_stream(request).await?;
+    let mut lock = stdout().lock();
+    let mut final_response = None;
+
+    while let Some(result) = stream.next().await {
+        match result {
+            Ok(event) => match event {
+                ResponseStreamEvent::ResponseRefusalDelta(delta) => {
+                    write!(lock, "{}", delta.delta)?;
+                    lock.flush()?;
+                }
+                ResponseStreamEvent::ResponseOutputTextDelta(delta) => {
+                    write!(lock, "{}", delta.delta)?;
+                    lock.flush()?;
+                }
+                ResponseStreamEvent::ResponseError(error) => {
+                    writeln!(lock, "\nError: {}", error.message)?;
+                    if let Some(code) = &error.code {
+                        writeln!(lock, "Code: {}", code)?;
+                    }
+                    if let Some(param) = &error.param {
+                        writeln!(lock, "Param: {}", param)?;
+                    }
+                }
+                ResponseStreamEvent::ResponseCompleted(completed) => {
+                    writeln!(lock, "\nCompleted")?;
+                    final_response = Some(completed.response);
+                    break;
+                }
+                ResponseStreamEvent::ResponseFailed(_)
+                | ResponseStreamEvent::ResponseIncomplete(_) => {
+                    break;
+                }
+                _ => {
+                    // Ignore other events
+                }
+            },
+            Err(e) => {
+                writeln!(lock, "\nStream error: {:#?}", e)?;
+            }
+        }
+    }
+
+    if let Some(response) = final_response {
+        writeln!(lock, "\nFinal response:")?;
+        for output in response.output {
+            if let OutputItem::Message(message) = output {
+                for content in message.content {
+                    if let OutputMessageContent::OutputText(text) = content {
+                        writeln!(lock, "{}", text.text)?;
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
 #[derive(Parser, Debug)]
 #[command(name = "responses-structured-outputs")]
 #[command(about = "Examples of structured outputs using the Responses API", long_about = None)]
@@ -308,6 +419,8 @@ enum Example {
     UiGeneration,
     /// Moderation: Analyze content for policy violations
     Moderation,
+    /// Streaming structured output: Extract entities with streaming
+    Streaming,
     /// Run all examples
     All,
 }
@@ -330,11 +443,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Example::Moderation => {
             moderation(&client).await?;
         }
+        Example::Streaming => {
+            streaming_structured_output(&client).await?;
+        }
         Example::All => {
             chain_of_thought(&client).await?;
             structured_data_extraction(&client).await?;
             ui_generation(&client).await?;
             moderation(&client).await?;
+            streaming_structured_output(&client).await?;
         }
     }
 
