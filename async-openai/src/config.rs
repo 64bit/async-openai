@@ -79,8 +79,8 @@ impl Default for OpenAIConfig {
                 })
                 .unwrap_or_default()
                 .into(),
-            org_id: Default::default(),
-            project_id: Default::default(),
+            org_id: std::env::var("OPENAI_ORG_ID").unwrap_or_default(),
+            project_id: std::env::var("OPENAI_PROJECT_ID").unwrap_or_default(),
             custom_headers: HeaderMap::new(),
         }
     }
