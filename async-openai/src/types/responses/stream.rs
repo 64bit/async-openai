@@ -275,7 +275,8 @@ pub struct ResponseFunctionCallArgumentsDeltaEvent {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ResponseFunctionCallArgumentsDoneEvent {
-    pub name: String,
+    /// https://github.com/64bit/async-openai/issues/472
+    pub name: Option<String>,
     pub sequence_number: u64,
     pub item_id: String,
     pub output_index: u32,
@@ -541,4 +542,133 @@ pub struct ResponseErrorEvent {
     pub code: Option<String>,
     pub message: String,
     pub param: Option<String>,
+}
+
+use crate::traits::EventType;
+
+// Implement EventType trait for all event types in this file
+
+macro_rules! impl_event_type {
+    ($($ty:ty => $event_type:expr),* $(,)?) => {
+        $(
+            impl EventType for $ty {
+                fn event_type(&self) -> &'static str {
+                    $event_type
+                }
+            }
+        )*
+    };
+}
+
+// Apply macro for each event struct type in this file.
+impl_event_type! {
+    ResponseCreatedEvent => "response.created",
+    ResponseInProgressEvent => "response.in_progress",
+    ResponseCompletedEvent => "response.completed",
+    ResponseFailedEvent => "response.failed",
+    ResponseIncompleteEvent => "response.incomplete",
+    ResponseOutputItemAddedEvent => "response.output_item.added",
+    ResponseOutputItemDoneEvent => "response.output_item.done",
+    ResponseContentPartAddedEvent => "response.content_part.added",
+    ResponseContentPartDoneEvent => "response.content_part.done",
+    ResponseTextDeltaEvent => "response.output_text.delta",
+    ResponseTextDoneEvent => "response.output_text.done",
+    ResponseRefusalDeltaEvent => "response.refusal.delta",
+    ResponseRefusalDoneEvent => "response.refusal.done",
+    ResponseFunctionCallArgumentsDeltaEvent => "response.function_call_arguments.delta",
+    ResponseFunctionCallArgumentsDoneEvent => "response.function_call_arguments.done",
+    ResponseFileSearchCallInProgressEvent => "response.file_search_call.in_progress",
+    ResponseFileSearchCallSearchingEvent => "response.file_search_call.searching",
+    ResponseFileSearchCallCompletedEvent => "response.file_search_call.completed",
+    ResponseWebSearchCallInProgressEvent => "response.web_search_call.in_progress",
+    ResponseWebSearchCallSearchingEvent => "response.web_search_call.searching",
+    ResponseWebSearchCallCompletedEvent => "response.web_search_call.completed",
+    ResponseReasoningSummaryPartAddedEvent => "response.reasoning_summary_part.added",
+    ResponseReasoningSummaryPartDoneEvent => "response.reasoning_summary_part.done",
+    ResponseReasoningSummaryTextDeltaEvent => "response.reasoning_summary_text.delta",
+    ResponseReasoningSummaryTextDoneEvent => "response.reasoning_summary_text.done",
+    ResponseReasoningTextDeltaEvent => "response.reasoning_text.delta",
+    ResponseReasoningTextDoneEvent => "response.reasoning_text.done",
+    ResponseImageGenCallCompletedEvent => "response.image_generation_call.completed",
+    ResponseImageGenCallGeneratingEvent => "response.image_generation_call.generating",
+    ResponseImageGenCallInProgressEvent => "response.image_generation_call.in_progress",
+    ResponseImageGenCallPartialImageEvent => "response.image_generation_call.partial_image",
+    ResponseMCPCallArgumentsDeltaEvent => "response.mcp_call_arguments.delta",
+    ResponseMCPCallArgumentsDoneEvent => "response.mcp_call_arguments.done",
+    ResponseMCPCallCompletedEvent => "response.mcp_call.completed",
+    ResponseMCPCallFailedEvent => "response.mcp_call.failed",
+    ResponseMCPCallInProgressEvent => "response.mcp_call.in_progress",
+    ResponseMCPListToolsCompletedEvent => "response.mcp_list_tools.completed",
+    ResponseMCPListToolsFailedEvent => "response.mcp_list_tools.failed",
+    ResponseMCPListToolsInProgressEvent => "response.mcp_list_tools.in_progress",
+    ResponseCodeInterpreterCallInProgressEvent => "response.code_interpreter_call.in_progress",
+    ResponseCodeInterpreterCallInterpretingEvent => "response.code_interpreter_call.interpreting",
+    ResponseCodeInterpreterCallCompletedEvent => "response.code_interpreter_call.completed",
+    ResponseCodeInterpreterCallCodeDeltaEvent => "response.code_interpreter_call_code.delta",
+    ResponseCodeInterpreterCallCodeDoneEvent => "response.code_interpreter_call_code.done",
+    ResponseOutputTextAnnotationAddedEvent => "response.output_text.annotation.added",
+    ResponseQueuedEvent => "response.queued",
+    ResponseCustomToolCallInputDeltaEvent => "response.custom_tool_call_input.delta",
+    ResponseCustomToolCallInputDoneEvent => "response.custom_tool_call_input.done",
+    ResponseErrorEvent => "error",
+}
+
+impl EventType for ResponseStreamEvent {
+    fn event_type(&self) -> &'static str {
+        match self {
+            ResponseStreamEvent::ResponseCreated(event) => event.event_type(),
+            ResponseStreamEvent::ResponseInProgress(event) => event.event_type(),
+            ResponseStreamEvent::ResponseCompleted(event) => event.event_type(),
+            ResponseStreamEvent::ResponseFailed(event) => event.event_type(),
+            ResponseStreamEvent::ResponseIncomplete(event) => event.event_type(),
+            ResponseStreamEvent::ResponseOutputItemAdded(event) => event.event_type(),
+            ResponseStreamEvent::ResponseOutputItemDone(event) => event.event_type(),
+            ResponseStreamEvent::ResponseContentPartAdded(event) => event.event_type(),
+            ResponseStreamEvent::ResponseContentPartDone(event) => event.event_type(),
+            ResponseStreamEvent::ResponseOutputTextDelta(event) => event.event_type(),
+            ResponseStreamEvent::ResponseOutputTextDone(event) => event.event_type(),
+            ResponseStreamEvent::ResponseRefusalDelta(event) => event.event_type(),
+            ResponseStreamEvent::ResponseRefusalDone(event) => event.event_type(),
+            ResponseStreamEvent::ResponseFunctionCallArgumentsDelta(event) => event.event_type(),
+            ResponseStreamEvent::ResponseFunctionCallArgumentsDone(event) => event.event_type(),
+            ResponseStreamEvent::ResponseFileSearchCallInProgress(event) => event.event_type(),
+            ResponseStreamEvent::ResponseFileSearchCallSearching(event) => event.event_type(),
+            ResponseStreamEvent::ResponseFileSearchCallCompleted(event) => event.event_type(),
+            ResponseStreamEvent::ResponseWebSearchCallInProgress(event) => event.event_type(),
+            ResponseStreamEvent::ResponseWebSearchCallSearching(event) => event.event_type(),
+            ResponseStreamEvent::ResponseWebSearchCallCompleted(event) => event.event_type(),
+            ResponseStreamEvent::ResponseReasoningSummaryPartAdded(event) => event.event_type(),
+            ResponseStreamEvent::ResponseReasoningSummaryPartDone(event) => event.event_type(),
+            ResponseStreamEvent::ResponseReasoningSummaryTextDelta(event) => event.event_type(),
+            ResponseStreamEvent::ResponseReasoningSummaryTextDone(event) => event.event_type(),
+            ResponseStreamEvent::ResponseReasoningTextDelta(event) => event.event_type(),
+            ResponseStreamEvent::ResponseReasoningTextDone(event) => event.event_type(),
+            ResponseStreamEvent::ResponseImageGenerationCallCompleted(event) => event.event_type(),
+            ResponseStreamEvent::ResponseImageGenerationCallGenerating(event) => event.event_type(),
+            ResponseStreamEvent::ResponseImageGenerationCallInProgress(event) => event.event_type(),
+            ResponseStreamEvent::ResponseImageGenerationCallPartialImage(event) => {
+                event.event_type()
+            }
+            ResponseStreamEvent::ResponseMCPCallArgumentsDelta(event) => event.event_type(),
+            ResponseStreamEvent::ResponseMCPCallArgumentsDone(event) => event.event_type(),
+            ResponseStreamEvent::ResponseMCPCallCompleted(event) => event.event_type(),
+            ResponseStreamEvent::ResponseMCPCallFailed(event) => event.event_type(),
+            ResponseStreamEvent::ResponseMCPCallInProgress(event) => event.event_type(),
+            ResponseStreamEvent::ResponseMCPListToolsCompleted(event) => event.event_type(),
+            ResponseStreamEvent::ResponseMCPListToolsFailed(event) => event.event_type(),
+            ResponseStreamEvent::ResponseMCPListToolsInProgress(event) => event.event_type(),
+            ResponseStreamEvent::ResponseCodeInterpreterCallInProgress(event) => event.event_type(),
+            ResponseStreamEvent::ResponseCodeInterpreterCallInterpreting(event) => {
+                event.event_type()
+            }
+            ResponseStreamEvent::ResponseCodeInterpreterCallCompleted(event) => event.event_type(),
+            ResponseStreamEvent::ResponseCodeInterpreterCallCodeDelta(event) => event.event_type(),
+            ResponseStreamEvent::ResponseCodeInterpreterCallCodeDone(event) => event.event_type(),
+            ResponseStreamEvent::ResponseOutputTextAnnotationAdded(event) => event.event_type(),
+            ResponseStreamEvent::ResponseQueued(event) => event.event_type(),
+            ResponseStreamEvent::ResponseCustomToolCallInputDelta(event) => event.event_type(),
+            ResponseStreamEvent::ResponseCustomToolCallInputDone(event) => event.event_type(),
+            ResponseStreamEvent::ResponseError(event) => event.event_type(),
+        }
+    }
 }
