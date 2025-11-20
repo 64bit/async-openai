@@ -1,6 +1,7 @@
 mod api;
 mod conversation;
 mod response;
+mod sdk;
 mod stream;
 
 pub use api::*;

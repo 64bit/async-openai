@@ -1455,21 +1455,21 @@ pub enum ToolChoiceTypes {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ToolChoiceFunction {
     /// The name of the function to call.
-    name: String,
+    pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ToolChoiceMCP {
     /// The name of the tool to call on the server.
-    name: String,
+    pub name: String,
     /// The label of the MCP server to use.
-    server_label: String,
+    pub server_label: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ToolChoiceCustom {
     /// The name of the custom tool to call.
-    name: String,
+    pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
