@@ -1,10 +1,11 @@
 use crate::{
     admin_api_keys::AdminAPIKeys, audit_logs::AuditLogs, certificates::Certificates,
-    config::Config, invites::Invites, projects::Projects, users::Users, Client,
+    config::Config, groups::Groups, invites::Invites, projects::Projects, roles::Roles,
+    users::Users, Client,
 };
 
 /// Admin group for all administration APIs.
-/// This groups together admin API keys, invites, users, projects, audit logs, and certificates.
+/// This groups together admin API keys, invites, users, projects, audit logs, certificates, roles, and groups.
 pub struct Admin<'c, C: Config> {
     client: &'c Client<C>,
 }
@@ -42,5 +43,15 @@ impl<'c, C: Config> Admin<'c, C> {
     /// To call [Certificates] group related APIs using this client.
     pub fn certificates(&self) -> Certificates<'_, C> {
         Certificates::new(self.client)
+    }
+
+    /// To call [Roles] group related APIs using this client.
+    pub fn roles(&self) -> Roles<'_, C> {
+        Roles::new(self.client)
+    }
+
+    /// To call [Groups] group related APIs using this client.
+    pub fn groups(&self) -> Groups<'_, C> {
+        Groups::new(self.client)
     }
 }

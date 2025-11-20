@@ -1,3 +1,4 @@
+use crate::types::admin::roles::Role;
 use crate::types::OpenAIError;
 use crate::types::OrganizationRole;
 use derive_builder::Builder;
@@ -66,4 +67,40 @@ pub struct UserDeleteResponse {
     pub object: String,
     pub id: String,
     pub deleted: bool,
+}
+
+/// Role assignment linking a user to a role.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct UserRoleAssignment {
+    /// The object type, which is always `user.role`.
+    pub object: String,
+    /// The user.
+    pub user: User,
+    /// The role.
+    pub role: Role,
+}
+
+/// Paginated list of role assignments for a user.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct UserRoleAssignmentListResource {
+    /// The object type, which is always `list`.
+    pub object: String,
+    /// Role assignments returned in the current page.
+    pub data: Vec<UserRoleAssignment>,
+    /// Whether additional assignments are available when paginating.
+    pub has_more: bool,
+    /// Cursor to fetch the next page of results, or `null` when there are no more assignments.
+    pub next: Option<String>,
+}
+
+/// Request payload for assigning a role to a user.
+#[derive(Debug, Serialize, Deserialize, Builder, Clone, PartialEq)]
+#[builder(name = "AssignUserRoleRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option))]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct PublicAssignOrganizationUserRoleBody {
+    /// Identifier of the role to assign.
+    pub role_id: String,
 }

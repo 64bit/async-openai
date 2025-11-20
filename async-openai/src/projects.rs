@@ -3,7 +3,11 @@ use crate::{
     error::OpenAIError,
     project_api_keys::ProjectAPIKeys,
     project_certificates::ProjectCertificates,
+    project_group_roles::ProjectGroupRoles,
+    project_groups::ProjectGroups,
     project_rate_limits::ProjectRateLimits,
+    project_roles::ProjectRoles,
+    project_user_roles::ProjectUserRoles,
     types::admin::projects::{
         Project, ProjectCreateRequest, ProjectListResponse, ProjectUpdateRequest,
     },
@@ -48,6 +52,26 @@ impl<'c, C: Config> Projects<'c, C> {
     // call [ProjectCertificates] group APIs
     pub fn certificates(&self, project_id: &str) -> ProjectCertificates<'_, C> {
         ProjectCertificates::new(self.client, project_id)
+    }
+
+    // call [ProjectGroups] group APIs
+    pub fn groups(&self, project_id: &str) -> ProjectGroups<'_, C> {
+        ProjectGroups::new(self.client, project_id)
+    }
+
+    // call [ProjectRoles] group APIs
+    pub fn roles(&self, project_id: &str) -> ProjectRoles<'_, C> {
+        ProjectRoles::new(self.client, project_id)
+    }
+
+    // call [ProjectUserRoles] group APIs
+    pub fn user_roles(&self, project_id: &str, user_id: &str) -> ProjectUserRoles<'_, C> {
+        ProjectUserRoles::new(self.client, project_id, user_id)
+    }
+
+    // call [ProjectGroupRoles] group APIs
+    pub fn group_roles(&self, project_id: &str, group_id: &str) -> ProjectGroupRoles<'_, C> {
+        ProjectGroupRoles::new(self.client, project_id, group_id)
     }
 
     /// Returns a list of projects.
