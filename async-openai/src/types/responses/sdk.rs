@@ -13,7 +13,7 @@ use crate::types::responses::{
     TextResponseFormatConfiguration, Tool, ToolChoiceCustom, ToolChoiceFunction, ToolChoiceMCP,
     ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes, WebSearchTool, WebSearchToolCall,
 };
-use crate::types::MCPTool;
+use crate::types::{chat::ResponseFormatJsonSchema, MCPTool};
 
 impl<S: Into<String>> From<S> for EasyInputMessage {
     fn from(value: S) -> Self {
@@ -32,6 +32,12 @@ impl From<EasyInputMessage> for InputItem {
 }
 
 // InputItem ergonomics
+
+impl From<InputMessage> for InputItem {
+    fn from(msg: InputMessage) -> Self {
+        InputItem::Item(Item::Message(MessageItem::Input(msg)))
+    }
+}
 
 impl From<Item> for InputItem {
     fn from(item: Item) -> Self {
@@ -222,6 +228,15 @@ impl From<TextResponseFormatConfiguration> for ResponseTextParam {
     fn from(format: TextResponseFormatConfiguration) -> Self {
         ResponseTextParam {
             format,
+            verbosity: None,
+        }
+    }
+}
+
+impl From<ResponseFormatJsonSchema> for ResponseTextParam {
+    fn from(schema: ResponseFormatJsonSchema) -> Self {
+        ResponseTextParam {
+            format: TextResponseFormatConfiguration::JsonSchema(schema),
             verbosity: None,
         }
     }
