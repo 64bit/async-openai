@@ -2,6 +2,7 @@ use std::error::Error;
 
 use async_openai::{
     config::OpenAIConfig,
+    traits::EventType,
     types::{
         chat::ResponseFormatJsonSchema,
         responses::{
@@ -370,12 +371,8 @@ async fn streaming_structured_output(client: &Client<OpenAIConfig>) -> Result<()
                     final_response = Some(completed.response);
                     break;
                 }
-                ResponseStreamEvent::ResponseFailed(_)
-                | ResponseStreamEvent::ResponseIncomplete(_) => {
-                    break;
-                }
                 _ => {
-                    // Ignore other events
+                    writeln!(lock, "\n{}: skipping\n", event.event_type())?;
                 }
             },
             Err(e) => {

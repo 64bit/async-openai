@@ -1,5 +1,6 @@
 use async_openai::{
     Client,
+    traits::EventType,
     types::responses::{CreateResponseArgs, ResponseStreamEvent},
 };
 use futures::StreamExt;
@@ -25,13 +26,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ResponseStreamEvent::ResponseOutputTextDelta(delta) => {
                     write!(lock, "{}", delta.delta)?;
                 }
-                ResponseStreamEvent::ResponseCompleted(_)
-                | ResponseStreamEvent::ResponseIncomplete(_)
-                | ResponseStreamEvent::ResponseFailed(_) => {
-                    break;
-                }
                 _ => {
-                    writeln!(lock, "\n{response_event:#?}")?;
+                    writeln!(lock, "\n{}: skipping\n", response_event.event_type())?;
                 }
             },
             Err(e) => {

@@ -271,11 +271,6 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
                         write!(stdout_lock, "{}: {}\n", delta.event_type(), delta.delta)?;
                         stdout().flush()?;
                     }
-                    ResponseStreamEvent::ResponseCompleted(completed) => {
-                        // todo remove once StreamEnded is fixed
-                        writeln!(stdout_lock, "{}\n", completed.event_type(),)?;
-                        break;
-                    }
                     _ => {
                         writeln!(stdout_lock, "{}: skipping\n", event.event_type())?;
                     }
@@ -345,11 +340,6 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
                 ResponseStreamEvent::ResponseOutputTextDelta(delta) => {
                     write!(stdout_lock, "{}: {}\n", delta.event_type(), delta.delta)?;
                     stdout().flush()?;
-                }
-                ResponseStreamEvent::ResponseCompleted(completed) => {
-                    // todo remove once StreamEnded is fixed
-                    writeln!(stdout_lock, "{}\n", completed.event_type(),)?;
-                    break;
                 }
                 _ => {
                     writeln!(stdout_lock, "{}: skipping\n", event.event_type())?;
