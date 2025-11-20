@@ -411,8 +411,7 @@ pub struct EasyInputMessage {
 /// A structured message input to the model (InputMessage in the OpenAPI spec).
 ///
 /// This variant requires structured content (not a simple string) and does not support
-/// the `assistant` role (use OutputMessage for that). Used when items are returned via API
-/// with additional metadata.
+/// the `assistant` role (use OutputMessage for that). status is populated when items are returned via API.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(
     name = "InputMessageArgs",
@@ -486,14 +485,14 @@ pub struct InputTextContent {
 pub struct InputImageContent {
     /// The detail level of the image to be sent to the model. One of `high`, `low`, or `auto`.
     /// Defaults to `auto`.
-    detail: ImageDetail,
+    pub detail: ImageDetail,
     /// The ID of the file to be sent to the model.
     #[serde(skip_serializing_if = "Option::is_none")]
-    file_id: Option<String>,
+    pub file_id: Option<String>,
     /// The URL of the image to be sent to the model. A fully qualified URL or base64 encoded image
     /// in a data URL.
     #[serde(skip_serializing_if = "Option::is_none")]
-    image_url: Option<String>,
+    pub image_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]

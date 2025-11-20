@@ -45,8 +45,42 @@ impl From<ItemReference> for InputItem {
     }
 }
 
+// InputParam ergonomics: from InputItem
+
+impl From<InputItem> for InputParam {
+    fn from(item: InputItem) -> Self {
+        InputParam::Items(vec![item])
+    }
+}
+
+impl From<Item> for InputParam {
+    fn from(item: Item) -> Self {
+        InputParam::Items(vec![InputItem::Item(item)])
+    }
+}
+
+impl From<MessageItem> for InputParam {
+    fn from(item: MessageItem) -> Self {
+        InputParam::Items(vec![InputItem::Item(Item::Message(item))])
+    }
+}
+
+impl From<InputMessage> for InputParam {
+    fn from(msg: InputMessage) -> Self {
+        InputParam::Items(vec![InputItem::Item(Item::Message(MessageItem::Input(
+            msg,
+        )))])
+    }
+}
+
 impl<I: Into<InputItem>> From<Vec<I>> for InputParam {
     fn from(items: Vec<I>) -> Self {
+        InputParam::Items(items.into_iter().map(|item| item.into()).collect())
+    }
+}
+
+impl<I: Into<InputItem>, const N: usize> From<[I; N]> for InputParam {
+    fn from(items: [I; N]) -> Self {
         InputParam::Items(items.into_iter().map(|item| item.into()).collect())
     }
 }
@@ -260,6 +294,12 @@ impl From<InputImageContent> for InputContent {
 impl From<InputFileContent> for InputContent {
     fn from(content: InputFileContent) -> Self {
         InputContent::InputFile(content)
+    }
+}
+
+impl<S: Into<String>> From<S> for InputContent {
+    fn from(text: S) -> Self {
+        InputContent::InputText(InputTextContent { text: text.into() })
     }
 }
 
@@ -516,5 +556,61 @@ impl From<ImageGenTool> for Tool {
 impl From<CustomToolParam> for Tool {
     fn from(tool: CustomToolParam) -> Self {
         Tool::Custom(tool)
+    }
+}
+
+// Vec<Tool> ergonomics
+
+impl From<Tool> for Vec<Tool> {
+    fn from(tool: Tool) -> Self {
+        vec![tool]
+    }
+}
+
+impl From<FunctionTool> for Vec<Tool> {
+    fn from(tool: FunctionTool) -> Self {
+        vec![Tool::Function(tool)]
+    }
+}
+
+impl From<FileSearchTool> for Vec<Tool> {
+    fn from(tool: FileSearchTool) -> Self {
+        vec![Tool::FileSearch(tool)]
+    }
+}
+
+impl From<ComputerUsePreviewTool> for Vec<Tool> {
+    fn from(tool: ComputerUsePreviewTool) -> Self {
+        vec![Tool::ComputerUsePreview(tool)]
+    }
+}
+
+impl From<WebSearchTool> for Vec<Tool> {
+    fn from(tool: WebSearchTool) -> Self {
+        vec![Tool::WebSearch(tool)]
+    }
+}
+
+impl From<MCPTool> for Vec<Tool> {
+    fn from(tool: MCPTool) -> Self {
+        vec![Tool::Mcp(tool)]
+    }
+}
+
+impl From<CodeInterpreterTool> for Vec<Tool> {
+    fn from(tool: CodeInterpreterTool) -> Self {
+        vec![Tool::CodeInterpreter(tool)]
+    }
+}
+
+impl From<ImageGenTool> for Vec<Tool> {
+    fn from(tool: ImageGenTool) -> Self {
+        vec![Tool::ImageGeneration(tool)]
+    }
+}
+
+impl From<CustomToolParam> for Vec<Tool> {
+    fn from(tool: CustomToolParam) -> Self {
+        vec![Tool::Custom(tool)]
     }
 }
