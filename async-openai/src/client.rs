@@ -619,9 +619,18 @@ where
         while let Some(ev) = event_source.next().await {
             match ev {
                 Err(e) => {
-                    if let Err(_e) = tx.send(Err(map_stream_error(e).await)) {
-                        // rx dropped
-                        break;
+                    // Handle StreamEnded gracefully - it's a normal end of stream, not an error
+                    // https://github.com/64bit/async-openai/issues/456
+                    match &e {
+                        EventSourceError::StreamEnded => {
+                            break;
+                        }
+                        _ => {
+                            if let Err(_e) = tx.send(Err(map_stream_error(e).await)) {
+                                // rx dropped
+                                break;
+                            }
+                        }
                     }
                 }
                 Ok(event) => match event {
@@ -664,9 +673,18 @@ where
         while let Some(ev) = event_source.next().await {
             match ev {
                 Err(e) => {
-                    if let Err(_e) = tx.send(Err(map_stream_error(e).await)) {
-                        // rx dropped
-                        break;
+                    // Handle StreamEnded gracefully - it's a normal end of stream, not an error
+                    // https://github.com/64bit/async-openai/issues/456
+                    match &e {
+                        EventSourceError::StreamEnded => {
+                            break;
+                        }
+                        _ => {
+                            if let Err(_e) = tx.send(Err(map_stream_error(e).await)) {
+                                // rx dropped
+                                break;
+                            }
+                        }
                     }
                 }
                 Ok(event) => match event {
