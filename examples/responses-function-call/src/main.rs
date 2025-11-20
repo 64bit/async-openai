@@ -1,8 +1,7 @@
 use async_openai::{
     types::responses::{
-        CreateResponseArgs, EasyInputContent, EasyInputMessage, FunctionCallOutput,
-        FunctionCallOutputItemParam, FunctionTool, FunctionToolCall, InputItem, InputParam, Item,
-        MessageType, OutputItem, Role, Tool,
+        CreateResponseArgs, EasyInputMessage, FunctionCallOutput, FunctionCallOutputItemParam,
+        FunctionTool, FunctionToolCall, InputItem, InputParam, Item, OutputItem, Tool,
     },
     Client,
 };
@@ -53,16 +52,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         strict: None,
     })];
 
-    let mut input_messages = vec![InputItem::EasyMessage(EasyInputMessage {
-        r#type: MessageType::Message,
-        role: Role::User,
-        content: EasyInputContent::Text("What's the weather like in Paris today?".to_string()),
-    })];
+    let mut input_items: Vec<InputItem> =
+        vec![EasyInputMessage::from("What's the weather like in Paris today?").into()];
 
     let request = CreateResponseArgs::default()
         .max_output_tokens(512u32)
         .model("gpt-4.1")
-        .input(InputParam::Items(input_messages.clone()))
+        .input(InputParam::Items(input_items.clone()))
         .tools(tools.clone())
         .build()?;
 
@@ -97,12 +93,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     };
 
     // Add the function call from the assistant back to the conversation
-    input_messages.push(InputItem::Item(Item::FunctionCall(
+    input_items.push(InputItem::Item(Item::FunctionCall(
         function_call_request.clone(),
     )));
 
     // Add the function call output back to the conversation
-    input_messages.push(InputItem::Item(Item::FunctionCallOutput(
+    input_items.push(InputItem::Item(Item::FunctionCallOutput(
         FunctionCallOutputItemParam {
             call_id: function_call_request.call_id.clone(),
             output: FunctionCallOutput::Text(function_result),
@@ -114,7 +110,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let request = CreateResponseArgs::default()
         .max_output_tokens(512u32)
         .model("gpt-4.1")
-        .input(InputParam::Items(input_messages))
+        .input(InputParam::Items(input_items))
         .tools(tools)
         .build()?;
 
