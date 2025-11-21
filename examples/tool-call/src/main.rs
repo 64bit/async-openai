@@ -34,8 +34,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         },
                         "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] },
                     },
-                    "required": ["location"],
+                    "required": ["location", "unit"],
+                    "additionalProperties": false
                 }))
+                .strict(true)
                 .build()?,
         })
         .build()?;
