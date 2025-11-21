@@ -3,8 +3,8 @@ use std::error::Error;
 use async_openai::{
     traits::RequestOptionsBuilder,
     types::chat::{
-        ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestSystemMessageArgs,
-        ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
+        ChatCompletionRequestAssistantMessage, ChatCompletionRequestSystemMessage,
+        ChatCompletionRequestUserMessage, CreateChatCompletionRequestArgs,
     },
     Client,
 };
@@ -17,22 +17,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .max_tokens(512u32)
         .model("gpt-3.5-turbo")
         .messages([
-            ChatCompletionRequestSystemMessageArgs::default()
-                .content("You are a helpful assistant.")
-                .build()?
-                .into(),
-            ChatCompletionRequestUserMessageArgs::default()
-                .content("Who won the world series in 2020?")
-                .build()?
-                .into(),
-            ChatCompletionRequestAssistantMessageArgs::default()
-                .content("The Los Angeles Dodgers won the World Series in 2020.")
-                .build()?
-                .into(),
-            ChatCompletionRequestUserMessageArgs::default()
-                .content("Where was it played?")
-                .build()?
-                .into(),
+            // Can also use ChatCompletionRequest<Role>MessageArgs for builder pattern
+            ChatCompletionRequestSystemMessage::from("You are a helpful assistant.").into(),
+            ChatCompletionRequestUserMessage::from("Who won the world series in 2020?").into(),
+            ChatCompletionRequestAssistantMessage::from(
+                "The Los Angeles Dodgers won the World Series in 2020.",
+            )
+            .into(),
+            ChatCompletionRequestUserMessage::from("Where was it played?").into(),
         ])
         .build()?;
 
