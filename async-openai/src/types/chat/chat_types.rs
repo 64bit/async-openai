@@ -521,7 +521,6 @@ pub struct ChatCompletionResponseMessage {
 #[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
-#[deprecated]
 pub struct ChatCompletionFunctions {
     /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
     pub name: String,

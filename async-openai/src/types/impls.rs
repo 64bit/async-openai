@@ -14,9 +14,7 @@ use crate::{
             CreateTranslationRequest, TimestampGranularity, TranscriptionInclude,
         },
         audio::{TranscriptionChunkingStrategy, TranslationResponseFormat},
-        chat::{
-            ChatCompletionFunctionCall, ChatCompletionFunctions, ChatCompletionNamedToolChoice,
-        },
+        chat::{ChatCompletionFunctionCall, ChatCompletionNamedToolChoice},
         chat::{
             ChatCompletionRequestAssistantMessage, ChatCompletionRequestAssistantMessageContent,
             ChatCompletionRequestDeveloperMessage, ChatCompletionRequestDeveloperMessageContent,
@@ -735,16 +733,6 @@ impl From<String> for ChatCompletionNamedToolChoice {
     fn from(value: String) -> Self {
         Self {
             function: value.into(),
-        }
-    }
-}
-
-impl From<(String, serde_json::Value)> for ChatCompletionFunctions {
-    fn from(value: (String, serde_json::Value)) -> Self {
-        Self {
-            name: value.0,
-            description: None,
-            parameters: value.1,
         }
     }
 }
