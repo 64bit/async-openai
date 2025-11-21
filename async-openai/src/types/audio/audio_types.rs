@@ -22,6 +22,8 @@ pub enum Voice {
     Sage,
     Shimmer,
     Verse,
+    #[serde(untagged)]
+    Other(String),
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
