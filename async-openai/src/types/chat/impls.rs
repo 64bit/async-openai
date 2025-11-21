@@ -1,7 +1,8 @@
 use std::fmt::Display;
 
 use crate::types::chat::{
-    ChatCompletionFunctionCall, ChatCompletionNamedToolChoice,
+    ChatCompletionFunctionCall, ChatCompletionMessageCustomToolCall, ChatCompletionMessageToolCall,
+    ChatCompletionMessageToolCalls, ChatCompletionNamedToolChoice,
     ChatCompletionRequestAssistantMessage, ChatCompletionRequestAssistantMessageContent,
     ChatCompletionRequestDeveloperMessage, ChatCompletionRequestDeveloperMessageContent,
     ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
@@ -10,7 +11,8 @@ use crate::types::chat::{
     ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
     ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
-    FunctionName, ImageUrl, Role,
+    ChatCompletionTool, ChatCompletionTools, CustomToolChatCompletions, FunctionName, ImageUrl,
+    Role,
 };
 
 impl From<ChatCompletionRequestUserMessage> for ChatCompletionRequestMessage {
@@ -330,5 +332,65 @@ impl Display for Role {
                 Role::Tool => "tool",
             }
         )
+    }
+}
+
+impl From<ChatCompletionTool> for Vec<ChatCompletionTools> {
+    fn from(value: ChatCompletionTool) -> Self {
+        vec![ChatCompletionTools::Function(value)]
+    }
+}
+
+impl From<CustomToolChatCompletions> for Vec<ChatCompletionTools> {
+    fn from(value: CustomToolChatCompletions) -> Self {
+        vec![ChatCompletionTools::Custom(value)]
+    }
+}
+
+impl From<ChatCompletionRequestUserMessage> for Vec<ChatCompletionRequestMessage> {
+    fn from(value: ChatCompletionRequestUserMessage) -> Self {
+        vec![value.into()]
+    }
+}
+
+impl From<ChatCompletionRequestSystemMessage> for Vec<ChatCompletionRequestMessage> {
+    fn from(value: ChatCompletionRequestSystemMessage) -> Self {
+        vec![value.into()]
+    }
+}
+
+impl From<ChatCompletionRequestDeveloperMessage> for Vec<ChatCompletionRequestMessage> {
+    fn from(value: ChatCompletionRequestDeveloperMessage) -> Self {
+        vec![value.into()]
+    }
+}
+
+impl From<ChatCompletionRequestAssistantMessage> for Vec<ChatCompletionRequestMessage> {
+    fn from(value: ChatCompletionRequestAssistantMessage) -> Self {
+        vec![value.into()]
+    }
+}
+
+impl From<ChatCompletionRequestFunctionMessage> for Vec<ChatCompletionRequestMessage> {
+    fn from(value: ChatCompletionRequestFunctionMessage) -> Self {
+        vec![value.into()]
+    }
+}
+
+impl From<ChatCompletionRequestToolMessage> for Vec<ChatCompletionRequestMessage> {
+    fn from(value: ChatCompletionRequestToolMessage) -> Self {
+        vec![value.into()]
+    }
+}
+
+impl From<ChatCompletionMessageToolCall> for ChatCompletionMessageToolCalls {
+    fn from(value: ChatCompletionMessageToolCall) -> Self {
+        ChatCompletionMessageToolCalls::Function(value)
+    }
+}
+
+impl From<ChatCompletionMessageCustomToolCall> for ChatCompletionMessageToolCalls {
+    fn from(value: ChatCompletionMessageCustomToolCall) -> Self {
+        ChatCompletionMessageToolCalls::Custom(value)
     }
 }
