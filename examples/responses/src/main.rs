@@ -3,11 +3,10 @@ use std::error::Error;
 use async_openai::{
     types::{
         responses::{
-            CreateResponseArgs, EasyInputContent, EasyInputMessage, InputItem, InputParam,
-            MessageType, ResponseTextParam, Role, TextResponseFormatConfiguration, Tool, Verbosity,
-            WebSearchToolArgs,
+            CreateResponseArgs, ResponseTextParam, TextResponseFormatConfiguration, Tool,
+            Verbosity, WebSearchTool,
         },
-        MCPToolAllowedTools, MCPToolApprovalSetting, MCPToolArgs, MCPToolRequireApproval,
+        MCPToolApprovalSetting, MCPToolArgs,
     },
     Client,
 };
@@ -23,30 +22,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
             format: TextResponseFormatConfiguration::Text,
             verbosity: Some(Verbosity::Medium), // only here to test the config, but gpt-4.1 only supports medium
         })
-        .input(InputParam::Items(vec![InputItem::EasyMessage(
-            EasyInputMessage {
-                r#type: MessageType::Message,
-                role: Role::User,
-                content: EasyInputContent::Text("What transport protocols does the 2025-03-26 version of the MCP spec (modelcontextprotocol/modelcontextprotocol) support?".to_string()),
-            }
-        )]))
+        .input([
+            "What transport protocols does the 2025-03-26 version of the MCP spec (modelcontextprotocol/modelcontextprotocol) support?",
+            "what is MCP?"
+        ])
         .tools(vec![
-            Tool::WebSearchPreview(WebSearchToolArgs::default().build()?),
+            Tool::WebSearchPreview(WebSearchTool::default()),
             Tool::Mcp(MCPToolArgs::default()
                 .server_label("deepwiki")
                 .server_url("https://mcp.deepwiki.com/mcp")
-                .require_approval(MCPToolRequireApproval::ApprovalSetting(MCPToolApprovalSetting::Never))
-                .allowed_tools(MCPToolAllowedTools::List(vec!["ask_question".to_string()]))
+                .require_approval(MCPToolApprovalSetting::Never)
+                .allowed_tools(["ask_question"])
                 .build()?),
         ])
         .build()?;
 
-    println!("{}", serde_json::to_string(&request).unwrap());
+    println!("Request:\n{}", serde_json::to_string(&request).unwrap());
 
     let response = client.responses().create(request).await?;
-    let output_text = response.output_text().unwrap_or("Empty text output".into());
 
-    println!("\nOutput Text: {output_text:?}\n",);
+    println!("\n SDK: output_text()\n: {:?}", response.output_text());
+
     for output in response.output {
         println!("\nOutput: {:?}\n", output);
     }

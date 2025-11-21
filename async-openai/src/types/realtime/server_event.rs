@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use crate::traits::EventType;
 use crate::types::{audio::TranscriptionUsage, LogProbProperties};
 
 use super::{
@@ -803,4 +804,118 @@ pub enum RealtimeServerEvent {
     /// shown here reflect that reservation, which is then adjusted accordingly once the Response is completed.
     #[serde(rename = "rate_limits.updated")]
     RateLimitsUpdated(RealtimeServerEventRateLimitsUpdated),
+}
+
+// Implement EventType trait for all event types in this file
+
+macro_rules! impl_event_type {
+    ($($ty:ty => $event_type:expr),* $(,)?) => {
+        $(
+            impl EventType for $ty {
+                fn event_type(&self) -> &'static str {
+                    $event_type
+                }
+            }
+        )*
+    };
+}
+
+impl_event_type! {
+    RealtimeServerEventError => "error",
+    RealtimeServerEventSessionCreated => "session.created",
+    RealtimeServerEventSessionUpdated => "session.updated",
+    RealtimeServerEventConversationItemAdded => "conversation.item.added",
+    RealtimeServerEventConversationItemDone => "conversation.item.done",
+    RealtimeServerEventInputAudioBufferCommitted => "input_audio_buffer.committed",
+    RealtimeServerEventInputAudioBufferCleared => "input_audio_buffer.cleared",
+    RealtimeServerEventInputAudioBufferSpeechStarted => "input_audio_buffer.speech_started",
+    RealtimeServerEventInputAudioBufferSpeechStopped => "input_audio_buffer.speech_stopped",
+    RealtimeServerEventInputAudioBufferTimeoutTriggered => "input_audio_buffer.timeout_triggered",
+    RealtimeServerEventOutputAudioBufferStarted => "output_audio_buffer.started",
+    RealtimeServerEventOutputAudioBufferStopped => "output_audio_buffer.stopped",
+    RealtimeServerEventOutputAudioBufferCleared => "output_audio_buffer.cleared",
+    RealtimeServerEventConversationItemInputAudioTranscriptionCompleted => "conversation.item.input_audio_transcription.completed",
+    RealtimeServerEventConversationItemInputAudioTranscriptionDelta => "conversation.item.input_audio_transcription.delta",
+    RealtimeServerEventConversationItemInputAudioTranscriptionFailed => "conversation.item.input_audio_transcription.failed",
+    RealtimeServerEventConversationItemTruncated => "conversation.item.truncated",
+    RealtimeServerEventConversationItemDeleted => "conversation.item.deleted",
+    RealtimeServerEventConversationItemRetrieved => "conversation.item.retrieved",
+    RealtimeServerEventConversationItemInputAudioTranscriptionSegment => "conversation.item.input_audio_transcription.segment",
+    RealtimeServerEventResponseCreated => "response.created",
+    RealtimeServerEventResponseDone => "response.done",
+    RealtimeServerEventResponseOutputItemAdded => "response.output_item.added",
+    RealtimeServerEventResponseOutputItemDone => "response.output_item.done",
+    RealtimeServerEventResponseContentPartAdded => "response.content_part.added",
+    RealtimeServerEventResponseContentPartDone => "response.content_part.done",
+    RealtimeServerEventResponseTextDelta => "response.output_text.delta",
+    RealtimeServerEventResponseTextDone => "response.output_text.done",
+    RealtimeServerEventResponseAudioTranscriptDelta => "response.output_audio_transcript.delta",
+    RealtimeServerEventResponseAudioTranscriptDone => "response.output_audio_transcript.done",
+    RealtimeServerEventResponseAudioDelta => "response.output_audio.delta",
+    RealtimeServerEventResponseAudioDone => "response.output_audio.done",
+    RealtimeServerEventResponseFunctionCallArgumentsDelta => "response.function_call_arguments.delta",
+    RealtimeServerEventResponseFunctionCallArgumentsDone => "response.function_call_arguments.done",
+    RealtimeServerEventResponseMCPCallArgumentsDelta => "response.mcp_call_arguments.delta",
+    RealtimeServerEventResponseMCPCallArgumentsDone => "response.mcp_call_arguments.done",
+    RealtimeServerEventResponseMCPCallInProgress => "response.mcp_call.in_progress",
+    RealtimeServerEventResponseMCPCallCompleted => "response.mcp_call.completed",
+    RealtimeServerEventResponseMCPCallFailed => "response.mcp_call.failed",
+    RealtimeServerEventMCPListToolsInProgress => "mcp_list_tools.in_progress",
+    RealtimeServerEventMCPListToolsCompleted => "mcp_list_tools.completed",
+    RealtimeServerEventMCPListToolsFailed => "mcp_list_tools.failed",
+    RealtimeServerEventRateLimitsUpdated => "rate_limits.updated",
+}
+
+impl EventType for RealtimeServerEvent {
+    fn event_type(&self) -> &'static str {
+        match self {
+            RealtimeServerEvent::Error(e) => e.event_type(),
+            RealtimeServerEvent::SessionCreated(e) => e.event_type(),
+            RealtimeServerEvent::SessionUpdated(e) => e.event_type(),
+            RealtimeServerEvent::ConversationItemAdded(e) => e.event_type(),
+            RealtimeServerEvent::ConversationItemDone(e) => e.event_type(),
+            RealtimeServerEvent::InputAudioBufferCommitted(e) => e.event_type(),
+            RealtimeServerEvent::InputAudioBufferCleared(e) => e.event_type(),
+            RealtimeServerEvent::InputAudioBufferSpeechStarted(e) => e.event_type(),
+            RealtimeServerEvent::InputAudioBufferSpeechStopped(e) => e.event_type(),
+            RealtimeServerEvent::InputAudioBufferTimeoutTriggered(e) => e.event_type(),
+            RealtimeServerEvent::OutputAudioBufferStarted(e) => e.event_type(),
+            RealtimeServerEvent::OutputAudioBufferStopped(e) => e.event_type(),
+            RealtimeServerEvent::OutputAudioBufferCleared(e) => e.event_type(),
+            RealtimeServerEvent::ConversationItemInputAudioTranscriptionCompleted(e) => {
+                e.event_type()
+            }
+            RealtimeServerEvent::ConversationItemInputAudioTranscriptionDelta(e) => e.event_type(),
+            RealtimeServerEvent::ConversationItemInputAudioTranscriptionFailed(e) => e.event_type(),
+            RealtimeServerEvent::ConversationItemTruncated(e) => e.event_type(),
+            RealtimeServerEvent::ConversationItemDeleted(e) => e.event_type(),
+            RealtimeServerEvent::ConversationItemRetrieved(e) => e.event_type(),
+            RealtimeServerEvent::ConversationItemInputAudioTranscriptionSegment(e) => {
+                e.event_type()
+            }
+            RealtimeServerEvent::ResponseCreated(e) => e.event_type(),
+            RealtimeServerEvent::ResponseDone(e) => e.event_type(),
+            RealtimeServerEvent::ResponseOutputItemAdded(e) => e.event_type(),
+            RealtimeServerEvent::ResponseOutputItemDone(e) => e.event_type(),
+            RealtimeServerEvent::ResponseContentPartAdded(e) => e.event_type(),
+            RealtimeServerEvent::ResponseContentPartDone(e) => e.event_type(),
+            RealtimeServerEvent::ResponseOutputTextDelta(e) => e.event_type(),
+            RealtimeServerEvent::ResponseOutputTextDone(e) => e.event_type(),
+            RealtimeServerEvent::ResponseOutputAudioTranscriptDelta(e) => e.event_type(),
+            RealtimeServerEvent::ResponseOutputAudioTranscriptDone(e) => e.event_type(),
+            RealtimeServerEvent::ResponseOutputAudioDelta(e) => e.event_type(),
+            RealtimeServerEvent::ResponseOutputAudioDone(e) => e.event_type(),
+            RealtimeServerEvent::ResponseFunctionCallArgumentsDelta(e) => e.event_type(),
+            RealtimeServerEvent::ResponseFunctionCallArgumentsDone(e) => e.event_type(),
+            RealtimeServerEvent::ResponseMCPCallArgumentsDelta(e) => e.event_type(),
+            RealtimeServerEvent::ResponseMCPCallArgumentsDone(e) => e.event_type(),
+            RealtimeServerEvent::ResponseMCPCallInProgress(e) => e.event_type(),
+            RealtimeServerEvent::ResponseMCPCallCompleted(e) => e.event_type(),
+            RealtimeServerEvent::ResponseMCPCallFailed(e) => e.event_type(),
+            RealtimeServerEvent::MCPListToolsInProgress(e) => e.event_type(),
+            RealtimeServerEvent::MCPListToolsCompleted(e) => e.event_type(),
+            RealtimeServerEvent::MCPListToolsFailed(e) => e.event_type(),
+            RealtimeServerEvent::RateLimitsUpdated(e) => e.event_type(),
+        }
+    }
 }

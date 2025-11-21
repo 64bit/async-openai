@@ -6,6 +6,7 @@ use async_openai::types::realtime::{
 };
 use futures_util::{future, pin_mut, StreamExt};
 
+use async_openai::traits::EventType;
 use tokio::io::AsyncReadExt;
 use tokio_tungstenite::{
     connect_async,
@@ -48,11 +49,7 @@ async fn main() {
                         serde_json::from_slice(&data);
                     match server_event {
                         Ok(server_event) => {
-                            let value = serde_json::to_value(&server_event).unwrap();
-                            let event_type = value["type"].clone();
-
-                            eprint!("{:32} | ", event_type.as_str().unwrap());
-
+                            eprint!("{:32} | ", server_event.event_type());
                             match server_event {
                                 RealtimeServerEvent::ResponseOutputItemDone(event) => {
                                     eprint!("{event:?}");

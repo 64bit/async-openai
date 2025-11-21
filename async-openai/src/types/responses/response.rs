@@ -39,12 +39,6 @@ pub enum InputParam {
     Items(Vec<InputItem>),
 }
 
-impl Default for InputParam {
-    fn default() -> Self {
-        Self::Text(String::new())
-    }
-}
-
 /// Content item used to generate a response.
 ///
 /// This is a properly discriminated union based on the `type` field, using Rust's
@@ -174,32 +168,6 @@ pub enum InputItem {
     EasyMessage(EasyInputMessage),
 }
 
-impl InputItem {
-    /// Creates an InputItem from an item reference ID.
-    pub fn from_reference(id: impl Into<String>) -> Self {
-        Self::ItemReference(ItemReference::new(id))
-    }
-
-    /// Creates an InputItem from a structured Item.
-    pub fn from_item(item: Item) -> Self {
-        Self::Item(item)
-    }
-
-    /// Creates an InputItem from an EasyInputMessage.
-    pub fn from_easy_message(message: EasyInputMessage) -> Self {
-        Self::EasyMessage(message)
-    }
-
-    /// Creates a simple text message with the given role and content.
-    pub fn text_message(role: Role, content: impl Into<String>) -> Self {
-        Self::EasyMessage(EasyInputMessage {
-            r#type: MessageType::Message,
-            role,
-            content: EasyInputContent::Text(content.into()),
-        })
-    }
-}
-
 /// A message item used within the `Item` enum.
 ///
 /// Both InputMessage and OutputMessage have `type: "message"`, so we use an untagged
@@ -233,16 +201,6 @@ pub struct ItemReference {
     pub r#type: Option<ItemReferenceType>,
     /// The ID of the item to reference.
     pub id: String,
-}
-
-impl ItemReference {
-    /// Create a new item reference with the given ID.
-    pub fn new(id: impl Into<String>) -> Self {
-        Self {
-            r#type: Some(ItemReferenceType::ItemReference),
-            id: id.into(),
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -411,8 +369,7 @@ pub struct EasyInputMessage {
 /// A structured message input to the model (InputMessage in the OpenAPI spec).
 ///
 /// This variant requires structured content (not a simple string) and does not support
-/// the `assistant` role (use OutputMessage for that). Used when items are returned via API
-/// with additional metadata.
+/// the `assistant` role (use OutputMessage for that). status is populated when items are returned via API.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(
     name = "InputMessageArgs",
@@ -486,14 +443,14 @@ pub struct InputTextContent {
 pub struct InputImageContent {
     /// The detail level of the image to be sent to the model. One of `high`, `low`, or `auto`.
     /// Defaults to `auto`.
-    detail: ImageDetail,
+    pub detail: ImageDetail,
     /// The ID of the file to be sent to the model.
     #[serde(skip_serializing_if = "Option::is_none")]
-    file_id: Option<String>,
+    pub file_id: Option<String>,
     /// The URL of the image to be sent to the model. A fully qualified URL or base64 encoded image
     /// in a data URL.
     #[serde(skip_serializing_if = "Option::is_none")]
-    image_url: Option<String>,
+    pub image_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
@@ -1264,12 +1221,6 @@ pub enum CodeInterpreterToolContainer {
     ContainerID(String),
 }
 
-impl Default for CodeInterpreterToolContainer {
-    fn default() -> Self {
-        Self::Auto(CodeInterpreterContainerAuto::default())
-    }
-}
-
 /// Auto configuration for code interpreter container.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CodeInterpreterContainerAuto {
@@ -1455,21 +1406,21 @@ pub enum ToolChoiceTypes {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ToolChoiceFunction {
     /// The name of the function to call.
-    name: String,
+    pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ToolChoiceMCP {
     /// The name of the tool to call on the server.
-    name: String,
+    pub name: String,
     /// The label of the MCP server to use.
-    server_label: String,
+    pub server_label: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ToolChoiceCustom {
     /// The name of the custom tool to call.
-    name: String,
+    pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -2713,36 +2664,6 @@ pub struct Response {
     /// a breakdown of output tokens, and the total tokens used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub usage: Option<ResponseUsage>,
-}
-
-impl Response {
-    /// SDK-only convenience property that contains the aggregated text output from all
-    /// `output_text` items in the `output` array, if any are present.
-    pub fn output_text(&self) -> Option<String> {
-        let output = self
-            .output
-            .iter()
-            .filter_map(|item| match item {
-                OutputItem::Message(msg) => Some(
-                    msg.content
-                        .iter()
-                        .filter_map(|content| match content {
-                            OutputMessageContent::OutputText(ot) => Some(ot.text.clone()),
-                            _ => None,
-                        })
-                        .collect::<Vec<String>>(),
-                ),
-                _ => None,
-            })
-            .flatten()
-            .collect::<Vec<String>>()
-            .join("");
-        if output.is_empty() {
-            None
-        } else {
-            Some(output)
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

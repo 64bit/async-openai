@@ -2,8 +2,7 @@ use async_openai::{
     traits::RequestOptionsBuilder,
     types::responses::{
         ConversationItem, CreateConversationItemsRequestArgs, CreateConversationRequestArgs,
-        EasyInputContent, EasyInputMessage, InputItem, ListConversationItemsQuery, MessageType,
-        Role, UpdateConversationRequestArgs,
+        EasyInputMessage, ListConversationItemsQuery, UpdateConversationRequestArgs,
     },
     Client,
 };
@@ -25,13 +24,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .metadata(json!({
                     "topic": "demo",
                 }))
-                .items(vec![InputItem::from_easy_message(EasyInputMessage {
-                    r#type: MessageType::Message,
-                    role: Role::User,
-                    content: EasyInputContent::Text(
-                        "Hello! Can you help me understand conversations?".to_string(),
-                    ),
-                })])
+                .items(vec![EasyInputMessage::from(
+                    "Hello! Can you help me understand conversations?",
+                )
+                .into()])
                 .build()?,
         )
         .await?;
@@ -48,16 +44,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .create(
             CreateConversationItemsRequestArgs::default()
                 .items(vec![
-                    InputItem::from_easy_message(EasyInputMessage {
-                        r#type: MessageType::Message,
-                        role: Role::User,
-                        content: EasyInputContent::Text("What are the main features?".to_string()),
-                    }),
-                    InputItem::from_easy_message(EasyInputMessage {
-                        r#type: MessageType::Message,
-                        role: Role::User,
-                        content: EasyInputContent::Text("Can you give me an example?".to_string()),
-                    }),
+                    EasyInputMessage::from("What are the main features?").into(),
+                    EasyInputMessage::from("Can you give me an example?").into(),
                 ])
                 .build()?,
         )
