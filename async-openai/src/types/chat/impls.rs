@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::types::chat::{
     ChatCompletionFunctionCall, ChatCompletionNamedToolChoice,
     ChatCompletionRequestAssistantMessage, ChatCompletionRequestAssistantMessageContent,
@@ -8,7 +10,7 @@ use crate::types::chat::{
     ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
     ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
-    FunctionName, ImageUrl,
+    FunctionName, ImageUrl, Role,
 };
 
 impl From<ChatCompletionRequestUserMessage> for ChatCompletionRequestMessage {
@@ -312,5 +314,21 @@ impl From<String> for ImageUrl {
             url: value,
             detail: Default::default(),
         }
+    }
+}
+
+impl Display for Role {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Role::User => "user",
+                Role::System => "system",
+                Role::Assistant => "assistant",
+                Role::Function => "function",
+                Role::Tool => "tool",
+            }
+        )
     }
 }
