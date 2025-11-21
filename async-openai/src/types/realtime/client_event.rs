@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use tokio_tungstenite::tungstenite::Message;
 
+use crate::traits::EventType;
 use crate::types::realtime::{RealtimeConversationItem, RealtimeResponseCreateParams, Session};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -362,6 +363,52 @@ impl From<RealtimeConversationItem> for RealtimeClientEventConversationItemCreat
             event_id: None,
             previous_item_id: None,
             item: value,
+        }
+    }
+}
+
+// Implement EventType trait for all event types in this file
+
+macro_rules! impl_event_type {
+    ($($ty:ty => $event_type:expr),* $(,)?) => {
+        $(
+            impl EventType for $ty {
+                fn event_type(&self) -> &'static str {
+                    $event_type
+                }
+            }
+        )*
+    };
+}
+
+impl_event_type! {
+    RealtimeClientEventSessionUpdate => "session.update",
+    RealtimeClientEventInputAudioBufferAppend => "input_audio_buffer.append",
+    RealtimeClientEventInputAudioBufferCommit => "input_audio_buffer.commit",
+    RealtimeClientEventInputAudioBufferClear => "input_audio_buffer.clear",
+    RealtimeClientEventConversationItemCreate => "conversation.item.create",
+    RealtimeClientEventConversationItemRetrieve => "conversation.item.retrieve",
+    RealtimeClientEventConversationItemTruncate => "conversation.item.truncate",
+    RealtimeClientEventConversationItemDelete => "conversation.item.delete",
+    RealtimeClientEventResponseCreate => "response.create",
+    RealtimeClientEventResponseCancel => "response.cancel",
+    RealtimeClientEventOutputAudioBufferClear => "output_audio_buffer.clear",
+}
+
+impl EventType for RealtimeClientEvent {
+    fn event_type(&self) -> &'static str {
+        match self {
+            RealtimeClientEvent::SessionUpdate(e) => e.event_type(),
+            RealtimeClientEvent::InputAudioBufferAppend(e) => e.event_type(),
+            RealtimeClientEvent::InputAudioBufferCommit(e) => e.event_type(),
+            RealtimeClientEvent::InputAudioBufferClear(e) => e.event_type(),
+            RealtimeClientEvent::ConversationItemCreate(e) => e.event_type(),
+            RealtimeClientEvent::ConversationItemRetrieve(e) => e.event_type(),
+            RealtimeClientEvent::ConversationItemTruncate(e) => e.event_type(),
+            RealtimeClientEvent::ConversationItemDelete(e) => e.event_type(),
+            RealtimeClientEvent::ResponseCreate(e) => e.event_type(),
+            RealtimeClientEvent::ResponseCancel(e) => e.event_type(),
+            RealtimeClientEvent::OutputAudioBufferClear(e) => e.event_type(),
         }
     }
 }
