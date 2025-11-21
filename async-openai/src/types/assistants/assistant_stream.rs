@@ -4,7 +4,7 @@ use futures::Stream;
 use serde::Deserialize;
 
 use crate::error::{map_deserialization_error, ApiError, OpenAIError, StreamError};
-
+use crate::traits::EventType;
 use crate::types::assistants::{
     MessageDeltaObject, MessageObject, RunObject, RunStepDeltaObject, RunStepObject, ThreadObject,
 };
@@ -210,6 +210,38 @@ impl TryFrom<eventsource_stream::Event> for AssistantStreamEvent {
             _ => Err(OpenAIError::StreamError(Box::new(
                 StreamError::UnknownEvent(value),
             ))),
+        }
+    }
+}
+
+impl EventType for AssistantStreamEvent {
+    fn event_type(&self) -> &'static str {
+        match self {
+            AssistantStreamEvent::ThreadCreated(_) => "thread.created",
+            AssistantStreamEvent::ThreadRunCreated(_) => "thread.run.created",
+            AssistantStreamEvent::ThreadRunQueued(_) => "thread.run.queued",
+            AssistantStreamEvent::ThreadRunInProgress(_) => "thread.run.in_progress",
+            AssistantStreamEvent::ThreadRunRequiresAction(_) => "thread.run.requires_action",
+            AssistantStreamEvent::ThreadRunCompleted(_) => "thread.run.completed",
+            AssistantStreamEvent::ThreadRunIncomplete(_) => "thread.run.incomplete",
+            AssistantStreamEvent::ThreadRunFailed(_) => "thread.run.failed",
+            AssistantStreamEvent::ThreadRunCancelling(_) => "thread.run.cancelling",
+            AssistantStreamEvent::ThreadRunCancelled(_) => "thread.run.cancelled",
+            AssistantStreamEvent::ThreadRunExpired(_) => "thread.run.expired",
+            AssistantStreamEvent::ThreadRunStepCreated(_) => "thread.run.step.created",
+            AssistantStreamEvent::ThreadRunStepInProgress(_) => "thread.run.step.in_progress",
+            AssistantStreamEvent::ThreadRunStepDelta(_) => "thread.run.step.delta",
+            AssistantStreamEvent::ThreadRunStepCompleted(_) => "thread.run.step.completed",
+            AssistantStreamEvent::ThreadRunStepFailed(_) => "thread.run.step.failed",
+            AssistantStreamEvent::ThreadRunStepCancelled(_) => "thread.run.step.cancelled",
+            AssistantStreamEvent::ThreadRunStepExpired(_) => "thread.run.step.expired",
+            AssistantStreamEvent::ThreadMessageCreated(_) => "thread.message.created",
+            AssistantStreamEvent::ThreadMessageInProgress(_) => "thread.message.in_progress",
+            AssistantStreamEvent::ThreadMessageDelta(_) => "thread.message.delta",
+            AssistantStreamEvent::ThreadMessageCompleted(_) => "thread.message.completed",
+            AssistantStreamEvent::ThreadMessageIncomplete(_) => "thread.message.incomplete",
+            AssistantStreamEvent::ErrorEvent(_) => "error",
+            AssistantStreamEvent::Done(_) => "done",
         }
     }
 }
