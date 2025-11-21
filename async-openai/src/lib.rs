@@ -168,6 +168,7 @@ mod group_roles;
 mod group_users;
 mod groups;
 mod image;
+mod impls;
 mod invites;
 mod messages;
 mod model;
