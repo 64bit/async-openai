@@ -1522,6 +1522,7 @@ pub struct ResponseLogProb {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct OutputTextContent {
     /// The annotations of the text output.
+    #[serde(default)]
     pub annotations: Vec<Annotation>,
     pub logprobs: Option<Vec<LogProb>>,
     /// The text output from the model.
