@@ -1,4 +1,4 @@
-use std::pin::Pin;
+use std::{pin::Pin, time::Duration};
 
 use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
@@ -451,6 +451,13 @@ impl<C: Config> Client<C> {
                 .map_err(OpenAIError::Reqwest)
                 .map_err(backoff::Error::Permanent)?;
 
+            let retry_after = response
+                .headers()
+                .get("retry-after")
+                .and_then(|h| h.to_str().ok())
+                .and_then(|s| s.parse::<u64>().ok())
+                .map(Duration::from_secs);
+
             let status = response.status();
 
             match read_response(response).await {
@@ -461,7 +468,7 @@ impl<C: Config> Client<C> {
                             if status.is_server_error() {
                                 Err(backoff::Error::Transient {
                                     err: OpenAIError::ApiError(api_error),
-                                    retry_after: None,
+                                    retry_after,
                                 })
                             } else if status.as_u16() == 429
                                 && api_error.r#type != Some("insufficient_quota".to_string())
@@ -470,7 +477,7 @@ impl<C: Config> Client<C> {
                                 tracing::warn!("Rate limited: {}", api_error.message);
                                 Err(backoff::Error::Transient {
                                     err: OpenAIError::ApiError(api_error),
-                                    retry_after: None,
+                                    retry_after,
                                 })
                             } else {
                                 Err(backoff::Error::Permanent(OpenAIError::ApiError(api_error)))
