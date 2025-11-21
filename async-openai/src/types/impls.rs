@@ -14,7 +14,7 @@ use crate::{
             CreateTranslationRequest, TimestampGranularity, TranscriptionInclude,
         },
         audio::{TranscriptionChunkingStrategy, TranslationResponseFormat},
-        chat::{ImageUrl, Prompt, Role, StopConfiguration},
+        chat::{Prompt, Role, StopConfiguration},
         containers::CreateContainerFileRequest,
         embeddings::EmbeddingInput,
         files::{CreateFileRequest, FileExpirationAfterAnchor, FileInput, FilePurpose},
@@ -687,24 +687,6 @@ impl_from_for_array_of_integer_array!(u32, EmbeddingInput);
 impl_from_for_array_of_integer_array!(u32, Prompt);
 
 // todo: write macro for bunch of same looking From trait implementations below
-
-impl From<&str> for ImageUrl {
-    fn from(value: &str) -> Self {
-        Self {
-            url: value.into(),
-            detail: Default::default(),
-        }
-    }
-}
-
-impl From<String> for ImageUrl {
-    fn from(value: String) -> Self {
-        Self {
-            url: value,
-            detail: Default::default(),
-        }
-    }
-}
 
 impl From<String> for CreateMessageRequestContent {
     fn from(value: String) -> Self {

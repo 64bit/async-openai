@@ -8,7 +8,7 @@ use crate::types::chat::{
     ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
     ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
-    FunctionName,
+    FunctionName, ImageUrl,
 };
 
 impl From<ChatCompletionRequestUserMessage> for ChatCompletionRequestMessage {
@@ -294,5 +294,23 @@ impl Default for ChatCompletionRequestToolMessageContent {
 impl Default for ChatCompletionRequestUserMessageContent {
     fn default() -> Self {
         ChatCompletionRequestUserMessageContent::Text("".into())
+    }
+}
+
+impl From<&str> for ImageUrl {
+    fn from(value: &str) -> Self {
+        Self {
+            url: value.into(),
+            detail: Default::default(),
+        }
+    }
+}
+
+impl From<String> for ImageUrl {
+    fn from(value: String) -> Self {
+        Self {
+            url: value,
+            detail: Default::default(),
+        }
     }
 }
