@@ -394,3 +394,9 @@ impl From<ChatCompletionMessageCustomToolCall> for ChatCompletionMessageToolCall
         ChatCompletionMessageToolCalls::Custom(value)
     }
 }
+
+impl From<ImageUrl> for ChatCompletionRequestMessageContentPartImage {
+    fn from(value: ImageUrl) -> Self {
+        ChatCompletionRequestMessageContentPartImage { image_url: value }
+    }
+}
