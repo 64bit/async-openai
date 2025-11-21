@@ -81,6 +81,25 @@ impl<'c, C: Config> Responses<'c, C> {
             .await
     }
 
+    /// Retrieves a model response with the given ID with streaming.
+    ///
+    /// Response events will be sent as server-sent events as they become available.
+    #[crate::byot(
+        T0 = std::fmt::Display,
+        R = serde::de::DeserializeOwned,
+        stream = "true",
+        where_clause = "R: std::marker::Send + 'static"
+    )]
+    pub async fn retrieve_stream(&self, response_id: &str) -> Result<ResponseStream, OpenAIError> {
+        let mut request_options = self.request_options.clone();
+        request_options.with_query(&[("stream", "true")])?;
+
+        Ok(self
+            .client
+            .get_stream(&format!("/responses/{}", response_id), &request_options)
+            .await)
+    }
+
     /// Deletes a model response with the given ID.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, response_id: &str) -> Result<DeleteResponse, OpenAIError> {

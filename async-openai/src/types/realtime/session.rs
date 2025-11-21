@@ -150,6 +150,8 @@ pub enum RealtimeVoice {
     Verse,
     Marin,
     Cedar,
+    #[serde(untagged)]
+    Other(String),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

@@ -544,23 +544,18 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP GET request to receive SSE
-    pub(crate) async fn _get_stream<Q, O>(
+    pub(crate) async fn get_stream<O>(
         &self,
         path: &str,
-        query: &Q,
+        request_options: &RequestOptions,
     ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
     where
-        Q: Serialize + ?Sized,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let event_source = self
-            .http_client
-            .get(self.config.url(path))
-            .query(query)
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .eventsource()
-            .unwrap();
+        let request_builder =
+            self.build_request_builder(reqwest::Method::GET, path, request_options);
+
+        let event_source = request_builder.eventsource().unwrap();
 
         stream(event_source).await
     }

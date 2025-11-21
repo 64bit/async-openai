@@ -3,9 +3,8 @@ use std::io::{stdout, Write};
 
 use async_openai::types::chat::{
     ChatCompletionMessageToolCalls, ChatCompletionRequestAssistantMessageArgs,
-    ChatCompletionRequestMessage, ChatCompletionRequestToolMessageArgs,
-    ChatCompletionRequestUserMessageArgs, ChatCompletionTool, ChatCompletionTools,
-    FunctionObjectArgs,
+    ChatCompletionRequestMessage, ChatCompletionRequestToolMessage,
+    ChatCompletionRequestUserMessage, ChatCompletionTool, FunctionObjectArgs,
 };
 use async_openai::{types::chat::CreateChatCompletionRequestArgs, Client};
 use futures::StreamExt;
@@ -19,13 +18,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let user_prompt = "What's the weather like in Boston and Atlanta?";
 
     let request = CreateChatCompletionRequestArgs::default()
-        .max_tokens(512u32)
-        .model("gpt-4-1106-preview")
-        .messages([ChatCompletionRequestUserMessageArgs::default()
-            .content(user_prompt)
-            .build()?
-            .into()])
-        .tools(vec![ChatCompletionTools::Function(ChatCompletionTool {
+        .max_completion_tokens(512u32)
+        .model("gpt-5-mini")
+        .messages(ChatCompletionRequestUserMessage::from(user_prompt))
+        .tools(ChatCompletionTool {
             function: FunctionObjectArgs::default()
                 .name("get_current_weather")
                 .description("Get the current weather in a given location")
@@ -38,10 +34,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         },
                         "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] },
                     },
-                    "required": ["location"],
+                    "required": ["location", "unit"],
+                    "additionalProperties": false
                 }))
+                .strict(true)
                 .build()?,
-        })])
+        })
         .build()?;
 
     let response_message = client
@@ -50,7 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?
         .choices
         .first()
-        .unwrap()
+        .ok_or("No choices")?
         .message
         .clone();
 
@@ -78,10 +76,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         let mut messages: Vec<ChatCompletionRequestMessage> =
-            vec![ChatCompletionRequestUserMessageArgs::default()
-                .content(user_prompt)
-                .build()?
-                .into()];
+            ChatCompletionRequestUserMessage::from(user_prompt).into();
 
         // Convert ChatCompletionMessageToolCall to ChatCompletionMessageToolCalls enum
         let tool_calls: Vec<ChatCompletionMessageToolCalls> = function_responses
@@ -100,12 +95,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let tool_messages: Vec<ChatCompletionRequestMessage> = function_responses
             .iter()
             .map(|(tool_call, response_content)| {
-                ChatCompletionRequestToolMessageArgs::default()
-                    .content(response_content.to_string())
-                    .tool_call_id(tool_call.id.clone())
-                    .build()
-                    .unwrap()
-                    .into()
+                ChatCompletionRequestMessage::Tool(ChatCompletionRequestToolMessage {
+                    content: response_content.to_string().into(),
+                    tool_call_id: tool_call.id.clone(),
+                })
             })
             .collect();
 
@@ -113,11 +106,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         messages.extend(tool_messages);
 
         let subsequent_request = CreateChatCompletionRequestArgs::default()
-            .max_tokens(512u32)
-            .model("gpt-4-1106-preview")
+            .max_completion_tokens(512u32)
+            .model("gpt-5-mini")
             .messages(messages)
-            .build()
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+            .build()?;
 
         let mut stream = client.chat().create_stream(subsequent_request).await?;
 
