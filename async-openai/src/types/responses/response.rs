@@ -2432,21 +2432,22 @@ pub struct MCPApprovalRequest {
     pub server_label: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct InputTokenDetails {
     /// The number of tokens that were retrieved from the cache.
     /// [More on prompt caching](https://platform.openai.com/docs/guides/prompt-caching).
     pub cached_tokens: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct OutputTokenDetails {
     /// The number of reasoning tokens.
     pub reasoning_tokens: u32,
 }
 
 /// Usage statistics for a response.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[serde(default)]
 pub struct ResponseUsage {
     /// The number of input tokens.
     pub input_tokens: u32,
