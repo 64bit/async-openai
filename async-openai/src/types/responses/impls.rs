@@ -631,6 +631,26 @@ impl From<CustomToolParam> for Vec<Tool> {
     }
 }
 
+// EasyInputContent ergonomics
+
+impl Default for EasyInputContent {
+    fn default() -> Self {
+        Self::Text("".to_string())
+    }
+}
+
+impl From<String> for EasyInputContent {
+    fn from(value: String) -> Self {
+        Self::Text(value)
+    }
+}
+
+impl From<&str> for EasyInputContent {
+    fn from(value: &str) -> Self {
+        Self::Text(value.to_owned())
+    }
+}
+
 // Defaults
 
 impl Default for CodeInterpreterToolContainer {
