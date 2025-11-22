@@ -1,4 +1,5 @@
 mod audio_types;
+#[cfg(feature = "api")]
 mod form;
 mod impls;
 mod sdk;

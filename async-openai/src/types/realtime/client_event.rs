@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "realtime")]
 use tokio_tungstenite::tungstenite::Message;
 
+#[cfg(feature = "realtime")]
 use crate::traits::EventType;
 use crate::types::realtime::{RealtimeConversationItem, RealtimeResponseCreateParams, Session};
 
@@ -245,16 +247,6 @@ impl From<RealtimeClientEvent> for Message {
     }
 }
 
-macro_rules! message_from_event {
-    ($from_typ:ty, $evt_typ:ty) => {
-        impl From<$from_typ> for Message {
-            fn from(value: $from_typ) -> Self {
-                Self::from(<$evt_typ>::from(value))
-            }
-        }
-    };
-}
-
 macro_rules! event_from {
     ($from_typ:ty, $evt_typ:ty, $variant:ident) => {
         impl From<$from_typ> for $evt_typ {
@@ -321,37 +313,60 @@ event_from!(
     OutputAudioBufferClear
 );
 
+#[cfg(feature = "realtime")]
+macro_rules! message_from_event {
+    ($from_typ:ty, $evt_typ:ty) => {
+        impl From<$from_typ> for Message {
+            fn from(value: $from_typ) -> Self {
+                Self::from(<$evt_typ>::from(value))
+            }
+        }
+    };
+}
+
+#[cfg(feature = "realtime")]
 message_from_event!(RealtimeClientEventSessionUpdate, RealtimeClientEvent);
+#[cfg(feature = "realtime")]
 message_from_event!(
     RealtimeClientEventInputAudioBufferAppend,
     RealtimeClientEvent
 );
+#[cfg(feature = "realtime")]
 message_from_event!(
     RealtimeClientEventInputAudioBufferCommit,
     RealtimeClientEvent
 );
+#[cfg(feature = "realtime")]
 message_from_event!(
     RealtimeClientEventInputAudioBufferClear,
     RealtimeClientEvent
 );
+
+#[cfg(feature = "realtime")]
 message_from_event!(
     RealtimeClientEventConversationItemCreate,
     RealtimeClientEvent
 );
+#[cfg(feature = "realtime")]
 message_from_event!(
     RealtimeClientEventConversationItemTruncate,
     RealtimeClientEvent
 );
+#[cfg(feature = "realtime")]
 message_from_event!(
     RealtimeClientEventConversationItemDelete,
     RealtimeClientEvent
 );
+#[cfg(feature = "realtime")]
 message_from_event!(
     RealtimeClientEventConversationItemRetrieve,
     RealtimeClientEvent
 );
+#[cfg(feature = "realtime")]
 message_from_event!(RealtimeClientEventResponseCreate, RealtimeClientEvent);
+#[cfg(feature = "realtime")]
 message_from_event!(RealtimeClientEventResponseCancel, RealtimeClientEvent);
+#[cfg(feature = "realtime")]
 message_from_event!(
     RealtimeClientEventOutputAudioBufferClear,
     RealtimeClientEvent
@@ -369,6 +384,7 @@ impl From<RealtimeConversationItem> for RealtimeClientEventConversationItemCreat
 
 // Implement EventType trait for all event types in this file
 
+#[cfg(feature = "realtime")]
 macro_rules! impl_event_type {
     ($($ty:ty => $event_type:expr),* $(,)?) => {
         $(
@@ -381,6 +397,7 @@ macro_rules! impl_event_type {
     };
 }
 
+#[cfg(feature = "realtime")]
 impl_event_type! {
     RealtimeClientEventSessionUpdate => "session.update",
     RealtimeClientEventInputAudioBufferAppend => "input_audio_buffer.append",
@@ -395,6 +412,7 @@ impl_event_type! {
     RealtimeClientEventOutputAudioBufferClear => "output_audio_buffer.clear",
 }
 
+#[cfg(feature = "realtime")]
 impl EventType for RealtimeClientEvent {
     fn event_type(&self) -> &'static str {
         match self {

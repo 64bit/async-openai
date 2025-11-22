@@ -13,45 +13,110 @@ homepage = "https://github.com/64bit/async-openai"
 repository = "https://github.com/64bit/async-openai"
 
 [features]
-default = ["rustls"]
+default = ["rustls", "responses", "chat-completion"]
 # Enable rustls for TLS support
-rustls = ["reqwest/rustls-tls-native-roots"]
+rustls = ["api", "dep:reqwest", "reqwest/rustls-tls-native-roots"]
 # Enable rustls and webpki-roots
-rustls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
+rustls-webpki-roots = ["api", "dep:reqwest", "reqwest/rustls-tls-webpki-roots"]
 # Enable native-tls for TLS support
-native-tls = ["reqwest/native-tls"]
+native-tls = ["api", "dep:reqwest", "reqwest/native-tls"]
 # Remove dependency on OpenSSL
-native-tls-vendored = ["reqwest/native-tls-vendored"]
-realtime = ["dep:tokio-tungstenite"]
+native-tls-vendored = ["api", "dep:reqwest", "reqwest/native-tls-vendored"]
 # Bring your own types
 byot = []
-webhook = ["dep:hmac", "dep:sha2", "dep:hex"]
+
+# API feature flags - these enable both the API wrapper and types
+responses = ["response-types", "api"]
+webhook = ["webhook-types", "api", "dep:hmac", "dep:sha2", "dep:hex"]
+platform = ["platform-types", "api"]
+vector-stores = ["vector-store-types", "api"]
+chatkit = ["chatkit-types", "api"]
+container = ["container-types", "api"]
+realtime = ["realtime-types", "api", "dep:tokio-tungstenite"]
+chat-completion = ["chat-completion-types", "api"]
+assistants = ["assistant-types", "api"]
+administration = ["administration-types", "api"]
+completions = ["completions-types", "api"]
+
+# Internal feature to enable API dependencies
+api = [
+    "dep:async-openai-macros",
+    "dep:backoff",
+    "dep:base64",
+    "dep:bytes",
+    "dep:futures",
+    "dep:rand",
+    "dep:reqwest",
+    "dep:reqwest-eventsource",
+    "dep:thiserror",
+    "dep:tokio",
+    "dep:tokio-stream",
+    "dep:tokio-util",
+    "dep:tracing",
+    "dep:secrecy",
+    "dep:eventsource-stream",
+    "dep:serde_urlencoded",
+    "dep:url",
+]
+
+# Type feature flags - these enable only the types
+# bytes is needed for common types (InputSource), so enable it for all type features
+response-types = ["dep:derive_builder", "dep:bytes", "chat-completion-types"]
+webhook-types = ["dep:derive_builder", "dep:bytes"]
+platform-types = ["dep:derive_builder", "dep:bytes"]
+vector-store-types = ["dep:derive_builder", "dep:bytes"]
+chatkit-types = ["dep:derive_builder", "dep:bytes"]
+container-types = ["dep:derive_builder", "dep:bytes"]
+realtime-types = ["dep:derive_builder", "dep:bytes", "audio-types", "responses-types"]
+chat-completion-types = ["dep:derive_builder", "dep:bytes"]
+assistant-types = ["dep:derive_builder", "dep:bytes"]
+administration-types = ["dep:derive_builder", "dep:bytes"]
+completions-types = ["dep:derive_builder", "dep:bytes"]
+
+# Enable all types
+types = [
+    "response-types",
+    "webhook-types",
+    "platform-types",
+    "vector-store-types",
+    "chatkit-types",
+    "container-types",
+    "realtime-types",
+    "chat-completion-types",
+    "assistant-types",
+    "administration-types",
+    "completions-types",
+]
 
 [dependencies]
-async-openai-macros = { path = "../async-openai-macros", version = "0.1.0" }
-backoff = { version = "0.4.0", features = ["tokio"] }
-base64 = "0.22.1"
-futures = "0.3.31"
-rand = "0.9.0"
+# Core dependencies - always needed for types
+serde = { version = "1.0.217", features = ["derive", "rc"] }
+serde_json = "1.0.135"
+derive_builder = { version = "0.20.2", optional = true }
+bytes = { version = "1.9.0", optional = true }
+
+# API dependencies - only needed when API features are enabled
+# We use a feature gate to enable these when any API feature is enabled
+async-openai-macros = { path = "../async-openai-macros", version = "0.1.0", optional = true }
+backoff = { version = "0.4.0", features = ["tokio"], optional = true }
+base64 = { version = "0.22.1", optional = true }
+futures = { version = "0.3.31", optional = true }
+rand = { version = "0.9.0", optional = true }
 reqwest = { version = "0.12.12", features = [
   "json",
   "stream",
   "multipart",
-], default-features = false }
-reqwest-eventsource = "0.6.0"
-serde = { version = "1.0.217", features = ["derive", "rc"] }
-serde_json = "1.0.135"
-thiserror = "2.0.11"
-tokio = { version = "1.43.0", features = ["fs", "macros"] }
-tokio-stream = "0.1.17"
-tokio-util = { version = "0.7.13", features = ["codec", "io-util"] }
-tracing = "0.1.41"
-derive_builder = "0.20.2"
-secrecy = { version = "0.10.3", features = ["serde"] }
-bytes = "1.9.0"
-eventsource-stream = "0.2.3"
-serde_urlencoded = "0.7.1"
-url = "2.5"
+], default-features = false, optional = true }
+reqwest-eventsource = { version = "0.6.0", optional = true }
+thiserror = { version = "2.0.11", optional = true }
+tokio = { version = "1.43.0", features = ["fs", "macros"], optional = true }
+tokio-stream = { version = "0.1.17", optional = true }
+tokio-util = { version = "0.7.13", features = ["codec", "io-util"], optional = true }
+tracing = { version = "0.1.41", optional = true }
+secrecy = { version = "0.10.3", features = ["serde"], optional = true }
+eventsource-stream = { version = "0.2.3", optional = true }
+serde_urlencoded = { version = "0.7.1", optional = true }
+url = { version = "2.5", optional = true }
 tokio-tungstenite = { version = "0.26.1", optional = true, default-features = false }
 hmac = { version = "0.12", optional = true, default-features = false}
 sha2 = { version = "0.10", optional = true, default-features = false }

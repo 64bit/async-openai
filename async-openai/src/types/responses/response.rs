@@ -173,7 +173,7 @@ pub enum InputItem {
 /// Both InputMessage and OutputMessage have `type: "message"`, so we use an untagged
 /// enum to distinguish them based on their structure:
 /// - OutputMessage: role=assistant, required id & status fields
-/// - InputMessage: role=user/system/developer, content is Vec<ContentType>, optional id/status
+/// - InputMessage: role=user/system/developer, content is `Vec<ContentType>`, optional id/status
 ///
 /// Note: EasyInputMessage is NOT included here - it's a separate variant in `InputItem`,
 /// not part of the structured `Item` enum.
@@ -184,7 +184,7 @@ pub enum MessageItem {
     /// This must come first as it has the most specific structure (required id and status fields).
     Output(OutputMessage),
 
-    /// A structured input message (role: user/system/developer, content is Vec<ContentType>).
+    /// A structured input message (role: user/system/developer, content is `Vec<ContentType>`).
     /// Has structured content list and optional id/status fields.
     ///
     /// A message input to the model with a role indicating instruction following hierarchy.

@@ -54,4 +54,9 @@ impl<'c, C: Config> Admin<'c, C> {
     pub fn groups(&self) -> Groups<'_, C> {
         Groups::new(self.client)
     }
+
+    /// To call [Usage] group related APIs using this client.
+    pub fn usage(&self) -> Usage<'_, C> {
+        Usage::new(self.client)
+    }
 }

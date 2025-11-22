@@ -7,20 +7,40 @@ use reqwest_eventsource::{Error as EventSourceError, Event, EventSource, Request
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
-    admin::Admin,
-    chatkit::Chatkit,
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, ApiError, OpenAIError, StreamError, WrappedError},
-    file::Files,
-    image::Images,
-    moderation::Moderations,
     traits::AsyncTryFrom,
-    Assistants, Audio, Batches, Chat, Completions, Containers, Conversations, Embeddings, Evals,
-    FineTuning, Models, RequestOptions, Responses, Threads, Uploads, Usage, VectorStores, Videos,
+    RequestOptions,
 };
 
+#[cfg(feature = "chatkit")]
+use crate::Chatkit;
+#[cfg(feature = "completions")]
+use crate::Completions;
 #[cfg(feature = "realtime")]
 use crate::Realtime;
+#[cfg(feature = "responses")]
+use crate::Responses;
+#[cfg(feature = "administration")]
+use crate::{
+    Admin, AdminAPIKeys, AuditLogs, Certificates, GroupRoles, GroupUsers, Groups, Invites,
+    ProjectAPIKeys, ProjectCertificates, ProjectGroupRoles, ProjectGroups, ProjectRateLimits,
+    ProjectRoles, ProjectServiceAccounts, ProjectUserRoles, ProjectUsers, Projects, Roles, Usage,
+    UserRoles, Users,
+};
+#[cfg(feature = "assistants")]
+use crate::{Assistants, Messages, Runs, Steps, Threads};
+#[cfg(feature = "platform")]
+use crate::{
+    Audio, Batches, Embeddings, Evals, Files, FineTuning, Images, Models, Moderations, Uploads,
+    Videos,
+};
+#[cfg(feature = "chat-completion")]
+use crate::{Chat, Conversations};
+#[cfg(feature = "container")]
+use crate::{ContainerFiles, Containers};
+#[cfg(feature = "vector-stores")]
+use crate::{VectorStoreFileBatches, VectorStoreFiles, VectorStores};
 
 #[derive(Debug, Clone, Default)]
 /// Client is a container for config, backoff and http_client
@@ -77,120 +97,137 @@ impl<C: Config> Client<C> {
 
     // API groups
 
-    /// To call [Models] group related APIs using this client.
-    pub fn models(&self) -> Models<'_, C> {
-        Models::new(self)
-    }
-
-    /// To call [Completions] group related APIs using this client.
-    pub fn completions(&self) -> Completions<'_, C> {
-        Completions::new(self)
-    }
-
-    /// To call [Chat] group related APIs using this client.
-    pub fn chat(&self) -> Chat<'_, C> {
-        Chat::new(self)
-    }
-
-    /// To call [Images] group related APIs using this client.
-    pub fn images(&self) -> Images<'_, C> {
-        Images::new(self)
-    }
-
-    /// To call [Moderations] group related APIs using this client.
-    pub fn moderations(&self) -> Moderations<'_, C> {
-        Moderations::new(self)
-    }
-
-    /// To call [Files] group related APIs using this client.
-    pub fn files(&self) -> Files<'_, C> {
-        Files::new(self)
-    }
-
-    /// To call [Uploads] group related APIs using this client.
-    pub fn uploads(&self) -> Uploads<'_, C> {
-        Uploads::new(self)
-    }
-
-    /// To call [FineTuning] group related APIs using this client.
-    pub fn fine_tuning(&self) -> FineTuning<'_, C> {
-        FineTuning::new(self)
-    }
-
-    /// To call [Embeddings] group related APIs using this client.
-    pub fn embeddings(&self) -> Embeddings<'_, C> {
-        Embeddings::new(self)
-    }
-
-    /// To call [Audio] group related APIs using this client.
-    pub fn audio(&self) -> Audio<'_, C> {
-        Audio::new(self)
-    }
-
-    /// To call [Videos] group related APIs using this client.
-    pub fn videos(&self) -> Videos<'_, C> {
-        Videos::new(self)
-    }
-
-    /// To call [Assistants] group related APIs using this client.
-    pub fn assistants(&self) -> Assistants<'_, C> {
-        Assistants::new(self)
-    }
-
-    /// To call [Threads] group related APIs using this client.
-    pub fn threads(&self) -> Threads<'_, C> {
-        Threads::new(self)
-    }
-
-    /// To call [VectorStores] group related APIs using this client.
-    pub fn vector_stores(&self) -> VectorStores<'_, C> {
-        VectorStores::new(self)
-    }
-
-    /// To call [Batches] group related APIs using this client.
-    pub fn batches(&self) -> Batches<'_, C> {
-        Batches::new(self)
-    }
-
-    /// To call [Admin] group related APIs using this client.
-    /// This groups together admin API keys, invites, users, projects, audit logs, and certificates.
-    pub fn admin(&self) -> Admin<'_, C> {
-        Admin::new(self)
-    }
-
-    /// To call [Usage] group related APIs using this client.
-    pub fn usage(&self) -> Usage<'_, C> {
-        Usage::new(self)
-    }
-
+    #[cfg(feature = "responses")]
     /// To call [Responses] group related APIs using this client.
     pub fn responses(&self) -> Responses<'_, C> {
         Responses::new(self)
     }
 
-    /// To call [Conversations] group related APIs using this client.
-    pub fn conversations(&self) -> Conversations<'_, C> {
-        Conversations::new(self)
+    #[cfg(feature = "platform")]
+    /// To call [Models] group related APIs using this client.
+    pub fn models(&self) -> Models<'_, C> {
+        Models::new(self)
     }
 
-    /// To call [Containers] group related APIs using this client.
-    pub fn containers(&self) -> Containers<'_, C> {
-        Containers::new(self)
+    #[cfg(feature = "completions")]
+    /// To call [Completions] group related APIs using this client.
+    pub fn completions(&self) -> Completions<'_, C> {
+        Completions::new(self)
     }
 
+    #[cfg(feature = "chat-completion")]
+    /// To call [Chat] group related APIs using this client.
+    pub fn chat(&self) -> Chat<'_, C> {
+        Chat::new(self)
+    }
+
+    #[cfg(feature = "platform")]
+    /// To call [Images] group related APIs using this client.
+    pub fn images(&self) -> Images<'_, C> {
+        Images::new(self)
+    }
+
+    #[cfg(feature = "platform")]
+    /// To call [Moderations] group related APIs using this client.
+    pub fn moderations(&self) -> Moderations<'_, C> {
+        Moderations::new(self)
+    }
+
+    #[cfg(feature = "platform")]
+    /// To call [Files] group related APIs using this client.
+    pub fn files(&self) -> Files<'_, C> {
+        Files::new(self)
+    }
+
+    #[cfg(feature = "platform")]
+    /// To call [Uploads] group related APIs using this client.
+    pub fn uploads(&self) -> Uploads<'_, C> {
+        Uploads::new(self)
+    }
+
+    #[cfg(feature = "platform")]
+    /// To call [FineTuning] group related APIs using this client.
+    pub fn fine_tuning(&self) -> FineTuning<'_, C> {
+        FineTuning::new(self)
+    }
+
+    #[cfg(feature = "platform")]
+    /// To call [Embeddings] group related APIs using this client.
+    pub fn embeddings(&self) -> Embeddings<'_, C> {
+        Embeddings::new(self)
+    }
+
+    #[cfg(feature = "platform")]
+    /// To call [Audio] group related APIs using this client.
+    pub fn audio(&self) -> Audio<'_, C> {
+        Audio::new(self)
+    }
+
+    #[cfg(feature = "platform")]
+    /// To call [Videos] group related APIs using this client.
+    pub fn videos(&self) -> Videos<'_, C> {
+        Videos::new(self)
+    }
+
+    #[cfg(feature = "platform")]
+    /// To call [Batches] group related APIs using this client.
+    pub fn batches(&self) -> Batches<'_, C> {
+        Batches::new(self)
+    }
+
+    #[cfg(feature = "platform")]
     /// To call [Evals] group related APIs using this client.
     pub fn evals(&self) -> Evals<'_, C> {
         Evals::new(self)
     }
 
+    #[cfg(feature = "vector-stores")]
+    /// To call [VectorStores] group related APIs using this client.
+    pub fn vector_stores(&self) -> VectorStores<'_, C> {
+        VectorStores::new(self)
+    }
+
+    #[cfg(feature = "chatkit")]
+    /// To call [Chatkit] group related APIs using this client.
     pub fn chatkit(&self) -> Chatkit<'_, C> {
         Chatkit::new(self)
+    }
+
+    #[cfg(feature = "container")]
+    /// To call [Containers] group related APIs using this client.
+    pub fn containers(&self) -> Containers<'_, C> {
+        Containers::new(self)
     }
 
     #[cfg(feature = "realtime")]
     /// To call [Realtime] group related APIs using this client.
     pub fn realtime(&self) -> Realtime<'_, C> {
         Realtime::new(self)
+    }
+
+    #[cfg(feature = "responses")]
+    /// To call [Conversations] group related APIs using this client.
+    pub fn conversations(&self) -> Conversations<'_, C> {
+        Conversations::new(self)
+    }
+
+    #[cfg(feature = "assistants")]
+    /// To call [Assistants] group related APIs using this client.
+    pub fn assistants(&self) -> Assistants<'_, C> {
+        Assistants::new(self)
+    }
+
+    #[cfg(feature = "assistants")]
+    /// To call [Threads] group related APIs using this client.
+    pub fn threads(&self) -> Threads<'_, C> {
+        Threads::new(self)
+    }
+
+    #[cfg(feature = "administration")]
+    /// To call [Admin] group related APIs using this client.
+    /// This groups together admin API keys, invites, users, projects, audit logs, and certificates.
+    pub fn admin(&self) -> Admin<'_, C> {
+        Admin::new(self)
     }
 
     pub fn config(&self) -> &C {

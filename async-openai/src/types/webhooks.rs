@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "api")]
 use crate::traits::{EventId, EventType};
 
 /// Sent when a batch API request has been cancelled.
@@ -77,50 +78,52 @@ pub struct WebhookBatchData {
     pub id: String,
 }
 
-// EventType and EventId implementations for batch events
-
-impl EventType for WebhookBatchCancelled {
-    fn event_type(&self) -> &'static str {
-        "batch.cancelled"
-    }
+// Implement EventType trait for all event types in this file
+#[cfg(feature = "api")]
+macro_rules! impl_event_type {
+    ($($ty:ty => $event_type:expr),* $(,)?) => {
+        $(
+            impl EventType for $ty {
+                fn event_type(&self) -> &'static str {
+                    $event_type
+                }
+            }
+        )*
+    };
 }
 
+// Apply macro for each event struct type in this file.
+#[cfg(feature = "api")]
+impl_event_type! {
+    WebhookBatchCancelled => "batch.cancelled",
+    WebhookBatchCompleted => "batch.completed",
+    WebhookBatchExpired => "batch.expired",
+    WebhookBatchFailed => "batch.failed",
+}
+
+//  EventId implementations for batch events
+#[cfg(feature = "api")]
 impl EventId for WebhookBatchCancelled {
     fn event_id(&self) -> &str {
         &self.id
     }
 }
 
-impl EventType for WebhookBatchCompleted {
-    fn event_type(&self) -> &'static str {
-        "batch.completed"
-    }
-}
-
+#[cfg(feature = "api")]
 impl EventId for WebhookBatchCompleted {
     fn event_id(&self) -> &str {
         &self.id
     }
 }
 
-impl EventType for WebhookBatchExpired {
-    fn event_type(&self) -> &'static str {
-        "batch.expired"
-    }
-}
-
+#[cfg(feature = "api")]
 impl EventId for WebhookBatchExpired {
     fn event_id(&self) -> &str {
         &self.id
     }
 }
 
-impl EventType for WebhookBatchFailed {
-    fn event_type(&self) -> &'static str {
-        "batch.failed"
-    }
-}
-
+#[cfg(feature = "api")]
 impl EventId for WebhookBatchFailed {
     fn event_id(&self) -> &str {
         &self.id
@@ -187,33 +190,23 @@ pub struct WebhookEvalRunData {
 
 // EventType and EventId implementations for eval run events
 
-impl EventType for WebhookEvalRunCanceled {
-    fn event_type(&self) -> &'static str {
-        "eval.run.canceled"
-    }
+#[cfg(feature = "api")]
+impl_event_type! {
+    WebhookEvalRunCanceled => "eval.run.canceled",
+    WebhookEvalRunFailed => "eval.run.failed",
+    WebhookEvalRunSucceeded => "eval.run.succeeded",
 }
 
+#[cfg(feature = "api")]
 impl EventId for WebhookEvalRunCanceled {
     fn event_id(&self) -> &str {
         &self.id
     }
 }
 
-impl EventType for WebhookEvalRunFailed {
-    fn event_type(&self) -> &'static str {
-        "eval.run.failed"
-    }
-}
-
 impl EventId for WebhookEvalRunFailed {
     fn event_id(&self) -> &str {
         &self.id
-    }
-}
-
-impl EventType for WebhookEvalRunSucceeded {
-    fn event_type(&self) -> &'static str {
-        "eval.run.succeeded"
     }
 }
 

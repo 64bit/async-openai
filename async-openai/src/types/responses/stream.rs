@@ -275,7 +275,7 @@ pub struct ResponseFunctionCallArgumentsDeltaEvent {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ResponseFunctionCallArgumentsDoneEvent {
-    /// https://github.com/64bit/async-openai/issues/472
+    /// <https://github.com/64bit/async-openai/issues/472>
     pub name: Option<String>,
     pub sequence_number: u64,
     pub item_id: String,
@@ -548,6 +548,7 @@ use crate::traits::EventType;
 
 // Implement EventType trait for all event types in this file
 
+#[cfg(feature = "api")]
 macro_rules! impl_event_type {
     ($($ty:ty => $event_type:expr),* $(,)?) => {
         $(
@@ -560,6 +561,7 @@ macro_rules! impl_event_type {
     };
 }
 
+#[cfg(feature = "api")]
 // Apply macro for each event struct type in this file.
 impl_event_type! {
     ResponseCreatedEvent => "response.created",
@@ -613,6 +615,7 @@ impl_event_type! {
     ResponseErrorEvent => "error",
 }
 
+#[cfg(feature = "api")]
 impl EventType for ResponseStreamEvent {
     fn event_type(&self) -> &'static str {
         match self {

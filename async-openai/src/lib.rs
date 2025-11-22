@@ -140,129 +140,249 @@ pub(crate) use async_openai_macros::byot;
 #[cfg(not(feature = "byot"))]
 pub(crate) use async_openai_macros::byot_passthrough as byot;
 
-mod admin;
-mod admin_api_keys;
-mod assistants;
-mod audio;
-mod audit_logs;
-mod batches;
-mod certificates;
-mod chat;
-mod chatkit;
-mod client;
-mod completion;
+#[cfg(feature = "api")]
 pub mod config;
-mod container_files;
-mod containers;
-mod conversation_items;
-mod conversations;
-mod download;
-mod embedding;
 pub mod error;
+#[cfg(feature = "api")]
+pub mod traits;
+pub mod types;
+
+#[cfg(feature = "api")]
+mod request_options;
+
+#[cfg(feature = "administration")]
+mod admin;
+#[cfg(feature = "administration")]
+mod admin_api_keys;
+#[cfg(feature = "assistants")]
+mod assistants;
+#[cfg(feature = "platform")]
+mod audio;
+#[cfg(feature = "administration")]
+mod audit_logs;
+#[cfg(feature = "platform")]
+mod batches;
+#[cfg(feature = "administration")]
+mod certificates;
+#[cfg(feature = "chat-completion")]
+mod chat;
+#[cfg(feature = "chatkit")]
+mod chatkit;
+#[cfg(feature = "api")]
+mod client;
+#[cfg(feature = "completions")]
+mod completion;
+#[cfg(feature = "container")]
+mod container_files;
+#[cfg(feature = "container")]
+mod containers;
+#[cfg(feature = "chat-completion")]
+mod conversation_items;
+#[cfg(feature = "chat-completion")]
+mod conversations;
+#[cfg(feature = "api")]
+mod download;
+#[cfg(feature = "platform")]
+mod embedding;
+#[cfg(feature = "platform")]
 mod eval_run_output_items;
+#[cfg(feature = "platform")]
 mod eval_runs;
+#[cfg(feature = "platform")]
 mod evals;
+#[cfg(feature = "platform")]
 mod file;
+#[cfg(feature = "platform")]
 mod fine_tuning;
+#[cfg(feature = "administration")]
 mod group_roles;
+#[cfg(feature = "administration")]
 mod group_users;
+#[cfg(feature = "administration")]
 mod groups;
+#[cfg(feature = "platform")]
 mod image;
+#[cfg(feature = "api")]
 mod impls;
+#[cfg(feature = "administration")]
 mod invites;
+#[cfg(feature = "assistants")]
 mod messages;
+#[cfg(feature = "platform")]
 mod model;
+#[cfg(feature = "platform")]
 mod moderation;
+#[cfg(feature = "administration")]
 mod project_api_keys;
+#[cfg(feature = "administration")]
 mod project_certificates;
+#[cfg(feature = "administration")]
 mod project_group_roles;
+#[cfg(feature = "administration")]
 mod project_groups;
+#[cfg(feature = "administration")]
 mod project_rate_limits;
+#[cfg(feature = "administration")]
 mod project_roles;
+#[cfg(feature = "administration")]
 mod project_service_accounts;
+#[cfg(feature = "administration")]
 mod project_user_roles;
+#[cfg(feature = "administration")]
 mod project_users;
+#[cfg(feature = "administration")]
 mod projects;
 #[cfg(feature = "realtime")]
 mod realtime;
-mod request_options;
+#[cfg(feature = "responses")]
 mod responses;
+#[cfg(feature = "administration")]
 mod roles;
+#[cfg(feature = "assistants")]
 mod runs;
+#[cfg(feature = "platform")]
 mod speech;
+#[cfg(feature = "assistants")]
 mod steps;
+#[cfg(feature = "assistants")]
 mod threads;
-pub mod traits;
+#[cfg(feature = "platform")]
 mod transcriptions;
+#[cfg(feature = "platform")]
 mod translations;
-pub mod types;
+#[cfg(feature = "platform")]
 mod uploads;
+#[cfg(feature = "administration")]
 mod usage;
+#[cfg(feature = "administration")]
 mod user_roles;
+#[cfg(feature = "administration")]
 mod users;
+#[cfg(feature = "api")]
 mod util;
+#[cfg(feature = "vector-stores")]
 mod vector_store_file_batches;
+#[cfg(feature = "vector-stores")]
 mod vector_store_files;
+#[cfg(feature = "vector-stores")]
 mod vector_stores;
+#[cfg(feature = "platform")]
 mod video;
 #[cfg(feature = "webhook")]
 pub mod webhooks;
 
-pub use admin::Admin;
-pub use admin_api_keys::AdminAPIKeys;
-pub use assistants::Assistants;
-pub use audio::Audio;
-pub use audit_logs::AuditLogs;
-pub use batches::Batches;
-pub use certificates::Certificates;
-pub use chat::Chat;
-pub use chatkit::Chatkit;
+#[cfg(feature = "api")]
 pub use client::Client;
+#[cfg(feature = "api")]
+pub use request_options::RequestOptions;
+
+#[cfg(feature = "administration")]
+pub use admin::Admin;
+#[cfg(feature = "administration")]
+pub use admin_api_keys::AdminAPIKeys;
+#[cfg(feature = "assistants")]
+pub use assistants::Assistants;
+#[cfg(feature = "platform")]
+pub use audio::Audio;
+#[cfg(feature = "administration")]
+pub use audit_logs::AuditLogs;
+#[cfg(feature = "platform")]
+pub use batches::Batches;
+#[cfg(feature = "administration")]
+pub use certificates::Certificates;
+#[cfg(feature = "chat-completion")]
+pub use chat::Chat;
+#[cfg(feature = "chatkit")]
+pub use chatkit::Chatkit;
+#[cfg(feature = "completions")]
 pub use completion::Completions;
+#[cfg(feature = "container")]
 pub use container_files::ContainerFiles;
+#[cfg(feature = "container")]
 pub use containers::Containers;
+#[cfg(feature = "responses")]
 pub use conversation_items::ConversationItems;
+#[cfg(feature = "responses")]
 pub use conversations::Conversations;
+#[cfg(feature = "platform")]
 pub use embedding::Embeddings;
+#[cfg(feature = "platform")]
 pub use eval_run_output_items::EvalRunOutputItems;
+#[cfg(feature = "platform")]
 pub use eval_runs::EvalRuns;
+#[cfg(feature = "platform")]
 pub use evals::Evals;
+#[cfg(feature = "platform")]
 pub use file::Files;
+#[cfg(feature = "platform")]
 pub use fine_tuning::FineTuning;
+#[cfg(feature = "administration")]
 pub use group_roles::GroupRoles;
+#[cfg(feature = "administration")]
 pub use group_users::GroupUsers;
+#[cfg(feature = "administration")]
 pub use groups::Groups;
+#[cfg(feature = "platform")]
 pub use image::Images;
+#[cfg(feature = "administration")]
 pub use invites::Invites;
+#[cfg(feature = "assistants")]
 pub use messages::Messages;
+#[cfg(feature = "platform")]
 pub use model::Models;
+#[cfg(feature = "platform")]
 pub use moderation::Moderations;
+#[cfg(feature = "administration")]
 pub use project_api_keys::ProjectAPIKeys;
+#[cfg(feature = "administration")]
 pub use project_certificates::ProjectCertificates;
+#[cfg(feature = "administration")]
 pub use project_group_roles::ProjectGroupRoles;
+#[cfg(feature = "administration")]
 pub use project_groups::ProjectGroups;
+#[cfg(feature = "administration")]
 pub use project_rate_limits::ProjectRateLimits;
+#[cfg(feature = "administration")]
 pub use project_roles::ProjectRoles;
+#[cfg(feature = "administration")]
 pub use project_service_accounts::ProjectServiceAccounts;
+#[cfg(feature = "administration")]
 pub use project_user_roles::ProjectUserRoles;
+#[cfg(feature = "administration")]
 pub use project_users::ProjectUsers;
+#[cfg(feature = "administration")]
 pub use projects::Projects;
 #[cfg(feature = "realtime")]
 pub use realtime::Realtime;
-pub use request_options::RequestOptions;
+#[cfg(feature = "responses")]
 pub use responses::Responses;
+#[cfg(feature = "administration")]
 pub use roles::Roles;
+#[cfg(feature = "assistants")]
 pub use runs::Runs;
+#[cfg(feature = "platform")]
 pub use speech::Speech;
+#[cfg(feature = "assistants")]
 pub use steps::Steps;
+#[cfg(feature = "assistants")]
 pub use threads::Threads;
+#[cfg(feature = "platform")]
 pub use transcriptions::Transcriptions;
+#[cfg(feature = "platform")]
 pub use translations::Translations;
+#[cfg(feature = "platform")]
 pub use uploads::Uploads;
+#[cfg(feature = "administration")]
 pub use usage::Usage;
+#[cfg(feature = "administration")]
 pub use user_roles::UserRoles;
+#[cfg(feature = "administration")]
 pub use users::Users;
+#[cfg(feature = "vector-stores")]
 pub use vector_store_file_batches::VectorStoreFileBatches;
+#[cfg(feature = "vector-stores")]
 pub use vector_store_files::VectorStoreFiles;
+#[cfg(feature = "vector-stores")]
 pub use vector_stores::VectorStores;
+#[cfg(feature = "platform")]
 pub use video::Videos;

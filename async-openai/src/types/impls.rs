@@ -1,15 +1,20 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
+use crate::types::InputSource;
+
+#[cfg(any(feature = "chat-completion-types", feature = "chat-completion"))]
+use crate::types::chat::{Prompt, StopConfiguration};
+
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 use crate::types::{
-    audio::AudioInput,
-    chat::{Prompt, StopConfiguration},
-    embeddings::EmbeddingInput,
-    files::FileInput,
-    images::ImageInput,
+    audio::AudioInput, embeddings::EmbeddingInput, files::FileInput, images::ImageInput,
     moderations::ModerationInput,
-    InputSource,
 };
 
+#[cfg(any(feature = "platform-types", feature = "platform"))]
+use std::path::Path;
+
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 use bytes::Bytes;
 
 /// for `impl_from!(T, Enum)`, implements
@@ -59,24 +64,36 @@ macro_rules! impl_from {
     };
 }
 
+#[cfg(any(feature = "chat-completion-types", feature = "chat-completion"))]
 // From String "family" to Prompt
 impl_from!(&str, Prompt);
+#[cfg(any(feature = "chat-completion-types", feature = "chat-completion"))]
 impl_from!(String, Prompt);
+#[cfg(any(feature = "chat-completion-types", feature = "chat-completion"))]
 impl_from!(&String, Prompt);
 
+#[cfg(any(feature = "chat-completion-types", feature = "chat-completion"))]
 // From String "family" to StopConfiguration
 impl_from!(&str, StopConfiguration);
+#[cfg(any(feature = "chat-completion-types", feature = "chat-completion"))]
 impl_from!(String, StopConfiguration);
+#[cfg(any(feature = "chat-completion-types", feature = "chat-completion"))]
 impl_from!(&String, StopConfiguration);
 
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 // From String "family" to ModerationInput
 impl_from!(&str, ModerationInput);
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 impl_from!(String, ModerationInput);
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 impl_from!(&String, ModerationInput);
 
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 // From String "family" to EmbeddingInput
 impl_from!(&str, EmbeddingInput);
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 impl_from!(String, EmbeddingInput);
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 impl_from!(&String, EmbeddingInput);
 
 /// for `impl_default!(Enum)`, implements `Default` for `Enum` as `Enum::String("")` where `Enum` has `String` variant
@@ -90,8 +107,11 @@ macro_rules! impl_default {
     };
 }
 
+#[cfg(any(feature = "chat-completion-types", feature = "chat-completion"))]
 impl_default!(Prompt);
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 impl_default!(ModerationInput);
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 impl_default!(EmbeddingInput);
 
 impl Default for InputSource {
@@ -110,6 +130,7 @@ impl Default for InputSource {
 /// ```
 /// implements methods `from_bytes` and `from_vec_u8`,
 /// and `From<P>` for `P: AsRef<Path>`
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 macro_rules! impl_input {
     ($for_typ:ty) => {
         impl $for_typ {
@@ -137,8 +158,11 @@ macro_rules! impl_input {
     };
 }
 
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 impl_input!(AudioInput);
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 impl_input!(FileInput);
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 impl_input!(ImageInput);
 
 macro_rules! impl_from_for_integer_array {
@@ -169,7 +193,9 @@ macro_rules! impl_from_for_integer_array {
     };
 }
 
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 impl_from_for_integer_array!(u32, EmbeddingInput);
+#[cfg(any(feature = "chat-completion-types", feature = "chat-completion"))]
 impl_from_for_integer_array!(u32, Prompt);
 
 macro_rules! impl_from_for_array_of_integer_array {
@@ -266,5 +292,7 @@ macro_rules! impl_from_for_array_of_integer_array {
     };
 }
 
+#[cfg(any(feature = "platform-types", feature = "platform"))]
 impl_from_for_array_of_integer_array!(u32, EmbeddingInput);
+#[cfg(any(feature = "chat-completion-types", feature = "chat-completion"))]
 impl_from_for_array_of_integer_array!(u32, Prompt);
