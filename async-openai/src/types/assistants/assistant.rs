@@ -5,9 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-use crate::types::assistants::FunctionName;
-use crate::types::assistants::FunctionObject;
-use crate::types::chat::ResponseFormat;
+use crate::types::assistants::{FunctionName, FunctionObject, ResponseFormat};
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct AssistantToolCodeInterpreterResources {

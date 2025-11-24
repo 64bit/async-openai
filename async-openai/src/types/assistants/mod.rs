@@ -19,3 +19,5 @@ pub use thread::*;
 // Re-export shared types that are used in assistants
 pub use crate::types::shared::FunctionName;
 pub use crate::types::shared::FunctionObject;
+pub use crate::types::shared::ResponseFormat;
+pub use crate::types::shared::ResponseFormatJsonSchema;

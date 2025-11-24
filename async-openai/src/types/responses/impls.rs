@@ -14,7 +14,7 @@ use crate::types::responses::{
     TextResponseFormatConfiguration, Tool, ToolChoiceCustom, ToolChoiceFunction, ToolChoiceMCP,
     ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes, WebSearchTool, WebSearchToolCall,
 };
-use crate::types::{chat::ResponseFormatJsonSchema, MCPTool};
+use crate::types::{responses::ResponseFormatJsonSchema, MCPTool};
 
 impl<S: Into<String>> From<S> for EasyInputMessage {
     fn from(value: S) -> Self {

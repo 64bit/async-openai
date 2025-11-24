@@ -9,3 +9,5 @@ pub use chat_types::*;
 pub use crate::types::shared::FunctionName;
 pub use crate::types::shared::FunctionObject;
 pub use crate::types::shared::FunctionObjectArgs;
+pub use crate::types::shared::ResponseFormat;
+pub use crate::types::shared::ResponseFormatJsonSchema;

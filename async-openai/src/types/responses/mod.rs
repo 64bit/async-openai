@@ -9,3 +9,7 @@ pub use api::*;
 pub use conversation::*;
 pub use response::*;
 pub use stream::*;
+
+// Re-export shared types
+pub use crate::types::shared::ResponseFormat;
+pub use crate::types::shared::ResponseFormatJsonSchema;
