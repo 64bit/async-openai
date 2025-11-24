@@ -1,3 +1,4 @@
+mod custom_grammar_format_param;
 mod function_call;
 mod function_name;
 mod function_object;
@@ -7,6 +8,7 @@ mod log_prob_properties;
 mod response_format;
 mod response_usage;
 
+pub use custom_grammar_format_param::*;
 pub use function_call::*;
 pub use function_name::*;
 pub use function_object::*;

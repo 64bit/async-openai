@@ -7,8 +7,10 @@ use serde::{Deserialize, Serialize};
 use crate::{
     error::OpenAIError,
     types::{
-        chat::{FunctionCall, FunctionName, FunctionObject, ImageUrl, ResponseFormat},
-        responses::CustomGrammarFormatParam,
+        chat::{
+            CustomGrammarFormatParam, FunctionCall, FunctionName, FunctionObject, ImageUrl,
+            ResponseFormat,
+        },
         Metadata,
     },
 };

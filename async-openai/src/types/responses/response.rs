@@ -2,7 +2,7 @@ use crate::error::OpenAIError;
 pub use crate::types::chat::{
     CompletionTokensDetails, ImageDetail, PromptTokensDetails, ReasoningEffort,
 };
-use crate::types::responses::{ResponseFormatJsonSchema, ResponseUsage};
+use crate::types::responses::{CustomGrammarFormatParam, ResponseFormatJsonSchema, ResponseUsage};
 use crate::types::{MCPListToolsTool, MCPTool};
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
@@ -938,22 +938,6 @@ pub struct CustomToolParam {
     pub description: Option<String>,
     /// The input format for the custom tool. Default is unconstrained text.
     pub format: CustomToolParamFormat,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
-#[serde(rename_all = "lowercase")]
-pub enum GrammarSyntax {
-    Lark,
-    #[default]
-    Regex,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
-pub struct CustomGrammarFormatParam {
-    /// The grammar definition.
-    pub definition: String,
-    /// The syntax of the grammar definition. One of `lark` or `regex`.
-    pub syntax: GrammarSyntax,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
