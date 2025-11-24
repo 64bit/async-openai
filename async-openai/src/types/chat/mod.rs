@@ -1,9 +1,9 @@
 mod api;
-mod chat_types;
+mod chat;
 mod impls;
 
 pub use api::*;
-pub use chat_types::*;
+pub use chat::*;
 
 // Re-export shared types that are used in chat
 pub use crate::types::shared::FunctionCall;
