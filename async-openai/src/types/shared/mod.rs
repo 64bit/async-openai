@@ -1,3 +1,6 @@
+//! Shared types - these types are use by multiple type modules
+//! and not exported directly, instead they are re-exported
+//! by the modules that use them.
 mod completion_tokens_details;
 mod custom_grammar_format_param;
 mod filter;
