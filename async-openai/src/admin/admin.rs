@@ -1,7 +1,6 @@
 use crate::{
-    admin_api_keys::AdminAPIKeys, audit_logs::AuditLogs, certificates::Certificates,
-    config::Config, groups::Groups, invites::Invites, projects::Projects, roles::Roles,
-    users::Users, Client, Usage,
+    config::Config, AdminAPIKeys, AuditLogs, Certificates, Client, Groups, Invites, Projects,
+    Roles, Usage, Users,
 };
 
 /// Admin group for all administration APIs.

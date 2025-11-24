@@ -2,8 +2,7 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::admin::users::{User, UserDeleteResponse, UserListResponse, UserRoleUpdateRequest},
-    user_roles::UserRoles,
-    Client, RequestOptions,
+    Client, RequestOptions, UserRoles,
 };
 
 /// Manage users and their role in an organization. Users will be automatically added to the Default project.
