@@ -645,54 +645,63 @@ async fn test_byot_usage() {
     let client = Client::new();
 
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .usage()
         .query(&[("limit", "2")])
         .unwrap()
         .audio_speeches_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .usage()
         .query(&[("limit", "2")])
         .unwrap()
         .audio_transcriptions_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .usage()
         .query(&[("limit", "2")])
         .unwrap()
         .code_interpreter_sessions_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .usage()
         .query(&[("limit", "2")])
         .unwrap()
         .completions_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .usage()
         .query(&[("limit", "2")])
         .unwrap()
         .embeddings_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .usage()
         .query(&[("limit", "2")])
         .unwrap()
         .images_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .usage()
         .query(&[("limit", "2")])
         .unwrap()
         .moderations_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .usage()
         .query(&[("limit", "2")])
         .unwrap()
         .vector_stores_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
+        .admin()
         .usage()
         .query(&[("limit", "2")])
         .unwrap()
