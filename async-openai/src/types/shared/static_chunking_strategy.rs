@@ -10,4 +10,3 @@ pub struct StaticChunkingStrategy {
     /// Note that the overlap must not exceed half of `max_chunk_size_tokens`.
     pub chunk_overlap_tokens: u16,
 }
-
