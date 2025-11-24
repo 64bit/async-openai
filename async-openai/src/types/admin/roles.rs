@@ -31,6 +31,13 @@ pub struct ListRolesQuery {
     pub order: Option<ListRolesOrder>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum OrganizationRole {
+    Owner,
+    Reader,
+}
+
 /// Details about a role that can be assigned through the public Roles API.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Role {

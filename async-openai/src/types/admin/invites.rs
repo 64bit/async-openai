@@ -1,5 +1,5 @@
+use crate::types::admin::roles::OrganizationRole;
 use crate::types::OpenAIError;
-use crate::types::OrganizationRole;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
