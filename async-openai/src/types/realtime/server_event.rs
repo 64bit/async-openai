@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::traits::EventType;
-use crate::types::{audio::TranscriptionUsage, LogProbProperties};
+use crate::types::{audio::TranscriptionUsage, realtime::LogProbProperties};
 
 use super::{
     conversation_item::RealtimeConversationItem, error::RealtimeAPIError,

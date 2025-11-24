@@ -15,7 +15,6 @@ pub mod files;
 pub mod finetuning;
 pub mod graders;
 pub mod images;
-mod logprob;
 mod mcp;
 pub mod models;
 pub mod moderations;
@@ -33,7 +32,6 @@ pub mod webhooks;
 
 pub use common::*;
 pub use completion::*;
-pub use logprob::*;
 pub use mcp::*;
 
 mod impls;

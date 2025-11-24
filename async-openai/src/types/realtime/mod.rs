@@ -14,3 +14,6 @@ pub use error::*;
 pub use response::*;
 pub use server_event::*;
 pub use session::*;
+
+// Re-export shared types that are used in realtime
+pub use crate::types::shared::LogProbProperties;
