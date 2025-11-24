@@ -7,7 +7,7 @@ pub mod batches;
 pub mod chat;
 pub mod chatkit;
 mod common;
-mod completion;
+pub mod completions;
 pub mod containers;
 pub mod embeddings;
 pub mod evals;
@@ -31,7 +31,6 @@ pub mod videos;
 pub mod webhooks;
 
 pub use common::*;
-pub use completion::*;
 
 mod impls;
 use derive_builder::UninitializedFieldError;
