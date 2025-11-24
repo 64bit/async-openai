@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     error::OpenAIError,
     traits::EventType,
-    types::{audio::LogProbProperties, audio::TranscriptTextUsageTokens},
+    types::audio::{LogProbProperties, TranscriptTextUsageTokens},
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
