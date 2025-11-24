@@ -5,8 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-use crate::types::assistants::ImageDetail;
-use crate::types::chat::ImageUrl;
+use crate::types::assistants::{ImageDetail, ImageUrl};
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
