@@ -16,6 +16,7 @@ mod reasoning_effort;
 mod response_format;
 mod response_usage;
 mod static_chunking_strategy;
+mod transcription_usage;
 
 pub use completion_tokens_details::*;
 pub use custom_grammar_format_param::*;
@@ -32,3 +33,4 @@ pub use reasoning_effort::*;
 pub use response_format::*;
 pub use response_usage::*;
 pub use static_chunking_strategy::*;
+pub use transcription_usage::*;
