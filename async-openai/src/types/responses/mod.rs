@@ -11,5 +11,8 @@ pub use response::*;
 pub use stream::*;
 
 // Re-export shared types
+pub use crate::types::shared::InputTokenDetails;
+pub use crate::types::shared::OutputTokenDetails;
 pub use crate::types::shared::ResponseFormat;
 pub use crate::types::shared::ResponseFormatJsonSchema;
+pub use crate::types::shared::ResponseUsage;

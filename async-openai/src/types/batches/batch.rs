@@ -4,7 +4,7 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
-use crate::types::responses::ResponseUsage;
+use crate::types::batches::ResponseUsage;
 use crate::types::Metadata;
 
 #[derive(Debug, Serialize, Default, Clone, Builder, PartialEq, Deserialize)]
