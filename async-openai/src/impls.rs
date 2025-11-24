@@ -33,7 +33,7 @@ use crate::{
     chat::Chat,
     chatkit::{Chatkit, ChatkitSessions, ChatkitThreads},
     completion::Completions,
-    container_files::ContainerFiles,
+    containers::ContainerFiles,
     containers::Containers,
     conversation_items::ConversationItems,
     conversations::Conversations,
