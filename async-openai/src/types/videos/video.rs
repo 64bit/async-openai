@@ -1,7 +1,8 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::{error::OpenAIError, types::images::ImageInput};
+use crate::error::OpenAIError;
+use crate::types::videos::ImageInput;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub enum VideoSize {
