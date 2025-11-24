@@ -10,11 +10,12 @@ use crate::types::responses::{
     LocalShellToolCall, LocalShellToolCallOutput, MCPApprovalRequest, MCPApprovalResponse,
     MCPListTools, MCPToolCall, MessageItem, MessageType, OutputMessage, OutputMessageContent,
     OutputTextContent, Prompt, Reasoning, ReasoningEffort, ReasoningItem, ReasoningSummary,
-    RefusalContent, ResponsePromptVariables, ResponseStreamOptions, ResponseTextParam, Role,
-    TextResponseFormatConfiguration, Tool, ToolChoiceCustom, ToolChoiceFunction, ToolChoiceMCP,
-    ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes, WebSearchTool, WebSearchToolCall,
+    RefusalContent, ResponseFormatJsonSchema, ResponsePromptVariables, ResponseStreamOptions,
+    ResponseTextParam, Role, TextResponseFormatConfiguration, Tool, ToolChoiceCustom,
+    ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes,
+    WebSearchTool, WebSearchToolCall,
 };
-use crate::types::{responses::ResponseFormatJsonSchema, MCPTool};
+use crate::types::MCPTool;
 
 impl<S: Into<String>> From<S> for EasyInputMessage {
     fn from(value: S) -> Self {

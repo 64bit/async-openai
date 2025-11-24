@@ -2,7 +2,7 @@ use crate::error::OpenAIError;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use super::conversation::{IncludeParam, ListOrder};
+use crate::types::responses::{IncludeParam, ListOrder};
 
 /// Query parameters for listing conversation items.
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
