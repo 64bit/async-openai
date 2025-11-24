@@ -6,8 +6,7 @@ use crate::{
         UpdateVectorStoreRequest, VectorStoreObject, VectorStoreSearchRequest,
         VectorStoreSearchResultsPage,
     },
-    vector_store_file_batches::VectorStoreFileBatches,
-    Client, RequestOptions, VectorStoreFiles,
+    Client, RequestOptions, VectorStoreFileBatches, VectorStoreFiles,
 };
 
 pub struct VectorStores<'c, C: Config> {

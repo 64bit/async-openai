@@ -48,9 +48,9 @@ use crate::{
     moderation::Moderations,
     responses::Responses,
     uploads::Uploads,
-    vector_store_file_batches::VectorStoreFileBatches,
-    vector_store_files::VectorStoreFiles,
-    vector_stores::VectorStores,
+    vectorstores::VectorStoreFileBatches,
+    vectorstores::VectorStoreFiles,
+    vectorstores::VectorStores,
     video::Videos,
 };
 
