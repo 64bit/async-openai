@@ -4,11 +4,10 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
-use crate::types::assistants::FunctionCall;
 
-use super::{
+use crate::types::assistants::{
     AssistantTools, AssistantsApiResponseFormatOption, AssistantsApiToolChoiceOption,
-    CreateMessageRequest,
+    CreateMessageRequest, FunctionCall,
 };
 
 /// Represents an execution run on a [thread](https://platform.openai.com/docs/api-reference/threads).
