@@ -1,8 +1,8 @@
 use crate::error::OpenAIError;
-pub use crate::types::chat::{
-    CompletionTokensDetails, ImageDetail, PromptTokensDetails, ReasoningEffort,
+pub use crate::types::chat::{CompletionTokensDetails, PromptTokensDetails, ReasoningEffort};
+use crate::types::responses::{
+    CustomGrammarFormatParam, ImageDetail, ResponseFormatJsonSchema, ResponseUsage,
 };
-use crate::types::responses::{CustomGrammarFormatParam, ResponseFormatJsonSchema, ResponseUsage};
 use crate::types::{MCPListToolsTool, MCPTool};
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
