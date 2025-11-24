@@ -1,18 +1,18 @@
 mod api;
 mod assistant;
-mod assistant_stream;
 mod impls;
 mod message;
 mod run;
 mod step;
+mod stream;
 mod thread;
 
 pub use api::*;
 pub use assistant::*;
-pub use assistant_stream::*;
 pub use message::*;
 pub use run::*;
 pub use step::*;
+pub use stream::*;
 pub use thread::*;
 
 // Re-export shared types that are used in assistants
