@@ -6,7 +6,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     error::OpenAIError,
-    types::{chat::FunctionObject, responses::CustomGrammarFormatParam, Metadata},
+    types::{
+        chat::{FunctionName, FunctionObject},
+        responses::CustomGrammarFormatParam,
+        Metadata,
+    },
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -605,12 +609,6 @@ pub enum CustomToolPropertiesFormat {
     Text,
     /// A grammar defined by the user.
     Grammar { grammar: CustomGrammarFormatParam },
-}
-
-#[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
-pub struct FunctionName {
-    /// The name of the function to call.
-    pub name: String,
 }
 
 /// Specifies a tool the model should use. Use to force the model to call a specific function.
