@@ -1,12 +1,11 @@
 use crate::{
     config::Config,
-    conversation_items::ConversationItems,
     error::OpenAIError,
     types::responses::{
         ConversationResource, CreateConversationRequest, DeleteConversationResponse,
         UpdateConversationRequest,
     },
-    Client, RequestOptions,
+    Client, ConversationItems, RequestOptions,
 };
 
 pub struct Conversations<'c, C: Config> {

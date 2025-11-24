@@ -150,8 +150,6 @@ mod client;
 mod completion;
 pub mod config;
 mod containers;
-mod conversation_items;
-mod conversations;
 mod download;
 mod embedding;
 pub mod error;
@@ -162,7 +160,6 @@ mod image;
 mod impls;
 mod model;
 mod moderation;
-
 #[cfg(feature = "realtime")]
 mod realtime;
 mod request_options;
@@ -186,8 +183,6 @@ pub use chatkit::Chatkit;
 pub use client::Client;
 pub use completion::Completions;
 pub use containers::*;
-pub use conversation_items::ConversationItems;
-pub use conversations::Conversations;
 pub use embedding::Embeddings;
 pub use evals::*;
 pub use file::Files;
@@ -198,7 +193,7 @@ pub use moderation::Moderations;
 #[cfg(feature = "realtime")]
 pub use realtime::Realtime;
 pub use request_options::RequestOptions;
-pub use responses::Responses;
+pub use responses::*;
 pub use uploads::Uploads;
 pub use vectorstores::*;
 pub use video::Videos;
