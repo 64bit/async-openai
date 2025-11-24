@@ -1,8 +1,8 @@
-mod audio_types;
+mod audio;
 mod form;
 mod impls;
 mod sdk;
 mod stream;
 
-pub use audio_types::*;
+pub use audio::*;
 pub use stream::*;
