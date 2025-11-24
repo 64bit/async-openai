@@ -1,9 +1,9 @@
 use crate::error::OpenAIError;
+use crate::types::mcp::{MCPListToolsTool, MCPTool};
 use crate::types::responses::{
     CustomGrammarFormatParam, Filter, ImageDetail, ReasoningEffort, ResponseFormatJsonSchema,
     ResponseUsage,
 };
-use crate::types::{MCPListToolsTool, MCPTool};
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

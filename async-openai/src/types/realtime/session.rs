@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::types::{
+    mcp::MCPTool,
     responses::{Prompt, ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions},
-    MCPTool,
 };
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]

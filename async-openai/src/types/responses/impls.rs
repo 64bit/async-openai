@@ -1,3 +1,4 @@
+use crate::types::mcp::MCPTool;
 use crate::types::responses::{
     ApplyPatchToolCallItemParam, ApplyPatchToolCallOutputItemParam, CodeInterpreterContainerAuto,
     CodeInterpreterTool, CodeInterpreterToolCall, CodeInterpreterToolContainer,
@@ -15,7 +16,6 @@ use crate::types::responses::{
     ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes,
     WebSearchTool, WebSearchToolCall,
 };
-use crate::types::MCPTool;
 
 impl<S: Into<String>> From<S> for EasyInputMessage {
     fn from(value: S) -> Self {

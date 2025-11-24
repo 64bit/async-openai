@@ -15,7 +15,7 @@ pub mod files;
 pub mod finetuning;
 pub mod graders;
 pub mod images;
-mod mcp;
+pub mod mcp;
 pub mod models;
 pub mod moderations;
 #[cfg_attr(docsrs, doc(cfg(feature = "realtime")))]
@@ -32,7 +32,6 @@ pub mod webhooks;
 
 pub use common::*;
 pub use completion::*;
-pub use mcp::*;
 
 mod impls;
 use derive_builder::UninitializedFieldError;
