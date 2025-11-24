@@ -9,7 +9,7 @@ use crate::{
     types::{
         chat::{
             CustomGrammarFormatParam, FunctionCall, FunctionName, FunctionObject, ImageUrl,
-            ResponseFormat,
+            ReasoningEffort, ResponseFormat,
         },
         Metadata,
     },
@@ -681,17 +681,6 @@ pub enum ServiceTier {
     Flex,
     Scale,
     Priority,
-}
-
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
-#[serde(rename_all = "lowercase")]
-pub enum ReasoningEffort {
-    None,
-    Minimal,
-    Low,
-    #[default]
-    Medium,
-    High,
 }
 
 /// Constrains the verbosity of the model's response. Lower values will result in more concise responses, while higher values will result in more verbose responses. Currently supported values are `low`, `medium`, and `high`.

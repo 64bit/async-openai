@@ -15,5 +15,6 @@ pub use crate::types::shared::GrammarSyntax;
 pub use crate::types::shared::ImageDetail;
 pub use crate::types::shared::ImageUrl;
 pub use crate::types::shared::ImageUrlArgs;
+pub use crate::types::shared::ReasoningEffort;
 pub use crate::types::shared::ResponseFormat;
 pub use crate::types::shared::ResponseFormatJsonSchema;
