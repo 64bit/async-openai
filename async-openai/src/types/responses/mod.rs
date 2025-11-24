@@ -11,8 +11,13 @@ pub use response::*;
 pub use stream::*;
 
 // Re-export shared types
+pub use crate::types::shared::ComparisonFilter;
+pub use crate::types::shared::ComparisonType;
 pub use crate::types::shared::CompletionTokensDetails;
+pub use crate::types::shared::CompoundFilter;
+pub use crate::types::shared::CompoundType;
 pub use crate::types::shared::CustomGrammarFormatParam;
+pub use crate::types::shared::Filter;
 pub use crate::types::shared::GrammarSyntax;
 pub use crate::types::shared::ImageDetail;
 pub use crate::types::shared::InputTokenDetails;

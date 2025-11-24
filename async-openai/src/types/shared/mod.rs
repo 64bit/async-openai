@@ -1,5 +1,6 @@
 mod completion_tokens_details;
 mod custom_grammar_format_param;
+mod filter;
 mod function_call;
 mod function_name;
 mod function_object;
@@ -13,6 +14,7 @@ mod response_usage;
 
 pub use completion_tokens_details::*;
 pub use custom_grammar_format_param::*;
+pub use filter::*;
 pub use function_call::*;
 pub use function_name::*;
 pub use function_object::*;

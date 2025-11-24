@@ -15,4 +15,3 @@ pub struct CompletionTokensDetails {
     /// window limits.
     pub rejected_prediction_tokens: Option<u32>,
 }
-
