@@ -1,9 +1,11 @@
+mod function_call;
 mod function_name;
 mod function_object;
 mod image_detail;
 mod image_url;
 mod response_format;
 
+pub use function_call::*;
 pub use function_name::*;
 pub use function_object::*;
 pub use image_detail::*;
