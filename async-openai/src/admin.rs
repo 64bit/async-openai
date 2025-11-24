@@ -1,7 +1,7 @@
 use crate::{
     admin_api_keys::AdminAPIKeys, audit_logs::AuditLogs, certificates::Certificates,
     config::Config, groups::Groups, invites::Invites, projects::Projects, roles::Roles,
-    users::Users, Client,
+    users::Users, Client, Usage,
 };
 
 /// Admin group for all administration APIs.
@@ -53,5 +53,10 @@ impl<'c, C: Config> Admin<'c, C> {
     /// To call [Groups] group related APIs using this client.
     pub fn groups(&self) -> Groups<'_, C> {
         Groups::new(self.client)
+    }
+
+    /// To call [Usage] group related APIs using this client.
+    pub fn usage(&self) -> Usage<'_, C> {
+        Usage::new(self.client)
     }
 }
