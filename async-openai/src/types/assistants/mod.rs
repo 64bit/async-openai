@@ -1,6 +1,5 @@
 mod api;
 mod assistant;
-mod assistant_impls;
 mod assistant_stream;
 mod impls;
 mod message;
