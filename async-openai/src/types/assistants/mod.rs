@@ -24,3 +24,4 @@ pub use crate::types::shared::ImageUrl;
 pub use crate::types::shared::ImageUrlArgs;
 pub use crate::types::shared::ResponseFormat;
 pub use crate::types::shared::ResponseFormatJsonSchema;
+pub use crate::types::shared::StaticChunkingStrategy;
