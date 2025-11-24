@@ -15,3 +15,6 @@ pub use message::*;
 pub use run::*;
 pub use step::*;
 pub use thread::*;
+
+// Re-export shared types that are used in assistants
+pub use crate::types::shared::FunctionObject;
