@@ -1,15 +1,6 @@
-use futures::Stream;
 use serde::{Deserialize, Serialize};
-use std::pin::Pin;
 
-use crate::{
-    error::OpenAIError,
-    types::responses::{OutputContent, OutputItem, Response, ResponseLogProb, SummaryPart},
-};
-
-/// Stream of response events
-pub type ResponseStream =
-    Pin<Box<dyn Stream<Item = Result<ResponseStreamEvent, OpenAIError>> + Send>>;
+use crate::types::responses::{OutputContent, OutputItem, Response, ResponseLogProb, SummaryPart};
 
 /// Event types for streaming responses from the Responses API
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -544,14 +535,18 @@ pub struct ResponseErrorEvent {
     pub param: Option<String>,
 }
 
-use crate::traits::EventType;
+/// Stream of response events
+#[cfg(feature = "_api")]
+pub type ResponseStream = std::pin::Pin<
+    Box<dyn futures::Stream<Item = Result<ResponseStreamEvent, crate::error::OpenAIError>> + Send>,
+>;
 
 // Implement EventType trait for all event types in this file
-
+#[cfg(feature = "_api")]
 macro_rules! impl_event_type {
     ($($ty:ty => $event_type:expr),* $(,)?) => {
         $(
-            impl EventType for $ty {
+            impl crate::traits::EventType for $ty {
                 fn event_type(&self) -> &'static str {
                     $event_type
                 }
@@ -561,6 +556,7 @@ macro_rules! impl_event_type {
 }
 
 // Apply macro for each event struct type in this file.
+#[cfg(feature = "_api")]
 impl_event_type! {
     ResponseCreatedEvent => "response.created",
     ResponseInProgressEvent => "response.in_progress",
@@ -613,7 +609,8 @@ impl_event_type! {
     ResponseErrorEvent => "error",
 }
 
-impl EventType for ResponseStreamEvent {
+#[cfg(feature = "_api")]
+impl crate::traits::EventType for ResponseStreamEvent {
     fn event_type(&self) -> &'static str {
         match self {
             ResponseStreamEvent::ResponseCreated(event) => event.event_type(),

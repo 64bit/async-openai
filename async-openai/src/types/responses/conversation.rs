@@ -13,7 +13,7 @@ use crate::{
     },
 };
 
-use crate::types::common::Metadata;
+use crate::types::Metadata;
 
 /// Represents a conversation object.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
