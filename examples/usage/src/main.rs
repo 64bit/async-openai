@@ -37,7 +37,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Audio Speeches
     println!("=== Audio Speeches Usage ===");
-    match client.usage().query(&query)?.audio_speeches().await {
+    match client.admin().usage().query(&query)?.audio_speeches().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -78,7 +78,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Audio Transcriptions
     println!("=== Audio Transcriptions Usage ===");
-    match client.usage().query(&query)?.audio_transcriptions().await {
+    match client
+        .admin()
+        .usage()
+        .query(&query)?
+        .audio_transcriptions()
+        .await
+    {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -120,6 +126,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Code Interpreter Sessions
     println!("=== Code Interpreter Sessions Usage ===");
     match client
+        .admin()
         .usage()
         .query(&query)?
         .code_interpreter_sessions()
@@ -162,7 +169,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Completions
     println!("=== Completions Usage ===");
-    match client.usage().query(&query)?.completions().await {
+    match client.admin().usage().query(&query)?.completions().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -227,7 +234,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Embeddings
     println!("=== Embeddings Usage ===");
-    match client.usage().query(&query)?.embeddings().await {
+    match client.admin().usage().query(&query)?.embeddings().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -268,7 +275,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Images
     println!("=== Images Usage ===");
-    match client.usage().query(&query)?.images().await {
+    match client.admin().usage().query(&query)?.images().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -315,7 +322,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Moderations
     println!("=== Moderations Usage ===");
-    match client.usage().query(&query)?.moderations().await {
+    match client.admin().usage().query(&query)?.moderations().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -356,7 +363,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Vector Stores
     println!("=== Vector Stores Usage ===");
-    match client.usage().query(&query)?.vector_stores().await {
+    match client.admin().usage().query(&query)?.vector_stores().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             for bucket in &response.data {
@@ -395,7 +402,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Costs
     println!("=== Costs ===");
-    match client.usage().query(&query)?.costs().await {
+    match client.admin().usage().query(&query)?.costs().await {
         Ok(response) => {
             println!("Found {} time buckets", response.data.len());
             let mut total_cost = 0.0;

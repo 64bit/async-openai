@@ -7,7 +7,7 @@ pub mod batches;
 pub mod chat;
 pub mod chatkit;
 mod common;
-mod completion;
+pub mod completions;
 pub mod containers;
 pub mod embeddings;
 pub mod evals;
@@ -15,14 +15,14 @@ pub mod files;
 pub mod finetuning;
 pub mod graders;
 pub mod images;
-mod logprob;
-mod mcp;
+pub mod mcp;
 pub mod models;
 pub mod moderations;
 #[cfg_attr(docsrs, doc(cfg(feature = "realtime")))]
 #[cfg(feature = "realtime")]
 pub mod realtime;
 pub mod responses;
+mod shared;
 pub mod uploads;
 pub mod vectorstores;
 pub mod videos;
@@ -31,9 +31,6 @@ pub mod videos;
 pub mod webhooks;
 
 pub use common::*;
-pub use completion::*;
-pub use logprob::*;
-pub use mcp::*;
 
 mod impls;
 use derive_builder::UninitializedFieldError;

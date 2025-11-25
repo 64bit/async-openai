@@ -14,3 +14,10 @@ pub use error::*;
 pub use response::*;
 pub use server_event::*;
 pub use session::*;
+
+// Re-export shared types that are used in realtime
+pub use crate::types::shared::LogProbProperties;
+pub use crate::types::shared::TokenUsageInputTokenDetails;
+pub use crate::types::shared::TranscriptTextUsageDuration;
+pub use crate::types::shared::TranscriptTextUsageTokens;
+pub use crate::types::shared::TranscriptionUsage;

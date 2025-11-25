@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use super::{FileSearchRankingOptions, ImageFile, LastError, RunStatus};
+use crate::types::assistants::{FileSearchRankingOptions, ImageFile, LastError, RunStatus};
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]

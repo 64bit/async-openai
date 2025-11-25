@@ -2,7 +2,7 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
-use crate::types::InputSource;
+use crate::types::images::ImageInput;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 pub enum ImageSize {
@@ -279,11 +279,6 @@ pub struct ImagesResponse {
     pub quality: Option<ImageQuality>,
     /// For `gpt-image-1` only, the token usage information for the image generation.
     pub usage: Option<ImageGenUsage>,
-}
-
-#[derive(Debug, Default, Clone, PartialEq)]
-pub struct ImageInput {
-    pub source: InputSource,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]

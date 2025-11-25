@@ -5,10 +5,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     error::OpenAIError,
-    types::{responses::Filter, Metadata},
+    types::{vectorstores::Filter, Metadata},
 };
 
-use crate::types::assistants::StaticChunkingStrategy;
+use crate::types::vectorstores::StaticChunkingStrategy;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateVectorStoreRequestArgs")]

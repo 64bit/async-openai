@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use async_openai::{types::CreateCompletionRequestArgs, Client};
+use async_openai::{types::completions::CreateCompletionRequestArgs, Client};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {

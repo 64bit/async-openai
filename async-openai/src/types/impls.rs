@@ -5,8 +5,8 @@ use crate::types::{
     chat::{Prompt, StopConfiguration},
     embeddings::EmbeddingInput,
     files::FileInput,
-    images::ImageInput,
     moderations::ModerationInput,
+    shared::ImageInput,
     InputSource,
 };
 

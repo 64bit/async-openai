@@ -1,3 +1,4 @@
+use crate::types::mcp::MCPTool;
 use crate::types::responses::{
     ApplyPatchToolCallItemParam, ApplyPatchToolCallOutputItemParam, CodeInterpreterContainerAuto,
     CodeInterpreterTool, CodeInterpreterToolCall, CodeInterpreterToolContainer,
@@ -10,11 +11,11 @@ use crate::types::responses::{
     LocalShellToolCall, LocalShellToolCallOutput, MCPApprovalRequest, MCPApprovalResponse,
     MCPListTools, MCPToolCall, MessageItem, MessageType, OutputMessage, OutputMessageContent,
     OutputTextContent, Prompt, Reasoning, ReasoningEffort, ReasoningItem, ReasoningSummary,
-    RefusalContent, ResponsePromptVariables, ResponseStreamOptions, ResponseTextParam, Role,
-    TextResponseFormatConfiguration, Tool, ToolChoiceCustom, ToolChoiceFunction, ToolChoiceMCP,
-    ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes, WebSearchTool, WebSearchToolCall,
+    RefusalContent, ResponseFormatJsonSchema, ResponsePromptVariables, ResponseStreamOptions,
+    ResponseTextParam, Role, TextResponseFormatConfiguration, Tool, ToolChoiceCustom,
+    ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes,
+    WebSearchTool, WebSearchToolCall,
 };
-use crate::types::{chat::ResponseFormatJsonSchema, MCPTool};
 
 impl<S: Into<String>> From<S> for EasyInputMessage {
     fn from(value: S) -> Self {
