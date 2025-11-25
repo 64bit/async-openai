@@ -1,4 +1,4 @@
-mod admin;
+mod admin_;
 mod admin_api_keys;
 mod audit_logs;
 mod certificates;
@@ -21,7 +21,7 @@ mod usage;
 mod user_roles;
 mod users;
 
-pub use admin::*;
+pub use admin_::*;
 pub use admin_api_keys::*;
 pub use audit_logs::*;
 pub use certificates::*;

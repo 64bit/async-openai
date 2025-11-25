@@ -1,5 +1,5 @@
 mod api;
-mod invites;
+mod invites_;
 
 pub use api::*;
-pub use invites::*;
+pub use invites_::*;

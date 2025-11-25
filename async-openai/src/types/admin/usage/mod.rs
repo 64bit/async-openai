@@ -1,5 +1,5 @@
 mod api;
-mod usage;
+mod usage_;
 
 pub use api::*;
-pub use usage::*;
+pub use usage_::*;

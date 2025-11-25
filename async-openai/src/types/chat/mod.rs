@@ -1,9 +1,9 @@
 mod api;
-mod chat;
+mod chat_;
 mod impls;
 
 pub use api::*;
-pub use chat::*;
+pub use chat_::*;
 
 // Re-export shared types that are used in chat
 pub use crate::types::shared::CompletionTokensDetails;

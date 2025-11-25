@@ -1,5 +1,5 @@
 mod api;
-mod groups;
+mod groups_;
 
 pub use api::*;
-pub use groups::*;
+pub use groups_::*;

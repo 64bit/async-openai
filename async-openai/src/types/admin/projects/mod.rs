@@ -1,5 +1,5 @@
 mod api;
-mod projects;
+mod projects_;
 
 pub use api::*;
-pub use projects::*;
+pub use projects_::*;

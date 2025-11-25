@@ -1,10 +1,10 @@
-mod audio;
+mod audio_;
 mod form;
 mod impls;
 mod sdk;
 mod stream;
 
-pub use audio::*;
+pub use audio_::*;
 pub use stream::*;
 
 // Re-export shared types that are used in audio
