@@ -1,4 +1,5 @@
 mod api;
+#[cfg(feature = "_api")]
 mod form;
 mod impls;
 mod video;
