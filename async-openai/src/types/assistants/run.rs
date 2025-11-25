@@ -3,11 +3,11 @@ use std::collections::HashMap;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::{error::OpenAIError, types::chat::FunctionCall};
+use crate::error::OpenAIError;
 
-use super::{
+use crate::types::assistants::{
     AssistantTools, AssistantsApiResponseFormatOption, AssistantsApiToolChoiceOption,
-    CreateMessageRequest,
+    CreateMessageRequest, FunctionCall,
 };
 
 /// Represents an execution run on a [thread](https://platform.openai.com/docs/api-reference/threads).

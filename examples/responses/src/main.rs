@@ -2,11 +2,11 @@ use std::error::Error;
 
 use async_openai::{
     types::{
+        mcp::{MCPToolApprovalSetting, MCPToolArgs},
         responses::{
             CreateResponseArgs, ResponseTextParam, TextResponseFormatConfiguration, Tool,
             Verbosity, WebSearchTool,
         },
-        MCPToolApprovalSetting, MCPToolArgs,
     },
     Client,
 };

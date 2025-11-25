@@ -10,13 +10,6 @@ pub enum InputSource {
     VecU8 { filename: String, vec: Vec<u8> },
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum OrganizationRole {
-    Owner,
-    Reader,
-}
-
 /// Set of 16 key-value pairs that can be attached to an object.
 /// This can be useful for storing additional information about the
 /// object in a structured format, and querying for objects via API

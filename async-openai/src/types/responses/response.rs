@@ -1,9 +1,9 @@
 use crate::error::OpenAIError;
-pub use crate::types::chat::{
-    CompletionTokensDetails, ImageDetail, PromptTokensDetails, ReasoningEffort,
-    ResponseFormatJsonSchema,
+use crate::types::mcp::{MCPListToolsTool, MCPTool};
+use crate::types::responses::{
+    CustomGrammarFormatParam, Filter, ImageDetail, ReasoningEffort, ResponseFormatJsonSchema,
+    ResponseUsage,
 };
-use crate::types::{MCPListToolsTool, MCPTool};
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -941,22 +941,6 @@ pub struct CustomToolParam {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
-#[serde(rename_all = "lowercase")]
-pub enum GrammarSyntax {
-    Lark,
-    #[default]
-    Regex,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
-pub struct CustomGrammarFormatParam {
-    /// The grammar definition.
-    pub definition: String,
-    /// The syntax of the grammar definition. One of `lark` or `regex`.
-    pub syntax: GrammarSyntax,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 #[serde(tag = "type", rename_all = "lowercase")]
 pub enum CustomToolParamFormat {
     /// Unconstrained free-form text.
@@ -1105,72 +1089,6 @@ pub struct RankingOptions {
     /// attempt to return only the most relevant results, but may return fewer results.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub score_threshold: Option<f32>,
-}
-
-/// Filters for file search.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(untagged)]
-pub enum Filter {
-    /// A filter used to compare a specified attribute key to a given value using a defined
-    /// comparison operation.
-    Comparison(ComparisonFilter),
-    /// Combine multiple filters using `and` or `or`.
-    Compound(CompoundFilter),
-}
-
-/// Single comparison filter.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ComparisonFilter {
-    /// Specifies the comparison operator: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `nin`.
-    /// - `eq`: equals
-    /// - `ne`: not equal
-    /// - `gt`: greater than
-    /// - `gte`: greater than or equal
-    /// - `lt`: less than
-    /// - `lte`: less than or equal
-    /// - `in`: in
-    /// - `nin`: not in
-    pub r#type: ComparisonType,
-    /// The key to compare against the value.
-    pub key: String,
-    /// The value to compare against the attribute key; supports string, number, or boolean types.
-    pub value: serde_json::Value,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
-pub enum ComparisonType {
-    #[serde(rename = "eq")]
-    Equals,
-    #[serde(rename = "ne")]
-    NotEquals,
-    #[serde(rename = "gt")]
-    GreaterThan,
-    #[serde(rename = "gte")]
-    GreaterThanOrEqual,
-    #[serde(rename = "lt")]
-    LessThan,
-    #[serde(rename = "lte")]
-    LessThanOrEqual,
-    #[serde(rename = "in")]
-    In,
-    #[serde(rename = "nin")]
-    NotIn,
-}
-
-/// Combine multiple filters using `and` or `or`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CompoundFilter {
-    /// 'Type of operation: `and` or `or`.'
-    pub r#type: CompoundType,
-    /// Array of filters to combine. Items can be ComparisonFilter or CompoundFilter.
-    pub filters: Vec<Filter>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CompoundType {
-    And,
-    Or,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
@@ -2429,34 +2347,6 @@ pub struct MCPApprovalRequest {
     pub name: String,
     /// The label of the MCP server making the request.
     pub server_label: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct InputTokenDetails {
-    /// The number of tokens that were retrieved from the cache.
-    /// [More on prompt caching](https://platform.openai.com/docs/guides/prompt-caching).
-    pub cached_tokens: u32,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct OutputTokenDetails {
-    /// The number of reasoning tokens.
-    pub reasoning_tokens: u32,
-}
-
-/// Usage statistics for a response.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ResponseUsage {
-    /// The number of input tokens.
-    pub input_tokens: u32,
-    /// A detailed breakdown of the input tokens.
-    pub input_tokens_details: InputTokenDetails,
-    /// The number of output tokens.
-    pub output_tokens: u32,
-    /// A detailed breakdown of the output tokens.
-    pub output_tokens_details: OutputTokenDetails,
-    /// The total number of tokens used.
-    pub total_tokens: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

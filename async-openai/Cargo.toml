@@ -62,7 +62,7 @@ tokio-test = "0.4.4"
 serde_json = "1.0"
 
 [[test]]
-name = "bring-your-own-type"
+name = "bring_your_own_type"
 required-features = ["byot"]
 
 [package.metadata.docs.rs]
