@@ -1,5 +1,6 @@
 mod api;
 mod file;
+#[cfg(feature = "_api")]
 mod form;
 mod impls;
 
