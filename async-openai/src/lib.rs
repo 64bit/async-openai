@@ -31,28 +31,27 @@
 //!```
 //!# tokio_test::block_on(async {
 //!
-//! use async_openai::{Client, types::{CreateCompletionRequestArgs}};
+//! use async_openai::{Client, types::responses::{CreateResponseArgs}};
 //!
 //! // Create client
 //! let client = Client::new();
 //!
 //! // Create request using builder pattern
 //! // Every request struct has companion builder struct with same name + Args suffix
-//! let request = CreateCompletionRequestArgs::default()
-//!     .model("gpt-3.5-turbo-instruct")
-//!     .prompt("Tell me the recipe of alfredo pasta")
-//!     .max_tokens(40_u32)
-//!     .build()
-//!     .unwrap();
+//! let request = CreateResponseArgs::default()
+//!     .model("gpt-5-mini")
+//!     .input("tell me the recipe of pav bhaji")
+//!     .max_output_tokens(512u32)
+//!     .build()?;
 //!
 //! // Call API
 //! let response = client
-//!     .completions()      // Get the API "group" (completions, images, etc.) from the client
-//!     .create(request)    // Make the API call in that "group"
-//!     .await
-//!     .unwrap();
+//!     .responses()      // Get the API "group" (responses, images, etc.) from the client
+//!     .create(request)  // Make the API call in that "group"
+//!     .await?;
 //!
-//! println!("{}", response.choices.first().unwrap().text);
+//! println!("{:?}", response.output_text());
+//! # Ok::<(), Box<dyn std::error::Error>>(())
 //! # });
 //!```
 //!
@@ -85,12 +84,12 @@
 //!            "model": "gpt-4o",
 //!            "store": false
 //!        }))
-//!        .await
-//!        .unwrap();
+//!        .await?;
 //!
 //!  if let Some(content) = response["choices"][0]["message"]["content"].as_str() {
 //!     println!("{}", content);
 //!  }
+//! # Ok::<(), Box<dyn std::error::Error>>(())
 //! # });
 //!```
 //!
@@ -112,6 +111,7 @@
 //! ```
 //! # tokio_test::block_on(async {
 //! # use async_openai::Client;
+//! # use async_openai::traits::RequestOptionsBuilder;
 //! # let client = Client::new();
 //! client
 //!   .chat()
@@ -140,7 +140,8 @@
 //! For example:
 //! ```
 //! # tokio_test::block_on(async {
-//! # use async_openai::{Client, types::CreateChatCompletionRequestArgs};
+//! # use async_openai::{Client, types::chat::CreateChatCompletionRequestArgs};
+//! # use async_openai::traits::RequestOptionsBuilder;
 //! # let client = Client::new();
 //! # let request = CreateChatCompletionRequestArgs::default()
 //! #     .model("gpt-4")
