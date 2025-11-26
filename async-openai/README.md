@@ -154,7 +154,7 @@ directory to learn more.
 
 With `byot` use reference to request types
 
-```
+```rust
 let response: Response = client
   .responses()
   .create_byot(&request).await?
@@ -177,7 +177,7 @@ These granular types are enabled when the corresponding API feature is enabled -
 Certain individual APIs that need additional query or header parameters - these can be provided by chaining `.query()`, `.header()`, `.headers()` on the API group. 
 
 For example:
-```
+```rust
 client.
   .chat()
   // query can be a struct or a map too.
@@ -202,7 +202,7 @@ In addition to  `.query()`, `.header()`, `.headers()` a path for individual requ
 
 For example:
 
-```
+```rust
 client
   .chat()
   .path("/v1/messages")?
