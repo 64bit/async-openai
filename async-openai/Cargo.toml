@@ -101,6 +101,33 @@ types = [
     "completion-types",
 ]
 
+# Enable all features
+full = [
+    "responses",
+    "webhook",
+    "audio",
+    "video",
+    "image",
+    "embedding",
+    "evals",
+    "finetuning",
+    "batch",
+    "file",
+    "upload",
+    "model",
+    "moderation",
+    "vectorstore",
+    "chatkit",
+    "container",
+    "realtime",
+    "chat-completion",
+    "assistant",
+    "administration",
+    "completions",
+    "types",
+    "byot",
+]
+
 # Internal feature to enable API dependencies
 _api = [
     "dep:async-openai-macros",
