@@ -214,12 +214,18 @@ mod video;
 #[cfg(feature = "webhook")]
 pub mod webhooks;
 
+// admin::* would be good - however its expanded here so that docs.rs shows the feature flags
 #[cfg(feature = "administration")]
-pub use admin::*;
+pub use admin::{
+    Admin, AdminAPIKeys, AuditLogs, Certificates, GroupRoles, GroupUsers, Groups, Invites,
+    ProjectAPIKeys, ProjectCertificates, ProjectGroupRoles, ProjectGroups, ProjectRateLimits,
+    ProjectRoles, ProjectServiceAccounts, ProjectUserRoles, ProjectUsers, Projects, Roles, Usage,
+    UserRoles, Users,
+};
 #[cfg(feature = "assistant")]
-pub use assistants::*;
+pub use assistants::{Assistants, Messages, Runs, Steps, Threads};
 #[cfg(feature = "audio")]
-pub use audio::*;
+pub use audio::{Audio, Speech, Transcriptions, Translations};
 #[cfg(feature = "batch")]
 pub use batches::Batches;
 #[cfg(feature = "chat-completion")]
@@ -231,11 +237,11 @@ pub use client::Client;
 #[cfg(feature = "completions")]
 pub use completion::Completions;
 #[cfg(feature = "container")]
-pub use containers::*;
+pub use containers::{ContainerFiles, Containers};
 #[cfg(feature = "embedding")]
 pub use embedding::Embeddings;
 #[cfg(feature = "evals")]
-pub use evals::*;
+pub use evals::{EvalRunOutputItems, EvalRuns, Evals};
 #[cfg(feature = "file")]
 pub use file::Files;
 #[cfg(feature = "finetuning")]
@@ -251,10 +257,10 @@ pub use realtime::Realtime;
 #[cfg(feature = "_api")]
 pub use request_options::RequestOptions;
 #[cfg(feature = "responses")]
-pub use responses::*;
+pub use responses::{ConversationItems, Conversations, Responses};
 #[cfg(feature = "upload")]
 pub use uploads::Uploads;
 #[cfg(feature = "vectorstore")]
-pub use vectorstores::*;
+pub use vectorstores::{VectorStoreFileBatches, VectorStoreFiles, VectorStores};
 #[cfg(feature = "video")]
 pub use video::Videos;
