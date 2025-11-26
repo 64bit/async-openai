@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::traits::EventType;
 use crate::types::realtime::{LogProbProperties, TranscriptionUsage};
 
 use super::{
@@ -807,11 +806,11 @@ pub enum RealtimeServerEvent {
 }
 
 // Implement EventType trait for all event types in this file
-
+#[cfg(feature = "_api")]
 macro_rules! impl_event_type {
     ($($ty:ty => $event_type:expr),* $(,)?) => {
         $(
-            impl EventType for $ty {
+            impl crate::traits::EventType for $ty {
                 fn event_type(&self) -> &'static str {
                     $event_type
                 }
@@ -820,6 +819,7 @@ macro_rules! impl_event_type {
     };
 }
 
+#[cfg(feature = "_api")]
 impl_event_type! {
     RealtimeServerEventError => "error",
     RealtimeServerEventSessionCreated => "session.created",
@@ -866,7 +866,8 @@ impl_event_type! {
     RealtimeServerEventRateLimitsUpdated => "rate_limits.updated",
 }
 
-impl EventType for RealtimeServerEvent {
+#[cfg(feature = "_api")]
+impl crate::traits::EventType for RealtimeServerEvent {
     fn event_type(&self) -> &'static str {
         match self {
             RealtimeServerEvent::Error(e) => e.event_type(),
