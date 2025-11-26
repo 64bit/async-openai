@@ -150,6 +150,19 @@ This can be useful in many scenarios:
 Visit [examples/bring-your-own-type](https://github.com/64bit/async-openai/tree/main/examples/bring-your-own-type)
 directory to learn more.
 
+### References: Borrow Instead of Move
+
+With `byot` use reference to request types
+
+```
+let response: Response = client
+  .responses()
+  .create_byot(&request).await?
+```
+
+Visit [examples/borrow-instead-of-move](https://github.com/64bit/async-openai/tree/main/examples/borrow-instead-of-move) to learn more.
+
+
 ## Rust Types
 
 To only use Rust types from the crate - use feature flag `types`. 
