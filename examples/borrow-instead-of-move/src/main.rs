@@ -12,7 +12,7 @@ async fn make_request(
 ) -> Result<Response, Box<dyn Error>> {
     println!("\nRequest:\n{}", serde_json::to_string(&request)?);
 
-    let response: Response = client.responses().create_byot(&request).await?;
+    let response: Response = client.responses().create_byot(request).await?;
 
     println!("\nResponse:\n{}", response.output_text().ok_or("None")?);
 
