@@ -30,7 +30,6 @@
 //!
 //!```
 //!# tokio_test::block_on(async {
-//!
 //! use async_openai::{Client, types::responses::{CreateResponseArgs}};
 //!
 //! // Create client
