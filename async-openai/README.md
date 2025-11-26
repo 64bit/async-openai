@@ -156,7 +156,25 @@ To only use Rust types from the crate - use feature flag `types`.
 
 There are granular feature flags like `response-types`, `chat-completion-types`, etc.
 
-## Dynamic Dispatch for OpenAI-compatible Providers
+## OpenAI-compatible Providers
+
+### Configurable Request
+
+To change path, query or headers of individual request use the `.path()`, `.query()`, `.header()`, `.headers()` method on the API group.
+
+For example:
+
+```
+client
+  .chat()
+  .path("/v1/messages")?
+  .query(&[("role", "user")])?
+  .header("key", "value")?
+  .create(request)
+  .await?
+```
+
+### Dynamic Dispatch
 
 This allows you to use same code (say a `fn`) to call APIs on different OpenAI-compatible providers.
 
