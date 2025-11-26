@@ -1,6 +1,6 @@
 use crate::types::InputSource;
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct ImageInput {
     pub source: InputSource,
 }

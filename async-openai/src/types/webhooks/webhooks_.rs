@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::traits::{EventId, EventType};
-
 /// Sent when a batch API request has been cancelled.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookBatchCancelled {
@@ -77,56 +75,6 @@ pub struct WebhookBatchData {
     pub id: String,
 }
 
-// EventType and EventId implementations for batch events
-
-impl EventType for WebhookBatchCancelled {
-    fn event_type(&self) -> &'static str {
-        "batch.cancelled"
-    }
-}
-
-impl EventId for WebhookBatchCancelled {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
-impl EventType for WebhookBatchCompleted {
-    fn event_type(&self) -> &'static str {
-        "batch.completed"
-    }
-}
-
-impl EventId for WebhookBatchCompleted {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
-impl EventType for WebhookBatchExpired {
-    fn event_type(&self) -> &'static str {
-        "batch.expired"
-    }
-}
-
-impl EventId for WebhookBatchExpired {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
-impl EventType for WebhookBatchFailed {
-    fn event_type(&self) -> &'static str {
-        "batch.failed"
-    }
-}
-
-impl EventId for WebhookBatchFailed {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
 /// Sent when an eval run has been canceled.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookEvalRunCanceled {
@@ -183,44 +131,6 @@ pub struct WebhookEvalRunSucceeded {
 pub struct WebhookEvalRunData {
     /// The unique ID of the eval run.
     pub id: String,
-}
-
-// EventType and EventId implementations for eval run events
-
-impl EventType for WebhookEvalRunCanceled {
-    fn event_type(&self) -> &'static str {
-        "eval.run.canceled"
-    }
-}
-
-impl EventId for WebhookEvalRunCanceled {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
-impl EventType for WebhookEvalRunFailed {
-    fn event_type(&self) -> &'static str {
-        "eval.run.failed"
-    }
-}
-
-impl EventId for WebhookEvalRunFailed {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
-impl EventType for WebhookEvalRunSucceeded {
-    fn event_type(&self) -> &'static str {
-        "eval.run.succeeded"
-    }
-}
-
-impl EventId for WebhookEvalRunSucceeded {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
 }
 
 /// Sent when a fine-tuning job has been cancelled.
@@ -283,42 +193,6 @@ pub struct WebhookFineTuningJobData {
 
 // EventType and EventId implementations for fine-tuning job events
 
-impl EventType for WebhookFineTuningJobCancelled {
-    fn event_type(&self) -> &'static str {
-        "fine_tuning.job.cancelled"
-    }
-}
-
-impl EventId for WebhookFineTuningJobCancelled {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
-impl EventType for WebhookFineTuningJobFailed {
-    fn event_type(&self) -> &'static str {
-        "fine_tuning.job.failed"
-    }
-}
-
-impl EventId for WebhookFineTuningJobFailed {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
-impl EventType for WebhookFineTuningJobSucceeded {
-    fn event_type(&self) -> &'static str {
-        "fine_tuning.job.succeeded"
-    }
-}
-
-impl EventId for WebhookFineTuningJobSucceeded {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
 /// Sent when Realtime API receives an incoming SIP call.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebhookRealtimeCallIncoming {
@@ -354,20 +228,6 @@ pub struct SipHeader {
 
     /// Value of the SIP Header.
     pub value: String,
-}
-
-// EventType and EventId implementations for realtime call events
-
-impl EventType for WebhookRealtimeCallIncoming {
-    fn event_type(&self) -> &'static str {
-        "realtime.call.incoming"
-    }
-}
-
-impl EventId for WebhookRealtimeCallIncoming {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
 }
 
 /// Sent when a background response has been cancelled.
@@ -447,54 +307,6 @@ pub struct WebhookResponseData {
 
 // EventType and EventId implementations for response events
 
-impl EventType for WebhookResponseCancelled {
-    fn event_type(&self) -> &'static str {
-        "response.cancelled"
-    }
-}
-
-impl EventId for WebhookResponseCancelled {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
-impl EventType for WebhookResponseCompleted {
-    fn event_type(&self) -> &'static str {
-        "response.completed"
-    }
-}
-
-impl EventId for WebhookResponseCompleted {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
-impl EventType for WebhookResponseFailed {
-    fn event_type(&self) -> &'static str {
-        "response.failed"
-    }
-}
-
-impl EventId for WebhookResponseFailed {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
-impl EventType for WebhookResponseIncomplete {
-    fn event_type(&self) -> &'static str {
-        "response.incomplete"
-    }
-}
-
-impl EventId for WebhookResponseIncomplete {
-    fn event_id(&self) -> &str {
-        &self.id
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type")]
 pub enum WebhookEvent {
@@ -544,9 +356,75 @@ pub enum WebhookEvent {
     ResponseIncomplete(WebhookResponseIncomplete),
 }
 
-// Trait implementations for WebhookEvent enum
+// Implement EventType trait for all event types in this file
+#[cfg(feature = "_api")]
+macro_rules! impl_event_type {
+    ($($ty:ty => $event_type:expr),* $(,)?) => {
+        $(
+            impl crate::traits::EventType for $ty {
+                fn event_type(&self) -> &'static str {
+                    $event_type
+                }
+            }
+        )*
+    };
+}
 
-impl EventType for WebhookEvent {
+#[cfg(feature = "_api")]
+macro_rules! impl_event_id {
+    ($($ty:ty),* $(,)?) => {
+        $(
+            impl crate::traits::EventId for $ty {
+                fn event_id(&self) -> &str {
+                    &self.id
+                }
+            }
+        )*
+    };
+}
+// Use the macro to implement EventType for all webhook event structs
+#[cfg(feature = "_api")]
+impl_event_type! {
+    WebhookBatchCancelled => "batch.cancelled",
+    WebhookBatchCompleted => "batch.completed",
+    WebhookBatchExpired => "batch.expired",
+    WebhookBatchFailed => "batch.failed",
+    WebhookEvalRunCanceled => "eval.run.canceled",
+    WebhookEvalRunFailed => "eval.run.failed",
+    WebhookEvalRunSucceeded => "eval.run.succeeded",
+    WebhookFineTuningJobCancelled => "fine_tuning.job.cancelled",
+    WebhookFineTuningJobFailed => "fine_tuning.job.failed",
+    WebhookFineTuningJobSucceeded => "fine_tuning.job.succeeded",
+    WebhookRealtimeCallIncoming => "realtime.call.incoming",
+    WebhookResponseCancelled => "response.cancelled",
+    WebhookResponseCompleted => "response.completed",
+    WebhookResponseFailed => "response.failed",
+    WebhookResponseIncomplete => "response.incomplete",
+}
+
+// Use the macro to implement EventId for all webhook event structs
+#[cfg(feature = "_api")]
+impl_event_id! {
+    WebhookBatchCancelled,
+    WebhookBatchCompleted,
+    WebhookBatchExpired,
+    WebhookBatchFailed,
+    WebhookEvalRunCanceled,
+    WebhookEvalRunFailed,
+    WebhookEvalRunSucceeded,
+    WebhookFineTuningJobCancelled,
+    WebhookFineTuningJobFailed,
+    WebhookFineTuningJobSucceeded,
+    WebhookRealtimeCallIncoming,
+    WebhookResponseCancelled,
+    WebhookResponseCompleted,
+    WebhookResponseFailed,
+    WebhookResponseIncomplete,
+}
+
+// Trait implementations for WebhookEvent enum
+#[cfg(feature = "_api")]
+impl crate::traits::EventType for WebhookEvent {
     fn event_type(&self) -> &'static str {
         match self {
             WebhookEvent::BatchCancelled(e) => e.event_type(),
@@ -568,7 +446,8 @@ impl EventType for WebhookEvent {
     }
 }
 
-impl EventId for WebhookEvent {
+#[cfg(feature = "_api")]
+impl crate::traits::EventId for WebhookEvent {
     fn event_id(&self) -> &str {
         match self {
             WebhookEvent::BatchCancelled(e) => e.event_id(),

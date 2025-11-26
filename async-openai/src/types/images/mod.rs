@@ -1,6 +1,8 @@
+#[cfg(feature = "_api")]
 mod form;
 mod image;
 mod impls;
+#[cfg(feature = "_api")]
 mod sdk;
 mod stream;
 

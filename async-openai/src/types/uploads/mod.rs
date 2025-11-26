@@ -1,3 +1,4 @@
+#[cfg(feature = "_api")]
 mod form;
 mod upload;
 

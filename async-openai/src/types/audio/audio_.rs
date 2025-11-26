@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 use crate::types::audio::{LogProbProperties, TranscriptTextUsageDuration, TranscriptionUsage};
-use crate::types::common::InputSource;
+use crate::types::InputSource;
 
 // openapi spec type: VoiceIdsShared
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]

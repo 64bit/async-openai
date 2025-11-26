@@ -5,7 +5,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-async-openai = {path = "../../async-openai", features = ["byot"]}
+async-openai = {path = "../../async-openai", features = ["byot", "chat-completion", "image", "embedding", "model"]}
 tokio = { version = "1.43.0", features = ["full"] }
 tracing-subscriber = { version =  "0.3.19",  features = ["env-filter"]}
 dotenv = "0.15.0"

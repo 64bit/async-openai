@@ -7,20 +7,56 @@ use reqwest_eventsource::{Error as EventSourceError, Event, EventSource, Request
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
-    admin::Admin,
-    chatkit::Chatkit,
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, ApiError, OpenAIError, StreamError, WrappedError},
-    file::Files,
-    image::Images,
-    moderation::Moderations,
     traits::AsyncTryFrom,
-    Assistants, Audio, Batches, Chat, Completions, Containers, Conversations, Embeddings, Evals,
-    FineTuning, Models, RequestOptions, Responses, Threads, Uploads, VectorStores, Videos,
+    RequestOptions,
 };
 
+#[cfg(feature = "administration")]
+use crate::admin::Admin;
+#[cfg(feature = "chatkit")]
+use crate::chatkit::Chatkit;
+#[cfg(feature = "file")]
+use crate::file::Files;
+#[cfg(feature = "image")]
+use crate::image::Images;
+#[cfg(feature = "moderation")]
+use crate::moderation::Moderations;
+#[cfg(feature = "assistant")]
+use crate::Assistants;
+#[cfg(feature = "audio")]
+use crate::Audio;
+#[cfg(feature = "batch")]
+use crate::Batches;
+#[cfg(feature = "chat-completion")]
+use crate::Chat;
+#[cfg(feature = "completions")]
+use crate::Completions;
+#[cfg(feature = "container")]
+use crate::Containers;
+#[cfg(feature = "responses")]
+use crate::Conversations;
+#[cfg(feature = "embedding")]
+use crate::Embeddings;
+#[cfg(feature = "evals")]
+use crate::Evals;
+#[cfg(feature = "finetuning")]
+use crate::FineTuning;
+#[cfg(feature = "model")]
+use crate::Models;
 #[cfg(feature = "realtime")]
 use crate::Realtime;
+#[cfg(feature = "responses")]
+use crate::Responses;
+#[cfg(feature = "assistant")]
+use crate::Threads;
+#[cfg(feature = "upload")]
+use crate::Uploads;
+#[cfg(feature = "vectorstore")]
+use crate::VectorStores;
+#[cfg(feature = "video")]
+use crate::Videos;
 
 #[derive(Debug, Clone, Default)]
 /// Client is a container for config, backoff and http_client
@@ -78,112 +114,133 @@ impl<C: Config> Client<C> {
     // API groups
 
     /// To call [Models] group related APIs using this client.
+    #[cfg(feature = "model")]
     pub fn models(&self) -> Models<'_, C> {
         Models::new(self)
     }
 
     /// To call [Completions] group related APIs using this client.
+    #[cfg(feature = "completions")]
     pub fn completions(&self) -> Completions<'_, C> {
         Completions::new(self)
     }
 
     /// To call [Chat] group related APIs using this client.
+    #[cfg(feature = "chat-completion")]
     pub fn chat(&self) -> Chat<'_, C> {
         Chat::new(self)
     }
 
     /// To call [Images] group related APIs using this client.
+    #[cfg(feature = "image")]
     pub fn images(&self) -> Images<'_, C> {
         Images::new(self)
     }
 
     /// To call [Moderations] group related APIs using this client.
+    #[cfg(feature = "moderation")]
     pub fn moderations(&self) -> Moderations<'_, C> {
         Moderations::new(self)
     }
 
     /// To call [Files] group related APIs using this client.
+    #[cfg(feature = "file")]
     pub fn files(&self) -> Files<'_, C> {
         Files::new(self)
     }
 
     /// To call [Uploads] group related APIs using this client.
+    #[cfg(feature = "upload")]
     pub fn uploads(&self) -> Uploads<'_, C> {
         Uploads::new(self)
     }
 
     /// To call [FineTuning] group related APIs using this client.
+    #[cfg(feature = "finetuning")]
     pub fn fine_tuning(&self) -> FineTuning<'_, C> {
         FineTuning::new(self)
     }
 
     /// To call [Embeddings] group related APIs using this client.
+    #[cfg(feature = "embedding")]
     pub fn embeddings(&self) -> Embeddings<'_, C> {
         Embeddings::new(self)
     }
 
     /// To call [Audio] group related APIs using this client.
+    #[cfg(feature = "audio")]
     pub fn audio(&self) -> Audio<'_, C> {
         Audio::new(self)
     }
 
     /// To call [Videos] group related APIs using this client.
+    #[cfg(feature = "video")]
     pub fn videos(&self) -> Videos<'_, C> {
         Videos::new(self)
     }
 
     /// To call [Assistants] group related APIs using this client.
+    #[cfg(feature = "assistant")]
     pub fn assistants(&self) -> Assistants<'_, C> {
         Assistants::new(self)
     }
 
     /// To call [Threads] group related APIs using this client.
+    #[cfg(feature = "assistant")]
     pub fn threads(&self) -> Threads<'_, C> {
         Threads::new(self)
     }
 
     /// To call [VectorStores] group related APIs using this client.
+    #[cfg(feature = "vectorstore")]
     pub fn vector_stores(&self) -> VectorStores<'_, C> {
         VectorStores::new(self)
     }
 
     /// To call [Batches] group related APIs using this client.
+    #[cfg(feature = "batch")]
     pub fn batches(&self) -> Batches<'_, C> {
         Batches::new(self)
     }
 
     /// To call [Admin] group related APIs using this client.
     /// This groups together admin API keys, invites, users, projects, audit logs, and certificates.
+    #[cfg(feature = "administration")]
     pub fn admin(&self) -> Admin<'_, C> {
         Admin::new(self)
     }
 
     /// To call [Responses] group related APIs using this client.
+    #[cfg(feature = "responses")]
     pub fn responses(&self) -> Responses<'_, C> {
         Responses::new(self)
     }
 
     /// To call [Conversations] group related APIs using this client.
+    #[cfg(feature = "responses")]
     pub fn conversations(&self) -> Conversations<'_, C> {
         Conversations::new(self)
     }
 
     /// To call [Containers] group related APIs using this client.
+    #[cfg(feature = "container")]
     pub fn containers(&self) -> Containers<'_, C> {
         Containers::new(self)
     }
 
     /// To call [Evals] group related APIs using this client.
+    #[cfg(feature = "evals")]
     pub fn evals(&self) -> Evals<'_, C> {
         Evals::new(self)
     }
 
+    #[cfg(feature = "chatkit")]
     pub fn chatkit(&self) -> Chatkit<'_, C> {
         Chatkit::new(self)
     }
 
-    #[cfg(feature = "realtime")]
     /// To call [Realtime] group related APIs using this client.
+    #[cfg(feature = "realtime")]
     pub fn realtime(&self) -> Realtime<'_, C> {
         Realtime::new(self)
     }
@@ -222,6 +279,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a GET request to {path} and deserialize the response body
+    #[allow(unused)]
     pub(crate) async fn get<O>(
         &self,
         path: &str,
@@ -240,6 +298,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a DELETE request to {path} and deserialize the response body
+    #[allow(unused)]
     pub(crate) async fn delete<O>(
         &self,
         path: &str,
@@ -258,6 +317,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a GET request to {path} and return the response body
+    #[allow(unused)]
     pub(crate) async fn get_raw(
         &self,
         path: &str,
@@ -273,6 +333,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a POST request to {path} and return the response body
+    #[allow(unused)]
     pub(crate) async fn post_raw<I>(
         &self,
         path: &str,
@@ -293,6 +354,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a POST request to {path} and deserialize the response body
+    #[allow(unused)]
     pub(crate) async fn post<I, O>(
         &self,
         path: &str,
@@ -314,6 +376,7 @@ impl<C: Config> Client<C> {
     }
 
     /// POST a form at {path} and return the response body
+    #[allow(unused)]
     pub(crate) async fn post_form_raw<F>(
         &self,
         path: &str,
@@ -335,6 +398,7 @@ impl<C: Config> Client<C> {
     }
 
     /// POST a form at {path} and deserialize the response body
+    #[allow(unused)]
     pub(crate) async fn post_form<O, F>(
         &self,
         path: &str,
@@ -356,6 +420,7 @@ impl<C: Config> Client<C> {
         self.execute(request_maker).await
     }
 
+    #[allow(unused)]
     pub(crate) async fn post_form_stream<O, F>(
         &self,
         path: &str,
@@ -499,6 +564,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP POST request to receive SSE
+    #[allow(unused)]
     pub(crate) async fn post_stream<I, O>(
         &self,
         path: &str,
@@ -518,6 +584,7 @@ impl<C: Config> Client<C> {
         stream(event_source).await
     }
 
+    #[allow(unused)]
     pub(crate) async fn post_stream_mapped_raw_events<I, O>(
         &self,
         path: &str,
@@ -539,6 +606,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP GET request to receive SSE
+    #[allow(unused)]
     pub(crate) async fn get_stream<O>(
         &self,
         path: &str,

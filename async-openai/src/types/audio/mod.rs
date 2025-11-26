@@ -1,6 +1,8 @@
 mod audio_;
+#[cfg(feature = "_api")]
 mod form;
 mod impls;
+#[cfg(feature = "_api")]
 mod sdk;
 mod stream;
 

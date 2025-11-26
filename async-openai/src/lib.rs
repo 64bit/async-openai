@@ -134,66 +134,127 @@
 //!
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
-#[cfg(feature = "byot")]
+#[cfg(all(feature = "_api", feature = "byot"))]
 pub(crate) use async_openai_macros::byot;
 
-#[cfg(not(feature = "byot"))]
+#[cfg(all(feature = "_api", not(feature = "byot")))]
 pub(crate) use async_openai_macros::byot_passthrough as byot;
 
+// #[cfg(all(not(feature = "_api"), not(feature = "byot")))]
+// #[macro_export]
+// macro_rules! byot {
+//     ($($tt:tt)*) => {
+//         $($tt)*
+//     };
+// }
+
+#[cfg(feature = "administration")]
 mod admin;
+#[cfg(feature = "assistant")]
 mod assistants;
+#[cfg(feature = "audio")]
 mod audio;
+#[cfg(feature = "batch")]
 mod batches;
+#[cfg(feature = "chat-completion")]
 mod chat;
+#[cfg(feature = "chatkit")]
 mod chatkit;
+#[cfg(feature = "_api")]
 mod client;
+#[cfg(feature = "completions")]
 mod completion;
+#[cfg(feature = "_api")]
 pub mod config;
+#[cfg(feature = "container")]
 mod containers;
+#[cfg(feature = "image")]
 mod download;
+#[cfg(feature = "embedding")]
 mod embedding;
 pub mod error;
+#[cfg(feature = "evals")]
 mod evals;
+#[cfg(feature = "file")]
 mod file;
+#[cfg(feature = "finetuning")]
 mod fine_tuning;
+#[cfg(feature = "image")]
 mod image;
+#[cfg(feature = "_api")]
 mod impls;
+#[cfg(feature = "model")]
 mod model;
+#[cfg(feature = "moderation")]
 mod moderation;
 #[cfg(feature = "realtime")]
 mod realtime;
+#[cfg(feature = "_api")]
 mod request_options;
+#[cfg(feature = "responses")]
 mod responses;
+#[cfg(feature = "_api")]
 pub mod traits;
 pub mod types;
+#[cfg(feature = "upload")]
 mod uploads;
+#[cfg(any(
+    feature = "audio",
+    feature = "file",
+    feature = "upload",
+    feature = "image",
+    feature = "video",
+    feature = "container"
+))]
 mod util;
+#[cfg(feature = "vectorstore")]
 mod vectorstores;
+#[cfg(feature = "video")]
 mod video;
 #[cfg(feature = "webhook")]
 pub mod webhooks;
 
+#[cfg(feature = "administration")]
 pub use admin::*;
+#[cfg(feature = "assistant")]
 pub use assistants::*;
-pub use audio::Audio;
+#[cfg(feature = "audio")]
 pub use audio::*;
+#[cfg(feature = "batch")]
 pub use batches::Batches;
+#[cfg(feature = "chat-completion")]
 pub use chat::Chat;
+#[cfg(feature = "chatkit")]
 pub use chatkit::Chatkit;
+#[cfg(feature = "_api")]
 pub use client::Client;
+#[cfg(feature = "completions")]
 pub use completion::Completions;
+#[cfg(feature = "container")]
 pub use containers::*;
+#[cfg(feature = "embedding")]
 pub use embedding::Embeddings;
+#[cfg(feature = "evals")]
 pub use evals::*;
+#[cfg(feature = "file")]
 pub use file::Files;
+#[cfg(feature = "finetuning")]
 pub use fine_tuning::FineTuning;
+#[cfg(feature = "image")]
 pub use image::Images;
+#[cfg(feature = "model")]
 pub use model::Models;
+#[cfg(feature = "moderation")]
 pub use moderation::Moderations;
 #[cfg(feature = "realtime")]
 pub use realtime::Realtime;
+#[cfg(feature = "_api")]
 pub use request_options::RequestOptions;
+#[cfg(feature = "responses")]
 pub use responses::*;
+#[cfg(feature = "upload")]
 pub use uploads::Uploads;
+#[cfg(feature = "vectorstore")]
 pub use vectorstores::*;
+#[cfg(feature = "video")]
 pub use video::Videos;

@@ -301,9 +301,12 @@ pub struct TokenLimits {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type")]
 pub enum Session {
+    // Boxed as per clippy suggestion:
+    // https://rust-lang.github.io/rust -clippy/rust-1.91.0/index.html#large_enum_variant
+    // the largest variant contains at least 600 bytes, the second-largest variant contains at least 144 bytes
     /// The type of session to create. Always `realtime` for the Realtime API.
     #[serde(rename = "realtime")]
-    RealtimeSession(RealtimeSession),
+    RealtimeSession(Box<RealtimeSession>),
     /// The type of session to create. Always `transcription` for transcription sessions.
     #[serde(rename = "transcription")]
     RealtimeTranscriptionSession(RealtimeTranscriptionSession),

@@ -13,46 +13,148 @@ homepage = "https://github.com/64bit/async-openai"
 repository = "https://github.com/64bit/async-openai"
 
 [features]
-default = ["rustls"]
+default = []
 # Enable rustls for TLS support
-rustls = ["reqwest/rustls-tls-native-roots"]
+rustls = ["_api", "dep:reqwest", "reqwest/rustls-tls-native-roots"]
 # Enable rustls and webpki-roots
-rustls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
+rustls-webpki-roots = ["_api", "dep:reqwest", "reqwest/rustls-tls-webpki-roots"]
 # Enable native-tls for TLS support
-native-tls = ["reqwest/native-tls"]
+native-tls = ["_api","dep:reqwest", "reqwest/native-tls"]
 # Remove dependency on OpenSSL
-native-tls-vendored = ["reqwest/native-tls-vendored"]
-realtime = ["dep:tokio-tungstenite"]
+native-tls-vendored = ["_api",  "dep:reqwest", "reqwest/native-tls-vendored"]
 # Bring your own types
-byot = []
-webhook = ["dep:hmac", "dep:sha2", "dep:hex"]
+byot = ["dep:async-openai-macros"]
+
+# API feature flags - these enable both the API wrapper and types
+responses = ["response-types", "_api"]
+webhook = ["webhook-types", "dep:base64", "dep:thiserror", "dep:hmac", "dep:sha2", "dep:hex"]
+# start - Platform APIs
+audio = ["audio-types", "_api"]
+video = ["video-types", "_api"]
+image = ["image-types", "_api"]
+embedding = ["embedding-types", "_api"]
+evals = ["eval-types", "_api"]
+finetuning = ["finetuning-types", "_api"]
+grader = ["grader-types"]
+batch = ["batch-types", "_api"]
+file = ["file-types", "_api"]
+upload = ["upload-types", "_api"]
+model = ["model-types", "_api"]
+moderation = ["moderation-types", "_api"]
+# end - Platform APIs
+vectorstore = ["vectorstore-types", "_api"]
+chatkit = ["chatkit-types", "_api"]
+container = ["container-types", "_api"]
+realtime = ["realtime-types", "_api", "dep:tokio-tungstenite"]
+chat-completion = ["chat-completion-types", "_api"]
+assistant = ["assistant-types", "_api", ]
+administration = ["administration-types", "_api"]
+completions = ["completion-types", "_api"]
+
+# Type feature flags - these enable only the types
+response-types = ["dep:derive_builder"]
+webhook-types = ["dep:derive_builder"]
+audio-types = ["dep:derive_builder", "dep:bytes"]
+video-types = ["dep:derive_builder", "dep:bytes"]
+image-types = ["dep:derive_builder", "dep:bytes"]
+embedding-types = ["dep:derive_builder"]
+eval-types = ["dep:derive_builder", "chat-completion-types", "response-types", "grader-types"]
+finetuning-types = ["dep:derive_builder", "grader-types"]
+grader-types = ["dep:derive_builder", "eval-types"]
+batch-types = ["dep:derive_builder"]
+file-types = ["dep:derive_builder", "dep:bytes"]
+upload-types = ["dep:derive_builder", "dep:bytes", "file-types"]
+model-types = ["dep:derive_builder"]
+moderation-types = ["dep:derive_builder"]
+vectorstore-types = ["dep:derive_builder"]
+chatkit-types = ["dep:derive_builder"]
+container-types = ["dep:derive_builder", "dep:bytes"]
+realtime-types = ["dep:derive_builder", "dep:bytes", "response-types"]
+chat-completion-types = ["dep:derive_builder", "dep:bytes"]
+assistant-types = ["dep:derive_builder"]
+administration-types = ["dep:derive_builder"]
+completion-types = ["dep:derive_builder", "chat-completion-types" ]
+
+# Enable all types
+types = [
+    "response-types",
+    "webhook-types",
+    "audio-types",
+    "video-types",
+    "image-types",
+    "embedding-types",
+    "eval-types",
+    "finetuning-types",
+    "grader-types",
+    "batch-types",
+    "file-types",
+    "upload-types",
+    "model-types",
+    "moderation-types",
+    "vectorstore-types",
+    "chatkit-types",
+    "container-types",
+    "realtime-types",
+    "chat-completion-types",
+    "assistant-types",
+    "administration-types",
+    "completion-types",
+]
+
+# Internal feature to enable API dependencies
+_api = [
+    "dep:async-openai-macros",
+    "dep:backoff",
+    "dep:base64",
+    "dep:bytes",
+    "dep:futures",
+    "dep:rand",
+    "dep:reqwest",
+    "dep:reqwest-eventsource",
+    "dep:thiserror",
+    "dep:tokio",
+    "dep:tokio-stream",
+    "dep:tokio-util",
+    "dep:tracing",
+    "dep:secrecy",
+    "dep:eventsource-stream",
+    "dep:serde_urlencoded",
+    "dep:url",
+]
+
 
 [dependencies]
-async-openai-macros = { path = "../async-openai-macros", version = "0.1.0" }
-backoff = { version = "0.4.0", features = ["tokio"] }
-base64 = "0.22.1"
-futures = "0.3.31"
-rand = "0.9.0"
+# Core dependencies - always needed for types
+serde = { version = "1.0.217", features = ["derive", "rc"] }
+serde_json = "1.0.135"
+derive_builder = { version = "0.20.2", optional = true }
+bytes = { version = "1.9.0", optional = true }
+
+# API dependencies - only needed when API features are enabled
+# We use a feature gate to enable these when any API feature is enabled
+async-openai-macros = { path = "../async-openai-macros", version = "0.1.0", optional = true }
+backoff = { version = "0.4.0", features = ["tokio"], optional = true }
+base64 = { version = "0.22.1", optional = true }
+futures = { version = "0.3.31", optional = true }
+rand = { version = "0.9.0", optional = true }
 reqwest = { version = "0.12.12", features = [
   "json",
   "stream",
   "multipart",
-], default-features = false }
-reqwest-eventsource = "0.6.0"
-serde = { version = "1.0.217", features = ["derive", "rc"] }
-serde_json = "1.0.135"
-thiserror = "2.0.11"
-tokio = { version = "1.43.0", features = ["fs", "macros"] }
-tokio-stream = "0.1.17"
-tokio-util = { version = "0.7.13", features = ["codec", "io-util"] }
-tracing = "0.1.41"
-derive_builder = "0.20.2"
-secrecy = { version = "0.10.3", features = ["serde"] }
-bytes = "1.9.0"
-eventsource-stream = "0.2.3"
-serde_urlencoded = "0.7.1"
-url = "2.5"
+], default-features = false, optional = true }
+reqwest-eventsource = { version = "0.6.0", optional = true }
+thiserror = { version = "2.0.11", optional = true }
+tokio = { version = "1.43.0", features = ["fs", "macros"], optional = true }
+tokio-stream = { version = "0.1.17", optional = true }
+tokio-util = { version = "0.7.13", features = ["codec", "io-util"], optional = true }
+tracing = { version = "0.1.41", optional = true }
+secrecy = { version = "0.10.3", features = ["serde"], optional = true }
+eventsource-stream = { version = "0.2.3", optional = true }
+serde_urlencoded = { version = "0.7.1", optional = true }
+url = { version = "2.5", optional = true }
+# For Realtime websocket
 tokio-tungstenite = { version = "0.26.1", optional = true, default-features = false }
+# For Webhook signature verification
 hmac = { version = "0.12", optional = true, default-features = false}
 sha2 = { version = "0.10", optional = true, default-features = false }
 hex = { version = "0.4", optional = true, default-features = false }
@@ -63,7 +165,27 @@ serde_json = "1.0"
 
 [[test]]
 name = "bring_your_own_type"
-required-features = ["byot"]
+required-features = ["byot", "file", "assistant", "model", "moderation", "image", "chat-completion", "completions", "audio", "embedding", "finetuning", "batch", "administration", "upload", "vectorstore", "responses", "chatkit", "container", "evals", "video"]
+
+[[test]]
+name = "boxed_future"
+required-features = ["completions", "chat-completion-types"]
+
+[[test]]
+name = "chat_completion"
+required-features = ["chat-completion-types"]
+
+[[test]]
+name = "embeddings"
+required-features = ["embedding-types", "chat-completion-types"]
+
+[[test]]
+name = "ser_de"
+required-features = ["chat-completion-types"]
+
+[[test]]
+name = "whisper"
+required-features = ["audio", "file-types"]
 
 [package.metadata.docs.rs]
 all-features = true

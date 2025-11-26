@@ -5,7 +5,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-async-openai = { path = "../../async-openai", features = ["webhook"] }
+async-openai = { path = "../../async-openai", features = ["webhook", "responses"] }
 tokio = { version = "1.42.0", features = ["full"] }
 axum = "0.7.9"
 tracing = "0.1.41"

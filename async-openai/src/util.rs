@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use reqwest::Body;
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
@@ -57,8 +55,9 @@ pub(crate) async fn create_file_part(
     Ok(file_part)
 }
 
-pub(crate) fn create_all_dir<P: AsRef<Path>>(dir: P) -> Result<(), OpenAIError> {
-    let exists = match Path::try_exists(dir.as_ref()) {
+#[cfg(any(feature = "image", feature = "audio"))]
+pub(crate) fn create_all_dir<P: AsRef<std::path::Path>>(dir: P) -> Result<(), OpenAIError> {
+    let exists = match std::path::Path::try_exists(dir.as_ref()) {
         Ok(exists) => exists,
         Err(e) => return Err(OpenAIError::FileSaveError(e.to_string())),
     };

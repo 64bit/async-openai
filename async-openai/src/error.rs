@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "_api")]
 #[derive(Debug, thiserror::Error)]
 pub enum OpenAIError {
     /// Underlying error from reqwest library after an API call was made
@@ -28,6 +29,27 @@ pub enum OpenAIError {
     InvalidArgument(String),
 }
 
+#[cfg(not(feature = "_api"))]
+#[derive(Debug)]
+pub enum OpenAIError {
+    /// Error from client side validation
+    /// or when builder fails to build request before making API call
+    InvalidArgument(String),
+}
+
+#[cfg(not(feature = "_api"))]
+impl std::fmt::Display for OpenAIError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            OpenAIError::InvalidArgument(msg) => write!(f, "invalid args: {}", msg),
+        }
+    }
+}
+
+#[cfg(not(feature = "_api"))]
+impl std::error::Error for OpenAIError {}
+
+#[cfg(feature = "_api")]
 #[derive(Debug, thiserror::Error)]
 pub enum StreamError {
     /// Underlying error from reqwest_eventsource library when reading the stream
@@ -81,6 +103,7 @@ pub struct WrappedError {
     pub error: ApiError,
 }
 
+#[cfg(feature = "_api")]
 pub(crate) fn map_deserialization_error(e: serde_json::Error, bytes: &[u8]) -> OpenAIError {
     let json_content = String::from_utf8_lossy(bytes);
     tracing::error!("failed deserialization of: {}", json_content);

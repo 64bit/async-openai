@@ -1,13 +1,6 @@
-use std::pin::Pin;
-
-use futures::Stream;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    error::OpenAIError,
-    traits::EventType,
-    types::audio::{LogProbProperties, TranscriptTextUsageTokens},
-};
+use crate::types::audio::{LogProbProperties, TranscriptTextUsageTokens};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
@@ -41,10 +34,6 @@ pub struct SpeechAudioDoneEvent {
     /// Token usage statistics for the request.
     pub usage: SpeechUsage,
 }
-
-/// Stream of response events
-pub type SpeechResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateSpeechResponseStreamEvent, OpenAIError>> + Send>>;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct TranscriptionTextSegmentEvent {
@@ -102,22 +91,49 @@ pub enum CreateTranscriptionResponseStreamEvent {
     TranscriptTextDone(TranscriptionTextDoneEvent),
 }
 
-pub type TranscriptionResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateTranscriptionResponseStreamEvent, OpenAIError>> + Send>>;
+#[cfg(feature = "_api")]
+pub type TranscriptionResponseStream = std::pin::Pin<
+    Box<
+        dyn futures::Stream<
+                Item = Result<CreateTranscriptionResponseStreamEvent, crate::error::OpenAIError>,
+            > + Send,
+    >,
+>;
 
-impl EventType for SpeechAudioDeltaEvent {
-    fn event_type(&self) -> &'static str {
-        "speech.audio.delta"
-    }
+/// Stream of response events
+#[cfg(feature = "_api")]
+pub type SpeechResponseStream = std::pin::Pin<
+    Box<
+        dyn futures::Stream<
+                Item = Result<CreateSpeechResponseStreamEvent, crate::error::OpenAIError>,
+            > + Send,
+    >,
+>;
+
+#[cfg(feature = "_api")]
+macro_rules! impl_event_type {
+    ($($ty:ty => $event_type:expr),* $(,)?) => {
+        $(
+            impl crate::traits::EventType for $ty {
+                fn event_type(&self) -> &'static str {
+                    $event_type
+                }
+            }
+        )*
+    };
 }
 
-impl EventType for SpeechAudioDoneEvent {
-    fn event_type(&self) -> &'static str {
-        "speech.audio.done"
-    }
+#[cfg(feature = "_api")]
+impl_event_type! {
+    SpeechAudioDeltaEvent => "speech.audio.delta",
+    SpeechAudioDoneEvent => "speech.audio.done",
+    TranscriptionTextSegmentEvent => "transcript.text.segment",
+    TranscriptionTextDeltaEvent => "transcript.text.delta",
+    TranscriptionTextDoneEvent => "transcript.text.done",
 }
 
-impl EventType for CreateSpeechResponseStreamEvent {
+#[cfg(feature = "_api")]
+impl crate::traits::EventType for CreateSpeechResponseStreamEvent {
     fn event_type(&self) -> &'static str {
         match self {
             CreateSpeechResponseStreamEvent::SpeechAudioDelta(event) => event.event_type(),
@@ -126,25 +142,8 @@ impl EventType for CreateSpeechResponseStreamEvent {
     }
 }
 
-impl EventType for TranscriptionTextSegmentEvent {
-    fn event_type(&self) -> &'static str {
-        "transcript.text.segment"
-    }
-}
-
-impl EventType for TranscriptionTextDeltaEvent {
-    fn event_type(&self) -> &'static str {
-        "transcript.text.delta"
-    }
-}
-
-impl EventType for TranscriptionTextDoneEvent {
-    fn event_type(&self) -> &'static str {
-        "transcript.text.done"
-    }
-}
-
-impl EventType for CreateTranscriptionResponseStreamEvent {
+#[cfg(feature = "_api")]
+impl crate::traits::EventType for CreateTranscriptionResponseStreamEvent {
     fn event_type(&self) -> &'static str {
         match self {
             CreateTranscriptionResponseStreamEvent::TranscriptTextSegment(event) => {

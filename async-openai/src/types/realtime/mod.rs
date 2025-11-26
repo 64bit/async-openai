@@ -2,6 +2,7 @@ mod api;
 mod client_event;
 mod conversation_item;
 mod error;
+#[cfg(feature = "_api")]
 mod form;
 mod response;
 mod server_event;
