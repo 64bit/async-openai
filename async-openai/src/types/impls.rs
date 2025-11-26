@@ -126,19 +126,6 @@ impl_default!(ModerationInput);
 #[cfg(feature = "embedding-types")]
 impl_default!(EmbeddingInput);
 
-#[cfg(any(
-    feature = "audio-types",
-    feature = "file-types",
-    feature = "image-types"
-))]
-impl Default for InputSource {
-    fn default() -> Self {
-        InputSource::Path {
-            path: std::path::PathBuf::new(),
-        }
-    }
-}
-
 /// for `impl_input!(Struct)` where
 /// ```text
 /// Struct {
