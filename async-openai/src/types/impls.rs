@@ -139,15 +139,6 @@ impl Default for InputSource {
     }
 }
 
-#[cfg(any(feature = "image-types", feature = "video-types"))]
-impl Default for ImageInput {
-    fn default() -> Self {
-        Self {
-            source: InputSource::default(),
-        }
-    }
-}
-
 /// for `impl_input!(Struct)` where
 /// ```text
 /// Struct {
