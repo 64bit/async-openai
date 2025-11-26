@@ -134,7 +134,6 @@ mod impls;
     feature = "embedding-types",
     feature = "moderation-types",
     feature = "administration-types",
-    feature = "_api"
 ))]
 impl From<derive_builder::UninitializedFieldError> for crate::error::OpenAIError {
     fn from(value: derive_builder::UninitializedFieldError) -> Self {
