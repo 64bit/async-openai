@@ -31,10 +31,6 @@ jobs:
       matrix:
         feature:
           [
-            rustls,
-            rustls-webpki-roots,
-            native-tls,
-            native-tls-vendored,
             byot,
             responses,
             webhook,
