@@ -156,6 +156,8 @@ To only use Rust types from the crate - use feature flag `types`.
 
 There are granular feature flags like `response-types`, `chat-completion-types`, etc.
 
+These granular types are enabled when the corresponding API feature is enabled - for example `responses` will enable `reponse-types`.
+
 ## OpenAI-compatible Providers
 
 ### Configurable Request
