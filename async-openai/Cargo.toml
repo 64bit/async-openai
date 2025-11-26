@@ -13,7 +13,7 @@ homepage = "https://github.com/64bit/async-openai"
 repository = "https://github.com/64bit/async-openai"
 
 [features]
-default = ["rustls"]
+default = []
 # Enable rustls for TLS support
 rustls = ["_api", "dep:reqwest", "reqwest/rustls-tls-native-roots"]
 # Enable rustls and webpki-roots
@@ -23,11 +23,11 @@ native-tls = ["_api","dep:reqwest", "reqwest/native-tls"]
 # Remove dependency on OpenSSL
 native-tls-vendored = ["_api",  "dep:reqwest", "reqwest/native-tls-vendored"]
 # Bring your own types
-byot = ["_api"]
+byot = ["dep:async-openai-macros"]
 
 # API feature flags - these enable both the API wrapper and types
 responses = ["response-types", "_api"]
-webhook = ["webhook-types", "_api", "dep:hmac", "dep:sha2", "dep:hex"]
+webhook = ["webhook-types", "dep:base64", "dep:thiserror", "dep:hmac", "dep:sha2", "dep:hex"]
 # start - Platform APIs
 audio = ["audio-types", "_api"]
 video = ["video-types", "_api"]
@@ -52,28 +52,28 @@ administration = ["administration-types", "_api"]
 completions = ["completion-types", "_api"]
 
 # Type feature flags - these enable only the types
-response-types = ["dep:derive_builder", "dep:bytes"]
-webhook-types = ["dep:derive_builder", "dep:bytes"]
+response-types = ["dep:derive_builder"]
+webhook-types = ["dep:derive_builder"]
 audio-types = ["dep:derive_builder", "dep:bytes"]
 video-types = ["dep:derive_builder", "dep:bytes"]
 image-types = ["dep:derive_builder", "dep:bytes"]
-embedding-types = ["dep:derive_builder", "dep:bytes"]
-eval-types = ["dep:derive_builder", "dep:bytes"]
-finetuning-types = ["dep:derive_builder", "dep:bytes"]
-grader-types = ["dep:derive_builder", "dep:bytes"]
-batch-types = ["dep:derive_builder", "dep:bytes"]
+embedding-types = ["dep:derive_builder"]
+eval-types = ["dep:derive_builder", "chat-completion-types", "response-types", "grader-types"]
+finetuning-types = ["dep:derive_builder", "grader-types"]
+grader-types = ["dep:derive_builder", "eval-types"]
+batch-types = ["dep:derive_builder"]
 file-types = ["dep:derive_builder", "dep:bytes"]
-upload-types = ["dep:derive_builder", "dep:bytes"]
-model-types = ["dep:derive_builder", "dep:bytes"]
-moderation-types = ["dep:derive_builder", "dep:bytes"]
-vectorstore-types = ["dep:derive_builder", "dep:bytes"]
-chatkit-types = ["dep:derive_builder", "dep:bytes"]
+upload-types = ["dep:derive_builder", "dep:bytes", "file-types"]
+model-types = ["dep:derive_builder"]
+moderation-types = ["dep:derive_builder"]
+vectorstore-types = ["dep:derive_builder"]
+chatkit-types = ["dep:derive_builder"]
 container-types = ["dep:derive_builder", "dep:bytes"]
-realtime-types = ["dep:derive_builder", "dep:bytes"]
+realtime-types = ["dep:derive_builder", "dep:bytes", "response-types"]
 chat-completion-types = ["dep:derive_builder", "dep:bytes"]
-assistant-types = ["dep:derive_builder", "dep:bytes"]
-administration-types = ["dep:derive_builder", "dep:bytes"]
-completion-types = ["dep:derive_builder", "dep:bytes"]
+assistant-types = ["dep:derive_builder"]
+administration-types = ["dep:derive_builder"]
+completion-types = ["dep:derive_builder", "chat-completion-types" ]
 
 # Enable all types
 types = [
@@ -152,7 +152,9 @@ secrecy = { version = "0.10.3", features = ["serde"], optional = true }
 eventsource-stream = { version = "0.2.3", optional = true }
 serde_urlencoded = { version = "0.7.1", optional = true }
 url = { version = "2.5", optional = true }
+# For Realtime websocket
 tokio-tungstenite = { version = "0.26.1", optional = true, default-features = false }
+# For Webhook signature verification
 hmac = { version = "0.12", optional = true, default-features = false}
 sha2 = { version = "0.10", optional = true, default-features = false }
 hex = { version = "0.4", optional = true, default-features = false }
@@ -163,7 +165,27 @@ serde_json = "1.0"
 
 [[test]]
 name = "bring_your_own_type"
-required-features = ["byot"]
+required-features = ["byot", "file", "assistant", "model", "moderation", "image", "chat-completion", "completions", "audio", "embedding", "finetuning", "batch", "administration", "upload", "vectorstore", "responses", "chatkit", "container", "evals", "video"]
+
+[[test]]
+name = "boxed_future"
+required-features = ["completions", "chat-completion-types"]
+
+[[test]]
+name = "chat_completion"
+required-features = ["chat-completion-types"]
+
+[[test]]
+name = "embeddings"
+required-features = ["embedding-types", "chat-completion-types"]
+
+[[test]]
+name = "ser_de"
+required-features = ["chat-completion-types"]
+
+[[test]]
+name = "whisper"
+required-features = ["audio", "file-types"]
 
 [package.metadata.docs.rs]
 all-features = true
