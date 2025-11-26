@@ -94,7 +94,71 @@
 //! # });
 //!```
 //!
-//! ## Dynamic Dispatch for OpenAI-compatible Providers
+//! ## Rust Types
+//!
+//! To only use Rust types from the crate - use feature flag `types`.
+//!
+//! There are granular feature flags like `response-types`, `chat-completion-types`, etc.
+//!
+//! These granular types are enabled when the corresponding API feature is enabled - for example `response` will enable `response-types`.
+//!
+//! ## Configurable Requests
+//!
+//! **Individual Request**
+//!
+//! Certain individual APIs that need additional query or header parameters - these can be provided by chaining `.query()`, `.header()`, `.headers()` on the API group.
+//!
+//! For example:
+//! ```
+//! # tokio_test::block_on(async {
+//! # use async_openai::Client;
+//! # let client = Client::new();
+//! client
+//!   .chat()
+//!   // query can be a struct or a map too.
+//!   .query(&[("limit", "10")])?
+//!   // header for demo
+//!   .header("key", "value")?
+//!   .list()
+//!   .await?;
+//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! # });
+//! ```
+//!
+//! **All Requests**
+//!
+//! Use `Config`, `OpenAIConfig` etc. for configuring url, headers or query parameters globally for all requests.
+//!
+//! ## OpenAI-compatible Providers
+//!
+//! Even though the scope of the crate is official OpenAI APIs, it is very configurable to work with compatible providers.
+//!
+//! **Configurable Path**
+//!
+//! In addition to `.query()`, `.header()`, `.headers()` a path for individual request can be changed by using `.path()`, method on the API group.
+//!
+//! For example:
+//! ```
+//! # tokio_test::block_on(async {
+//! # use async_openai::{Client, types::CreateChatCompletionRequestArgs};
+//! # let client = Client::new();
+//! # let request = CreateChatCompletionRequestArgs::default()
+//! #     .model("gpt-4")
+//! #     .messages([])
+//! #     .build()
+//! #     .unwrap();
+//! client
+//!   .chat()
+//!   .path("/v1/messages")?
+//!   .create(request)
+//!   .await?;
+//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! # });
+//! ```
+//!
+//! **Dynamic Dispatch**
+//!
+//! This allows you to use same code (say a `fn`) to call APIs on different OpenAI-compatible providers.
 //!
 //! For any struct that implements `Config` trait, wrap it in a smart pointer and cast the pointer to `dyn Config`
 //! trait object, then create a client with `Box` or `Arc` wrapped configuration.
@@ -105,9 +169,14 @@
 //!
 //! // Use `Box` or `std::sync::Arc` to wrap the config
 //! let config = Box::new(OpenAIConfig::default()) as Box<dyn Config>;
+//! // create client
+//! let client: Client<Box<dyn Config>> = Client::with_config(config);
+//!
 //! // A function can now accept a `&Client<Box<dyn Config>>` parameter
 //! // which can invoke any openai compatible api
-//! let client: Client<Box<dyn Config>> = Client::with_config(config);
+//! fn chat_completion(client: &Client<Box<dyn Config>>) {
+//!     todo!()
+//! }
 //! ```
 //!
 //! ## Microsoft Azure
