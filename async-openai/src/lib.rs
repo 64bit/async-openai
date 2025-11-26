@@ -92,6 +92,23 @@
 //! # });
 //!```
 //!
+//! **References: Borrow Instead of Move**
+//!
+//! With `byot` use reference to request types
+//!
+//! ```
+//! # #[cfg(feature = "byot")]
+//! # tokio_test::block_on(async {
+//! # use async_openai::{Client, types::responses::{CreateResponse, Response}};
+//! # let client = Client::new();
+//! # let request = CreateResponse::default();
+//! let response: Response = client
+//!   .responses()
+//!   .create_byot(&request).await?;
+//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! # });
+//! ```
+//!
 //! ## Rust Types
 //!
 //! To only use Rust types from the crate - use feature flag `types`.

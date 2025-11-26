@@ -165,7 +165,7 @@ Visit [examples/borrow-instead-of-move](https://github.com/64bit/async-openai/tr
 
 ## Rust Types
 
-To only use Rust types from the crate - use feature flag `types`. 
+To only use Rust types from the crate - disable default features and use feature flag `types`. 
 
 There are granular feature flags like `response-types`, `chat-completion-types`, etc.
 
