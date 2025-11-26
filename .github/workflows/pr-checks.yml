@@ -80,6 +80,7 @@ jobs:
             assistant-types,
             administration-types,
             completion-types,
+            types,
           ]
 
     steps:
