@@ -1,4 +1,4 @@
-use crate::types::OpenAIError;
+use crate::error::OpenAIError;
 use derive_builder::Builder;
 use serde::Serialize;
 
