@@ -181,6 +181,8 @@ Use `Config`, `OpenAIConfig` etc. for configuring url, headers or query paramete
 
 ## OpenAI-compatible Providers
 
+Even though the scope of the crate is official OpenAI APIs, it is very configurable to work with compatible providers.
+
 ### Configurable Path
 
 In addition to  `.query()`, `.header()`, `.headers()` a path for individual request can be changed by using `.path()`,  method on the API group.
