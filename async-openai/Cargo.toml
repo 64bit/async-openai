@@ -13,15 +13,15 @@ homepage = "https://github.com/64bit/async-openai"
 repository = "https://github.com/64bit/async-openai"
 
 [features]
-default = []
+default = ["rustls"]
 # Enable rustls for TLS support
-rustls = ["_api", "dep:reqwest", "reqwest/rustls-tls-native-roots"]
+rustls = ["dep:reqwest", "reqwest/rustls-tls-native-roots"]
 # Enable rustls and webpki-roots
-rustls-webpki-roots = ["_api", "dep:reqwest", "reqwest/rustls-tls-webpki-roots"]
+rustls-webpki-roots = ["dep:reqwest", "reqwest/rustls-tls-webpki-roots"]
 # Enable native-tls for TLS support
-native-tls = ["_api","dep:reqwest", "reqwest/native-tls"]
+native-tls = ["dep:reqwest", "reqwest/native-tls"]
 # Remove dependency on OpenSSL
-native-tls-vendored = ["_api",  "dep:reqwest", "reqwest/native-tls-vendored"]
+native-tls-vendored = ["dep:reqwest", "reqwest/native-tls-vendored"]
 # Bring your own types
 byot = ["dep:async-openai-macros"]
 
