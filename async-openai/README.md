@@ -223,7 +223,7 @@ fn chat_completion(client: &Client<Box<dyn Config>>) {
 
 ## Contributing
 
-:tada: Thank you for taking the time to contribute and improve the project. I'd be happy to have you!
+🎉 Thank you for taking the time to contribute and improve the project. I'd be happy to have you!
 
 Please see [contributing guide!](https://github.com/64bit/async-openai/blob/main/CONTRIBUTING.md)
 
