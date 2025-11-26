@@ -1,3 +1,4 @@
+//! Support for webhook event types, signature verification, and building webhook events from payloads.
 use crate::types::webhooks::WebhookEvent;
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
 use hmac::{Hmac, Mac};
