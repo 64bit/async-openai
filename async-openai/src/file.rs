@@ -76,7 +76,7 @@ impl<'c, C: Config> Files<'c, C> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "file"))]
 mod tests {
     use crate::{
         traits::RequestOptionsBuilder,

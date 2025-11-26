@@ -112,7 +112,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "vectorstore", feature = "file"))]
 mod tests {
     use crate::types::files::{CreateFileRequest, FileInput, FilePurpose};
     use crate::types::vectorstores::CreateVectorStoreRequest;

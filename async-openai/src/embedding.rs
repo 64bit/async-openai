@@ -72,7 +72,7 @@ impl<'c, C: Config> Embeddings<'c, C> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "embedding"))]
 mod tests {
     use crate::error::OpenAIError;
     use crate::types::embeddings::{CreateEmbeddingResponse, Embedding, EncodingFormat};
