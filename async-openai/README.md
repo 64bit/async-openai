@@ -110,7 +110,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 ## Webhooks
 
-Support for webhook event types, signature verification, and building webhook events from payloads can be enabled by using the `webhook` feature flag.
+Support for webhook includes event types, signature verification, and building webhook events from payloads.
 
 ## Bring Your Own Types
 
@@ -156,13 +156,34 @@ To only use Rust types from the crate - use feature flag `types`.
 
 There are granular feature flags like `response-types`, `chat-completion-types`, etc.
 
-These granular types are enabled when the corresponding API feature is enabled - for example `responses` will enable `reponse-types`.
+These granular types are enabled when the corresponding API feature is enabled - for example `response` will enable `reponse-types`.
+
+## Configurable Requests
+
+### Individual Request
+Certain individual APIs that need additional query or header parameters - these can be provided by chaining `.query()`, `.header()`, `.headers()` on the API group. 
+
+For example:
+```
+client.
+  .chat()
+  // query can be a struct or a map too.
+  .query(&[("limit", "10")])?
+  // header for demo
+  .header("key", "value")?
+  .list()
+  .await?
+```
+
+### All Requests
+
+Use `Config`, `OpenAIConfig` etc. for configuring url, headers or query parameters globally for all requests.
 
 ## OpenAI-compatible Providers
 
-### Configurable Request
+### Configurable Path
 
-To change path, query or headers of individual request use the `.path()`, `.query()`, `.header()`, `.headers()` method on the API group.
+In addition to  `.query()`, `.header()`, `.headers()` a path for individual request can be changed by using `.path()`,  method on the API group.
 
 For example:
 
@@ -170,8 +191,6 @@ For example:
 client
   .chat()
   .path("/v1/messages")?
-  .query(&[("role", "user")])?
-  .header("key", "value")?
   .create(request)
   .await?
 ```
