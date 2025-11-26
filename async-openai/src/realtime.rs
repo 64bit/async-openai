@@ -55,6 +55,7 @@ impl<'c, C: Config> Realtime<'c, C> {
 
     /// Accept an incoming SIP call and configure the realtime session that will
     /// handle the call.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn accept_call(
         &self,
         call_id: &str,
@@ -70,6 +71,7 @@ impl<'c, C: Config> Realtime<'c, C> {
     }
 
     /// End an active Realtime API call, whether it was initiated over SIP or WebRTC.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn hangup_call(&self, call_id: &str) -> Result<(), OpenAIError> {
         self.client
             .post(
@@ -81,6 +83,7 @@ impl<'c, C: Config> Realtime<'c, C> {
     }
 
     /// Transfer a SIP call to a new destination using the Realtime API.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn refer_call(
         &self,
         call_id: &str,
@@ -96,21 +99,23 @@ impl<'c, C: Config> Realtime<'c, C> {
     }
 
     /// Decline an incoming SIP call handled by the Realtime API.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn reject_call(
         &self,
         call_id: &str,
-        request: Option<RealtimeCallRejectRequest>,
+        request: RealtimeCallRejectRequest,
     ) -> Result<(), OpenAIError> {
         self.client
             .post(
                 &format!("/realtime/calls/{}/reject", call_id),
-                request.unwrap_or_default(),
+                request,
                 &self.request_options,
             )
             .await
     }
 
     /// Create a Realtime client secret with an associated session configuration.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create_client_secret(
         &self,
         request: RealtimeCreateClientSecretRequest,
