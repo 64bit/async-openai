@@ -8,8 +8,8 @@ use async_openai::types::chat::{
 };
 use async_openai::{types::chat::CreateChatCompletionRequestArgs, Client};
 use futures::StreamExt;
-use rand::seq::SliceRandom;
-use rand::{thread_rng, Rng};
+use rand::seq::IndexedRandom;
+use rand::{rng, Rng};
 use serde_json::json;
 
 #[tokio::main]
@@ -180,8 +180,8 @@ fn get_current_weather(args: &str) -> serde_json::Value {
         .to_string();
     let unit = args["unit"].as_str().unwrap_or("fahrenheit");
 
-    let mut rng = thread_rng();
-    let temperature: i32 = rng.gen_range(20..=55);
+    let mut rng = rng();
+    let temperature: i32 = rng.random_range(20..=55);
     let forecasts = [
         "sunny", "cloudy", "overcast", "rainy", "windy", "foggy", "snowy",
     ];

@@ -1,13 +1,16 @@
 use std::error::Error;
 
 use async_openai::{
+    config::{OpenAIConfig, OPENAI_BETA_HEADER},
     traits::RequestOptionsBuilder,
-    types::assistants::{
-        AssistantToolCodeInterpreterResources, AssistantTools, CreateAssistantRequestArgs,
-        CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest, MessageContent,
-        MessageContentTextAnnotations, MessageRole, RunStatus,
+    types::{
+        assistants::{
+            AssistantToolCodeInterpreterResources, AssistantTools, CreateAssistantRequestArgs,
+            CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest, MessageContent,
+            MessageContentTextAnnotations, MessageRole, RunStatus,
+        },
+        files::{CreateFileRequest, FilePurpose},
     },
-    types::files::{CreateFileRequest, FilePurpose},
     Client,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
@@ -22,7 +25,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with(EnvFilter::from_default_env())
         .init();
 
-    let client = Client::new();
+    let config =
+        OpenAIConfig::default().with_header(OPENAI_BETA_HEADER, "assistants=v2".to_string())?;
+    let client = Client::with_config(config);
 
     // Upload data file with "assistants" purpose
     let data_file = client

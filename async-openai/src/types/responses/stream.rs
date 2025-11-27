@@ -266,7 +266,7 @@ pub struct ResponseFunctionCallArgumentsDeltaEvent {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ResponseFunctionCallArgumentsDoneEvent {
-    /// https://github.com/64bit/async-openai/issues/472
+    /// <https://github.com/64bit/async-openai/issues/472>
     pub name: Option<String>,
     pub sequence_number: u64,
     pub item_id: String,

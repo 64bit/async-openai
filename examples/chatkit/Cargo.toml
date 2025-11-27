@@ -6,6 +6,6 @@ publish = false
 
 [dependencies]
 async-openai = {path = "../../async-openai", features = ["chatkit"]}
-serde_json = "1.0.135"
-tokio = { version = "1.43.0", features = ["full"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
 

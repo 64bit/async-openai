@@ -3,8 +3,8 @@ use async_openai::types::chat::{
     CreateChatCompletionRequest, CreateChatCompletionRequestArgs,
 };
 
-#[tokio::test]
-async fn chat_types_serde() {
+#[test]
+fn chat_types_serde() {
     let request: CreateChatCompletionRequest = CreateChatCompletionRequestArgs::default()
         .messages([
             ChatCompletionRequestSystemMessageArgs::default()

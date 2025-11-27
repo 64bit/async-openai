@@ -1,3 +1,4 @@
+//! Support for webhook event types, signature verification, and building webhook events from payloads.
 use crate::types::webhooks::WebhookEvent;
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
 use hmac::{Hmac, Mac};
@@ -176,7 +177,7 @@ fn constant_time_eq(a: &[u8], b: &[u8]) -> bool {
     result == 0
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "webhook"))]
 mod tests {
     use super::*;
 

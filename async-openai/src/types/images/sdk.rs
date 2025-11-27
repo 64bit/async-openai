@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 
 impl ImagesResponse {
     /// Save each image in a dedicated Tokio task and return paths to saved files.
-    /// For [ResponseFormat::Url] each file is downloaded in dedicated Tokio task.
+    /// For `ResponseFormat::Url`` each file is downloaded in dedicated Tokio task.
     pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<Vec<PathBuf>, OpenAIError> {
         create_all_dir(dir.as_ref())?;
 

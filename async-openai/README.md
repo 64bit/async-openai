@@ -110,7 +110,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 ## Webhooks
 
-Support for webhook event types, signature verification, and building webhook events from payloads can be enabled by using the `webhook` feature flag.
+Support for webhook includes event types, signature verification, and building webhook events from payloads.
 
 ## Bring Your Own Types
 
@@ -150,26 +150,62 @@ This can be useful in many scenarios:
 Visit [examples/bring-your-own-type](https://github.com/64bit/async-openai/tree/main/examples/bring-your-own-type)
 directory to learn more.
 
+### References: Borrow Instead of Move
+
+With `byot` use reference to request types
+
+```rust
+let response: Response = client
+  .responses()
+  .create_byot(&request).await?
+```
+
+Visit [examples/borrow-instead-of-move](https://github.com/64bit/async-openai/tree/main/examples/borrow-instead-of-move) to learn more.
+
+
 ## Rust Types
 
-To only use Rust types from the crate - use feature flag `types`. 
+To only use Rust types from the crate - disable default features and use feature flag `types`. 
 
 There are granular feature flags like `response-types`, `chat-completion-types`, etc.
 
+These granular types are enabled when the corresponding API feature is enabled - for example `response` will enable `response-types`.
+
+## Configurable Requests
+
+### Individual Request
+Certain individual APIs that need additional query or header parameters - these can be provided by chaining `.query()`, `.header()`, `.headers()` on the API group. 
+
+For example:
+```rust
+client.
+  .chat()
+  // query can be a struct or a map too.
+  .query(&[("limit", "10")])?
+  // header for demo
+  .header("key", "value")?
+  .list()
+  .await?
+```
+
+### All Requests
+
+Use `Config`, `OpenAIConfig` etc. for configuring url, headers or query parameters globally for all requests.
+
 ## OpenAI-compatible Providers
 
-### Configurable Request
+Even though the scope of the crate is official OpenAI APIs, it is very configurable to work with compatible providers.
 
-To change path, query or headers of individual request use the `.path()`, `.query()`, `.header()`, `.headers()` method on the API group.
+### Configurable Path
+
+In addition to  `.query()`, `.header()`, `.headers()` a path for individual request can be changed by using `.path()`,  method on the API group.
 
 For example:
 
-```
+```rust
 client
   .chat()
   .path("/v1/messages")?
-  .query(&[("role", "user")])?
-  .header("key", "value")?
   .create(request)
   .await?
 ```
@@ -200,22 +236,10 @@ fn chat_completion(client: &Client<Box<dyn Config>>) {
 
 ## Contributing
 
-Thank you for taking the time to contribute and improve the project. I'd be happy to have you!
+🎉 Thank you for taking the time to contribute and improve the project. I'd be happy to have you!
 
-All forms of contributions, such as new features requests, bug fixes, issues, documentation, testing, comments, [examples](https://github.com/64bit/async-openai/tree/main/examples) etc. are welcome.
+Please see [contributing guide!](https://github.com/64bit/async-openai/blob/main/CONTRIBUTING.md)
 
-A good starting point would be to look at existing [open issues](https://github.com/64bit/async-openai/issues).
-
-To maintain quality of the project, a minimum of the following is a must for code contribution:
-
-- **Names & Documentation**: All struct names, field names and doc comments are from OpenAPI spec. Nested objects in spec without names leaves room for making appropriate name.
-- **Tested**: For changes supporting test(s) and/or example is required. Existing examples, doc tests, unit tests, and integration tests should be made to work with the changes if applicable.
-- **Scope**: Keep scope limited to APIs available in official documents such as [API Reference](https://platform.openai.com/docs/api-reference) or [OpenAPI spec](https://github.com/openai/openai-openapi/). Other LLMs or AI Providers offer OpenAI-compatible APIs, yet they may not always have full parity - for those use `byot` feature.
-- **Consistency**: Keep code style consistent across all the "APIs" that library exposes; it creates a great developer experience.
-
-This project adheres to [Rust Code of Conduct](https://www.rust-lang.org/policies/code-of-conduct)
-
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in async-openai by you, shall be licensed as MIT, without any additional terms or conditions.
 
 ## Complimentary Crates
 - [async-openai-wasm](https://github.com/ifsheldon/async-openai-wasm) provides WASM support.

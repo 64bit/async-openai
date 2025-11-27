@@ -8,12 +8,13 @@ use crate::types::embeddings::EmbeddingInput;
 use crate::types::files::FileInput;
 #[cfg(feature = "moderation-types")]
 use crate::types::moderations::ModerationInput;
-#[cfg(feature = "image-types")]
+#[cfg(any(feature = "image-types", feature = "video-types"))]
 use crate::types::shared::ImageInput;
 #[cfg(any(
     feature = "audio-types",
     feature = "file-types",
-    feature = "image-types"
+    feature = "image-types",
+    feature = "video-types"
 ))]
 use crate::types::InputSource;
 
@@ -137,7 +138,8 @@ impl_default!(EmbeddingInput);
 #[cfg(any(
     feature = "audio-types",
     feature = "file-types",
-    feature = "image-types"
+    feature = "image-types",
+    feature = "video-types"
 ))]
 macro_rules! impl_input {
     ($for_typ:ty) => {
@@ -170,7 +172,7 @@ macro_rules! impl_input {
 impl_input!(AudioInput);
 #[cfg(feature = "file-types")]
 impl_input!(FileInput);
-#[cfg(feature = "image-types")]
+#[cfg(any(feature = "image-types", feature = "video-types"))]
 impl_input!(ImageInput);
 
 #[cfg(any(

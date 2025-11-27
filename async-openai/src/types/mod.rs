@@ -120,7 +120,8 @@ pub use metadata::*;
     feature = "chat-completion-types",
     feature = "completion-types",
     feature = "embedding-types",
-    feature = "moderation-types"
+    feature = "moderation-types",
+    feature = "video-types"
 ))]
 mod impls;
 

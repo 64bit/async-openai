@@ -3,12 +3,9 @@ use std::error::Error;
 use async_openai::{
     config::OpenAIConfig,
     traits::EventType,
-    types::{
-        chat::ResponseFormatJsonSchema,
-        responses::{
-            CreateResponseArgs, InputMessage, InputRole, OutputItem, OutputMessageContent,
-            ResponseStreamEvent,
-        },
+    types::responses::{
+        CreateResponseArgs, InputMessage, InputRole, OutputItem, OutputMessageContent,
+        ResponseFormatJsonSchema, ResponseStreamEvent,
     },
     Client,
 };

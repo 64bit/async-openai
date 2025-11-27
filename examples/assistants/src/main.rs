@@ -1,4 +1,5 @@
 use async_openai::{
+    config::{OpenAIConfig, OPENAI_BETA_HEADER},
     traits::RequestOptionsBuilder,
     types::assistants::{
         CreateAssistantRequestArgs, CreateMessageRequestArgs, CreateRunRequestArgs,
@@ -22,7 +23,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let query = [("limit", "1")]; //limit the list responses to 1 message
 
     //create a client
-    let client = Client::new();
+    let config =
+        OpenAIConfig::default().with_header(OPENAI_BETA_HEADER, "assistants=v2".to_string())?;
+    let client = Client::with_config(config);
 
     //create a thread for the conversation
     let thread_request = CreateThreadRequestArgs::default().build()?;

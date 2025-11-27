@@ -30,29 +30,27 @@
 //!
 //!```
 //!# tokio_test::block_on(async {
-//!
-//! use async_openai::{Client, types::{CreateCompletionRequestArgs}};
+//! use async_openai::{Client, types::responses::{CreateResponseArgs}};
 //!
 //! // Create client
 //! let client = Client::new();
 //!
 //! // Create request using builder pattern
 //! // Every request struct has companion builder struct with same name + Args suffix
-//! let request = CreateCompletionRequestArgs::default()
-//!     .model("gpt-3.5-turbo-instruct")
-//!     .prompt("Tell me the recipe of alfredo pasta")
-//!     .max_tokens(40_u32)
-//!     .build()
-//!     .unwrap();
+//! let request = CreateResponseArgs::default()
+//!     .model("gpt-5-mini")
+//!     .input("tell me the recipe of pav bhaji")
+//!     .max_output_tokens(512u32)
+//!     .build()?;
 //!
 //! // Call API
 //! let response = client
-//!     .completions()      // Get the API "group" (completions, images, etc.) from the client
-//!     .create(request)    // Make the API call in that "group"
-//!     .await
-//!     .unwrap();
+//!     .responses()      // Get the API "group" (responses, images, etc.) from the client
+//!     .create(request)  // Make the API call in that "group"
+//!     .await?;
 //!
-//! println!("{}", response.choices.first().unwrap().text);
+//! println!("{:?}", response.output_text());
+//! # Ok::<(), Box<dyn std::error::Error>>(())
 //! # });
 //!```
 //!
@@ -85,16 +83,99 @@
 //!            "model": "gpt-4o",
 //!            "store": false
 //!        }))
-//!        .await
-//!        .unwrap();
+//!        .await?;
 //!
 //!  if let Some(content) = response["choices"][0]["message"]["content"].as_str() {
 //!     println!("{}", content);
 //!  }
+//! # Ok::<(), Box<dyn std::error::Error>>(())
 //! # });
 //!```
 //!
-//! ## Dynamic Dispatch for OpenAI-compatible Providers
+//! **References: Borrow Instead of Move**
+//!
+//! With `byot` use reference to request types
+//!
+//! ```
+//! # #[cfg(feature = "byot")]
+//! # tokio_test::block_on(async {
+//! # use async_openai::{Client, types::responses::{CreateResponse, Response}};
+//! # let client = Client::new();
+//! # let request = CreateResponse::default();
+//! let response: Response = client
+//!   .responses()
+//!   .create_byot(&request).await?;
+//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! # });
+//! ```
+//!
+//! ## Rust Types
+//!
+//! To only use Rust types from the crate - use feature flag `types`.
+//!
+//! There are granular feature flags like `response-types`, `chat-completion-types`, etc.
+//!
+//! These granular types are enabled when the corresponding API feature is enabled - for example `response` will enable `response-types`.
+//!
+//! ## Configurable Requests
+//!
+//! **Individual Request**
+//!
+//! Certain individual APIs that need additional query or header parameters - these can be provided by chaining `.query()`, `.header()`, `.headers()` on the API group.
+//!
+//! For example:
+//! ```
+//! # tokio_test::block_on(async {
+//! # use async_openai::Client;
+//! # use async_openai::traits::RequestOptionsBuilder;
+//! # let client = Client::new();
+//! client
+//!   .chat()
+//!   // query can be a struct or a map too.
+//!   .query(&[("limit", "10")])?
+//!   // header for demo
+//!   .header("key", "value")?
+//!   .list()
+//!   .await?;
+//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! # });
+//! ```
+//!
+//! **All Requests**
+//!
+//! Use `Config`, `OpenAIConfig` etc. for configuring url, headers or query parameters globally for all requests.
+//!
+//! ## OpenAI-compatible Providers
+//!
+//! Even though the scope of the crate is official OpenAI APIs, it is very configurable to work with compatible providers.
+//!
+//! **Configurable Path**
+//!
+//! In addition to `.query()`, `.header()`, `.headers()` a path for individual request can be changed by using `.path()`, method on the API group.
+//!
+//! For example:
+//! ```
+//! # tokio_test::block_on(async {
+//! # use async_openai::{Client, types::chat::CreateChatCompletionRequestArgs};
+//! # use async_openai::traits::RequestOptionsBuilder;
+//! # let client = Client::new();
+//! # let request = CreateChatCompletionRequestArgs::default()
+//! #     .model("gpt-4")
+//! #     .messages([])
+//! #     .build()
+//! #     .unwrap();
+//! client
+//!   .chat()
+//!   .path("/v1/messages")?
+//!   .create(request)
+//!   .await?;
+//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! # });
+//! ```
+//!
+//! **Dynamic Dispatch**
+//!
+//! This allows you to use same code (say a `fn`) to call APIs on different OpenAI-compatible providers.
 //!
 //! For any struct that implements `Config` trait, wrap it in a smart pointer and cast the pointer to `dyn Config`
 //! trait object, then create a client with `Box` or `Arc` wrapped configuration.
@@ -105,9 +186,14 @@
 //!
 //! // Use `Box` or `std::sync::Arc` to wrap the config
 //! let config = Box::new(OpenAIConfig::default()) as Box<dyn Config>;
+//! // create client
+//! let client: Client<Box<dyn Config>> = Client::with_config(config);
+//!
 //! // A function can now accept a `&Client<Box<dyn Config>>` parameter
 //! // which can invoke any openai compatible api
-//! let client: Client<Box<dyn Config>> = Client::with_config(config);
+//! fn chat_completion(client: &Client<Box<dyn Config>>) {
+//!     todo!()
+//! }
 //! ```
 //!
 //! ## Microsoft Azure
@@ -214,12 +300,18 @@ mod video;
 #[cfg(feature = "webhook")]
 pub mod webhooks;
 
+// admin::* would be good - however its expanded here so that docs.rs shows the feature flags
 #[cfg(feature = "administration")]
-pub use admin::*;
+pub use admin::{
+    Admin, AdminAPIKeys, AuditLogs, Certificates, GroupRoles, GroupUsers, Groups, Invites,
+    ProjectAPIKeys, ProjectCertificates, ProjectGroupRoles, ProjectGroups, ProjectRateLimits,
+    ProjectRoles, ProjectServiceAccounts, ProjectUserRoles, ProjectUsers, Projects, Roles, Usage,
+    UserRoles, Users,
+};
 #[cfg(feature = "assistant")]
-pub use assistants::*;
+pub use assistants::{Assistants, Messages, Runs, Steps, Threads};
 #[cfg(feature = "audio")]
-pub use audio::*;
+pub use audio::{Audio, Speech, Transcriptions, Translations};
 #[cfg(feature = "batch")]
 pub use batches::Batches;
 #[cfg(feature = "chat-completion")]
@@ -231,11 +323,11 @@ pub use client::Client;
 #[cfg(feature = "completions")]
 pub use completion::Completions;
 #[cfg(feature = "container")]
-pub use containers::*;
+pub use containers::{ContainerFiles, Containers};
 #[cfg(feature = "embedding")]
 pub use embedding::Embeddings;
 #[cfg(feature = "evals")]
-pub use evals::*;
+pub use evals::{EvalRunOutputItems, EvalRuns, Evals};
 #[cfg(feature = "file")]
 pub use file::Files;
 #[cfg(feature = "finetuning")]
@@ -251,10 +343,10 @@ pub use realtime::Realtime;
 #[cfg(feature = "_api")]
 pub use request_options::RequestOptions;
 #[cfg(feature = "responses")]
-pub use responses::*;
+pub use responses::{ConversationItems, Conversations, Responses};
 #[cfg(feature = "upload")]
 pub use uploads::Uploads;
 #[cfg(feature = "vectorstore")]
-pub use vectorstores::*;
+pub use vectorstores::{VectorStoreFileBatches, VectorStoreFiles, VectorStores};
 #[cfg(feature = "video")]
 pub use video::Videos;
