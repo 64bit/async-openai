@@ -124,23 +124,23 @@ mod tests {
         let client = Client::new();
 
         // Create a file
-        let file_handle = client
+        let openai_file = client
             .files()
             .create(CreateFileRequest {
                 file: FileInput::from_vec_u8(
                     String::from("meow.txt"),
                     String::from(":3").into_bytes(),
                 ),
-                purpose: FilePurpose::Assistants,
+                purpose: FilePurpose::UserData,
                 expires_after: None,
             })
             .await?;
 
         // Create a vector store
-        let vector_store_handle = client
+        let vecor_store_object = client
             .vector_stores()
             .create(CreateVectorStoreRequest {
-                file_ids: Some(vec![file_handle.id.clone()]),
+                file_ids: Some(vec![openai_file.id.clone()]),
                 name: None,
                 description: None,
                 expires_after: None,
@@ -148,21 +148,24 @@ mod tests {
                 metadata: None,
             })
             .await?;
-        let vector_store_file = client
+
+        tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+
+        let vector_store_file_object = client
             .vector_stores()
-            .files(&vector_store_handle.id)
-            .retrieve(&file_handle.id)
+            .files(&vecor_store_object.id)
+            .retrieve(&openai_file.id)
             .await?;
 
-        assert_eq!(vector_store_file.id, file_handle.id);
+        assert_eq!(vector_store_file_object.id, openai_file.id);
         // Delete the vector store
         client
             .vector_stores()
-            .delete(&vector_store_handle.id)
+            .delete(&vecor_store_object.id)
             .await?;
 
         // Delete the file
-        client.files().delete(&file_handle.id).await?;
+        client.files().delete(&openai_file.id).await?;
 
         Ok(())
     }
