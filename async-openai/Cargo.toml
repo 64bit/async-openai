@@ -204,7 +204,7 @@ required-features = ["chat-completion-types"]
 
 [[test]]
 name = "embeddings"
-required-features = ["embedding-types", "chat-completion-types"]
+required-features = ["embedding-types"]
 
 [[test]]
 name = "ser_de"
@@ -212,7 +212,7 @@ required-features = ["chat-completion-types"]
 
 [[test]]
 name = "whisper"
-required-features = ["audio", "file-types"]
+required-features = ["audio"]
 
 [package.metadata.docs.rs]
 all-features = true
