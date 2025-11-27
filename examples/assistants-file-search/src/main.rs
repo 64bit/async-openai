@@ -1,20 +1,25 @@
 use std::error::Error;
 
 use async_openai::{
+    config::{OpenAIConfig, OPENAI_BETA_HEADER},
     traits::RequestOptionsBuilder,
-    types::assistants::{
-        AssistantToolFileSearchResources, AssistantToolsFileSearch, CreateAssistantRequestArgs,
-        CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest, MessageAttachment,
-        MessageAttachmentTool, MessageContent, MessageRole, ModifyAssistantRequest, RunStatus,
+    types::{
+        assistants::{
+            AssistantToolFileSearchResources, AssistantToolsFileSearch, CreateAssistantRequestArgs,
+            CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest, MessageAttachment,
+            MessageAttachmentTool, MessageContent, MessageRole, ModifyAssistantRequest, RunStatus,
+        },
+        files::{CreateFileRequest, FilePurpose},
+        vectorstores::CreateVectorStoreRequest,
     },
-    types::files::{CreateFileRequest, FilePurpose},
-    types::vectorstores::CreateVectorStoreRequest,
     Client,
 };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let client = Client::new();
+    let config =
+        OpenAIConfig::default().with_header(OPENAI_BETA_HEADER, "assistants=v2".to_string())?;
+    let client = Client::with_config(config);
     //
     // Step 1: Create a new Assistant with File Search Enabled
     //
