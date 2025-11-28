@@ -146,7 +146,7 @@ mod tests {
         assert!(delete_response.deleted);
     }
 
-    // Ensures that list files suceeds if there are no files in account
+    // Ensures that list files succeeds if there are no files in account
     // Prerequisite: No files in account
     #[tokio::test]
     async fn test_empty_file_list() {
