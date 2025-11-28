@@ -91,9 +91,9 @@ pub struct ConversationItemList {
     /// Whether there are more items available.
     pub has_more: bool,
     /// The ID of the first item in the list.
-    pub first_id: String,
+    pub first_id: Option<String>,
     /// The ID of the last item in the list.
-    pub last_id: String,
+    pub last_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

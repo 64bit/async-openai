@@ -37,9 +37,9 @@ pub struct ProjectRateLimitListResponse {
     /// The list of project rate limits.
     pub data: Vec<ProjectRateLimit>,
     /// The ID of the first project rate limit in the list.
-    pub first_id: String,
+    pub first_id: Option<String>,
     /// The ID of the last project rate limit in the list.
-    pub last_id: String,
+    pub last_id: Option<String>,
     /// Indicates if there are more project rate limits available.
     pub has_more: bool,
 }

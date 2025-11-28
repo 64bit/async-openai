@@ -25,9 +25,9 @@ pub struct ProjectServiceAccountListResponse {
     /// The list of project service accounts.
     pub data: Vec<ProjectServiceAccount>,
     /// The ID of the first project service account in the list.
-    pub first_id: String,
+    pub first_id: Option<String>,
     /// The ID of the last project service account in the list.
-    pub last_id: String,
+    pub last_id: Option<String>,
     /// Indicates if there are more project service accounts available.
     pub has_more: bool,
 }

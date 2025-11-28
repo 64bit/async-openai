@@ -31,8 +31,8 @@ pub enum ProjectUserRole {
 pub struct ProjectUserListResponse {
     pub object: String,
     pub data: Vec<ProjectUser>,
-    pub first_id: String,
-    pub last_id: String,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
     pub has_more: String,
 }
 

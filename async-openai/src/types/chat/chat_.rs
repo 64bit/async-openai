@@ -1203,9 +1203,9 @@ pub struct ChatCompletionList {
     /// An array of chat completion objects.
     pub data: Vec<CreateChatCompletionResponse>,
     /// The identifier of the first chat completion in the data array.
-    pub first_id: String,
+    pub first_id: Option<String>,
     /// The identifier of the last chat completion in the data array.
-    pub last_id: String,
+    pub last_id: Option<String>,
     /// Indicates whether there are more Chat Completions available.
     pub has_more: bool,
 }
@@ -1250,9 +1250,9 @@ pub struct ChatCompletionMessageList {
     /// An array of chat completion message objects.
     pub data: Vec<ChatCompletionMessageListItem>,
     /// The identifier of the first chat message in the data array.
-    pub first_id: String,
+    pub first_id: Option<String>,
     /// The identifier of the last chat message in the data array.
-    pub last_id: String,
+    pub last_id: Option<String>,
     /// Indicates whether there are more chat messages available.
     pub has_more: bool,
 }
