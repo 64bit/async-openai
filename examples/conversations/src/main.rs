@@ -52,8 +52,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     println!("Added {} items", items_list.data.len());
-    println!("First item ID: {}", items_list.first_id);
-    println!("Last item ID: {}\n", items_list.last_id);
+    println!("First item ID: {:?}", items_list.first_id);
+    println!("Last item ID: {:?}\n", items_list.last_id);
 
     // 3. List all items in the conversation
     println!("3. Listing conversation items...");
@@ -80,13 +80,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 4. Retrieve a specific item
     if !all_items.data.is_empty() {
         println!("4. Retrieving a specific item...");
-        let first_item_id = &all_items.first_id;
-        let item = client
-            .conversations()
-            .items(&conversation.id)
-            .retrieve(first_item_id)
-            .await?;
-        println!("Retrieved item: {:?}\n", item);
+        if let Some(first_item_id) = all_items.first_id {
+            let item = client
+                .conversations()
+                .items(&conversation.id)
+                .retrieve(&first_item_id)
+                .await?;
+            println!("Retrieved item: {:?}\n", item);
+        }
     }
 
     // 5. Update conversation metadata
