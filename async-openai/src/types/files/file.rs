@@ -60,8 +60,8 @@ pub struct CreateFileRequest {
 pub struct ListFilesResponse {
     pub object: String,
     pub data: Vec<OpenAIFile>,
-    pub first_id: String,
-    pub last_id: String,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
     pub has_more: bool,
 }
 

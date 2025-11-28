@@ -145,4 +145,13 @@ mod tests {
         assert_eq!(openai_file.id, delete_response.id);
         assert!(delete_response.deleted);
     }
+
+    // Ensures that list files succeeds if there are no files in account
+    // Prerequisite: No files in account
+    #[tokio::test]
+    async fn test_empty_file_list() {
+        let client = Client::new();
+        let result = client.files().list().await.unwrap();
+        assert!(result.data.is_empty());
+    }
 }
