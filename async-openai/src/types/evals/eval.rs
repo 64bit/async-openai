@@ -250,9 +250,9 @@ pub struct EvalList {
     /// An array of eval objects.
     pub data: Vec<Eval>,
     /// The identifier of the first eval in the data array.
-    pub first_id: String,
+    pub first_id: Option<String>,
     /// The identifier of the last eval in the data array.
-    pub last_id: String,
+    pub last_id: Option<String>,
     /// Indicates whether there are more evals available.
     pub has_more: bool,
 }
@@ -756,9 +756,9 @@ pub struct EvalRunList {
     /// An array of eval run objects.
     pub data: Vec<EvalRun>,
     /// The identifier of the first eval run in the data array.
-    pub first_id: String,
+    pub first_id: Option<String>,
     /// The identifier of the last eval run in the data array.
-    pub last_id: String,
+    pub last_id: Option<String>,
     /// Indicates whether there are more evals available.
     pub has_more: bool,
 }
@@ -904,9 +904,9 @@ pub struct EvalRunOutputItemList {
     /// An array of eval run output item objects.
     pub data: Vec<EvalRunOutputItem>,
     /// The identifier of the first eval run output item in the data array.
-    pub first_id: String,
+    pub first_id: Option<String>,
     /// The identifier of the last eval run output item in the data array.
-    pub last_id: String,
+    pub last_id: Option<String>,
     /// Indicates whether there are more eval run output items available.
     pub has_more: bool,
 }

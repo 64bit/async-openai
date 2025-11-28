@@ -50,9 +50,9 @@ pub struct ApiKeyList {
     /// Indicates if there are more admin API keys available.
     pub has_more: bool,
     /// The ID of the first admin API key in the list.
-    pub first_id: String,
+    pub first_id: Option<String>,
     /// The ID of the last admin API key in the list.
-    pub last_id: String,
+    pub last_id: Option<String>,
 }
 
 /// Represents the request object for creating an admin API key.

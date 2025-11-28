@@ -53,9 +53,9 @@ pub struct ListAuditLogsResponse {
     /// A list of `AuditLog` objects.
     pub data: Vec<AuditLog>,
     /// The first `audit_log_id` in the retrieved `list`.
-    pub first_id: String,
+    pub first_id: Option<String>,
     /// The last `audit_log_id` in the retrieved `list`.
-    pub last_id: String,
+    pub last_id: Option<String>,
     /// The `has_more` property is used for pagination to indicate there are additional results.
     pub has_more: bool,
 }

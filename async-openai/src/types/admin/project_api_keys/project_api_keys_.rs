@@ -46,9 +46,9 @@ pub struct ProjectApiKeyListResponse {
     /// The list of project API keys.
     pub data: Vec<ProjectApiKey>,
     /// The ID of the first project API key in the list.
-    pub first_id: String,
+    pub first_id: Option<String>,
     /// The ID of the last project API key in the list.
-    pub last_id: String,
+    pub last_id: Option<String>,
     /// Indicates if there are more project API keys available.
     pub has_more: bool,
 }

@@ -26,8 +26,8 @@ pub struct User {
 pub struct UserListResponse {
     pub object: String,
     pub data: Vec<User>,
-    pub first_id: String,
-    pub last_id: String,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
     pub has_more: bool,
 }
 
