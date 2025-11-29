@@ -1676,7 +1676,7 @@ pub struct WebSearchActionSearchSource {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebSearchActionSearch {
     /// The search query.
-    pub query: String,
+    pub query: Option<String>,
     /// The sources used in the search.
     pub sources: Option<Vec<WebSearchActionSearchSource>>,
 }
