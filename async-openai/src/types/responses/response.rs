@@ -1702,8 +1702,8 @@ pub enum WebSearchToolCallAction {
     Search(WebSearchActionSearch),
     /// Action type "open_page" - Opens a specific URL from search results.
     OpenPage(WebSearchActionOpenPage),
-    /// Action type "find": Searches for a pattern within a loaded page.
-    Find(WebSearchActionFind),
+    /// Action type "find_in_page": Searches for a pattern within a loaded page.
+    FindInPage(WebSearchActionFind),
 }
 
 /// Web search tool call output.
