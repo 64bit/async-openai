@@ -19,6 +19,7 @@ pub struct ResponseFormatJsonSchema {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     /// The name of the response format. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
+    #[serde(default)]
     pub name: String,
     /// The schema for the response format, described as a JSON Schema object.
     /// Learn how to build JSON schemas [here](https://json-schema.org/).
