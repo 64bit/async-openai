@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::types::videos::{VideoSeconds, VideoSize};
+use crate::types::videos::{VideoSeconds, VideoSize, VideoStatus};
 
 impl Display for VideoSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -26,6 +26,21 @@ impl Display for VideoSeconds {
                 Self::Four => "4",
                 Self::Eight => "8",
                 Self::Twelve => "12",
+            }
+        )
+    }
+}
+
+impl Display for VideoStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Queued => "queued",
+                Self::InProgress => "in_progress",
+                Self::Completed => "completed",
+                Self::Failed => "failed",
             }
         )
     }
