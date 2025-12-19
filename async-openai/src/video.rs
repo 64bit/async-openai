@@ -2,7 +2,8 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::videos::{
-        CreateVideoRequest, ListVideosResponse, RemixVideoRequest, VideoJob, VideoJobMetadata,
+        CreateVideoRequest, DeletedVideoResource, RemixVideoRequest, VideoListResource,
+        VideoResource,
     },
     Client, RequestOptions,
 };
@@ -29,7 +30,7 @@ impl<'c, C: Config> Videos<'c, C> {
         R = serde::de::DeserializeOwned,
         where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
     )]
-    pub async fn create(&self, request: CreateVideoRequest) -> Result<VideoJob, OpenAIError> {
+    pub async fn create(&self, request: CreateVideoRequest) -> Result<VideoResource, OpenAIError> {
         self.client
             .post_form("/videos", request, &self.request_options)
             .await
@@ -41,7 +42,7 @@ impl<'c, C: Config> Videos<'c, C> {
         &self,
         video_id: &str,
         request: RemixVideoRequest,
-    ) -> Result<VideoJob, OpenAIError> {
+    ) -> Result<VideoResource, OpenAIError> {
         self.client
             .post(
                 &format!("/videos/{video_id}/remix"),
@@ -53,7 +54,7 @@ impl<'c, C: Config> Videos<'c, C> {
 
     /// Retrieves a video by its ID.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
-    pub async fn retrieve(&self, video_id: &str) -> Result<VideoJob, OpenAIError> {
+    pub async fn retrieve(&self, video_id: &str) -> Result<VideoResource, OpenAIError> {
         self.client
             .get(&format!("/videos/{}", video_id), &self.request_options)
             .await
@@ -61,7 +62,7 @@ impl<'c, C: Config> Videos<'c, C> {
 
     /// Delete a Video
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
-    pub async fn delete(&self, video_id: &str) -> Result<VideoJobMetadata, OpenAIError> {
+    pub async fn delete(&self, video_id: &str) -> Result<DeletedVideoResource, OpenAIError> {
         self.client
             .delete(&format!("/videos/{}", video_id), &self.request_options)
             .await
@@ -69,7 +70,7 @@ impl<'c, C: Config> Videos<'c, C> {
 
     /// List Videos
     #[crate::byot(R = serde::de::DeserializeOwned)]
-    pub async fn list(&self) -> Result<ListVideosResponse, OpenAIError> {
+    pub async fn list(&self) -> Result<VideoListResource, OpenAIError> {
         self.client.get("/videos", &self.request_options).await
     }
 

@@ -61,14 +61,14 @@ pub struct RemixVideoRequest {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct VideoJobError {
+pub struct VideoResourceError {
     pub code: String,
     pub message: String,
 }
 
 /// Structured information describing a generated video job.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct VideoJob {
+pub struct VideoResource {
     /// Unix timestamp (seconds) for when the job completed, if finished.
     pub completed_at: Option<u64>,
 
@@ -76,7 +76,7 @@ pub struct VideoJob {
     pub created_at: u64,
 
     /// Error payload that explains why generation failed, if applicable.
-    pub error: Option<VideoJobError>,
+    pub error: Option<VideoResourceError>,
 
     /// Unix timestamp (seconds) for when the downloadable assets expire, if set.
     pub expires_at: Option<u64>,
@@ -97,26 +97,38 @@ pub struct VideoJob {
     pub remixed_from_video_id: Option<String>,
 
     /// Duration of the generated clip in seconds.
-    pub seconds: String,
+    pub seconds: VideoSeconds,
 
     /// The resolution of the generated video.
-    pub size: String,
+    pub size: VideoSize,
 
     /// Current lifecycle status of the video job.
-    pub status: String,
+    pub status: VideoStatus,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct VideoJobMetadata {
+#[serde(rename_all = "snake_case")]
+pub enum VideoStatus {
+    Queued,
+    InProgress,
+    Completed,
+    Failed,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DeletedVideoResource {
     pub id: String,
     pub object: String,
     pub deleted: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ListVideosResponse {
-    pub data: Vec<VideoJob>,
+pub struct VideoListResource {
+    pub data: Vec<VideoResource>,
     pub object: String,
+    pub first_id: Option<String>,
+    pub last_id: Option<String>,
+    pub has_more: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]

@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::types::videos::VideoSize;
+use crate::types::videos::{VideoSeconds, VideoSize};
 
 impl Display for VideoSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -12,6 +12,20 @@ impl Display for VideoSize {
                 Self::S1280x720 => "1280x720",
                 Self::S1024x1792 => "1024x1792",
                 Self::S1792x1024 => "1792x1024",
+            }
+        )
+    }
+}
+
+impl Display for VideoSeconds {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Four => "4",
+                Self::Eight => "8",
+                Self::Twelve => "12",
             }
         )
     }
