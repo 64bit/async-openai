@@ -17,6 +17,18 @@ pub enum VideoSize {
     S1792x1024,
 }
 
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub enum VideoSeconds {
+    #[default]
+    #[serde(rename = "4")]
+    Four,
+    #[serde(rename = "8")]
+    Eight,
+    #[serde(rename = "12")]
+    Twelve,
+}
+
+// CreateVideoBody in the spec
 #[derive(Clone, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateVideoRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -24,16 +36,17 @@ pub enum VideoSize {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateVideoRequest {
-    /// ID of the model to use.
+    /// The video generation model to use (allowed values: sora-2, sora-2-pro). Defaults to `sora-2`.
     pub model: String,
 
-    /// The prompt to generate video from.
+    /// Text prompt that describes the video to generate.
     pub prompt: String,
-
+    /// Output resolution formatted as width x height (allowed values: 720x1280, 1280x720, 1024x1792,
+    /// 1792x1024). Defaults to 720x1280.
     pub size: Option<VideoSize>,
-
-    pub seconds: Option<String>,
-
+    /// Clip duration in seconds (allowed values: 4, 8, 12). Defaults to 4 seconds.
+    pub seconds: Option<VideoSeconds>,
+    /// Optional image reference that guides generation.
     pub input_reference: Option<ImageInput>,
 }
 

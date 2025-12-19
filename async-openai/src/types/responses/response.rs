@@ -818,7 +818,8 @@ pub struct Reasoning {
     /// useful for debugging and understanding the model's reasoning process.
     /// One of `auto`, `concise`, or `detailed`.
     ///
-    /// `concise` is only supported for `computer-use-preview` models.
+    /// `concise` is supported for `computer-use-preview` models and all reasoning models after
+    /// `gpt-5`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<ReasoningSummary>,
 }
