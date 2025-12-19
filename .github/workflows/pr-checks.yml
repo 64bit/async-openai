@@ -1,0 +1,112 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  format:
+    name: Check Formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt
+          override: true
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  build-features:
+    name: Build Feature - ${{ matrix.feature }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        feature:
+          [
+            byot,
+            responses,
+            webhook,
+            audio,
+            video,
+            image,
+            embedding,
+            evals,
+            finetuning,
+            grader,
+            batch,
+            file,
+            upload,
+            model,
+            moderation,
+            vectorstore,
+            chatkit,
+            container,
+            realtime,
+            chat-completion,
+            assistant,
+            administration,
+            completions,
+            response-types,
+            webhook-types,
+            audio-types,
+            video-types,
+            image-types,
+            embedding-types,
+            eval-types,
+            finetuning-types,
+            grader-types,
+            batch-types,
+            file-types,
+            upload-types,
+            model-types,
+            moderation-types,
+            vectorstore-types,
+            chatkit-types,
+            container-types,
+            realtime-types,
+            chat-completion-types,
+            assistant-types,
+            administration-types,
+            completion-types,
+            types,
+            full,
+          ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+          override: true
+
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ matrix.feature }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-
+
+      - name: Build with feature ${{ matrix.feature }}
+        env:
+          RUSTFLAGS: "-D warnings"
+        run: cargo build --no-default-features --features ${{ matrix.feature }} --verbose
+
+      - name: Run clippy with feature ${{ matrix.feature }}
+        run: cargo clippy --no-default-features --features ${{ matrix.feature }} -- -D warnings

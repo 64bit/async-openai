@@ -2,8 +2,8 @@ use std::error::Error;
 
 use async_openai::{
     types::{
-        CreateFileRequest, CreateVectorStoreRequest, FilePurpose, VectorStoreSearchRequest,
-        VectorStoreStatus,
+        files::{CreateFileRequest, FilePurpose},
+        vectorstores::{CreateVectorStoreRequest, VectorStoreSearchRequest, VectorStoreStatus},
     },
     Client,
 };
@@ -21,6 +21,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .create(CreateFileRequest {
             file: "./input/uber-10k.pdf".into(),
             purpose: FilePurpose::Assistants,
+            expires_after: None,
         })
         .await?;
 
@@ -29,6 +30,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .create(CreateFileRequest {
             file: "./input/lyft-10k.pdf".into(),
             purpose: FilePurpose::Assistants,
+            expires_after: None,
         })
         .await?;
 

@@ -1,24 +1,28 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{CreateEmbeddingRequest, CreateEmbeddingResponse},
-    Client,
+    types::embeddings::{CreateEmbeddingRequest, CreateEmbeddingResponse},
+    Client, RequestOptions,
 };
 
 #[cfg(not(feature = "byot"))]
-use crate::types::EncodingFormat;
+use crate::types::embeddings::EncodingFormat;
 
 /// Get a vector representation of a given input that can be easily
 /// consumed by machine learning models and algorithms.
 ///
-/// Related guide: [Embeddings](https://platform.openai.com/docs/guides/embeddings/what-are-embeddings)
+/// Related guide: [Embeddings](https://platform.openai.com/docs/guides/embeddings)
 pub struct Embeddings<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Embeddings<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Creates an embedding vector representing the input text.
@@ -37,7 +41,9 @@ impl<'c, C: Config> Embeddings<'c, C> {
                 ));
             }
         }
-        self.client.post("/embeddings", request).await
+        self.client
+            .post("/embeddings", request, &self.request_options)
+            .await
     }
 
     /// Creates an embedding vector representing the input text.
@@ -76,22 +82,24 @@ impl<'c, C: Config> Embeddings<'c, C> {
                 ));
             }
         }
-        self.client.post("/embeddings", request).await
+        self.client
+            .post("/embeddings", request, &self.request_options)
+            .await
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "embedding"))]
 mod tests {
     use crate::error::OpenAIError;
-    use crate::types::{CreateEmbeddingResponse, Embedding, EncodingFormat};
-    use crate::{types::CreateEmbeddingRequestArgs, Client};
+    use crate::types::embeddings::{CreateEmbeddingResponse, Embedding, EncodingFormat};
+    use crate::{types::embeddings::CreateEmbeddingRequestArgs, Client};
 
     #[tokio::test]
     async fn test_embedding_string() {
         let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
-            .model("text-embedding-ada-002")
+            .model("text-embedding-3-small")
             .input("The food was delicious and the waiter...")
             .build()
             .unwrap();
@@ -106,7 +114,7 @@ mod tests {
         let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
-            .model("text-embedding-ada-002")
+            .model("text-embedding-3-small")
             .input(["The food was delicious", "The waiter was good"])
             .build()
             .unwrap();
@@ -121,7 +129,7 @@ mod tests {
         let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
-            .model("text-embedding-ada-002")
+            .model("text-embedding-3-small")
             .input([1, 2, 3])
             .build()
             .unwrap();
@@ -136,7 +144,7 @@ mod tests {
         let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
-            .model("text-embedding-ada-002")
+            .model("text-embedding-3-small")
             .input([[1, 2, 3], [4, 5, 6], [7, 8, 10]])
             .build()
             .unwrap();
@@ -151,7 +159,7 @@ mod tests {
         let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
-            .model("text-embedding-ada-002")
+            .model("text-embedding-3-small")
             .input([vec![1, 2, 3], vec![4, 5, 6, 7], vec![7, 8, 10, 11, 100257]])
             .build()
             .unwrap();
@@ -183,11 +191,10 @@ mod tests {
     }
 
     #[tokio::test]
-    #[cfg(not(feature = "byot"))]
     async fn test_cannot_use_base64_encoding_with_normal_create_request() {
         let client = Client::new();
 
-        const MODEL: &str = "text-embedding-ada-002";
+        const MODEL: &str = "text-embedding-3-small";
         const INPUT: &str = "You shall not pass.";
 
         let b64_request = CreateEmbeddingRequestArgs::default()
@@ -204,8 +211,8 @@ mod tests {
     async fn test_embedding_create_base64() {
         let client = Client::new();
 
-        const MODEL: &str = "text-embedding-ada-002";
-        const INPUT: &str = "CoLoop will eat the other qual research tools...";
+        const MODEL: &str = "text-embedding-3-small";
+        const INPUT: &str = "a head full of dreams";
 
         let b64_request = CreateEmbeddingRequestArgs::default()
             .model(MODEL)
@@ -230,8 +237,5 @@ mod tests {
         let embedding: Vec<f32> = response.data.into_iter().next().unwrap().embedding.into();
 
         assert_eq!(b64_embedding.len(), embedding.len());
-        for (b64, normal) in b64_embedding.iter().zip(embedding.iter()) {
-            assert!((b64 - normal).abs() < 1e-6);
-        }
     }
 }

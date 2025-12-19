@@ -17,3 +17,14 @@ pub struct RealtimeAPIError {
     /// The event_id of the client event that caused the error, if applicable.
     pub event_id: Option<String>,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ErrorCodeMessage {
+    pub code: String,
+    pub message: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ErrorMessage {
+    pub message: String,
+}

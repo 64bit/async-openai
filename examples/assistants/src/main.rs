@@ -1,5 +1,7 @@
 use async_openai::{
-    types::{
+    config::{OpenAIConfig, OPENAI_BETA_HEADER},
+    traits::RequestOptionsBuilder,
+    types::assistants::{
         CreateAssistantRequestArgs, CreateMessageRequestArgs, CreateRunRequestArgs,
         CreateThreadRequestArgs, MessageContent, MessageRole, RunStatus,
     },
@@ -21,7 +23,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let query = [("limit", "1")]; //limit the list responses to 1 message
 
     //create a client
-    let client = Client::new();
+    let config =
+        OpenAIConfig::default().with_header(OPENAI_BETA_HEADER, "assistants=v2".to_string())?;
+    let client = Client::with_config(config);
 
     //create a thread for the conversation
     let thread_request = CreateThreadRequestArgs::default().build()?;
@@ -98,7 +102,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     // in the thread
 
                     //retrieve the response from the run
-                    let response = client.threads().messages(&thread.id).list(&query).await?;
+                    let response = client
+                        .threads()
+                        .messages(&thread.id)
+                        .query(&query)?
+                        .list()
+                        .await?;
                     //get the message id from the response
                     let message_id = response.data.first().unwrap().id.clone();
                     //get the message from the response

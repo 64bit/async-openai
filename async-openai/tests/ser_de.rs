@@ -1,10 +1,10 @@
-use async_openai::types::{
+use async_openai::types::chat::{
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
     CreateChatCompletionRequest, CreateChatCompletionRequestArgs,
 };
 
-#[tokio::test]
-async fn chat_types_serde() {
+#[test]
+fn chat_types_serde() {
     let request: CreateChatCompletionRequest = CreateChatCompletionRequestArgs::default()
         .messages([
             ChatCompletionRequestSystemMessageArgs::default()

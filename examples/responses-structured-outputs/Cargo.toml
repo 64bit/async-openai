@@ -1,0 +1,12 @@
+[package]
+name = "responses-structured-outputs"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+async-openai = { path = "../../async-openai", features = ["responses"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+clap = { version = "4", features = ["derive"] }
+futures = "0.3"

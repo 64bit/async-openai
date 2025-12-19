@@ -1,39 +1,37 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{
+    types::chat::{
+        ChatCompletionDeleted, ChatCompletionList, ChatCompletionMessageList,
         ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse,
+        UpdateChatCompletionRequest,
     },
-    Client,
+    Client, RequestOptions,
 };
 
 /// Given a list of messages comprising a conversation, the model will return a response.
 ///
-/// Related guide: [Chat completions](https://platform.openai.com//docs/guides/text-generation)
+/// Related guide: [Chat Completions](https://platform.openai.com/docs/guides/text-generation)
 pub struct Chat<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Chat<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
-    /// Creates a model response for the given chat conversation. Learn more in
-    /// the
+    /// Creates a model response for the given chat conversation.
     ///
-    /// [text generation](https://platform.openai.com/docs/guides/text-generation),
-    /// [vision](https://platform.openai.com/docs/guides/vision),
+    /// Returns a [chat completion](https://platform.openai.com/docs/api-reference/chat/object) object, or a streamed sequence of [chat completion chunk](https://platform.openai.com/docs/api-reference/chat/streaming) objects if the request is streamed.
     ///
-    /// and [audio](https://platform.openai.com/docs/guides/audio) guides.
+    /// Learn more in the [text generation](https://platform.openai.com/docs/guides/text-generation), [vision](https://platform.openai.com/docs/guides/vision), and [audio](https://platform.openai.com/docs/guides/audio) guides.
     ///
-    ///
-    /// Parameter support can differ depending on the model used to generate the
-    /// response, particularly for newer reasoning models. Parameters that are
-    /// only supported for reasoning models are noted below. For the current state
-    /// of unsupported parameters in reasoning models,
-    ///
-    /// [refer to the reasoning guide](https://platform.openai.com/docs/guides/reasoning).
+    /// Parameter support can differ depending on the model used to generate the response, particularly for newer reasoning models. Parameters that are only supported for reasoning models are noted below. For the current state of unsupported parameters in reasoning models, [refer to the reasoning guide](https://platform.openai.com/docs/guides/reasoning).
     ///
     /// byot: You must ensure "stream: false" in serialized `request`
     #[crate::byot(
@@ -52,12 +50,16 @@ impl<'c, C: Config> Chat<'c, C> {
                 ));
             }
         }
-        self.client.post("/chat/completions", request).await
+        self.client
+            .post("/chat/completions", request, &self.request_options)
+            .await
     }
 
-    /// Creates a completion for the chat message
+    /// Creates a completion for the chat message.
     ///
-    /// partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format) as they become available, with the stream terminated by a `data: [DONE]` message.
+    /// If set to true, the model response data will be streamed to the client as it is generated using [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format).
+    ///
+    /// See the [Streaming section](https://platform.openai.com/docs/api-reference/chat/streaming) for more information, along with the [streaming responses](https://platform.openai.com/docs/guides/streaming-responses) guide for more information on how to handle the streaming events.
     ///
     /// [ChatCompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
     ///
@@ -83,6 +85,81 @@ impl<'c, C: Config> Chat<'c, C> {
 
             request.stream = Some(true);
         }
-        Ok(self.client.post_stream("/chat/completions", request).await)
+        Ok(self
+            .client
+            .post_stream("/chat/completions", request, &self.request_options)
+            .await)
+    }
+
+    /// List stored Chat Completions. Only Chat Completions that have been stored
+    /// with the `store` parameter set to `true` will be returned.
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ChatCompletionList, OpenAIError> {
+        self.client
+            .get("/chat/completions", &self.request_options)
+            .await
+    }
+
+    /// Get a stored chat completion. Only Chat Completions that have been created
+    /// with the `store` parameter set to `true` will be returned.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve(
+        &self,
+        completion_id: &str,
+    ) -> Result<CreateChatCompletionResponse, OpenAIError> {
+        self.client
+            .get(
+                &format!("/chat/completions/{completion_id}"),
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Modify a stored chat completion. Only Chat Completions that have been
+    /// created with the `store` parameter set to `true` can be modified. Currently,
+    /// the only supported modification is to update the `metadata` field.
+    #[crate::byot(
+        T0 = std::fmt::Display,
+        T1 = serde::Serialize,
+        R = serde::de::DeserializeOwned
+    )]
+    pub async fn update(
+        &self,
+        completion_id: &str,
+        request: UpdateChatCompletionRequest,
+    ) -> Result<CreateChatCompletionResponse, OpenAIError> {
+        self.client
+            .post(
+                &format!("/chat/completions/{completion_id}"),
+                request,
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Delete a stored chat completion. Only Chat Completions that have been
+    /// created with the `store` parameter set to `true` can be deleted.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn delete(&self, completion_id: &str) -> Result<ChatCompletionDeleted, OpenAIError> {
+        self.client
+            .delete(
+                &format!("/chat/completions/{completion_id}"),
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Get a list of messages for the specified chat completion.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn messages(
+        &self,
+        completion_id: &str,
+    ) -> Result<ChatCompletionMessageList, OpenAIError> {
+        self.client
+            .get(
+                &format!("/chat/completions/{completion_id}/messages"),
+                &self.request_options,
+            )
+            .await
     }
 }

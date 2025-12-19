@@ -5,8 +5,8 @@ edition = "2021"
 publish = false
 
 [dependencies]
-async-openai = {path = "../../async-openai"}
-serde_json = "1.0.127"
-tokio = { version = "1.39.3", features = ["full"] }
-schemars = "0.8.21"
-serde = "1.0.130"
+async-openai = {path = "../../async-openai", features = ["chat-completion"]}
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+schemars = "1.1"
+serde = "1"

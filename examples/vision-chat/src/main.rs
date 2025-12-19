@@ -1,10 +1,10 @@
 use std::error::Error;
 
 use async_openai::{
-    types::{
-        ChatCompletionRequestMessageContentPartImageArgs,
-        ChatCompletionRequestMessageContentPartTextArgs, ChatCompletionRequestUserMessageArgs,
-        CreateChatCompletionRequestArgs, ImageDetail, ImageUrlArgs,
+    types::chat::{
+        ChatCompletionRequestMessageContentPartImage, ChatCompletionRequestMessageContentPartText,
+        ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, ImageDetail,
+        ImageUrl,
     },
     Client,
 };
@@ -14,32 +14,27 @@ use async_openai::{
 async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
-    let image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg";
+    // Image Credit: https://unsplash.com/photos/pride-of-lion-on-field-L4-BDd01wmM
+    let image_url =
+        "https://images.unsplash.com/photo-1554990772-0bea55d510d5?q=80&w=512&auto=format";
 
     let request = CreateChatCompletionRequestArgs::default()
         .model("gpt-4o-mini")
         .max_tokens(300_u32)
         .messages([ChatCompletionRequestUserMessageArgs::default()
             .content(vec![
-                ChatCompletionRequestMessageContentPartTextArgs::default()
-                    .text("What is this image?")
-                    .build()?
-                    .into(),
-                ChatCompletionRequestMessageContentPartImageArgs::default()
-                    .image_url(
-                        ImageUrlArgs::default()
-                            .url(image_url)
-                            .detail(ImageDetail::High)
-                            .build()?,
-                    )
-                    .build()?
-                    .into(),
+                ChatCompletionRequestMessageContentPartText::from("What is this image?").into(),
+                ChatCompletionRequestMessageContentPartImage::from(ImageUrl {
+                    url: image_url.to_string(),
+                    detail: Some(ImageDetail::High),
+                })
+                .into(),
             ])
             .build()?
             .into()])
         .build()?;
 
-    println!("{}", serde_json::to_string(&request).unwrap());
+    println!("{}", serde_json::to_string(&request)?);
 
     let response = client.chat().create(request).await?;
 

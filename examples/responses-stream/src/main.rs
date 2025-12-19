@@ -1,10 +1,10 @@
 use async_openai::{
     Client,
-    types::responses::{
-        CreateResponseArgs, Input, InputContent, InputItem, InputMessageArgs, ResponseEvent, Role,
-    },
+    traits::EventType,
+    types::responses::{CreateResponseArgs, ResponseStreamEvent},
 };
 use futures::StreamExt;
+use std::io::{Write, stdout};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -13,38 +13,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let request = CreateResponseArgs::default()
         .model("gpt-4.1")
         .stream(true)
-        .input(Input::Items(vec![InputItem::Message(
-            InputMessageArgs::default()
-                .role(Role::User)
-                .content(InputContent::TextInput(
-                    "Write a haiku about programming.".to_string(),
-                ))
-                .build()?,
-        )]))
+        .input("Write a haiku about programming.")
         .build()?;
 
     let mut stream = client.responses().create_stream(request).await?;
 
+    let mut lock = stdout().lock();
+
     while let Some(result) = stream.next().await {
         match result {
             Ok(response_event) => match &response_event {
-                ResponseEvent::ResponseOutputTextDelta(delta) => {
-                    print!("{}", delta.delta);
+                ResponseStreamEvent::ResponseOutputTextDelta(delta) => {
+                    write!(lock, "{}", delta.delta)?;
                 }
-                ResponseEvent::ResponseCompleted(_)
-                | ResponseEvent::ResponseIncomplete(_)
-                | ResponseEvent::ResponseFailed(_) => {
-                    break;
+                _ => {
+                    writeln!(lock, "\n{}: skipping\n", response_event.event_type())?;
                 }
-                _ => { println!("{response_event:#?}"); }
             },
             Err(e) => {
-                eprintln!("{e:#?}");
-                // When a stream ends, it returns Err(OpenAIError::StreamError("Stream ended"))
-                // Without this, the stream will never end
-                break;
+                eprintln!("\n{e:#?}");
             }
         }
+        stdout().flush()?;
     }
 
     Ok(())

@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use async_openai::{
-    types::{
+    types::chat::{
         ChatCompletionRequestMessage, ChatCompletionRequestSystemMessage,
         ChatCompletionRequestUserMessage, CreateChatCompletionRequestArgs, ResponseFormat,
         ResponseFormatJsonSchema,

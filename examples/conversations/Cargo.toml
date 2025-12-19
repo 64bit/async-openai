@@ -1,0 +1,11 @@
+[package]
+name = "conversations"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+async-openai = { path = "../../async-openai", features = ["responses"] }
+tokio = { version = "1", features = ["full"] }
+serde_json = "1"
+

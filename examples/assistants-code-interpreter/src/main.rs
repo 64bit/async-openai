@@ -1,10 +1,15 @@
 use std::error::Error;
 
 use async_openai::{
+    config::{OpenAIConfig, OPENAI_BETA_HEADER},
+    traits::RequestOptionsBuilder,
     types::{
-        AssistantToolCodeInterpreterResources, AssistantTools, CreateAssistantRequestArgs,
-        CreateFileRequest, CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest,
-        FilePurpose, MessageContent, MessageContentTextAnnotations, MessageRole, RunStatus,
+        assistants::{
+            AssistantToolCodeInterpreterResources, AssistantTools, CreateAssistantRequestArgs,
+            CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest, MessageContent,
+            MessageContentTextAnnotations, MessageRole, RunStatus,
+        },
+        files::{CreateFileRequest, FilePurpose},
     },
     Client,
 };
@@ -20,7 +25,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with(EnvFilter::from_default_env())
         .init();
 
-    let client = Client::new();
+    let config =
+        OpenAIConfig::default().with_header(OPENAI_BETA_HEADER, "assistants=v2".to_string())?;
+    let client = Client::with_config(config);
 
     // Upload data file with "assistants" purpose
     let data_file = client
@@ -28,6 +35,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .create(CreateFileRequest {
             file: "./input/CASTHPI.csv".into(),
             purpose: FilePurpose::Assistants,
+            expires_after: None,
         })
         .await?;
 
@@ -80,7 +88,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 let messages = client
                     .threads()
                     .messages(&thread.id)
-                    .list(&[("limit", "10")])
+                    .query(&[("limit", "10")])?
+                    .list()
                     .await?;
 
                 for message_obj in messages.data {

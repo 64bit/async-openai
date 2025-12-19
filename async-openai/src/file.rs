@@ -1,30 +1,33 @@
 use bytes::Bytes;
-use serde::Serialize;
 
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{CreateFileRequest, DeleteFileResponse, ListFilesResponse, OpenAIFile},
-    Client,
+    types::files::{CreateFileRequest, DeleteFileResponse, ListFilesResponse, OpenAIFile},
+    Client, RequestOptions,
 };
 
 /// Files are used to upload documents that can be used with features like Assistants and Fine-tuning.
 pub struct Files<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Files<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
-    /// Upload a file that can be used across various endpoints. Individual files can be up to 512 MB, and the size of all files uploaded by one organization can be up to 100 GB.
+    /// Upload a file that can be used across various endpoints. Individual files can be up to 512 MB, and the size of all files uploaded by one organization can be up to 1 TB.
     ///
     /// The Assistants API supports files up to 2 million tokens and of specific file types. See the [Assistants Tools guide](https://platform.openai.com/docs/assistants/tools) for details.
     ///
     /// The Fine-tuning API only supports `.jsonl` files. The input also has certain required formats for fine-tuning [chat](https://platform.openai.com/docs/api-reference/fine-tuning/chat-input) or [completions](https://platform.openai.com/docs/api-reference/fine-tuning/completions-input) models.
     ///
-    ///The Batch API only supports `.jsonl` files up to 100 MB in size. The input also has a specific required [format](https://platform.openai.com/docs/api-reference/batch/request-input).
+    /// The Batch API only supports `.jsonl` files up to 200 MB in size. The input also has a specific required [format](https://platform.openai.com/docs/api-reference/batch/request-input).
     ///
     /// Please [contact us](https://help.openai.com/) if you need to increase these storage limits.
     #[crate::byot(
@@ -33,44 +36,53 @@ impl<'c, C: Config> Files<'c, C> {
         where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
     )]
     pub async fn create(&self, request: CreateFileRequest) -> Result<OpenAIFile, OpenAIError> {
-        self.client.post_form("/files", request).await
+        self.client
+            .post_form("/files", request, &self.request_options)
+            .await
     }
 
     /// Returns a list of files that belong to the user's organization.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ListFilesResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
-        self.client.get_with_query("/files", &query).await
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ListFilesResponse, OpenAIError> {
+        self.client.get("/files", &self.request_options).await
     }
 
     /// Returns information about a specific file.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn retrieve(&self, file_id: &str) -> Result<OpenAIFile, OpenAIError> {
-        self.client.get(format!("/files/{file_id}").as_str()).await
+        self.client
+            .get(format!("/files/{file_id}").as_str(), &self.request_options)
+            .await
     }
 
     /// Delete a file.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
     pub async fn delete(&self, file_id: &str) -> Result<DeleteFileResponse, OpenAIError> {
         self.client
-            .delete(format!("/files/{file_id}").as_str())
+            .delete(format!("/files/{file_id}").as_str(), &self.request_options)
             .await
     }
 
     /// Returns the contents of the specified file
     pub async fn content(&self, file_id: &str) -> Result<Bytes, OpenAIError> {
-        self.client
-            .get_raw(format!("/files/{file_id}/content").as_str())
-            .await
+        let (bytes, _headers) = self
+            .client
+            .get_raw(
+                format!("/files/{file_id}/content").as_str(),
+                &self.request_options,
+            )
+            .await?;
+        Ok(bytes)
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "file"))]
 mod tests {
     use crate::{
-        types::{CreateFileRequestArgs, FilePurpose},
+        traits::RequestOptionsBuilder,
+        types::files::{
+            CreateFileRequestArgs, FileExpirationAfter, FileExpirationAfterAnchor, FilePurpose,
+        },
         Client,
     };
 
@@ -89,6 +101,10 @@ mod tests {
         let request = CreateFileRequestArgs::default()
             .file(test_file_path)
             .purpose(FilePurpose::FineTune)
+            .expires_after(FileExpirationAfter {
+                anchor: FileExpirationAfterAnchor::CreatedAt,
+                seconds: 3600,
+            })
             .build()
             .unwrap();
 
@@ -101,7 +117,7 @@ mod tests {
         //assert_eq!(openai_file.status, Some("processed".to_owned())); // uploaded or processed
         let query = [("purpose", "fine-tune")];
 
-        let list_files = client.files().list(&query).await.unwrap();
+        let list_files = client.files().query(&query).unwrap().list().await.unwrap();
 
         assert_eq!(list_files.data.into_iter().last().unwrap(), openai_file);
 
@@ -111,6 +127,7 @@ mod tests {
         assert_eq!(openai_file.bytes, retrieved_file.bytes);
         assert_eq!(openai_file.filename, retrieved_file.filename);
         assert_eq!(openai_file.purpose, retrieved_file.purpose);
+        assert_eq!(openai_file.expires_at, retrieved_file.expires_at);
 
         /*
         // "To help mitigate abuse, downloading of fine-tune training files is disabled for free accounts."
@@ -127,5 +144,14 @@ mod tests {
 
         assert_eq!(openai_file.id, delete_response.id);
         assert!(delete_response.deleted);
+    }
+
+    // Ensures that list files succeeds if there are no files in account
+    // Prerequisite: No files in account
+    #[tokio::test]
+    async fn test_empty_file_list() {
+        let client = Client::new();
+        let result = client.files().list().await.unwrap();
+        assert!(result.data.is_empty());
     }
 }

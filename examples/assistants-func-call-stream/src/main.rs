@@ -1,8 +1,8 @@
 use std::error::Error;
 
 use async_openai::{
-    config::OpenAIConfig,
-    types::{
+    config::{OpenAIConfig, OPENAI_BETA_HEADER},
+    types::assistants::{
         AssistantStreamEvent, CreateAssistantRequestArgs, CreateMessageRequest, CreateRunRequest,
         CreateThreadRequest, FunctionObject, MessageDeltaContent, MessageRole, RunObject,
         SubmitToolOutputsRunRequest, ToolsOutputs,
@@ -22,7 +22,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with(EnvFilter::from_default_env())
         .init();
 
-    let client = Client::new();
+    let config =
+        OpenAIConfig::default().with_header(OPENAI_BETA_HEADER, "assistants=v2".to_string())?;
+    let client = Client::with_config(config);
 
     //
     // Step 1: Define functions

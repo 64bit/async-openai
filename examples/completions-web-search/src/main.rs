@@ -1,8 +1,8 @@
-use async_openai::types::{
+use async_openai::types::chat::{
     ChatCompletionRequestUserMessageArgs, WebSearchContextSize, WebSearchLocation,
     WebSearchOptions, WebSearchUserLocation, WebSearchUserLocationType,
 };
-use async_openai::{types::CreateChatCompletionRequestArgs, Client};
+use async_openai::{types::chat::CreateChatCompletionRequestArgs, Client};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -1,5 +1,5 @@
 use async_openai::{
-    types::{CreateSpeechRequestArgs, SpeechModel, Voice},
+    types::audio::{CreateSpeechRequestArgs, SpeechModel, Voice},
     Client,
 };
 use std::error::Error;
@@ -14,7 +14,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .model(SpeechModel::Tts1)
         .build()?;
 
-    let response = client.audio().speech(request).await?;
+    let response = client.audio().speech().create(request).await?;
 
     response.save("./data/audio.mp3").await?;
 

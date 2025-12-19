@@ -1,18 +1,24 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{AddUploadPartRequest, CompleteUploadRequest, CreateUploadRequest, Upload, UploadPart},
-    Client,
+    types::uploads::{
+        AddUploadPartRequest, CompleteUploadRequest, CreateUploadRequest, Upload, UploadPart,
+    },
+    Client, RequestOptions,
 };
 
 /// Allows you to upload large files in multiple parts.
 pub struct Uploads<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Uploads<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Creates an intermediate [Upload](https://platform.openai.com/docs/api-reference/uploads/object) object that
@@ -30,7 +36,9 @@ impl<'c, C: Config> Uploads<'c, C> {
     /// [creating a File](https://platform.openai.com/docs/api-reference/files/create).
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create(&self, request: CreateUploadRequest) -> Result<Upload, OpenAIError> {
-        self.client.post("/uploads", request).await
+        self.client
+            .post("/uploads", request, &self.request_options)
+            .await
     }
 
     /// Adds a [Part](https://platform.openai.com/docs/api-reference/uploads/part-object) to an
@@ -52,7 +60,11 @@ impl<'c, C: Config> Uploads<'c, C> {
         request: AddUploadPartRequest,
     ) -> Result<UploadPart, OpenAIError> {
         self.client
-            .post_form(&format!("/uploads/{upload_id}/parts"), request)
+            .post_form(
+                &format!("/uploads/{upload_id}/parts"),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -73,7 +85,11 @@ impl<'c, C: Config> Uploads<'c, C> {
         request: CompleteUploadRequest,
     ) -> Result<Upload, OpenAIError> {
         self.client
-            .post(&format!("/uploads/{upload_id}/complete"), request)
+            .post(
+                &format!("/uploads/{upload_id}/complete"),
+                request,
+                &self.request_options,
+            )
             .await
     }
 
@@ -84,6 +100,7 @@ impl<'c, C: Config> Uploads<'c, C> {
             .post(
                 &format!("/uploads/{upload_id}/cancel"),
                 serde_json::json!({}),
+                &self.request_options,
             )
             .await
     }

@@ -1,10 +1,12 @@
 use std::process::exit;
 
 use async_openai::types::realtime::{
-    ConversationItemCreateEvent, Item, ResponseCreateEvent, ServerEvent,
+    RealtimeClientEventConversationItemCreate, RealtimeClientEventResponseCreate,
+    RealtimeConversationItem, RealtimeServerEvent,
 };
 use futures_util::{future, pin_mut, StreamExt};
 
+use async_openai::traits::EventType;
 use tokio::io::AsyncReadExt;
 use tokio_tungstenite::{
     connect_async,
@@ -13,7 +15,7 @@ use tokio_tungstenite::{
 
 #[tokio::main]
 async fn main() {
-    let url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17";
+    let url = "wss://api.openai.com/v1/realtime?model=gpt-realtime";
     let api_key = std::env::var("OPENAI_API_KEY").expect("Please provide OPENAPI_API_KEY env var");
 
     let (stdin_tx, stdin_rx) = futures_channel::mpsc::unbounded();
@@ -25,9 +27,6 @@ async fn main() {
         "Authorization",
         format!("Bearer {api_key}").parse().unwrap(),
     );
-    request
-        .headers_mut()
-        .insert("OpenAI-Beta", "realtime=v1".parse().unwrap());
 
     // connect to WebSocket endpoint
     let (ws_stream, _) = connect_async(request).await.expect("Failed to connect");
@@ -46,33 +45,16 @@ async fn main() {
             match message {
                 Message::Text(_) => {
                     let data = message.clone().into_data();
-                    let server_event: Result<ServerEvent, serde_json::Error> =
+                    let server_event: Result<RealtimeServerEvent, serde_json::Error> =
                         serde_json::from_slice(&data);
                     match server_event {
                         Ok(server_event) => {
-                            let value = serde_json::to_value(&server_event).unwrap();
-                            let event_type = value["type"].clone();
-
-                            eprint!("{:32} | ", event_type.as_str().unwrap());
-
+                            eprint!("{:32} | ", server_event.event_type());
                             match server_event {
-                                ServerEvent::ResponseOutputItemDone(event) => {
-                                    event.item.content.unwrap_or(vec![]).iter().for_each(
-                                        |content| {
-                                            if let Some(ref transcript) = content.transcript {
-                                                eprintln!(
-                                                    "[{:?}]: {}",
-                                                    event.item.role,
-                                                    transcript.trim(),
-                                                );
-                                            }
-                                        },
-                                    );
+                                RealtimeServerEvent::ResponseOutputItemDone(event) => {
+                                    eprint!("{event:?}");
                                 }
-                                ServerEvent::ResponseAudioTranscriptDelta(event) => {
-                                    eprint!("{}", event.delta.trim());
-                                }
-                                ServerEvent::Error(e) => {
+                                RealtimeServerEvent::Error(e) => {
                                     eprint!("{e:?}");
                                 }
                                 _ => {}
@@ -123,7 +105,7 @@ async fn read_stdin(tx: futures_channel::mpsc::UnboundedSender<Message>) {
         }
 
         // Create item from json representation
-        let item = Item::try_from(serde_json::json!({
+        let item = RealtimeConversationItem::try_from(serde_json::json!({
             "type": "message",
             "role": "user",
             "content": [
@@ -136,13 +118,13 @@ async fn read_stdin(tx: futures_channel::mpsc::UnboundedSender<Message>) {
         .unwrap();
 
         // Create event of type "conversation.item.create"
-        let event: ConversationItemCreateEvent = item.into();
+        let event: RealtimeClientEventConversationItemCreate = item.into();
         // Create WebSocket message from client event
         let message: Message = event.into();
         // send WebSocket message containing event of type "conversation.item.create" to server
         tx.unbounded_send(message).unwrap();
         // send WebSocket message containing event of type "response.create" to server
-        tx.unbounded_send(ResponseCreateEvent::default().into())
+        tx.unbounded_send(RealtimeClientEventResponseCreate::default().into())
             .unwrap();
     }
 }

@@ -1,10 +1,13 @@
 use async_openai::{
     config::OpenAIConfig,
     types::{
-        ChatCompletionRequestMessage, ChatCompletionRequestUserMessage,
-        ChatCompletionRequestUserMessageContentPart, CreateChatCompletionRequestArgs,
-        CreateEmbeddingRequestArgs, CreateImageRequestArgs, Image, ImageModel, ImageResponseFormat,
-        InputAudio, ResponseFormat, ResponseFormatJsonSchema,
+        chat::{
+            ChatCompletionRequestMessage, ChatCompletionRequestUserMessage,
+            ChatCompletionRequestUserMessageContentPart, CreateChatCompletionRequestArgs,
+            InputAudio, ResponseFormat, ResponseFormatJsonSchema,
+        },
+        embeddings::CreateEmbeddingRequestArgs,
+        images::{CreateImageRequestArgs, Image, ImageModel, ImageResponseFormat},
     },
     Client,
 };
@@ -62,7 +65,7 @@ async fn stream_chat() -> Result<(), Box<dyn Error>> {
         .model("gemini-2.0-flash")
         .messages(vec![ChatCompletionRequestMessage::User(
             ChatCompletionRequestUserMessage {
-                content: async_openai::types::ChatCompletionRequestUserMessageContent::Text(
+                content: async_openai::types::chat::ChatCompletionRequestUserMessageContent::Text(
                     "What is the meaning of life?".to_string(),
                 ),
                 ..Default::default()
@@ -168,14 +171,14 @@ async fn image_understanding() -> Result<(), Box<dyn Error>> {
         .messages([
             ChatCompletionRequestMessage::User("What do you see in this image?".into()),
             ChatCompletionRequestMessage::User(ChatCompletionRequestUserMessage {
-                content: async_openai::types::ChatCompletionRequestUserMessageContent::Array(vec![
-                    ChatCompletionRequestUserMessageContentPart::ImageUrl(
-                        async_openai::types::ChatCompletionRequestMessageContentPartImage {
+                content: async_openai::types::chat::ChatCompletionRequestUserMessageContent::Array(
+                    vec![ChatCompletionRequestUserMessageContentPart::ImageUrl(
+                        async_openai::types::chat::ChatCompletionRequestMessageContentPartImage {
                             image_url: ("data:image/jpg;base64,".to_string() + &image_base64)
                                 .into(),
                         },
-                    ),
-                ]),
+                    )],
+                ),
                 ..Default::default()
             }),
         ])
@@ -202,7 +205,7 @@ async fn generate_image(prompt: &str) -> Result<(), Box<dyn Error>> {
         .response_format(ImageResponseFormat::B64Json)
         .build()?;
 
-    let response: GeminiImagesResponse = client.images().create_byot(request).await?;
+    let response: GeminiImagesResponse = client.images().generate_byot(request).await?;
 
     let images = response.data;
 
@@ -239,16 +242,16 @@ async fn audio_understanding() -> Result<(), Box<dyn Error>> {
         .messages([
             ChatCompletionRequestMessage::User("Transcribe this audio file.".into()),
             ChatCompletionRequestMessage::User(ChatCompletionRequestUserMessage {
-                content: async_openai::types::ChatCompletionRequestUserMessageContent::Array(vec![
-                    ChatCompletionRequestUserMessageContentPart::InputAudio(
-                        async_openai::types::ChatCompletionRequestMessageContentPartAudio {
+                content: async_openai::types::chat::ChatCompletionRequestUserMessageContent::Array(
+                    vec![ChatCompletionRequestUserMessageContentPart::InputAudio(
+                        async_openai::types::chat::ChatCompletionRequestMessageContentPartAudio {
                             input_audio: InputAudio {
                                 data: audio_base64,
-                                format: async_openai::types::InputAudioFormat::Mp3,
+                                format: async_openai::types::chat::InputAudioFormat::Mp3,
                             },
                         },
-                    ),
-                ]),
+                    )],
+                ),
                 ..Default::default()
             }),
         ])
@@ -293,7 +296,7 @@ async fn structured_output() -> Result<(), Box<dyn Error>> {
         .model("gemini-2.0-flash")
         .messages([ChatCompletionRequestMessage::User(
             ChatCompletionRequestUserMessage {
-                content: async_openai::types::ChatCompletionRequestUserMessageContent::Text(
+                content: async_openai::types::chat::ChatCompletionRequestUserMessageContent::Text(
                     "How can I solve 8x + 7 = -23?".to_string(),
                 ),
                 ..Default::default()

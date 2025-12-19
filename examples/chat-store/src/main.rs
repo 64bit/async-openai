@@ -1,5 +1,6 @@
 use async_openai::{
-    types::{
+    traits::RequestOptionsBuilder,
+    types::chat::{
         ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
         CreateChatCompletionRequestArgs,
     },
@@ -37,13 +38,41 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let response = client.chat().create(request).await?;
 
-    println!("\nResponse:\n");
-    for choice in response.choices {
-        println!(
-            "{}: Role: {}  Content: {:?}",
-            choice.index, choice.message.role, choice.message.content
-        );
-    }
+    println!("Chat Completion Response:\n");
+    println!("{:#?}", response);
+
+    // api doesnt return the chat completion immediately, so retrieval doesnt work immediately, sleep
+    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+
+    // get chat completion object
+    let chat_completion = client.chat().retrieve(&response.id).await?;
+
+    println!("--------------------------------");
+    println!("Retrieved chat completion:\n");
+    println!("{:#?}", chat_completion);
+
+    let chat_completion_messages = client
+        .chat()
+        .query(&[("limit", 10)])?
+        .messages(&response.id)
+        .await?;
+
+    println!("--------------------------------");
+    println!("Retrieved chat completion messages:\n");
+    println!("{:#?}", chat_completion_messages);
+
+    // list all chat completions
+    let chat_completions = client.chat().query(&[("limit", 10)])?.list().await?;
+
+    println!("--------------------------------");
+    println!("Retrieved chat completions:\n");
+    println!("{:#?}", chat_completions);
+
+    let deleted = client.chat().delete(&response.id).await?;
+
+    println!("--------------------------------");
+    println!("Deleted chat completion:\n");
+    println!("{:#?}", deleted);
 
     Ok(())
 }

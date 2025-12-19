@@ -1,4 +1,4 @@
-use async_openai::{types::CreateCompletionRequestArgs, Client};
+use async_openai::{types::completions::CreateCompletionRequestArgs, Client};
 use futures::StreamExt;
 
 #[tokio::main]
@@ -20,7 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Ok(ccr) => ccr.choices.iter().for_each(|c| {
                 print!("{}", c.text);
             }),
-            Err(e) => eprintln!("{}", e),
+            Err(e) => eprintln!("{e:?}"),
         }
     }
 

@@ -1,7 +1,7 @@
 use futures::future::{BoxFuture, FutureExt};
 use futures::StreamExt;
 
-use async_openai::types::{CompletionResponseStream, CreateCompletionRequestArgs};
+use async_openai::types::completions::{CompletionResponseStream, CreateCompletionRequestArgs};
 use async_openai::Client;
 
 #[tokio::test]

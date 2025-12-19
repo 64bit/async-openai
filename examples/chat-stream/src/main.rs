@@ -1,8 +1,8 @@
 use std::error::Error;
 use std::io::{stdout, Write};
 
-use async_openai::types::ChatCompletionRequestUserMessageArgs;
-use async_openai::{types::CreateChatCompletionRequestArgs, Client};
+use async_openai::types::chat::ChatCompletionRequestUserMessageArgs;
+use async_openai::{types::chat::CreateChatCompletionRequestArgs, Client};
 use futures::StreamExt;
 
 #[tokio::main]
@@ -40,7 +40,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 });
             }
             Err(err) => {
-                writeln!(lock, "error: {err}").unwrap();
+                writeln!(lock, "error: {err:?}").unwrap();
             }
         }
         stdout().flush()?;

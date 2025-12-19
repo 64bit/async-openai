@@ -1,18 +1,25 @@
 use std::error::Error;
 
 use async_openai::{
+    config::{OpenAIConfig, OPENAI_BETA_HEADER},
+    traits::RequestOptionsBuilder,
     types::{
-        AssistantToolFileSearchResources, AssistantToolsFileSearch, CreateAssistantRequestArgs,
-        CreateFileRequest, CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest,
-        CreateVectorStoreRequest, FilePurpose, MessageAttachment, MessageAttachmentTool,
-        MessageContent, MessageRole, ModifyAssistantRequest, RunStatus,
+        assistants::{
+            AssistantToolFileSearchResources, AssistantToolsFileSearch, CreateAssistantRequestArgs,
+            CreateMessageRequestArgs, CreateRunRequest, CreateThreadRequest, MessageAttachment,
+            MessageAttachmentTool, MessageContent, MessageRole, ModifyAssistantRequest, RunStatus,
+        },
+        files::{CreateFileRequest, FilePurpose},
+        vectorstores::CreateVectorStoreRequest,
     },
     Client,
 };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let client = Client::new();
+    let config =
+        OpenAIConfig::default().with_header(OPENAI_BETA_HEADER, "assistants=v2".to_string())?;
+    let client = Client::with_config(config);
     //
     // Step 1: Create a new Assistant with File Search Enabled
     //
@@ -38,6 +45,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .create(CreateFileRequest {
             file: "./input/uber-10k.pdf".into(),
             purpose: FilePurpose::Assistants,
+            expires_after: None,
         })
         .await?;
 
@@ -84,6 +92,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .create(CreateFileRequest {
             file: "./input/lyft-10k.pdf".into(),
             purpose: FilePurpose::Assistants,
+            expires_after: None,
         })
         .await?;
 
@@ -128,7 +137,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 let messages = client
                     .threads()
                     .messages(&thread.id)
-                    .list(&[("limit", "10")])
+                    .query(&[("limit", "10")])?
+                    .list()
                     .await?;
 
                 for message_obj in messages.data {

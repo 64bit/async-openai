@@ -1,0 +1,47 @@
+use std::fmt::Display;
+
+use crate::types::videos::{VideoSeconds, VideoSize, VideoStatus};
+
+impl Display for VideoSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::S720x1280 => "720x1280",
+                Self::S1280x720 => "1280x720",
+                Self::S1024x1792 => "1024x1792",
+                Self::S1792x1024 => "1792x1024",
+            }
+        )
+    }
+}
+
+impl Display for VideoSeconds {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Four => "4",
+                Self::Eight => "8",
+                Self::Twelve => "12",
+            }
+        )
+    }
+}
+
+impl Display for VideoStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Queued => "queued",
+                Self::InProgress => "in_progress",
+                Self::Completed => "completed",
+                Self::Failed => "failed",
+            }
+        )
+    }
+}

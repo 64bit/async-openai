@@ -1,0 +1,12 @@
+[package]
+name = "image-gen-stream"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+
+[dependencies]
+async-openai = {path = "../../async-openai", features = ["image"]}
+tokio = { version = "1", features = ["full"] }
+futures = "0.3"
+base64 = "0.22"

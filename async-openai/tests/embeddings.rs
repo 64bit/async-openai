@@ -1,5 +1,5 @@
 //! This test is primarily to make sure that macros_rules for From traits are correct.
-use async_openai::types::EmbeddingInput;
+use async_openai::types::embeddings::EmbeddingInput;
 
 fn embedding_input<T>(input: T) -> EmbeddingInput
 where

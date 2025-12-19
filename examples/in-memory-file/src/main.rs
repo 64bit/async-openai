@@ -1,5 +1,5 @@
-use async_openai::types::AudioInput;
-use async_openai::{types::CreateTranscriptionRequestArgs, Client};
+use async_openai::types::audio::AudioInput;
+use async_openai::{types::audio::CreateTranscriptionRequestArgs, Client};
 use std::error::Error;
 use std::fs;
 
@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .model("whisper-1")
         .build()?;
 
-    let response = client.audio().transcribe(request).await?;
+    let response = client.audio().transcription().create(request).await?;
 
     println!("{}", response.text);
 

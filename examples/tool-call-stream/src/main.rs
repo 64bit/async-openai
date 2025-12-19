@@ -1,253 +1,196 @@
-use std::collections::HashMap;
-use std::error::Error;
 use std::io::{stdout, Write};
-use std::sync::Arc;
 
-use async_openai::types::{
-    ChatCompletionMessageToolCall, ChatCompletionRequestAssistantMessageArgs,
-    ChatCompletionRequestMessage, ChatCompletionRequestToolMessageArgs,
-    ChatCompletionRequestUserMessageArgs, ChatCompletionToolArgs, ChatCompletionToolType,
-    FinishReason, FunctionCall, FunctionObjectArgs,
+use async_openai::types::chat::{
+    ChatCompletionMessageToolCall, ChatCompletionMessageToolCalls,
+    ChatCompletionRequestAssistantMessage, ChatCompletionRequestMessage,
+    ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage, ChatCompletionTool,
+    FinishReason, FunctionObjectArgs,
 };
-use async_openai::{types::CreateChatCompletionRequestArgs, Client};
+use async_openai::{types::chat::CreateChatCompletionRequestArgs, Client};
 use futures::StreamExt;
-use rand::seq::SliceRandom;
-use rand::{thread_rng, Rng};
-use serde_json::{json, Value};
-use tokio::sync::Mutex;
+use rand::seq::IndexedRandom;
+use rand::{rng, Rng};
+use serde_json::json;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
     let user_prompt = "What's the weather like in Boston and Atlanta?";
 
+    // Create the initial request using ergonomic From traits
     let request = CreateChatCompletionRequestArgs::default()
-        .max_tokens(512u32)
-        .model("gpt-4-1106-preview")
-        .messages([ChatCompletionRequestUserMessageArgs::default()
-            .content(user_prompt)
-            .build()?
-            .into()])
-        .tools(vec![ChatCompletionToolArgs::default()
-            .r#type(ChatCompletionToolType::Function)
-            .function(
-                FunctionObjectArgs::default()
-                    .name("get_current_weather")
-                    .description("Get the current weather in a given location")
-                    .parameters(json!({
-                        "type": "object",
-                        "properties": {
-                            "location": {
-                                "type": "string",
-                                "description": "The city and state, e.g. San Francisco, CA",
-                            },
-                            "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] },
+        .max_completion_tokens(512u32)
+        .model("gpt-5-mini")
+        .messages(ChatCompletionRequestUserMessage::from(user_prompt))
+        .tools(ChatCompletionTool {
+            function: FunctionObjectArgs::default()
+                .name("get_current_weather")
+                .description("Get the current weather in a given location")
+                .parameters(json!({
+                    "type": "object",
+                    "properties": {
+                        "location": {
+                            "type": "string",
+                            "description": "The city and state, e.g. San Francisco, CA",
                         },
-                        "required": ["location"],
-                    }))
-                    .build()?,
-            )
-            .build()?])
+                        "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] },
+                    },
+                    "required": ["location"],
+                }))
+                .build()?,
+        })
         .build()?;
 
+    // Stream the initial response and collect tool calls
     let mut stream = client.chat().create_stream(request).await?;
+    let mut tool_calls = Vec::new();
+    let mut execution_handles = Vec::new();
+    let mut stdout_lock = stdout().lock();
 
-    let tool_call_states: Arc<Mutex<HashMap<(u32, u32), ChatCompletionMessageToolCall>>> =
-        Arc::new(Mutex::new(HashMap::new()));
-
+    // First stream: collect tool calls, print content, and start executing tool calls as soon as they're complete
     while let Some(result) = stream.next().await {
-        match result {
-            Ok(response) => {
-                for chat_choice in response.choices {
-                    let function_responses: Arc<
-                        Mutex<Vec<(ChatCompletionMessageToolCall, Value)>>,
-                    > = Arc::new(Mutex::new(Vec::new()));
-                    if let Some(tool_calls) = chat_choice.delta.tool_calls {
-                        for tool_call_chunk in tool_calls.into_iter() {
-                            let key = (chat_choice.index, tool_call_chunk.index);
-                            let states = tool_call_states.clone();
-                            let tool_call_data = tool_call_chunk.clone();
+        let response = result?;
 
-                            let mut states_lock = states.lock().await;
-                            let state = states_lock.entry(key).or_insert_with(|| {
-                                ChatCompletionMessageToolCall {
-                                    id: tool_call_data.id.clone().unwrap_or_default(),
-                                    r#type: ChatCompletionToolType::Function,
-                                    function: FunctionCall {
-                                        name: tool_call_data
-                                            .function
-                                            .as_ref()
-                                            .and_then(|f| f.name.clone())
-                                            .unwrap_or_default(),
-                                        arguments: tool_call_data
-                                            .function
-                                            .as_ref()
-                                            .and_then(|f| f.arguments.clone())
-                                            .unwrap_or_default(),
-                                    },
-                                }
-                            });
-                            if let Some(arguments) = tool_call_chunk
-                                .function
-                                .as_ref()
-                                .and_then(|f| f.arguments.as_ref())
-                            {
-                                state.function.arguments.push_str(arguments);
-                            }
-                        }
-                    }
-                    if let Some(finish_reason) = &chat_choice.finish_reason {
-                        if matches!(finish_reason, FinishReason::ToolCalls) {
-                            let tool_call_states_clone = tool_call_states.clone();
+        for choice in response.choices {
+            // Print any content deltas
+            if let Some(content) = &choice.delta.content {
+                write!(stdout_lock, "{}", content)?;
+            }
 
-                            let tool_calls_to_process = {
-                                let states_lock = tool_call_states_clone.lock().await;
-                                states_lock
-                                    .iter()
-                                    .map(|(_key, tool_call)| {
-                                        let name = tool_call.function.name.clone();
-                                        let args = tool_call.function.arguments.clone();
-                                        let tool_call_clone = tool_call.clone();
-                                        (name, args, tool_call_clone)
-                                    })
-                                    .collect::<Vec<_>>()
-                            };
+            // Collect tool call chunks
+            if let Some(tool_call_chunks) = choice.delta.tool_calls {
+                for chunk in tool_call_chunks {
+                    let index = chunk.index as usize;
 
-                            let mut handles = Vec::new();
-                            for (name, args, tool_call_clone) in tool_calls_to_process {
-                                let response_content_clone = function_responses.clone();
-                                let handle = tokio::spawn(async move {
-                                    let response_content = call_fn(&name, &args).await.unwrap();
-                                    let mut function_responses_lock =
-                                        response_content_clone.lock().await;
-                                    function_responses_lock
-                                        .push((tool_call_clone, response_content));
-                                });
-                                handles.push(handle);
-                            }
-
-                            for handle in handles {
-                                handle.await.unwrap();
-                            }
-
-                            let function_responses_clone = function_responses.clone();
-                            let function_responses_lock = function_responses_clone.lock().await;
-                            let mut messages: Vec<ChatCompletionRequestMessage> =
-                                vec![ChatCompletionRequestUserMessageArgs::default()
-                                    .content(user_prompt)
-                                    .build()?
-                                    .into()];
-
-                            let tool_calls: Vec<ChatCompletionMessageToolCall> =
-                                function_responses_lock
-                                    .iter()
-                                    .map(|tc| tc.0.clone())
-                                    .collect();
-
-                            let assistant_messages: ChatCompletionRequestMessage =
-                                ChatCompletionRequestAssistantMessageArgs::default()
-                                    .tool_calls(tool_calls)
-                                    .build()
-                                    .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
-                                    .unwrap()
-                                    .into();
-
-                            let tool_messages: Vec<ChatCompletionRequestMessage> =
-                                function_responses_lock
-                                    .iter()
-                                    .map(|tc| {
-                                        ChatCompletionRequestToolMessageArgs::default()
-                                            .content(tc.1.to_string())
-                                            .tool_call_id(tc.0.id.clone())
-                                            .build()
-                                            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
-                                            .unwrap()
-                                            .into()
-                                    })
-                                    .collect();
-
-                            messages.push(assistant_messages);
-                            messages.extend(tool_messages);
-
-                            let request = CreateChatCompletionRequestArgs::default()
-                                .max_tokens(512u32)
-                                .model("gpt-4-1106-preview")
-                                .messages(messages)
-                                .build()
-                                .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-
-                            let mut stream = client.chat().create_stream(request).await?;
-
-                            let mut response_content = String::new();
-                            let mut lock = stdout().lock();
-                            while let Some(result) = stream.next().await {
-                                match result {
-                                    Ok(response) => {
-                                        for chat_choice in response.choices.iter() {
-                                            if let Some(ref content) = chat_choice.delta.content {
-                                                write!(lock, "{}", content).unwrap();
-                                                response_content.push_str(content);
-                                            }
-                                        }
-                                    }
-                                    Err(err) => {
-                                        return Err(Box::new(err) as Box<dyn std::error::Error>);
-                                    }
-                                }
-                            }
-                        }
+                    // Ensure we have enough space in the vector
+                    while tool_calls.len() <= index {
+                        tool_calls.push(ChatCompletionMessageToolCall {
+                            id: String::new(),
+                            function: Default::default(),
+                        });
                     }
 
-                    if let Some(content) = &chat_choice.delta.content {
-                        let mut lock = stdout().lock();
-                        write!(lock, "{}", content).unwrap();
+                    // Update the tool call with chunk data
+                    let tool_call = &mut tool_calls[index];
+                    if let Some(id) = chunk.id {
+                        tool_call.id = id;
+                    }
+                    if let Some(function_chunk) = chunk.function {
+                        if let Some(name) = function_chunk.name {
+                            tool_call.function.name = name;
+                        }
+                        if let Some(arguments) = function_chunk.arguments {
+                            tool_call.function.arguments.push_str(&arguments);
+                        }
                     }
                 }
             }
-            Err(err) => {
-                let mut lock = stdout().lock();
-                writeln!(lock, "error: {err}").unwrap();
+
+            // When tool calls are complete, start executing them immediately
+            if matches!(choice.finish_reason, Some(FinishReason::ToolCalls)) {
+                // Spawn execution tasks for all collected tool calls
+                for tool_call in tool_calls.iter() {
+                    let name = tool_call.function.name.clone();
+                    let args = tool_call.function.arguments.clone();
+                    let tool_call_id = tool_call.id.clone();
+
+                    let handle = tokio::spawn(async move {
+                        let result = call_function(&name, &args).await;
+                        (tool_call_id, result)
+                    });
+                    execution_handles.push(handle);
+                }
             }
         }
-        stdout()
-            .flush()
-            .map_err(|e| Box::new(e) as Box<dyn Error>)?;
+        stdout_lock.flush()?;
+    }
+
+    // Wait for all tool call executions to complete (outside the stream loop)
+    if !execution_handles.is_empty() {
+        let mut tool_responses = Vec::new();
+        for handle in execution_handles {
+            let (tool_call_id, response) = handle.await?;
+            tool_responses.push((tool_call_id, response));
+        }
+
+        // Build the follow-up request using ergonomic From traits
+        let mut messages: Vec<ChatCompletionRequestMessage> =
+            vec![ChatCompletionRequestUserMessage::from(user_prompt).into()];
+
+        // Add assistant message with tool calls
+        let assistant_tool_calls: Vec<ChatCompletionMessageToolCalls> = tool_calls
+            .iter()
+            .map(|tc| tc.clone().into()) // From<ChatCompletionMessageToolCall>
+            .collect();
+        messages.push(
+            ChatCompletionRequestAssistantMessage {
+                content: None,
+                tool_calls: Some(assistant_tool_calls),
+                ..Default::default()
+            }
+            .into(),
+        );
+
+        // Add tool response messages
+        for (tool_call_id, response) in tool_responses {
+            messages.push(
+                ChatCompletionRequestToolMessage {
+                    content: response.to_string().into(),
+                    tool_call_id,
+                }
+                .into(),
+            );
+        }
+
+        // Second stream: get the final response
+        let follow_up_request = CreateChatCompletionRequestArgs::default()
+            .max_completion_tokens(512u32)
+            .model("gpt-5-mini")
+            .messages(messages)
+            .build()?;
+
+        let mut follow_up_stream = client.chat().create_stream(follow_up_request).await?;
+
+        while let Some(result) = follow_up_stream.next().await {
+            let response = result?;
+            for choice in response.choices {
+                if let Some(content) = &choice.delta.content {
+                    write!(stdout_lock, "{}", content)?;
+                }
+            }
+            stdout_lock.flush()?;
+        }
     }
 
     Ok(())
 }
 
-async fn call_fn(name: &str, args: &str) -> Result<Value, Box<dyn std::error::Error>> {
-    let mut available_functions: HashMap<&str, fn(&str, &str) -> serde_json::Value> =
-        HashMap::new();
-    available_functions.insert("get_current_weather", get_current_weather);
-
-    let function_args: serde_json::Value = args.parse().unwrap();
-
-    let location = function_args["location"].as_str().unwrap();
-    let unit = function_args["unit"].as_str().unwrap_or("fahrenheit");
-    let function = available_functions.get(name).unwrap();
-    let function_response = function(location, unit);
-    Ok(function_response)
+async fn call_function(name: &str, args: &str) -> serde_json::Value {
+    match name {
+        "get_current_weather" => get_current_weather(args),
+        _ => json!({"error": format!("Unknown function: {}", name)}),
+    }
 }
 
-fn get_current_weather(location: &str, unit: &str) -> serde_json::Value {
-    let mut rng = thread_rng();
+fn get_current_weather(args: &str) -> serde_json::Value {
+    let args: serde_json::Value = args.parse().unwrap_or(json!({}));
+    let location = args["location"]
+        .as_str()
+        .unwrap_or("unknown location")
+        .to_string();
+    let unit = args["unit"].as_str().unwrap_or("fahrenheit");
 
-    let temperature: i32 = rng.gen_range(20..=55);
-
+    let mut rng = rng();
+    let temperature: i32 = rng.random_range(20..=55);
     let forecasts = [
         "sunny", "cloudy", "overcast", "rainy", "windy", "foggy", "snowy",
     ];
-
     let forecast = forecasts.choose(&mut rng).unwrap_or(&"sunny");
 
-    let weather_info = json!({
+    json!({
         "location": location,
         "temperature": temperature.to_string(),
         "unit": unit,
         "forecast": forecast
-    });
-
-    weather_info
+    })
 }

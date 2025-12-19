@@ -6,5 +6,5 @@ publish = false
 
 
 [dependencies]
-async-openai = {path = "../../async-openai"}
-tokio = { version = "1.43.0", features = ["full"] }
+async-openai = {path = "../../async-openai", features = ["chat-completion"]}
+tokio = { version = "1", features = ["full"] }

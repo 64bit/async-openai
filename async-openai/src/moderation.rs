@@ -1,8 +1,8 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::{CreateModerationRequest, CreateModerationResponse},
-    Client,
+    types::moderations::{CreateModerationRequest, CreateModerationResponse},
+    Client, RequestOptions,
 };
 
 /// Given text and/or image inputs, classifies if those inputs are potentially harmful across several categories.
@@ -10,11 +10,15 @@ use crate::{
 /// Related guide: [Moderations](https://platform.openai.com/docs/guides/moderation)
 pub struct Moderations<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Moderations<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// Classifies if text and/or image inputs are potentially harmful. Learn
@@ -24,6 +28,8 @@ impl<'c, C: Config> Moderations<'c, C> {
         &self,
         request: CreateModerationRequest,
     ) -> Result<CreateModerationResponse, OpenAIError> {
-        self.client.post("/moderations", request).await
+        self.client
+            .post("/moderations", request, &self.request_options)
+            .await
     }
 }

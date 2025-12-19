@@ -1,16 +1,15 @@
 use std::collections::HashMap;
 use std::io::{stdout, Write};
 
-use async_openai::types::{
-    ChatCompletionMessageToolCall, ChatCompletionRequestAssistantMessageArgs,
-    ChatCompletionRequestMessage, ChatCompletionRequestToolMessageArgs,
-    ChatCompletionRequestUserMessageArgs, ChatCompletionToolArgs, ChatCompletionToolType,
-    FunctionObjectArgs,
+use async_openai::types::chat::{
+    ChatCompletionMessageToolCalls, ChatCompletionRequestAssistantMessageArgs,
+    ChatCompletionRequestMessage, ChatCompletionRequestToolMessage,
+    ChatCompletionRequestUserMessage, ChatCompletionTool, FunctionObjectArgs,
 };
-use async_openai::{types::CreateChatCompletionRequestArgs, Client};
+use async_openai::{types::chat::CreateChatCompletionRequestArgs, Client};
 use futures::StreamExt;
-use rand::seq::SliceRandom;
-use rand::{thread_rng, Rng};
+use rand::seq::IndexedRandom;
+use rand::{rng, Rng};
 use serde_json::{json, Value};
 
 #[tokio::main]
@@ -19,32 +18,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let user_prompt = "What's the weather like in Boston and Atlanta?";
 
     let request = CreateChatCompletionRequestArgs::default()
-        .max_tokens(512u32)
-        .model("gpt-4-1106-preview")
-        .messages([ChatCompletionRequestUserMessageArgs::default()
-            .content(user_prompt)
-            .build()?
-            .into()])
-        .tools(vec![ChatCompletionToolArgs::default()
-            .r#type(ChatCompletionToolType::Function)
-            .function(
-                FunctionObjectArgs::default()
-                    .name("get_current_weather")
-                    .description("Get the current weather in a given location")
-                    .parameters(json!({
-                        "type": "object",
-                        "properties": {
-                            "location": {
-                                "type": "string",
-                                "description": "The city and state, e.g. San Francisco, CA",
-                            },
-                            "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] },
+        .max_completion_tokens(512u32)
+        .model("gpt-5-mini")
+        .messages(ChatCompletionRequestUserMessage::from(user_prompt))
+        .tools(ChatCompletionTool {
+            function: FunctionObjectArgs::default()
+                .name("get_current_weather")
+                .description("Get the current weather in a given location")
+                .parameters(json!({
+                    "type": "object",
+                    "properties": {
+                        "location": {
+                            "type": "string",
+                            "description": "The city and state, e.g. San Francisco, CA",
                         },
-                        "required": ["location"],
-                    }))
-                    .build()?,
-            )
-            .build()?])
+                        "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] },
+                    },
+                    "required": ["location", "unit"],
+                    "additionalProperties": false
+                }))
+                .strict(true)
+                .build()?,
+        })
         .build()?;
 
     let response_message = client
@@ -53,20 +48,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?
         .choices
         .first()
-        .unwrap()
+        .ok_or("No choices")?
         .message
         .clone();
 
     if let Some(tool_calls) = response_message.tool_calls {
         let mut handles = Vec::new();
-        for tool_call in tool_calls {
-            let name = tool_call.function.name.clone();
-            let args = tool_call.function.arguments.clone();
-            let tool_call_clone = tool_call.clone();
+        for tool_call_enum in tool_calls {
+            // Extract the function tool call from the enum
+            if let ChatCompletionMessageToolCalls::Function(tool_call) = tool_call_enum {
+                let name = tool_call.function.name.clone();
+                let args = tool_call.function.arguments.clone();
+                let tool_call_clone = tool_call.clone();
 
-            let handle =
-                tokio::spawn(async move { call_fn(&name, &args).await.unwrap_or_default() });
-            handles.push((handle, tool_call_clone));
+                let handle =
+                    tokio::spawn(async move { call_fn(&name, &args).await.unwrap_or_default() });
+                handles.push((handle, tool_call_clone));
+            }
         }
 
         let mut function_responses = Vec::new();
@@ -78,14 +76,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         let mut messages: Vec<ChatCompletionRequestMessage> =
-            vec![ChatCompletionRequestUserMessageArgs::default()
-                .content(user_prompt)
-                .build()?
-                .into()];
+            ChatCompletionRequestUserMessage::from(user_prompt).into();
 
-        let tool_calls: Vec<ChatCompletionMessageToolCall> = function_responses
+        // Convert ChatCompletionMessageToolCall to ChatCompletionMessageToolCalls enum
+        let tool_calls: Vec<ChatCompletionMessageToolCalls> = function_responses
             .iter()
-            .map(|(tool_call, _response_content)| tool_call.clone())
+            .map(|(tool_call, _response_content)| {
+                ChatCompletionMessageToolCalls::Function(tool_call.clone())
+            })
             .collect();
 
         let assistant_messages: ChatCompletionRequestMessage =
@@ -97,12 +95,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let tool_messages: Vec<ChatCompletionRequestMessage> = function_responses
             .iter()
             .map(|(tool_call, response_content)| {
-                ChatCompletionRequestToolMessageArgs::default()
-                    .content(response_content.to_string())
-                    .tool_call_id(tool_call.id.clone())
-                    .build()
-                    .unwrap()
-                    .into()
+                ChatCompletionRequestMessage::Tool(ChatCompletionRequestToolMessage {
+                    content: response_content.to_string().into(),
+                    tool_call_id: tool_call.id.clone(),
+                })
             })
             .collect();
 
@@ -110,11 +106,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         messages.extend(tool_messages);
 
         let subsequent_request = CreateChatCompletionRequestArgs::default()
-            .max_tokens(512u32)
-            .model("gpt-4-1106-preview")
+            .max_completion_tokens(512u32)
+            .model("gpt-5-mini")
             .messages(messages)
-            .build()
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+            .build()?;
 
         let mut stream = client.chat().create_stream(subsequent_request).await?;
 
@@ -155,9 +150,9 @@ async fn call_fn(name: &str, args: &str) -> Result<Value, Box<dyn std::error::Er
 }
 
 fn get_current_weather(location: &str, unit: &str) -> serde_json::Value {
-    let mut rng = thread_rng();
+    let mut rng = rng();
 
-    let temperature: i32 = rng.gen_range(20..=55);
+    let temperature: i32 = rng.random_range(20..=55);
 
     let forecasts = [
         "sunny", "cloudy", "overcast", "rainy", "windy", "foggy", "snowy",
