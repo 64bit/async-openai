@@ -1,7 +1,7 @@
 use async_openai::{
     config::OpenAIConfig,
     traits::RequestOptionsBuilder,
-    types::videos::{CreateVideoRequestArgs, VideoJob, VideoSize, VideoVariant},
+    types::videos::{CreateVideoRequestArgs, VideoResource, VideoSize, VideoStatus, VideoVariant},
     Client,
 };
 use bytes::Bytes;
@@ -21,7 +21,7 @@ pub async fn save<P: AsRef<std::path::Path>>(
     Ok(())
 }
 
-async fn create_video(client: &Client<OpenAIConfig>) -> Result<VideoJob, Box<dyn Error>> {
+async fn create_video(client: &Client<OpenAIConfig>) -> Result<VideoResource, Box<dyn Error>> {
     let request = CreateVideoRequestArgs::default()
         .model("sora-2")
         .prompt("Fridge opens, cat walks out, and celebrates a birthday party")
@@ -45,20 +45,24 @@ async fn create_video(client: &Client<OpenAIConfig>) -> Result<VideoJob, Box<dyn
         let status_response = client.videos().retrieve(video_id).await?;
         println!("Current status: {}", status_response.status);
 
-        match status_response.status.as_str() {
-            "completed" => {
+        match status_response.status {
+            VideoStatus::Completed => {
                 println!("Video generation completed!");
                 break;
             }
-            "failed" => {
+            VideoStatus::Failed => {
                 println!("Video generation failed!");
                 if let Some(error) = status_response.error {
                     println!("Error: {:?}", error);
                 }
                 return Err("Video generation failed".into());
             }
-            _ => {
+            VideoStatus::InProgress => {
                 println!("Progress: {}%", status_response.progress);
+                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+            }
+            VideoStatus::Queued => {
+                println!("Video generation queued!");
                 tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
             }
         }
@@ -78,7 +82,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     for video in &videos.data {
         println!("Video: {:#?}", video);
 
-        if video.status == "completed" {
+        if matches!(video.status, VideoStatus::Completed) {
             let content = client
                 .videos()
                 .query(&[("variant", VideoVariant::Video)])?
