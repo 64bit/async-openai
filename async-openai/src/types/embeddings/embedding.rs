@@ -22,7 +22,9 @@ pub enum EncodingFormat {
     Base64,
 }
 
-#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq, Deserialize, utoipa::ToSchema, Eq, Hash)]
+#[derive(
+    Debug, Serialize, Default, Clone, Builder, PartialEq, Deserialize, utoipa::ToSchema, Eq, Hash,
+)]
 #[builder(name = "CreateEmbeddingRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
