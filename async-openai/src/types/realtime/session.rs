@@ -31,7 +31,12 @@ pub enum RealtimeTurnDetection {
     /// and off after a period of silence.
     #[serde(rename = "server_vad")]
     ServerVAD {
-        /// Whether or not to automatically generate a response when a VAD stop event occurs.
+        /// Whether or not to automatically generate a response when a VAD stop event occurs. If
+        /// `interrupt_response` is set to `false` this may fail to create a response if the model is
+        /// already responding.
+        ///
+        /// If both `create_response` and `interrupt_response` are set to `false`, the model will
+        /// never respond automatically but VAD events will still be emitted.
         #[serde(skip_serializing_if = "Option::is_none")]
         create_response: Option<bool>,
 
@@ -49,8 +54,12 @@ pub enum RealtimeTurnDetection {
         #[serde(skip_serializing_if = "Option::is_none")]
         idle_timeout_ms: Option<u32>,
 
-        /// Whether or not to automatically interrupt any ongoing response with output to
-        /// the default conversation (i.e. `conversation` of `auto`) when a VAD start event occurs.
+        /// Whether or not to automatically interrupt (cancel) any ongoing response with output to the
+        /// default conversation (i.e. `conversation` of `auto`) when a VAD start event occurs. If `true` then
+        /// the response will be cancelled, otherwise it will continue until complete.
+        ///
+        /// If both `create_response` and `interrupt_response` are set to `false`, the model will
+        /// never respond automatically but VAD events will still be emitted.
         #[serde(skip_serializing_if = "Option::is_none")]
         interrupt_response: Option<bool>,
 

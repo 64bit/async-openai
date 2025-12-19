@@ -9,12 +9,46 @@ pub enum AuditLogEventType {
     ApiKeyUpdated,
     #[serde(rename = "api_key.deleted")]
     ApiKeyDeleted,
+    #[serde(rename = "certificate.created")]
+    CertificateCreated,
+    #[serde(rename = "certificate.updated")]
+    CertificateUpdated,
+    #[serde(rename = "certificate.deleted")]
+    CertificateDeleted,
+    #[serde(rename = "certificates.activated")]
+    CertificatesActivated,
+    #[serde(rename = "certificates.deactivated")]
+    CertificatesDeactivated,
+    #[serde(rename = "checkpoint.permission.created")]
+    CheckpointPermissionCreated,
+    #[serde(rename = "checkpoint.permission.deleted")]
+    CheckpointPermissionDeleted,
+    #[serde(rename = "external_key.registered")]
+    ExternalKeyRegistered,
+    #[serde(rename = "external_key.removed")]
+    ExternalKeyRemoved,
+    #[serde(rename = "group.created")]
+    GroupCreated,
+    #[serde(rename = "group.updated")]
+    GroupUpdated,
+    #[serde(rename = "group.deleted")]
+    GroupDeleted,
     #[serde(rename = "invite.sent")]
     InviteSent,
     #[serde(rename = "invite.accepted")]
     InviteAccepted,
     #[serde(rename = "invite.deleted")]
     InviteDeleted,
+    #[serde(rename = "ip_allowlist.created")]
+    IpAllowlistCreated,
+    #[serde(rename = "ip_allowlist.updated")]
+    IpAllowlistUpdated,
+    #[serde(rename = "ip_allowlist.deleted")]
+    IpAllowlistDeleted,
+    #[serde(rename = "ip_allowlist.config.activated")]
+    IpAllowlistConfigActivated,
+    #[serde(rename = "ip_allowlist.config.deactivated")]
+    IpAllowlistConfigDeactivated,
     #[serde(rename = "login.succeeded")]
     LoginSucceeded,
     #[serde(rename = "login.failed")]
@@ -31,6 +65,34 @@ pub enum AuditLogEventType {
     ProjectUpdated,
     #[serde(rename = "project.archived")]
     ProjectArchived,
+    #[serde(rename = "project.deleted")]
+    ProjectDeleted,
+    #[serde(rename = "rate_limit.updated")]
+    RateLimitUpdated,
+    #[serde(rename = "rate_limit.deleted")]
+    RateLimitDeleted,
+    #[serde(rename = "resource.deleted")]
+    ResourceDeleted,
+    #[serde(rename = "tunnel.created")]
+    TunnelCreated,
+    #[serde(rename = "tunnel.updated")]
+    TunnelUpdated,
+    #[serde(rename = "tunnel.deleted")]
+    TunnelDeleted,
+    #[serde(rename = "role.created")]
+    RoleCreated,
+    #[serde(rename = "role.updated")]
+    RoleUpdated,
+    #[serde(rename = "role.deleted")]
+    RoleDeleted,
+    #[serde(rename = "role.assignment.created")]
+    RoleAssignmentCreated,
+    #[serde(rename = "role.assignment.deleted")]
+    RoleAssignmentDeleted,
+    #[serde(rename = "scim.enabled")]
+    ScimEnabled,
+    #[serde(rename = "scim.disabled")]
+    ScimDisabled,
     #[serde(rename = "service_account.created")]
     ServiceAccountCreated,
     #[serde(rename = "service_account.updated")]

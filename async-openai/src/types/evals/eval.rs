@@ -189,7 +189,8 @@ pub struct EvalItem {
     /// The role of the message input. One of `user`, `assistant`, `system`, or
     /// `developer`.
     pub role: EvalItemRole,
-    /// Inputs to the model - can contain template strings.
+    /// Inputs to the model - can contain template strings. Supports text, output text, input images, and
+    /// input audio, either as a single item or an array of items.
     pub content: EvalItemContent,
 }
 
@@ -207,14 +208,16 @@ pub enum EvalItemRole {
     Developer,
 }
 
+/// Output text from the model.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct OutputText {
+pub struct EvalItemContentOutputText {
     /// The text output from the model.
     pub text: String,
 }
 
+/// Input image block used within EvalItem content arrays.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct InputImage {
+pub struct EvalItemInputImage {
     /// The URL of the image input.
     pub image_url: String,
     /// The detail level of the image to be sent to the model. One of `high`, `low`, or `auto`.
@@ -224,21 +227,30 @@ pub struct InputImage {
 }
 
 /// Inputs to the model - can contain template strings.
+/// Supports text, output text, input images, and input audio, either as a single item or an array of items.
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum EvalItemContent {
+    /// An array of Input text, Output text, Input image, and Input audio
+    Array(Vec<EvalItemContentItem>),
+    /// A single content item
+    Single(EvalItemContentItem),
+}
+
+/// A single content item: input text, output text, input image, or input audio.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum EvalItemContent {
-    /// An input text content object.
+pub enum EvalItemContentItem {
+    /// An input text content object with type field.
     InputText(InputTextContent),
     /// An output text from the model.
-    OutputText(OutputText),
+    OutputText(EvalItemContentOutputText),
     /// An image input to the model.
-    InputImage(InputImage),
+    InputImage(EvalItemInputImage),
     /// An audio input to the model.
     InputAudio(InputAudio),
-    /// An array of Input text, Input image, and Input audio
-    Array(Vec<EvalItemContent>),
+    /// A text input to the model (plain string).
     #[serde(untagged)]
-    /// A text input to the model.
     Text(String),
 }
 
