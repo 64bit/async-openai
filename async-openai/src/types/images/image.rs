@@ -73,6 +73,8 @@ pub enum ImageResponseFormat {
 pub enum ImageModel {
     #[serde(rename = "gpt-image-1")]
     GptImage1,
+    #[serde(rename = "gpt-image-1.5")]
+    GptImage1dot5,
     #[serde(rename = "gpt-image-1-mini")]
     GptImage1Mini,
     #[default]
