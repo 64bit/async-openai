@@ -2,7 +2,8 @@ use crate::{
     error::OpenAIError,
     traits::AsyncTryFrom,
     types::audio::{
-        CreateTranscriptionRequest, CreateTranslationRequest, TranscriptionChunkingStrategy,
+        CreateTranscriptionRequest, CreateTranslationRequest, CreateVoiceConsentRequest,
+        CreateVoiceRequest, TranscriptionChunkingStrategy,
     },
     util::create_file_part,
 };
@@ -100,6 +101,36 @@ impl AsyncTryFrom<CreateTranslationRequest> for reqwest::multipart::Form {
         if let Some(temperature) = request.temperature {
             form = form.text("temperature", temperature.to_string())
         }
+        Ok(form)
+    }
+}
+
+impl AsyncTryFrom<CreateVoiceConsentRequest> for reqwest::multipart::Form {
+    type Error = OpenAIError;
+
+    async fn try_from(request: CreateVoiceConsentRequest) -> Result<Self, Self::Error> {
+        let recording_part = create_file_part(request.recording.source).await?;
+
+        let form = reqwest::multipart::Form::new()
+            .part("recording", recording_part)
+            .text("name", request.name)
+            .text("language", request.language);
+
+        Ok(form)
+    }
+}
+
+impl AsyncTryFrom<CreateVoiceRequest> for reqwest::multipart::Form {
+    type Error = OpenAIError;
+
+    async fn try_from(request: CreateVoiceRequest) -> Result<Self, Self::Error> {
+        let audio_sample_part = create_file_part(request.audio_sample.source).await?;
+
+        let form = reqwest::multipart::Form::new()
+            .part("audio_sample", audio_sample_part)
+            .text("name", request.name)
+            .text("consent", request.consent);
+
         Ok(form)
     }
 }
