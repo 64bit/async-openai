@@ -50,6 +50,7 @@ impl Display for ImageModel {
                 Self::DallE2 => "dall-e-2",
                 Self::DallE3 => "dall-e-3",
                 Self::GptImage1 => "gpt-image-1",
+                Self::GptImage1dot5 => "gpt-image-1.5",
                 Self::GptImage1Mini => "gpt-image-1-mini",
                 Self::Other(other) => other,
             }
