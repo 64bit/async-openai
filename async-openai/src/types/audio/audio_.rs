@@ -446,3 +446,107 @@ pub struct CreateTranslationResponseVerboseJson {
 pub struct CreateSpeechResponse {
     pub bytes: Bytes,
 }
+
+/// A consent recording used to authorize creation of a custom voice.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct VoiceConsentResource {
+    /// The object type, which is always `audio.voice_consent`.
+    pub object: String,
+    /// The consent recording identifier.
+    pub id: String,
+    /// The label provided when the consent recording was uploaded.
+    pub name: String,
+    /// The BCP 47 language tag for the consent phrase (for example, `en-US`).
+    pub language: String,
+    /// The Unix timestamp (in seconds) for when the consent recording was created.
+    pub created_at: u64,
+}
+
+/// Request to create a voice consent recording.
+#[derive(Clone, Default, Debug, Builder, PartialEq)]
+#[builder(name = "CreateVoiceConsentRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateVoiceConsentRequest {
+    /// The label to use for this consent recording.
+    pub name: String,
+    /// The consent audio recording file. Maximum size is 10 MiB.
+    /// Supported MIME types: `audio/mpeg`, `audio/wav`, `audio/x-wav`, `audio/ogg`,
+    /// `audio/aac`, `audio/flac`, `audio/webm`, `audio/mp4`.
+    pub recording: AudioInput,
+    /// The BCP 47 language tag for the consent phrase (for example, `en-US`).
+    pub language: String,
+}
+
+/// Request to update a voice consent recording (metadata only).
+#[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
+#[builder(name = "UpdateVoiceConsentRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct UpdateVoiceConsentRequest {
+    /// The updated label for this consent recording.
+    pub name: String,
+}
+
+/// The voice consent deletion object.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct VoiceConsentDeletedResource {
+    /// The consent recording identifier.
+    pub id: String,
+    /// The object type, which is always `audio.voice_consent`.
+    pub object: String,
+    /// Whether the consent recording was deleted.
+    pub deleted: bool,
+}
+
+/// The voice consent list object.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct VoiceConsentListResource {
+    /// The object type, which is always `list`.
+    pub object: String,
+    /// The list of voice consent recordings.
+    pub data: Vec<VoiceConsentResource>,
+    /// The ID of the first voice consent recording in the list.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub first_id: Option<String>,
+    /// The ID of the last voice consent recording in the list.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_id: Option<String>,
+    /// Whether there are more voice consent recordings available.
+    pub has_more: bool,
+}
+
+/// A custom voice that can be used for audio output.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct VoiceResource {
+    /// The object type, which is always `audio.voice`.
+    pub object: String,
+    /// The voice identifier, which can be referenced in API endpoints.
+    pub id: String,
+    /// The name of the voice.
+    pub name: String,
+    /// The Unix timestamp (in seconds) for when the voice was created.
+    pub created_at: u64,
+}
+
+/// Request to create a custom voice.
+#[derive(Clone, Default, Debug, Builder, PartialEq)]
+#[builder(name = "CreateVoiceRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateVoiceRequest {
+    /// The name of the new voice.
+    pub name: String,
+    /// The sample audio recording file. Maximum size is 10 MiB.
+    /// Supported MIME types: `audio/mpeg`, `audio/wav`, `audio/x-wav`, `audio/ogg`,
+    /// `audio/aac`, `audio/flac`, `audio/webm`, `audio/mp4`.
+    pub audio_sample: AudioInput,
+    /// The consent recording ID (for example, `cons_1234`).
+    pub consent: String,
+}

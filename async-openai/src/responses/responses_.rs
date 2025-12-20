@@ -2,8 +2,8 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::responses::{
-        CreateResponse, DeleteResponse, Response, ResponseItemList, ResponseStream,
-        TokenCountsBody, TokenCountsResource,
+        CompactResource, CompactResponseRequest, CreateResponse, DeleteResponse, Response,
+        ResponseItemList, ResponseStream, TokenCountsBody, TokenCountsResource,
     },
     Client, RequestOptions,
 };
@@ -147,6 +147,20 @@ impl<'c, C: Config> Responses<'c, C> {
     ) -> Result<TokenCountsResource, OpenAIError> {
         self.client
             .post("/responses/input_tokens", request, &self.request_options)
+            .await
+    }
+
+    /// Compact a conversation.
+    ///
+    /// Learn when and how to compact long-running conversations in the
+    /// [conversation state guide](https://platform.openai.com/docs/guides/conversation-state#managing-the-context-window).
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn compact(
+        &self,
+        request: CompactResponseRequest,
+    ) -> Result<CompactResource, OpenAIError> {
+        self.client
+            .post("/responses/compact", request, &self.request_options)
             .await
     }
 }

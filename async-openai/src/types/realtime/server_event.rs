@@ -67,6 +67,18 @@ pub struct RealtimeServerEventInputAudioBufferCleared {
     pub event_id: String,
 }
 
+/// **SIP Only:** Returned when a DTMF event is received. A DTMF event is a message that
+/// represents a telephone keypad press (0–9, *, #, A–D). The `event` property
+/// is the keypad that the user pressed. The `received_at` is the UTC Unix Timestamp
+/// that the server received the event.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RealtimeServerEventInputAudioBufferDtmfEventReceived {
+    /// The telephone keypad that was pressed by the user.
+    pub event: String,
+    /// UTC Unix Timestamp when DTMF Event was received by server.
+    pub received_at: u64,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RealtimeServerEventInputAudioBufferSpeechStarted {
     /// The unique ID of the server event.
@@ -646,6 +658,13 @@ pub enum RealtimeServerEvent {
     #[serde(rename = "input_audio_buffer.cleared")]
     InputAudioBufferCleared(RealtimeServerEventInputAudioBufferCleared),
 
+    /// **SIP Only:** Returned when an DTMF event is received. A DTMF event is a message that
+    /// represents a telephone keypad press (0–9, *, #, A–D). The `event` property
+    /// is the keypad that the user press. The `received_at` is the UTC Unix Timestamp
+    /// that the server received the event.
+    #[serde(rename = "input_audio_buffer.dtmf_event_received")]
+    InputAudioBufferDtmfEventReceived(RealtimeServerEventInputAudioBufferDtmfEventReceived),
+
     /// Sent by the server when in `server_vad` mode to indicate that speech has been detected in the audio buffer.
     /// This can happen any time audio is added to the buffer (unless speech is already detected).
     /// The client may want to use this event to interrupt audio playback or provide visual feedback to the user.
@@ -678,19 +697,19 @@ pub enum RealtimeServerEvent {
     #[serde(rename = "input_audio_buffer.timeout_triggered")]
     InputAudioBufferTimeoutTriggered(RealtimeServerEventInputAudioBufferTimeoutTriggered),
 
-    /// *WebRTC Only*: Emitted when the server begins streaming audio to the client. This
+    /// **WebRTC/SIP Only:**: Emitted when the server begins streaming audio to the client. This
     /// event is emitted after an audio content part has been added (`response.content_part.added`) to the response.
     /// [Learn more](https://platform.openai.com/docs/guides/realtime-conversations#client-and-server-events-for-audio-in-webrtc).
     #[serde(rename = "output_audio_buffer.started")]
     OutputAudioBufferStarted(RealtimeServerEventOutputAudioBufferStarted),
 
-    /// *WebRTC Only*: Emitted when the output audio buffer has been completely drained on
+    /// **WebRTC/SIP Only:**: Emitted when the output audio buffer has been completely drained on
     /// the server, and no more audio is forthcoming. This event is emitted after the full response data has been sent
     /// to the client (`response.done`). [Learn more](https://platform.openai.com/docs/guides/realtime-conversations#client-and-server-events-for-audio-in-webrtc).
     #[serde(rename = "output_audio_buffer.stopped")]
     OutputAudioBufferStopped(RealtimeServerEventOutputAudioBufferStopped),
 
-    /// *WebRTC Only*: Emitted when the output audio buffer is cleared. This happens either in
+    /// **WebRTC/SIP Only:**: Emitted when the output audio buffer is cleared. This happens either in
     /// VAD mode when the user has interrupted (`input_audio_buffer.speech_started`), or when the client has
     /// emitted the `output_audio_buffer.clear` event to manually cut off the current audio response.
     /// [Learn more](https://platform.openai.com/docs/guides/realtime-conversations#client-and-server-events-for-audio-in-webrtc).
@@ -828,6 +847,7 @@ impl_event_type! {
     RealtimeServerEventConversationItemDone => "conversation.item.done",
     RealtimeServerEventInputAudioBufferCommitted => "input_audio_buffer.committed",
     RealtimeServerEventInputAudioBufferCleared => "input_audio_buffer.cleared",
+    RealtimeServerEventInputAudioBufferDtmfEventReceived => "input_audio_buffer.dtmf_event_received",
     RealtimeServerEventInputAudioBufferSpeechStarted => "input_audio_buffer.speech_started",
     RealtimeServerEventInputAudioBufferSpeechStopped => "input_audio_buffer.speech_stopped",
     RealtimeServerEventInputAudioBufferTimeoutTriggered => "input_audio_buffer.timeout_triggered",
@@ -877,6 +897,7 @@ impl crate::traits::EventType for RealtimeServerEvent {
             RealtimeServerEvent::ConversationItemDone(e) => e.event_type(),
             RealtimeServerEvent::InputAudioBufferCommitted(e) => e.event_type(),
             RealtimeServerEvent::InputAudioBufferCleared(e) => e.event_type(),
+            RealtimeServerEvent::InputAudioBufferDtmfEventReceived(e) => e.event_type(),
             RealtimeServerEvent::InputAudioBufferSpeechStarted(e) => e.event_type(),
             RealtimeServerEvent::InputAudioBufferSpeechStopped(e) => e.event_type(),
             RealtimeServerEvent::InputAudioBufferTimeoutTriggered(e) => e.event_type(),

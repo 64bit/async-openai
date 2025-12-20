@@ -9,4 +9,5 @@ pub enum ReasoningEffort {
     #[default]
     Medium,
     High,
+    Xhigh,
 }

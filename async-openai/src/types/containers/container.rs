@@ -5,6 +5,19 @@ use crate::error::OpenAIError;
 
 use crate::types::InputSource;
 
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
+pub enum MemoryLimit {
+    #[default]
+    #[serde(rename = "1g")]
+    OneG,
+    #[serde(rename = "4g")]
+    FourG,
+    #[serde(rename = "16g")]
+    SixteenG,
+    #[serde(rename = "64g")]
+    SixtyFourG,
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct ContainerResource {
     /// Unique identifier for the container.
@@ -24,6 +37,8 @@ pub struct ContainerResource {
     /// Unix timestamp (in seconds) when the container was last active.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_active_at: Option<u64>,
+    /// The memory limit configured for the container.
+    pub memory_limit: MemoryLimit,
 }
 
 /// Expiration policy for containers.
@@ -58,6 +73,9 @@ pub struct CreateContainerRequest {
     /// Container expiration time in minutes relative to the 'anchor' time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after: Option<ContainerExpiresAfter>,
+    /// Optional memory limit for the container. Defaults to "1g".
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub memory_limit: Option<MemoryLimit>,
 }
 
 /// Response when listing containers.

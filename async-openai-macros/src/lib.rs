@@ -130,7 +130,6 @@ pub fn byot(args: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
-        #(#attrs)*
         #input
 
         #(#attrs)*

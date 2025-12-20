@@ -16,7 +16,7 @@ impl AsyncTryFrom<CreateVideoRequest> for reqwest::multipart::Form {
         }
 
         if request.seconds.is_some() {
-            form = form.text("seconds", request.seconds.unwrap());
+            form = form.text("seconds", request.seconds.unwrap().to_string());
         }
 
         if request.input_reference.is_some() {

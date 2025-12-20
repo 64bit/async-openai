@@ -468,13 +468,13 @@ impl From<LocalShellToolCallOutput> for Item {
 
 impl From<FunctionShellCallItemParam> for Item {
     fn from(call: FunctionShellCallItemParam) -> Self {
-        Item::FunctionShellCall(call)
+        Item::ShellCall(call)
     }
 }
 
 impl From<FunctionShellCallOutputItemParam> for Item {
     fn from(output: FunctionShellCallOutputItemParam) -> Self {
-        Item::FunctionShellCallOutput(output)
+        Item::ShellCallOutput(output)
     }
 }
 

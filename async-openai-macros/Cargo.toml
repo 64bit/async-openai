@@ -1,6 +1,6 @@
 [package]
 name = "async-openai-macros"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Himanshu Neema"]
 keywords = ["openai", "macros", "ai"]
 description = "Macros for async-openai"
@@ -9,6 +9,7 @@ license = "MIT"
 homepage = "https://github.com/64bit/async-openai"
 repository = "https://github.com/64bit/async-openai"
 rust-version = { workspace = true }
+readme = "README.md"
 
 [lib]
 proc-macro = true
