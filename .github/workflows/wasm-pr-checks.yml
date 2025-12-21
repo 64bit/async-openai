@@ -98,4 +98,4 @@ jobs:
         run: cargo build --no-default-features --features ${{ matrix.feature }} --verbose --target ${{ matrix.target }}
 
       - name: Run clippy with feature ${{ matrix.feature }} and target ${{ matrix.target }}
-        run: cargo clippy --no-default-features --features ${{ matrix.feature }} -- -D warnings --target ${{ matrix.target }}
+        run: cargo clippy --no-default-features --features ${{ matrix.feature }} --target ${{ matrix.target }} -- -D warnings
