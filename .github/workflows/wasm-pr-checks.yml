@@ -1,0 +1,101 @@
+name: WASM PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-features:
+    name: Build - ${{ matrix.feature }} for ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [wasm32-unknown-unknown, wasm32-wasip1]
+        feature:
+          [
+            byot,
+            responses,
+            webhook,
+            audio,
+            video,
+            image,
+            embedding,
+            evals,
+            finetuning,
+            grader,
+            batch,
+            file,
+            upload,
+            model,
+            moderation,
+            vectorstore,
+            chatkit,
+            container,
+            realtime,
+            chat-completion,
+            assistant,
+            administration,
+            completions,
+            response-types,
+            webhook-types,
+            audio-types,
+            video-types,
+            image-types,
+            embedding-types,
+            eval-types,
+            finetuning-types,
+            grader-types,
+            batch-types,
+            file-types,
+            upload-types,
+            model-types,
+            moderation-types,
+            vectorstore-types,
+            chatkit-types,
+            container-types,
+            realtime-types,
+            chat-completion-types,
+            assistant-types,
+            administration-types,
+            completion-types,
+            types,
+            full,
+          ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+          override: true
+          targets: ${{ matrix.target }}
+
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ matrix.feature }}-${{ matrix.target }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ matrix.feature }}-${{ matrix.target }}-
+            ${{ runner.os }}-cargo-${{ matrix.feature }}-${{ matrix.target }}-
+            ${{ runner.os }}-cargo-${{ matrix.target }}-
+            ${{ runner.os }}-cargo-
+
+      - name: Build with feature ${{ matrix.feature }} and target ${{ matrix.target }}
+        env:
+          RUSTFLAGS: "-D warnings"
+        run: cargo build --no-default-features --features ${{ matrix.feature }} --verbose --target ${{ matrix.target }}
+
+      - name: Run clippy with feature ${{ matrix.feature }} and target ${{ matrix.target }}
+        run: cargo clippy --no-default-features --features ${{ matrix.feature }} -- -D warnings --target ${{ matrix.target }}
