@@ -3,11 +3,14 @@ use crate::{
     error::OpenAIError,
     types::chat::{
         ChatCompletionDeleted, ChatCompletionList, ChatCompletionMessageList,
-        ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse,
+        CreateChatCompletionRequest, CreateChatCompletionResponse,
         UpdateChatCompletionRequest,
     },
     Client, RequestOptions,
 };
+
+#[cfg(not(target_family = "wasm"))]
+use crate::types::chat::ChatCompletionResponseStream;
 
 /// Given a list of messages comprising a conversation, the model will return a response.
 ///
@@ -64,6 +67,7 @@ impl<'c, C: Config> Chat<'c, C> {
     /// [ChatCompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
     ///
     /// byot: You must ensure "stream: true" in serialized `request`
+    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
