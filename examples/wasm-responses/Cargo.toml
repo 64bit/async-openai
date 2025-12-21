@@ -8,6 +8,7 @@ async-openai = { path = "../../async-openai", features = ["responses"] }
 dioxus = { version = "0.7", features = ["web"] }
 dioxus-logger = "0.5"
 tracing = "0.1"
+getrandom = { version = "0.3", features = ["wasm_js"] }
 
 [profile.release]
 opt-level = "z"
