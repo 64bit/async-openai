@@ -170,7 +170,7 @@ To only use Rust types from the crate - disable default features and use feature
 
 There are granular feature flags like `response-types`, `chat-completion-types`, etc.
 
-These granular types are enabled when the corresponding API feature is enabled - for example `response` will enable `response-types`.
+These granular types are enabled when the corresponding API feature is enabled - for example `responses` will enable `response-types`.
 
 ## Configurable Requests
 
