@@ -1,17 +1,16 @@
-use reqwest::Body;
-use tokio::fs::File;
-use tokio_util::codec::{BytesCodec, FramedRead};
-
 use crate::error::OpenAIError;
 use crate::types::InputSource;
+use reqwest::Body;
 
+#[cfg(not(target_family = "wasm"))]
 pub(crate) async fn file_stream_body(source: InputSource) -> Result<Body, OpenAIError> {
     let body = match source {
         InputSource::Path { path } => {
-            let file = File::open(path)
+            let file = tokio::fs::File::open(path)
                 .await
                 .map_err(|e| OpenAIError::FileReadError(e.to_string()))?;
-            let stream = FramedRead::new(file, BytesCodec::new());
+            let stream =
+                tokio_util::codec::FramedRead::new(file, tokio_util::codec::BytesCodec::new());
             Body::wrap_stream(stream)
         }
         _ => {
@@ -28,6 +27,7 @@ pub(crate) async fn create_file_part(
     source: InputSource,
 ) -> Result<reqwest::multipart::Part, OpenAIError> {
     let (stream, file_name) = match source {
+        #[cfg(not(target_family = "wasm"))]
         InputSource::Path { path } => {
             let file_name = path
                 .file_name()
@@ -55,7 +55,7 @@ pub(crate) async fn create_file_part(
     Ok(file_part)
 }
 
-#[cfg(any(feature = "image", feature = "audio"))]
+#[cfg(all(any(feature = "image", feature = "audio"), not(target_family = "wasm")))]
 pub(crate) fn create_all_dir<P: AsRef<std::path::Path>>(dir: P) -> Result<(), OpenAIError> {
     let exists = match std::path::Path::try_exists(dir.as_ref()) {
         Ok(exists) => exists,
