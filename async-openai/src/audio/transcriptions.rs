@@ -6,10 +6,12 @@ use crate::{
     types::audio::{
         CreateTranscriptionRequest, CreateTranscriptionResponseDiarizedJson,
         CreateTranscriptionResponseJson, CreateTranscriptionResponseVerboseJson,
-        TranscriptionResponseStream,
     },
     Client, RequestOptions,
 };
+
+#[cfg(not(target_family = "wasm"))]
+use crate::types::audio::TranscriptionResponseStream;
 
 pub struct Transcriptions<'c, C: Config> {
     client: &'c Client<C>,
@@ -39,6 +41,7 @@ impl<'c, C: Config> Transcriptions<'c, C> {
             .await
     }
 
+    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
