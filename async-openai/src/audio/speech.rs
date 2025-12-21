@@ -1,9 +1,12 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::audio::{CreateSpeechRequest, CreateSpeechResponse, SpeechResponseStream},
+    types::audio::{CreateSpeechRequest, CreateSpeechResponse},
     Client, RequestOptions,
 };
+
+#[cfg(not(target_family = "wasm"))]
+use crate::types::audio::SpeechResponseStream;
 
 pub struct Speech<'c, C: Config> {
     client: &'c Client<C>,
@@ -32,6 +35,7 @@ impl<'c, C: Config> Speech<'c, C> {
     }
 
     /// Generates audio from the input text in SSE stream format.
+    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
