@@ -2,11 +2,13 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::images::{
-        CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImageEditStream,
-        ImageGenStream, ImagesResponse,
+        CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImagesResponse,
     },
     Client, RequestOptions,
 };
+
+#[cfg(not(target_family = "wasm"))]
+use crate::types::images::{ImageEditStream, ImageGenStream};
 
 /// Given a prompt and/or an input image, the model will generate a new image.
 ///
@@ -36,6 +38,7 @@ impl<'c, C: Config> Images<'c, C> {
     }
 
     /// Creates an image given a prompt.
+    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
@@ -82,6 +85,7 @@ impl<'c, C: Config> Images<'c, C> {
 
     /// Creates an edited or extended image given one or more source images and a prompt.
     /// This endpoint only supports gpt-image-1 and dall-e-2.
+    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
