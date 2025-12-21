@@ -1,14 +1,19 @@
+#[cfg(not(target_family = "wasm"))]
 use std::pin::Pin;
 
 use bytes::Bytes;
+#[cfg(not(target_family = "wasm"))]
 use futures::{stream::StreamExt, Stream};
 use reqwest::{header::HeaderMap, multipart::Form, Response};
+#[cfg(not(target_family = "wasm"))]
 use reqwest_eventsource::{Error as EventSourceError, Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
+#[cfg(not(target_family = "wasm"))]
+use crate::error::StreamError;
 use crate::{
     config::{Config, OpenAIConfig},
-    error::{map_deserialization_error, ApiError, OpenAIError, StreamError, WrappedError},
+    error::{map_deserialization_error, ApiError, OpenAIError, WrappedError},
     traits::AsyncTryFrom,
     RequestOptions,
 };
@@ -58,13 +63,28 @@ use crate::VectorStores;
 #[cfg(feature = "video")]
 use crate::Videos;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 /// Client is a container for config, backoff and http_client
 /// used to make API calls.
 pub struct Client<C: Config> {
     http_client: reqwest::Client,
     config: C,
+    #[cfg(not(target_family = "wasm"))]
     backoff: backoff::ExponentialBackoff,
+}
+
+impl<C: Config> Default for Client<C>
+where
+    C: Default,
+{
+    fn default() -> Self {
+        Self {
+            http_client: reqwest::Client::new(),
+            config: C::default(),
+            #[cfg(not(target_family = "wasm"))]
+            backoff: Default::default(),
+        }
+    }
 }
 
 impl Client<OpenAIConfig> {
@@ -76,6 +96,7 @@ impl Client<OpenAIConfig> {
 
 impl<C: Config> Client<C> {
     /// Create client with a custom HTTP client, OpenAI config, and backoff.
+    #[cfg(not(target_family = "wasm"))]
     pub fn build(
         http_client: reqwest::Client,
         config: C,
@@ -88,11 +109,21 @@ impl<C: Config> Client<C> {
         }
     }
 
+    /// Create client with a custom HTTP client and config (WASM version without backoff).
+    #[cfg(target_family = "wasm")]
+    pub fn build(http_client: reqwest::Client, config: C) -> Self {
+        Self {
+            http_client,
+            config,
+        }
+    }
+
     /// Create client with [OpenAIConfig] or [crate::config::AzureConfig]
     pub fn with_config(config: C) -> Self {
         Self {
             http_client: reqwest::Client::new(),
             config,
+            #[cfg(not(target_family = "wasm"))]
             backoff: Default::default(),
         }
     }
@@ -106,6 +137,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Exponential backoff for retrying [rate limited](https://platform.openai.com/docs/guides/rate-limits) requests.
+    #[cfg(not(target_family = "wasm"))]
     pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
         self.backoff = backoff;
         self
@@ -421,6 +453,7 @@ impl<C: Config> Client<C> {
     }
 
     #[allow(unused)]
+    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn post_form_stream<O, F>(
         &self,
         path: &str,
@@ -491,11 +524,12 @@ impl<C: Config> Client<C> {
         ))
     }
 
-    /// Execute a HTTP request and retry on rate limit
+    /// Execute a HTTP request and retry on rate limit (non-WASM version with backoff)
     ///
     /// request_maker serves one purpose: to be able to create request again
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
+    #[cfg(not(target_family = "wasm"))]
     async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
         M: Fn() -> Fut,
@@ -544,6 +578,23 @@ impl<C: Config> Client<C> {
         .await
     }
 
+    /// Execute a HTTP request (WASM version - single attempt, no retry)
+    #[cfg(target_family = "wasm")]
+    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<(Bytes, HeaderMap), OpenAIError>
+    where
+        M: Fn() -> Fut,
+        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+    {
+        let request = request_maker().await?;
+        let response = self
+            .http_client
+            .execute(request)
+            .await
+            .map_err(OpenAIError::Reqwest)?;
+
+        read_response(response).await
+    }
+
     /// Execute a HTTP request and retry on rate limit
     ///
     /// request_maker serves one purpose: to be able to create request again
@@ -565,6 +616,7 @@ impl<C: Config> Client<C> {
 
     /// Make HTTP POST request to receive SSE
     #[allow(unused)]
+    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn post_stream<I, O>(
         &self,
         path: &str,
@@ -585,6 +637,7 @@ impl<C: Config> Client<C> {
     }
 
     #[allow(unused)]
+    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn post_stream_mapped_raw_events<I, O>(
         &self,
         path: &str,
@@ -607,6 +660,7 @@ impl<C: Config> Client<C> {
 
     /// Make HTTP GET request to receive SSE
     #[allow(unused)]
+    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn get_stream<O>(
         &self,
         path: &str,
@@ -652,6 +706,7 @@ async fn read_response(response: Response) -> Result<(Bytes, HeaderMap), OpenAIE
     Ok((bytes, headers))
 }
 
+#[cfg(not(target_family = "wasm"))]
 async fn map_stream_error(value: EventSourceError) -> OpenAIError {
     match value {
         EventSourceError::InvalidStatusCode(status_code, response) => {
@@ -665,6 +720,7 @@ async fn map_stream_error(value: EventSourceError) -> OpenAIError {
 
 /// Request which responds with SSE.
 /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
+#[cfg(not(target_family = "wasm"))]
 pub(crate) async fn stream<O>(
     mut event_source: EventSource,
 ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
@@ -718,6 +774,7 @@ where
     Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
 }
 
+#[cfg(not(target_family = "wasm"))]
 pub(crate) async fn stream_mapped_raw_events<O>(
     mut event_source: EventSource,
     event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
