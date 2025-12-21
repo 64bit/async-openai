@@ -1,7 +1,7 @@
-use std::{
-    fmt::Display,
-    path::{Path, PathBuf},
-};
+use std::fmt::Display;
+
+#[cfg(not(target_family = "wasm"))]
+use std::path::{Path, PathBuf};
 
 use crate::types::images::{
     DallE2ImageSize, ImageBackground, ImageEditInput, ImageInput, ImageModel, ImageOutputFormat,
