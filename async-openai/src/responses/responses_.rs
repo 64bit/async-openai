@@ -3,10 +3,13 @@ use crate::{
     error::OpenAIError,
     types::responses::{
         CompactResource, CompactResponseRequest, CreateResponse, DeleteResponse, Response,
-        ResponseItemList, ResponseStream, TokenCountsBody, TokenCountsResource,
+        ResponseItemList, TokenCountsBody, TokenCountsResource,
     },
     Client, RequestOptions,
 };
+
+#[cfg(not(target_family = "wasm"))]
+use crate::types::responses::ResponseStream;
 
 pub struct Responses<'c, C: Config> {
     client: &'c Client<C>,
@@ -44,6 +47,7 @@ impl<'c, C: Config> Responses<'c, C> {
     /// Creates a model response for the given input with streaming.
     ///
     /// Response events will be sent as server-sent events as they become available,
+    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
@@ -84,6 +88,7 @@ impl<'c, C: Config> Responses<'c, C> {
     /// Retrieves a model response with the given ID with streaming.
     ///
     /// Response events will be sent as server-sent events as they become available.
+    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = std::fmt::Display,
         R = serde::de::DeserializeOwned,
