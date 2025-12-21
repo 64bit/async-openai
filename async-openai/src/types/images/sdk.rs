@@ -1,3 +1,4 @@
+#![cfg(not(target_family = "wasm"))]
 use crate::{
     download::{download_url, save_b64},
     error::OpenAIError,
