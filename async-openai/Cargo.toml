@@ -177,7 +177,7 @@ hmac = { version = "0.12", optional = true, default-features = false}
 sha2 = { version = "0.10", optional = true, default-features = false }
 hex = { version = "0.4", optional = true, default-features = false }
 
-# API Non-WASM dependencies (streaming and retry is not implemented for WASM yet)
+## API Non-WASM dependencies (streaming and retry is not implemented for WASM yet)
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 backoff = { version = "0.4.0", features = ["tokio"], optional = true }
 futures = { version = "0.3", optional = true }
@@ -189,6 +189,9 @@ eventsource-stream = { version = "0.2", optional = true }
 ## For Realtime websocket
 tokio-tungstenite = { version = "0.28", optional = true, default-features = false }
 
+## API WASM dependencies
+[target.wasm32-unknown-unknown.dependencies]
+getrandom = { version = "0.3", features = ["wasm_js"] }
 
 [dev-dependencies]
 tokio-test = "0.4"
