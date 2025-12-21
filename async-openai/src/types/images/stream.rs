@@ -102,12 +102,12 @@ pub enum ImageEditStreamEvent {
     Completed(ImageEditCompletedEvent),
 }
 
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 pub type ImageEditStream = std::pin::Pin<
     Box<dyn futures::Stream<Item = Result<ImageEditStreamEvent, crate::error::OpenAIError>> + Send>,
 >;
 
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 pub type ImageGenStream = std::pin::Pin<
     Box<dyn futures::Stream<Item = Result<ImageGenStreamEvent, crate::error::OpenAIError>> + Send>,
 >;
