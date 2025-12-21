@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 #[derive(Debug, thiserror::Error)]
 pub enum OpenAIError {
     /// Underlying error from reqwest library after an API call was made
@@ -29,6 +29,25 @@ pub enum OpenAIError {
     InvalidArgument(String),
 }
 
+// no streaming support for wasm yet
+#[cfg(all(feature = "_api", target_family = "wasm"))]
+#[derive(Debug, thiserror::Error)]
+pub enum OpenAIError {
+    /// Underlying error from reqwest library after an API call was made
+    #[error("http error: {0}")]
+    Reqwest(#[from] reqwest::Error),
+    /// OpenAI returns error object with details of API call failure
+    #[error("{0}")]
+    ApiError(ApiError),
+    /// Error when a response cannot be deserialized into a Rust type
+    #[error("failed to deserialize api response: error:{0} content:{1}")]
+    JSONDeserialize(serde_json::Error, String),
+    /// Error from client side validation
+    /// or when builder fails to build request before making API call
+    #[error("invalid args: {0}")]
+    InvalidArgument(String),
+}
+
 #[cfg(not(feature = "_api"))]
 #[derive(Debug)]
 pub enum OpenAIError {
@@ -49,7 +68,7 @@ impl std::fmt::Display for OpenAIError {
 #[cfg(not(feature = "_api"))]
 impl std::error::Error for OpenAIError {}
 
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 #[derive(Debug, thiserror::Error)]
 pub enum StreamError {
     /// Underlying error from reqwest_eventsource library when reading the stream
