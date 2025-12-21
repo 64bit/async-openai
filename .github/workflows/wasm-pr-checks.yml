@@ -76,7 +76,7 @@ jobs:
           toolchain: stable
           components: clippy
           override: true
-          targets: ${{ matrix.target }}
+          target: ${{ matrix.target }}
 
       - name: Cache cargo registry
         uses: actions/cache@v3
