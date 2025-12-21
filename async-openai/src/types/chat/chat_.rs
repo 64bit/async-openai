@@ -1099,7 +1099,7 @@ pub struct CreateChatCompletionResponse {
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 pub type ChatCompletionResponseStream = std::pin::Pin<
     Box<dyn futures::Stream<Item = Result<CreateChatCompletionStreamResponse, OpenAIError>> + Send>,
 >;

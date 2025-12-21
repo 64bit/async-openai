@@ -157,6 +157,7 @@ macro_rules! impl_input {
             }
         }
 
+        #[cfg(not(target_family = "wasm"))]
         impl<P: AsRef<std::path::Path>> From<P> for $for_typ {
             fn from(path: P) -> Self {
                 let path_buf = path.as_ref().to_path_buf();

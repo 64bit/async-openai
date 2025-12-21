@@ -1,7 +1,7 @@
-use std::{
-    fmt::Display,
-    path::{Path, PathBuf},
-};
+use std::fmt::Display;
+
+#[cfg(not(target_family = "wasm"))]
+use std::path::{Path, PathBuf};
 
 use crate::types::images::{
     DallE2ImageSize, ImageBackground, ImageEditInput, ImageInput, ImageModel, ImageOutputFormat,
@@ -147,75 +147,87 @@ impl From<Vec<ImageInput>> for ImageEditInput {
     }
 }
 
-// Single path-like values
+// Single path-like values (not available in WASM)
+#[cfg(not(target_family = "wasm"))]
 impl From<&str> for ImageEditInput {
     fn from(value: &str) -> Self {
         Self::Image(value.into())
     }
 }
 
+#[cfg(not(target_family = "wasm"))]
 impl From<String> for ImageEditInput {
     fn from(value: String) -> Self {
         Self::Image(value.into())
     }
 }
 
+#[cfg(not(target_family = "wasm"))]
 impl From<&Path> for ImageEditInput {
     fn from(value: &Path) -> Self {
         Self::Image(value.into())
     }
 }
 
+#[cfg(not(target_family = "wasm"))]
 impl From<PathBuf> for ImageEditInput {
     fn from(value: PathBuf) -> Self {
         Self::Image(value.into())
     }
 }
 
-// Arrays of path-like values
+// Arrays of path-like values (not available in WASM)
+#[cfg(not(target_family = "wasm"))]
 impl<const N: usize> From<[&str; N]> for ImageEditInput {
     fn from(value: [&str; N]) -> Self {
         Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
+#[cfg(not(target_family = "wasm"))]
 impl<const N: usize> From<[String; N]> for ImageEditInput {
     fn from(value: [String; N]) -> Self {
         Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
+#[cfg(not(target_family = "wasm"))]
 impl<const N: usize> From<[&Path; N]> for ImageEditInput {
     fn from(value: [&Path; N]) -> Self {
         Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
+#[cfg(not(target_family = "wasm"))]
 impl<const N: usize> From<[PathBuf; N]> for ImageEditInput {
     fn from(value: [PathBuf; N]) -> Self {
         Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
-// Vectors of path-like values
+// Vectors of path-like values (not available in WASM)
+#[cfg(not(target_family = "wasm"))]
 impl<'a> From<Vec<&'a str>> for ImageEditInput {
     fn from(value: Vec<&'a str>) -> Self {
         Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
+#[cfg(not(target_family = "wasm"))]
 impl From<Vec<String>> for ImageEditInput {
     fn from(value: Vec<String>) -> Self {
         Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
+#[cfg(not(target_family = "wasm"))]
 impl From<Vec<&Path>> for ImageEditInput {
     fn from(value: Vec<&Path>) -> Self {
         Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
 
+#[cfg(not(target_family = "wasm"))]
 impl From<Vec<PathBuf>> for ImageEditInput {
     fn from(value: Vec<PathBuf>) -> Self {
         Self::Images(value.into_iter().map(ImageInput::from).collect())

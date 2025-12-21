@@ -1,3 +1,5 @@
+#![cfg(not(target_family = "wasm"))]
+
 use crate::{error::OpenAIError, types::audio::CreateSpeechResponse, util::create_all_dir};
 use std::path::Path;
 

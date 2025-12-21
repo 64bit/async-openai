@@ -313,14 +313,14 @@ impl From<RealtimeConversationItem> for RealtimeClientEventConversationItemCreat
     }
 }
 
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 impl From<RealtimeClientEvent> for tokio_tungstenite::tungstenite::Message {
     fn from(value: RealtimeClientEvent) -> Self {
         tokio_tungstenite::tungstenite::Message::Text(String::from(&value).into())
     }
 }
 
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 macro_rules! message_from_event {
     ($from_typ:ty, $evt_typ:ty) => {
         impl From<$from_typ> for tokio_tungstenite::tungstenite::Message {
@@ -331,48 +331,48 @@ macro_rules! message_from_event {
     };
 }
 
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 message_from_event!(RealtimeClientEventSessionUpdate, RealtimeClientEvent);
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 message_from_event!(
     RealtimeClientEventInputAudioBufferAppend,
     RealtimeClientEvent
 );
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 message_from_event!(
     RealtimeClientEventInputAudioBufferCommit,
     RealtimeClientEvent
 );
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 message_from_event!(
     RealtimeClientEventInputAudioBufferClear,
     RealtimeClientEvent
 );
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 message_from_event!(
     RealtimeClientEventConversationItemCreate,
     RealtimeClientEvent
 );
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 message_from_event!(
     RealtimeClientEventConversationItemTruncate,
     RealtimeClientEvent
 );
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 message_from_event!(
     RealtimeClientEventConversationItemDelete,
     RealtimeClientEvent
 );
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 message_from_event!(
     RealtimeClientEventConversationItemRetrieve,
     RealtimeClientEvent
 );
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 message_from_event!(RealtimeClientEventResponseCreate, RealtimeClientEvent);
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 message_from_event!(RealtimeClientEventResponseCancel, RealtimeClientEvent);
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 message_from_event!(
     RealtimeClientEventOutputAudioBufferClear,
     RealtimeClientEvent

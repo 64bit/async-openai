@@ -115,7 +115,11 @@
 //!
 //! There are granular feature flags like `response-types`, `chat-completion-types`, etc.
 //!
-//! These granular types are enabled when the corresponding API feature is enabled - for example `response` will enable `response-types`.
+//! These granular types are enabled when the corresponding API feature is enabled - for example `responses` will enable `response-types`.
+//!
+//! ## WASM
+//! For WASM targets streaming, retries, file operations are not implemented yet.
+//! See [examples/wasm-responses](https://github.com/64bit/async-openai/tree/main/examples/wasm-responses) for a working example.
 //!
 //! ## Configurable Requests
 //!

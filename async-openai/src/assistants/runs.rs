@@ -3,11 +3,14 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::assistants::{
-        AssistantEventStream, CreateRunRequest, ListRunsResponse, ModifyRunRequest, RunObject,
+        CreateRunRequest, ListRunsResponse, ModifyRunRequest, RunObject,
         SubmitToolOutputsRunRequest,
     },
     Client, RequestOptions,
 };
+
+#[cfg(not(target_family = "wasm"))]
+use crate::types::assistants::AssistantEventStream;
 
 /// Represents an execution run on a thread.
 ///
@@ -47,6 +50,7 @@ impl<'c, C: Config> Runs<'c, C> {
     /// Create a run.
     ///
     /// byot: You must ensure "stream: true" in serialized `request`
+    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
@@ -138,6 +142,7 @@ impl<'c, C: Config> Runs<'c, C> {
     }
 
     /// byot: You must ensure "stream: true" in serialized `request`
+    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = std::fmt::Display,
         T1 = serde::Serialize,
