@@ -91,7 +91,7 @@ pub enum CreateTranscriptionResponseStreamEvent {
     TranscriptTextDone(TranscriptionTextDoneEvent),
 }
 
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 pub type TranscriptionResponseStream = std::pin::Pin<
     Box<
         dyn futures::Stream<
@@ -101,7 +101,7 @@ pub type TranscriptionResponseStream = std::pin::Pin<
 >;
 
 /// Stream of response events
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 pub type SpeechResponseStream = std::pin::Pin<
     Box<
         dyn futures::Stream<
