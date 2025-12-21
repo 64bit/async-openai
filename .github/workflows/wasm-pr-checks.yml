@@ -92,14 +92,6 @@ jobs:
             ${{ runner.os }}-cargo-${{ matrix.target }}-
             ${{ runner.os }}-cargo-
 
-      - name: Create .cargo/config.toml
-        run: |
-          mkdir -p .cargo
-          cat > .cargo/config.toml << 'EOF'
-          [target.wasm32-unknown-unknown]
-          rustflags = ["--cfg", "getrandom_backend=\"wasm_js\""]
-          EOF
-
       - name: Build with feature ${{ matrix.feature }} and target ${{ matrix.target }}
         env:
           RUSTFLAGS: "-D warnings"
