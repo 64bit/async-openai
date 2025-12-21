@@ -53,6 +53,62 @@ macro_rules! impl_config_for_ptr {
 impl_config_for_ptr!(Box<dyn Config>);
 impl_config_for_ptr!(std::sync::Arc<dyn Config>);
 
+// Private helper functions for default values
+fn default_api_base() -> String {
+    #[cfg(not(target_family = "wasm"))]
+    {
+        std::env::var("OPENAI_BASE_URL").unwrap_or_else(|_| OPENAI_API_BASE.to_string())
+    }
+
+    #[cfg(target_family = "wasm")]
+    {
+        OPENAI_API_BASE.to_string()
+    }
+}
+
+fn default_api_key() -> String {
+    #[cfg(not(target_family = "wasm"))]
+    {
+        std::env::var("OPENAI_API_KEY")
+            .or_else(|_| {
+                std::env::var("OPENAI_ADMIN_KEY").map(|admin_key| {
+                    tracing::warn!("Using OPENAI_ADMIN_KEY, OPENAI_API_KEY not set");
+                    admin_key
+                })
+            })
+            .unwrap_or_default()
+    }
+
+    #[cfg(target_family = "wasm")]
+    {
+        String::new()
+    }
+}
+
+fn default_org_id() -> String {
+    #[cfg(not(target_family = "wasm"))]
+    {
+        std::env::var("OPENAI_ORG_ID").unwrap_or_default()
+    }
+
+    #[cfg(target_family = "wasm")]
+    {
+        String::new()
+    }
+}
+
+fn default_project_id() -> String {
+    #[cfg(not(target_family = "wasm"))]
+    {
+        std::env::var("OPENAI_PROJECT_ID").unwrap_or_default()
+    }
+
+    #[cfg(target_family = "wasm")]
+    {
+        String::new()
+    }
+}
+
 /// Configuration for OpenAI API
 #[derive(Clone, Debug, Deserialize)]
 #[serde(default)]
@@ -68,19 +124,10 @@ pub struct OpenAIConfig {
 impl Default for OpenAIConfig {
     fn default() -> Self {
         Self {
-            api_base: std::env::var("OPENAI_BASE_URL")
-                .unwrap_or_else(|_| OPENAI_API_BASE.to_string()),
-            api_key: std::env::var("OPENAI_API_KEY")
-                .or_else(|_| {
-                    std::env::var("OPENAI_ADMIN_KEY").map(|admin_key| {
-                        tracing::warn!("Using OPENAI_ADMIN_KEY, OPENAI_API_KEY not set");
-                        admin_key
-                    })
-                })
-                .unwrap_or_default()
-                .into(),
-            org_id: std::env::var("OPENAI_ORG_ID").unwrap_or_default(),
-            project_id: std::env::var("OPENAI_PROJECT_ID").unwrap_or_default(),
+            api_base: default_api_base(),
+            api_key: default_api_key().into(),
+            org_id: default_org_id(),
+            project_id: default_project_id(),
             custom_headers: HeaderMap::new(),
         }
     }
@@ -200,9 +247,7 @@ impl Default for AzureConfig {
     fn default() -> Self {
         Self {
             api_base: Default::default(),
-            api_key: std::env::var("OPENAI_API_KEY")
-                .unwrap_or_else(|_| "".to_string())
-                .into(),
+            api_key: default_api_key().into(),
             deployment_id: Default::default(),
             api_version: Default::default(),
         }
