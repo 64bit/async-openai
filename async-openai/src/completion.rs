@@ -3,10 +3,13 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::completions::{
-        CompletionResponseStream, CreateCompletionRequest, CreateCompletionResponse,
+        CreateCompletionRequest, CreateCompletionResponse,
     },
     RequestOptions,
 };
+
+#[cfg(not(target_family = "wasm"))]
+use crate::types::completions::CompletionResponseStream;
 
 /// Given a prompt, the model will return one or more predicted completions,
 /// and can also return the probabilities of alternative tokens at each position.
@@ -60,6 +63,7 @@ impl<'c, C: Config> Completions<'c, C> {
     /// [CompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
     ///
     /// You must ensure that "stream: true" in serialized `request`
+    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
