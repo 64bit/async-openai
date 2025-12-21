@@ -105,12 +105,12 @@ pub enum AssistantStreamEvent {
     Done(String),
 }
 
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 pub type AssistantEventStream = std::pin::Pin<
     Box<dyn futures::Stream<Item = Result<AssistantStreamEvent, crate::error::OpenAIError>> + Send>,
 >;
 
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 impl TryFrom<eventsource_stream::Event> for AssistantStreamEvent {
     type Error = crate::error::OpenAIError;
     fn try_from(value: eventsource_stream::Event) -> Result<Self, Self::Error> {
