@@ -3,8 +3,7 @@ use crate::{
     error::OpenAIError,
     types::chat::{
         ChatCompletionDeleted, ChatCompletionList, ChatCompletionMessageList,
-        CreateChatCompletionRequest, CreateChatCompletionResponse,
-        UpdateChatCompletionRequest,
+        CreateChatCompletionRequest, CreateChatCompletionResponse, UpdateChatCompletionRequest,
     },
     Client, RequestOptions,
 };

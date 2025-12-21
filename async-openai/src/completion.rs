@@ -2,9 +2,7 @@ use crate::{
     client::Client,
     config::Config,
     error::OpenAIError,
-    types::completions::{
-        CreateCompletionRequest, CreateCompletionResponse,
-    },
+    types::completions::{CreateCompletionRequest, CreateCompletionResponse},
     RequestOptions,
 };
 
