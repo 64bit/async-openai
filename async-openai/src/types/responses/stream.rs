@@ -536,7 +536,7 @@ pub struct ResponseErrorEvent {
 }
 
 /// Stream of response events
-#[cfg(feature = "_api")]
+#[cfg(all(feature = "_api", not(target_family = "wasm")))]
 pub type ResponseStream = std::pin::Pin<
     Box<dyn futures::Stream<Item = Result<ResponseStreamEvent, crate::error::OpenAIError>> + Send>,
 >;
