@@ -1,3 +1,6 @@
+//! Filesystem-only download utilities (not available in WASM)
+#![cfg(not(target_family = "wasm"))]
+
 use std::path::{Path, PathBuf};
 
 use base64::{engine::general_purpose, Engine as _};
