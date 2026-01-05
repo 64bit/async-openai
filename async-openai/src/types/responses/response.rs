@@ -641,7 +641,7 @@ pub struct CreateResponse {
 
     /// The retention policy for the prompt cache. Set to `24h` to enable extended prompt caching,
     /// which keeps cached prefixes active for longer, up to a maximum of 24 hours. [Learn
-    /// more](https://platform.openai.com/docs/guides/prompt-caching#prompt-cache-retention).    
+    /// more](https://platform.openai.com/docs/guides/prompt-caching#prompt-cache-retention).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt_cache_retention: Option<PromptCacheRetention>,
 
@@ -1689,7 +1689,7 @@ pub struct WebSearchActionSearch {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebSearchActionOpenPage {
     /// The URL opened by the model.
-    pub url: String,
+    pub url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -2461,7 +2461,7 @@ pub struct Response {
 
     /// The retention policy for the prompt cache. Set to `24h` to enable extended prompt caching,
     /// which keeps cached prefixes active for longer, up to a maximum of 24 hours. [Learn
-    /// more](https://platform.openai.com/docs/guides/prompt-caching#prompt-cache-retention).    
+    /// more](https://platform.openai.com/docs/guides/prompt-caching#prompt-cache-retention).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt_cache_retention: Option<PromptCacheRetention>,
 
