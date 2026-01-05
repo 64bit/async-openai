@@ -1693,7 +1693,7 @@ pub struct WebSearchActionOpenPage {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct WebSearchActionFind {
+pub struct WebSearchActionFindInPage {
     /// The URL of the page searched for the pattern.
     pub url: String,
     /// The pattern or text to search for within the page.
@@ -1707,15 +1707,15 @@ pub enum WebSearchToolCallAction {
     Search(WebSearchActionSearch),
     /// Action type "open_page" - Opens a specific URL from search results.
     OpenPage(WebSearchActionOpenPage),
-    /// Action type "find": Searches for a pattern within a loaded page.
-    Find(WebSearchActionFind),
+    /// Action type "find_in_page": Searches for a pattern within a loaded page.
+    FindInPage(WebSearchActionFindInPage),
 }
 
 /// Web search tool call output.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebSearchToolCall {
     /// An object describing the specific action taken in this web search call. Includes
-    /// details on how the model used the web (search, open_page, find).
+    /// details on how the model used the web (search, open_page, find_in_page).
     pub action: WebSearchToolCallAction,
     /// The unique ID of the web search tool call.
     pub id: String,
