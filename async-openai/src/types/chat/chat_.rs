@@ -729,8 +729,8 @@ pub enum ChatCompletionAudioFormat {
 
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct ChatCompletionAudio {
-    /// The voice the model uses to respond. Supported voices are
-    /// `alloy`, `ash`, `ballad`, `coral`, `echo`, `fable`, `nova`, `onyx`, `sage`, and `shimmer`.
+    /// The voice the model uses to respond. Supported built-in voices are `alloy`, `ash`,
+    /// `ballad`, `coral`, `echo`, `fable`, `nova`, `onyx`, `sage`, `shimmer`, `marin`, and `cedar`.
     pub voice: ChatCompletionAudioVoice,
     /// Specifies the output audio format. Must be one of `wav`, `aac`, `mp3`, `flac`, `opus`, or `pcm16`.
     pub format: ChatCompletionAudioFormat,
