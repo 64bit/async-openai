@@ -362,11 +362,10 @@ pub struct CreateSpeechRequest {
     /// `tts-1-hd` or `gpt-4o-mini-tts`.
     pub model: SpeechModel,
 
-    /// The voice to use when generating the audio. Supported voices are `alloy`, `ash`, `coral`, `echo`, `fable`, `onyx`, `nova`, `sage`, `shimmer` and `verse`.
-
-    /// The voice to use when generating the audio. Supported voices are `alloy`, `ash`, `ballad`,
-    /// `coral`, `echo`, `fable`, `onyx`, `nova`, `sage`, `shimmer`, and `verse`. Previews of the voices
-    /// are available in the [Text to speech guide](https://platform.openai.com/docs/guides/text-to-speech#voice-options).
+    /// The voice to use when generating the audio. Supported built-in voices are `alloy`, `ash`,
+    /// `ballad`, `coral`, `echo`, `fable`, `onyx`, `nova`, `sage`, `shimmer`, `verse`, `marin`, and
+    /// `cedar`. Previews of the voices are available in the [Text to speech
+    /// guide](https://platform.openai.com/docs/guides/text-to-speech#voice-options).
     pub voice: Voice,
 
     /// Control the voice of your generated audio with additional instructions.
