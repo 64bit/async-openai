@@ -213,12 +213,18 @@ impl<C: Config> Client<C> {
 
     /// To call [Assistants] group related APIs using this client.
     #[cfg(feature = "assistant")]
+    #[deprecated(
+        note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+    )]
     pub fn assistants(&self) -> Assistants<'_, C> {
         Assistants::new(self)
     }
 
     /// To call [Threads] group related APIs using this client.
     #[cfg(feature = "assistant")]
+    #[deprecated(
+        note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+    )]
     pub fn threads(&self) -> Threads<'_, C> {
         Threads::new(self)
     }

@@ -15,6 +15,9 @@ use crate::types::assistants::AssistantEventStream;
 /// Represents an execution run on a thread.
 ///
 /// Related guide: [Assistants](https://platform.openai.com/docs/assistants/overview)
+#[deprecated(
+    note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+)]
 pub struct Runs<'c, C: Config> {
     pub thread_id: String,
     client: &'c Client<C>,

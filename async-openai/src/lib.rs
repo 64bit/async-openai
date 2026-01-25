@@ -313,6 +313,9 @@ pub use admin::{
     UserRoles, Users,
 };
 #[cfg(feature = "assistant")]
+#[deprecated(
+    note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+)]
 pub use assistants::{Assistants, Messages, Runs, Steps, Threads};
 #[cfg(feature = "audio")]
 pub use audio::{Audio, Speech, Transcriptions, Translations};

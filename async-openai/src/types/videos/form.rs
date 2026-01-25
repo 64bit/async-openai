@@ -24,6 +24,12 @@ impl AsyncTryFrom<CreateVideoRequest> for reqwest::multipart::Form {
             form = form.part("input_reference", image_part);
         }
 
+        if let Some(character_ids) = request.character_ids {
+            for character_id in character_ids {
+                form = form.text("character_ids[]", character_id);
+            }
+        }
+
         Ok(form)
     }
 }

@@ -69,6 +69,9 @@ pub enum AssistantVectorStoreChunkingStrategy {
 }
 
 /// Represents an `assistant` that can call the model and use tools.
+#[deprecated(
+    note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+)]
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct AssistantObject {
     /// The identifier, which can be referenced in API endpoints.
@@ -170,6 +173,9 @@ pub enum AssistantTools {
     Function(AssistantToolsFunction),
 }
 
+#[deprecated(
+    note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+)]
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
 #[builder(name = "CreateAssistantRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -218,6 +224,9 @@ pub struct CreateAssistantRequest {
     pub response_format: Option<AssistantsApiResponseFormatOption>,
 }
 
+#[deprecated(
+    note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+)]
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
 #[builder(name = "ModifyAssistantRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -266,6 +275,9 @@ pub struct ModifyAssistantRequest {
     pub response_format: Option<AssistantsApiResponseFormatOption>,
 }
 
+#[deprecated(
+    note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+)]
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
 pub struct DeleteAssistantResponse {
     pub id: String,
@@ -273,6 +285,9 @@ pub struct DeleteAssistantResponse {
     pub object: String,
 }
 
+#[deprecated(
+    note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+)]
 #[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
 pub struct ListAssistantsResponse {
     pub object: String,

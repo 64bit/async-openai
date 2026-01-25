@@ -48,6 +48,8 @@ pub struct CreateVideoRequest {
     pub seconds: Option<VideoSeconds>,
     /// Optional image reference that guides generation.
     pub input_reference: Option<ImageInput>,
+    /// Character IDs to include in the generation.
+    pub character_ids: Option<Vec<String>>,
 }
 
 #[derive(Clone, Default, Debug, Builder, PartialEq, Serialize)]
