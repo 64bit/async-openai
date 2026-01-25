@@ -1707,8 +1707,10 @@ pub enum WebSearchToolCallAction {
     Search(WebSearchActionSearch),
     /// Action type "open_page" - Opens a specific URL from search results.
     OpenPage(WebSearchActionOpenPage),
-    /// Action type "find_in_page": Searches for a pattern within a loaded page.
-    FindInPage(WebSearchActionFindInPage),
+    /// Action type "find": Searches for a pattern within a loaded page.
+    Find(WebSearchActionFind),
+    /// Action type "find_in_page": https://platform.openai.com/docs/guides/tools-web-search#output-and-citations
+    FindInPage(WebSearchActionFind),
 }
 
 /// Web search tool call output.
