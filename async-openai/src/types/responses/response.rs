@@ -1693,7 +1693,7 @@ pub struct WebSearchActionOpenPage {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct WebSearchActionFindInPage {
+pub struct WebSearchActionFind {
     /// The URL of the page searched for the pattern.
     pub url: String,
     /// The pattern or text to search for within the page.
