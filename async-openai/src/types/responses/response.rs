@@ -643,7 +643,7 @@ pub struct CreateResponse {
 
     /// The retention policy for the prompt cache. Set to `24h` to enable extended prompt caching,
     /// which keeps cached prefixes active for longer, up to a maximum of 24 hours. [Learn
-    /// more](https://platform.openai.com/docs/guides/prompt-caching#prompt-cache-retention).    
+    /// more](https://platform.openai.com/docs/guides/prompt-caching#prompt-cache-retention).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt_cache_retention: Option<PromptCacheRetention>,
 
@@ -1692,7 +1692,7 @@ pub struct WebSearchActionSearch {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebSearchActionOpenPage {
     /// The URL opened by the model.
-    pub url: String,
+    pub url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -1712,13 +1712,15 @@ pub enum WebSearchToolCallAction {
     OpenPage(WebSearchActionOpenPage),
     /// Action type "find": Searches for a pattern within a loaded page.
     Find(WebSearchActionFind),
+    /// Action type "find_in_page": https://platform.openai.com/docs/guides/tools-web-search#output-and-citations
+    FindInPage(WebSearchActionFind),
 }
 
 /// Web search tool call output.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebSearchToolCall {
     /// An object describing the specific action taken in this web search call. Includes
-    /// details on how the model used the web (search, open_page, find).
+    /// details on how the model used the web (search, open_page, find, find_in_page).
     pub action: WebSearchToolCallAction,
     /// The unique ID of the web search tool call.
     pub id: String,
@@ -2473,7 +2475,7 @@ pub struct Response {
 
     /// The retention policy for the prompt cache. Set to `24h` to enable extended prompt caching,
     /// which keeps cached prefixes active for longer, up to a maximum of 24 hours. [Learn
-    /// more](https://platform.openai.com/docs/guides/prompt-caching#prompt-cache-retention).    
+    /// more](https://platform.openai.com/docs/guides/prompt-caching#prompt-cache-retention).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt_cache_retention: Option<PromptCacheRetention>,
 
