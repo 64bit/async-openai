@@ -97,23 +97,20 @@ impl AsyncTryFrom<CreateImageVariationRequest> for reqwest::multipart::Form {
             form = form.text("model", model.to_string())
         }
 
-        if request.n.is_some() {
-            form = form.text("n", request.n.unwrap().to_string())
+        if let Some(n) = request.n {
+            form = form.text("n", n.to_string())
         }
 
-        if request.size.is_some() {
-            form = form.text("size", request.size.unwrap().to_string())
+        if let Some(size) = request.size {
+            form = form.text("size", size.to_string())
         }
 
-        if request.response_format.is_some() {
-            form = form.text(
-                "response_format",
-                request.response_format.unwrap().to_string(),
-            )
+        if let Some(response_format) = request.response_format {
+            form = form.text("response_format", response_format.to_string())
         }
 
-        if request.user.is_some() {
-            form = form.text("user", request.user.unwrap())
+        if let Some(user) = request.user {
+            form = form.text("user", user)
         }
         Ok(form)
     }

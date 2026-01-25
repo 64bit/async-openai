@@ -11,16 +11,16 @@ impl AsyncTryFrom<CreateVideoRequest> for reqwest::multipart::Form {
 
         form = form.text("prompt", request.prompt);
 
-        if request.size.is_some() {
-            form = form.text("size", request.size.unwrap().to_string());
+        if let Some(size) = request.size {
+            form = form.text("size", size.to_string());
         }
 
-        if request.seconds.is_some() {
-            form = form.text("seconds", request.seconds.unwrap().to_string());
+        if let Some(seconds) = request.seconds {
+            form = form.text("seconds", seconds.to_string());
         }
 
-        if request.input_reference.is_some() {
-            let image_part = create_file_part(request.input_reference.unwrap().source).await?;
+        if let Some(input_reference) = request.input_reference {
+            let image_part = create_file_part(input_reference.source).await?;
             form = form.part("input_reference", image_part);
         }
 
