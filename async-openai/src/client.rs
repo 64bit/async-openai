@@ -29,6 +29,7 @@ use crate::image::Images;
 #[cfg(feature = "moderation")]
 use crate::moderation::Moderations;
 #[cfg(feature = "assistant")]
+#[allow(deprecated)]
 use crate::Assistants;
 #[cfg(feature = "audio")]
 use crate::Audio;
@@ -55,6 +56,7 @@ use crate::Realtime;
 #[cfg(feature = "responses")]
 use crate::Responses;
 #[cfg(feature = "assistant")]
+#[allow(deprecated)]
 use crate::Threads;
 #[cfg(feature = "upload")]
 use crate::Uploads;
@@ -216,6 +218,7 @@ impl<C: Config> Client<C> {
     #[deprecated(
         note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
     )]
+    #[allow(deprecated)]
     pub fn assistants(&self) -> Assistants<'_, C> {
         Assistants::new(self)
     }
@@ -225,6 +228,7 @@ impl<C: Config> Client<C> {
     #[deprecated(
         note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
     )]
+    #[allow(deprecated)]
     pub fn threads(&self) -> Threads<'_, C> {
         Threads::new(self)
     }

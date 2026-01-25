@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 mod api;
 mod assistant;
 mod impls;
