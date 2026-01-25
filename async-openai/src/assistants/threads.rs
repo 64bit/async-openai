@@ -14,6 +14,9 @@ use crate::types::assistants::AssistantEventStream;
 /// Create threads that assistants can interact with.
 ///
 /// Related guide: [Assistants](https://platform.openai.com/docs/assistants/overview)
+#[deprecated(
+    note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+)]
 pub struct Threads<'c, C: Config> {
     client: &'c Client<C>,
     pub(crate) request_options: RequestOptions,

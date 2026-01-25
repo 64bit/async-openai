@@ -9,6 +9,9 @@ use crate::{
 };
 
 /// Represents a message within a [thread](https://platform.openai.com/docs/api-reference/threads).
+#[deprecated(
+    note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+)]
 pub struct Messages<'c, C: Config> {
     ///  The ID of the [thread](https://platform.openai.com/docs/api-reference/threads) to create a message for.
     pub thread_id: String,

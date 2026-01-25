@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 mod assistants_;
 mod messages;
 mod runs;

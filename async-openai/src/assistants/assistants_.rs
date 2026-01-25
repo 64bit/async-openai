@@ -11,6 +11,9 @@ use crate::{
 /// Build assistants that can call models and use tools to perform tasks.
 ///
 /// [Get started with the Assistants API](https://platform.openai.com/docs/assistants)
+#[deprecated(
+    note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+)]
 pub struct Assistants<'c, C: Config> {
     client: &'c Client<C>,
     pub(crate) request_options: RequestOptions,

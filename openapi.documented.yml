@@ -58,6 +58,7 @@ paths:
       tags:
         - Assistants
       summary: List assistants
+      deprecated: true
       parameters:
         - name: limit
           in: query
@@ -105,7 +106,6 @@ paths:
       x-oaiMeta:
         name: List assistants
         group: assistants
-        beta: true
         returns: A list of [assistant](https://platform.openai.com/docs/api-reference/assistants/object) objects.
         examples:
           response: |
@@ -243,6 +243,7 @@ paths:
       tags:
         - Assistants
       summary: Create assistant
+      deprecated: true
       requestBody:
         required: true
         content:
@@ -259,7 +260,6 @@ paths:
       x-oaiMeta:
         name: Create assistant
         group: assistants
-        beta: true
         returns: An [assistant](https://platform.openai.com/docs/api-reference/assistants/object) object.
         examples:
           - title: Code Interpreter
@@ -486,6 +486,7 @@ paths:
       tags:
         - Assistants
       summary: Retrieve assistant
+      deprecated: true
       parameters:
         - in: path
           name: assistant_id
@@ -503,7 +504,6 @@ paths:
       x-oaiMeta:
         name: Retrieve assistant
         group: assistants
-        beta: true
         returns: >-
           The [assistant](https://platform.openai.com/docs/api-reference/assistants/object) object matching
           the specified ID.
@@ -606,6 +606,7 @@ paths:
       tags:
         - Assistants
       summary: Modify assistant
+      deprecated: true
       parameters:
         - in: path
           name: assistant_id
@@ -629,7 +630,6 @@ paths:
       x-oaiMeta:
         name: Modify assistant
         group: assistants
-        beta: true
         returns: The modified [assistant](https://platform.openai.com/docs/api-reference/assistants/object) object.
         examples:
           response: |
@@ -746,6 +746,7 @@ paths:
       tags:
         - Assistants
       summary: Delete assistant
+      deprecated: true
       parameters:
         - in: path
           name: assistant_id
@@ -763,7 +764,6 @@ paths:
       x-oaiMeta:
         name: Delete assistant
         group: assistants
-        beta: true
         returns: Deletion status
         examples:
           response: |
@@ -2784,7 +2784,7 @@ paths:
       operationId: listBatches
       tags:
         - Batch
-      summary: List batch
+      summary: List batches
       parameters:
         - in: query
           name: after
@@ -2812,7 +2812,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ListBatchesResponse'
       x-oaiMeta:
-        name: List batch
+        name: List batches
         group: batch
         returns: A list of paginated [Batch](https://platform.openai.com/docs/api-reference/batch/object) objects.
         examples:
@@ -9833,8 +9833,8 @@ paths:
               puts(file_object)
       description: |
         Upload a file that can be used across various endpoints. Individual files
-        can be up to 512 MB, and the size of all files uploaded by one organization
-        can be up to 1 TB.
+        can be up to 512 MB, and each project can store up to 2.5 TB of files in
+        total. There is no organization-wide storage limit.
 
         - The Assistants API supports files up to 2 million tokens and of specific
           file types. See the [Assistants Tools guide](https://platform.openai.com/docs/assistants/tools) for
@@ -31337,6 +31337,9 @@ paths:
 
           Learn when and how to compact long-running conversations in the [conversation state
           guide](https://platform.openai.com/docs/guides/conversation-state#managing-the-context-window).
+
+          For ZDR-compatible compaction details, see [Compaction
+          (advanced)](https://platform.openai.com/docs/guides/conversation-state#compaction-advanced).
         examples:
           response: |
             {
@@ -32854,7 +32857,6 @@ components:
         - metadata
       x-oaiMeta:
         name: The assistant object
-        beta: true
         example: |
           {
             "id": "asst_abc123",
@@ -32874,6 +32876,7 @@ components:
             "temperature": 1.0,
             "response_format": "auto"
           }
+      deprecated: true
     AssistantStreamEvent:
       description: >
         Represents an event emitted when streaming a Run.
@@ -40233,9 +40236,8 @@ components:
             The name of the file to upload.
           type: string
         purpose:
-          description: >
+          description: |
             The intended purpose of the uploaded file.
-
 
             See the [documentation on File
             purposes](https://platform.openai.com/docs/api-reference/files/create#files-create-purpose).
@@ -40250,12 +40252,12 @@ components:
             The number of bytes in the file you are uploading.
           type: integer
         mime_type:
-          description: >
+          description: |
             The MIME type of the file.
 
 
-            This must fall within the supported MIME types for your file purpose. See the supported MIME types
-            for assistants and vision.
+            This must fall within the supported MIME types for your file purpose. See
+            the supported MIME types for assistants and vision.
           type: string
         expires_after:
           $ref: '#/components/schemas/FileExpirationAfter'
@@ -50920,12 +50922,16 @@ components:
           const: conversation.item.create
         previous_item_id:
           type: string
-          description: |
-            The ID of the preceding item after which the new item will be inserted. 
-            If not set, the new item will be appended to the end of the conversation.
+          description: >
+            The ID of the preceding item after which the new item will be inserted. If not set, the new item
+            will be appended to the end of the conversation.
+
+
             If set to `root`, the new item will be added to the beginning of the conversation.
-            If set to an existing ID, it allows an item to be inserted mid-conversation. If the
-            ID cannot be found, an error will be returned and the item will not be added.
+
+
+            If set to an existing ID, it allows an item to be inserted mid-conversation. If the ID cannot be
+            found, an error will be returned and the item will not be added.
         item:
           $ref: '#/components/schemas/RealtimeConversationItem'
       required:
@@ -50946,8 +50952,7 @@ components:
                   "text": "hi"
                 }
               ]
-            },
-            "event_id": "b904fba0-0ec4-40af-8bbb-f908a9b26793",
+            }
           }
     RealtimeClientEventConversationItemDelete:
       type: object
@@ -51226,8 +51231,8 @@ components:
         group: realtime
         example: |
           {
-              "type": "response.cancel"
-              "response_id": "resp_12345",
+              "type": "response.cancel",
+              "response_id": "resp_12345"
           }
     RealtimeClientEventResponseCreate:
       type: object
@@ -51293,7 +51298,7 @@ components:
               "input": [
                 {
                   "type": "item_reference",
-                  "id": "item_12345",
+                  "id": "item_12345"
                 },
                 {
                   "type": "message",
@@ -51305,7 +51310,7 @@ components:
                     }
                   ]
                 }
-              ],
+              ]
             }
           }
     RealtimeClientEventSessionUpdate:
@@ -67031,6 +67036,13 @@ components:
           description: >-
             Output resolution formatted as width x height (allowed values: 720x1280, 1280x720, 1024x1792,
             1792x1024). Defaults to 720x1280.
+        character_ids:
+          items:
+            type: string
+            example: char_123
+          type: array
+          maxItems: 64
+          description: Character IDs to include in the generation.
       type: object
       required:
         - prompt
@@ -68404,10 +68416,14 @@ components:
       discriminator:
         propertyName: type
     FilePurpose:
-      description: >
-        The intended purpose of the uploaded file. One of: - `assistants`: Used in the Assistants API -
-        `batch`: Used in the Batch API - `fine-tune`: Used for fine-tuning - `vision`: Images used for vision
-        fine-tuning - `user_data`: Flexible file type for any purpose - `evals`: Used for eval data sets
+      description: |
+        The intended purpose of the uploaded file. One of:
+        - `assistants`: Used in the Assistants API
+        - `batch`: Used in the Batch API
+        - `fine-tune`: Used for fine-tuning
+        - `vision`: Images used for vision fine-tuning
+        - `user_data`: Flexible file type for any purpose
+        - `evals`: Used for eval data sets
       type: string
       enum:
         - assistants
@@ -68971,7 +68987,7 @@ x-oaiMeta:
       title: Chat Completions
     - id: assistants
       title: Assistants
-      beta: true
+      deprecated: true
     - id: administration
       title: Administration
     - id: legacy
@@ -70172,11 +70188,14 @@ x-oaiMeta:
           path: streaming
     - id: assistants
       title: Assistants
-      beta: true
-      description: |
-        Build assistants that can call models and use tools to perform tasks.
+      deprecated: true
+      description: >
 
-        [Get started with the Assistants API](https://platform.openai.com/docs/assistants)
+        The Assistants API is deprecated and will be removed in August 2026. The recommended replacement is
+        the Responses API. [Learn more](https://platform.openai.com/docs/guides/migrate-to-responses).
+
+
+        Build assistants that can call models and use tools to perform tasks.
       navigationGroup: assistants
       sections:
         - type: endpoint
@@ -70817,9 +70836,9 @@ x-oaiMeta:
       navigationGroup: legacy
       description: >
         Given a prompt, the model will return one or more predicted completions along with the probabilities
-        of alternative tokens at each position. Most developer should use our [Chat Completions
-        API](https://platform.openai.com/docs/guides/text-generation#text-generation-models) to leverage our
-        best and newest models.
+        of alternative tokens at each position. Most developers should use our [Responses
+        API](https://platform.openai.com/docs/api-reference/responses/create) to leverage our best and newest
+        models.
       sections:
         - type: endpoint
           key: createCompletion

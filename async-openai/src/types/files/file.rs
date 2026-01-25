@@ -47,9 +47,13 @@ pub struct CreateFileRequest {
     /// The File object (not file name) to be uploaded.
     pub file: FileInput,
 
-    /// The intended purpose of the uploaded file.
-    ///
-    /// Use "assistants" for [Assistants](https://platform.openai.com/docs/api-reference/assistants) and [Message](https://platform.openai.com/docs/api-reference/messages) files, "vision" for Assistants image file inputs, "batch" for [Batch API](https://platform.openai.com/docs/guides/batch), "fine-tune" for [Fine-tuning](https://platform.openai.com/docs/api-reference/fine-tuning), "user_data" for flexible file type for any purpose, and "evals" for eval data sets.
+    /// The intended purpose of the uploaded file. One of:
+    /// - `assistants`: Used in the Assistants API
+    /// - `batch`: Used in the Batch API
+    /// - `fine-tune`: Used for fine-tuning
+    /// - `vision`: Images used for vision fine-tuning
+    /// - `user_data`: Flexible file type for any purpose
+    /// - `evals`: Used for eval data sets
     pub purpose: FilePurpose,
 
     /// The expiration policy for a file. By default, files with `purpose=batch` expire after 30 days and all other files are persisted until they are manually deleted.

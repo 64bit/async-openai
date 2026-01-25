@@ -6,6 +6,9 @@ use crate::{
 };
 
 /// Represents a step in execution of a run.
+#[deprecated(
+    note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
+)]
 pub struct Steps<'c, C: Config> {
     pub thread_id: String,
     pub run_id: String,

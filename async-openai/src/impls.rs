@@ -34,6 +34,7 @@ use crate::{
     admin::UserRoles, admin::Users,
 };
 #[cfg(feature = "assistant")]
+#[allow(deprecated)]
 use crate::{
     assistants::Assistants, assistants::Messages, assistants::Runs, assistants::Steps,
     assistants::Threads,
@@ -58,6 +59,7 @@ use crate::{
 #[cfg(feature = "_api")]
 macro_rules! impl_request_options_builder {
     ($type:ident) => {
+        #[allow(deprecated)]
         impl<'c, C: crate::config::Config> crate::traits::RequestOptionsBuilder for $type<'c, C> {
             fn options_mut(&mut self) -> &mut crate::RequestOptions {
                 &mut self.request_options
