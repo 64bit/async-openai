@@ -846,7 +846,7 @@ pub enum ReasoningSummary {
 /// The retention policy for the prompt cache.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 pub enum PromptCacheRetention {
-    #[serde(rename = "in-memory")]
+    #[serde(rename = "in_memory")]
     InMemory,
     #[serde(rename = "24h")]
     Hours24,
