@@ -6,7 +6,7 @@ categories = ["api-bindings", "web-programming", "asynchronous"]
 keywords = ["openai", "async", "openapi", "ai"]
 description = "Rust library for OpenAI"
 edition = "2021"
-rust-version = { workspace = true }
+rust-version = "1.75"
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/64bit/async-openai"

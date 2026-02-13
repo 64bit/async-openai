@@ -8,7 +8,7 @@ edition = "2021"
 license = "MIT"
 homepage = "https://github.com/64bit/async-openai"
 repository = "https://github.com/64bit/async-openai"
-rust-version = { workspace = true }
+rust-version = "1.75"
 readme = "README.md"
 
 [lib]
