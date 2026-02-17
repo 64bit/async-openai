@@ -43,6 +43,8 @@ use crate::{
 use crate::{audio::Audio, audio::Speech, audio::Transcriptions, audio::Translations};
 #[cfg(feature = "container")]
 use crate::{containers::ContainerFiles, containers::Containers};
+#[cfg(feature = "skill")]
+use crate::{skills::SkillVersions, skills::Skills};
 #[cfg(feature = "evals")]
 use crate::{evals::EvalRunOutputItems, evals::EvalRuns, evals::Evals};
 #[cfg(feature = "responses")]
@@ -158,6 +160,10 @@ impl_request_options_builder!(Realtime);
 impl_request_options_builder!(Responses);
 #[cfg(feature = "assistant")]
 impl_request_options_builder!(Runs);
+#[cfg(feature = "skill")]
+impl_request_options_builder!(SkillVersions);
+#[cfg(feature = "skill")]
+impl_request_options_builder!(Skills);
 #[cfg(feature = "audio")]
 impl_request_options_builder!(Speech);
 #[cfg(feature = "assistant")]

@@ -258,6 +258,8 @@ mod completion;
 pub mod config;
 #[cfg(feature = "container")]
 mod containers;
+#[cfg(feature = "skill")]
+mod skills;
 #[cfg(feature = "image")]
 mod download;
 #[cfg(feature = "embedding")]
@@ -294,7 +296,8 @@ mod uploads;
     feature = "upload",
     feature = "image",
     feature = "video",
-    feature = "container"
+    feature = "container",
+    feature = "skill"
 ))]
 mod util;
 #[cfg(feature = "vectorstore")]
@@ -332,6 +335,8 @@ pub use client::Client;
 pub use completion::Completions;
 #[cfg(feature = "container")]
 pub use containers::{ContainerFiles, Containers};
+#[cfg(feature = "skill")]
+pub use skills::{SkillVersions, Skills};
 #[cfg(feature = "embedding")]
 pub use embedding::Embeddings;
 #[cfg(feature = "evals")]

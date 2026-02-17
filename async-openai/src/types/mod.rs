@@ -16,6 +16,8 @@ pub mod chatkit;
 pub mod completions;
 #[cfg(feature = "container-types")]
 pub mod containers;
+#[cfg(feature = "skill-types")]
+pub mod skills;
 #[cfg(feature = "embedding-types")]
 pub mod embeddings;
 #[cfg(feature = "eval-types")]
@@ -35,6 +37,7 @@ pub mod images;
     feature = "image-types",
     feature = "video-types",
     feature = "container-types",
+    feature = "skill-types",
     feature = "chat-completion-types",
     feature = "realtime-types"
 ))]
@@ -93,6 +96,7 @@ pub mod webhooks;
     feature = "image-types",
     feature = "video-types",
     feature = "container-types",
+    feature = "skill-types",
     feature = "chat-completion-types",
     feature = "realtime-types"
 ))]

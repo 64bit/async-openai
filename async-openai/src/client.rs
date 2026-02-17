@@ -55,6 +55,8 @@ use crate::Models;
 use crate::Realtime;
 #[cfg(feature = "responses")]
 use crate::Responses;
+#[cfg(feature = "skill")]
+use crate::Skills;
 #[cfg(feature = "assistant")]
 #[allow(deprecated)]
 use crate::Threads;
@@ -268,6 +270,12 @@ impl<C: Config> Client<C> {
     #[cfg(feature = "container")]
     pub fn containers(&self) -> Containers<'_, C> {
         Containers::new(self)
+    }
+
+    /// To call [Skills] group related APIs using this client.
+    #[cfg(feature = "skill")]
+    pub fn skills(&self) -> Skills<'_, C> {
+        Skills::new(self)
     }
 
     /// To call [Evals] group related APIs using this client.
