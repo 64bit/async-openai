@@ -832,6 +832,10 @@ where
                             done = true;
                         }
 
+                        if message.event == "keepalive" {
+                            continue;
+                        }
+
                         let response = event_mapper(message);
 
                         if let Err(_e) = tx.send(response) {
