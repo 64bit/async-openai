@@ -2012,6 +2012,16 @@ pub enum FunctionShellCallItemStatus {
     Incomplete,
 }
 
+/// The environment for a shell call item (request side).
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum FunctionShellCallItemEnvironment {
+    /// Use a local computer environment.
+    Local(LocalEnvironmentParam),
+    /// Reference an existing container by ID.
+    ContainerReference(ContainerReferenceParam),
+}
+
 /// A tool representing a request to execute one or more shell commands.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct FunctionShellCallItemParam {
@@ -2025,6 +2035,9 @@ pub struct FunctionShellCallItemParam {
     /// The status of the shell call. One of `in_progress`, `completed`, or `incomplete`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<FunctionShellCallItemStatus>,
+    /// The environment to execute the shell commands in.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub environment: Option<FunctionShellCallItemEnvironment>,
 }
 
 /// Indicates that the shell commands finished and returned an exit code.
@@ -2168,6 +2181,16 @@ pub enum LocalShellCallStatus {
     Incomplete,
 }
 
+/// The environment for a shell call (response side).
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum FunctionShellCallEnvironment {
+    /// A local computer environment.
+    Local,
+    /// A referenced container.
+    ContainerReference(ContainerReferenceResource),
+}
+
 /// A tool call that executes one or more shell commands in a managed environment.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct FunctionShellCall {
@@ -2179,6 +2202,8 @@ pub struct FunctionShellCall {
     pub action: FunctionShellAction,
     /// The status of the shell call. One of `in_progress`, `completed`, or `incomplete`.
     pub status: LocalShellCallStatus,
+    /// The environment in which the shell commands were executed.
+    pub environment: Option<FunctionShellCallEnvironment>,
     /// The ID of the entity that created this tool call.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
@@ -2989,10 +3014,6 @@ pub struct ContainerReferenceParam {
     /// The ID of the referenced container.
     pub container_id: String,
 }
-
-/// A resource reference to a local environment.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
-pub struct LocalEnvironmentResource;
 
 /// A resource reference to a container by ID.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
