@@ -45,6 +45,7 @@ moderation = ["moderation-types", "_api"]
 vectorstore = ["vectorstore-types", "_api"]
 chatkit = ["chatkit-types", "_api"]
 container = ["container-types", "_api"]
+skill = ["skill-types", "_api"]
 realtime = ["realtime-types", "_api", "dep:tokio-tungstenite"]
 chat-completion = ["chat-completion-types", "_api"]
 assistant = ["assistant-types", "_api", ]
@@ -69,6 +70,7 @@ moderation-types = ["dep:derive_builder"]
 vectorstore-types = ["dep:derive_builder"]
 chatkit-types = ["dep:derive_builder"]
 container-types = ["dep:derive_builder", "dep:bytes"]
+skill-types = ["dep:derive_builder", "dep:bytes"]
 realtime-types = ["dep:derive_builder", "dep:bytes", "response-types"]
 chat-completion-types = ["dep:derive_builder", "dep:bytes"]
 assistant-types = ["dep:derive_builder"]
@@ -94,6 +96,7 @@ types = [
     "vectorstore-types",
     "chatkit-types",
     "container-types",
+    "skill-types",
     "realtime-types",
     "chat-completion-types",
     "assistant-types",
@@ -119,6 +122,7 @@ full = [
     "vectorstore",
     "chatkit",
     "container",
+    "skill",
     "realtime",
     "chat-completion",
     "assistant",

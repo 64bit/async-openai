@@ -283,6 +283,8 @@ mod realtime;
 mod request_options;
 #[cfg(feature = "responses")]
 mod responses;
+#[cfg(feature = "skill")]
+mod skills;
 #[cfg(feature = "_api")]
 pub mod traits;
 pub mod types;
@@ -294,7 +296,8 @@ mod uploads;
     feature = "upload",
     feature = "image",
     feature = "video",
-    feature = "container"
+    feature = "container",
+    feature = "skill"
 ))]
 mod util;
 #[cfg(feature = "vectorstore")]
@@ -352,6 +355,8 @@ pub use realtime::Realtime;
 pub use request_options::RequestOptions;
 #[cfg(feature = "responses")]
 pub use responses::{ConversationItems, Conversations, Responses};
+#[cfg(feature = "skill")]
+pub use skills::{SkillVersions, Skills};
 #[cfg(feature = "upload")]
 pub use uploads::Uploads;
 #[cfg(feature = "vectorstore")]
