@@ -1197,6 +1197,19 @@ pub enum ImageGenToolModeration {
     Low,
 }
 
+/// Whether to generate a new image or edit an existing image.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ImageGenActionEnum {
+    /// Generate a new image.
+    Generate,
+    /// Edit an existing image.
+    Edit,
+    /// Automatically determine whether to generate or edit.
+    #[default]
+    Auto,
+}
+
 /// Image generation tool definition.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(
@@ -1244,6 +1257,9 @@ pub struct ImageGenTool {
     /// `1536x1024`, or `auto`. Default: `auto`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub size: Option<ImageGenToolSize>,
+    /// Whether to generate a new image or edit an existing image. Default: `auto`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub action: Option<ImageGenActionEnum>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
