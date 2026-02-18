@@ -425,3 +425,87 @@ pub struct CreateImageVariationRequest {
     /// [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
     pub user: Option<String>,
 }
+
+/// Reference an input image by either URL or uploaded file ID.
+/// Provide exactly one of `image_url` or `file_id`.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ImageRefParam {
+    /// A fully qualified URL or base64-encoded data URL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub image_url: Option<String>,
+    /// The File API ID of an uploaded image to use as input.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub file_id: Option<String>,
+}
+
+/// JSON request body for image edits.
+///
+/// Use `images` (array of `ImageRefParam`) instead of multipart `image` uploads.
+/// You can reference images via external URLs, data URLs, or uploaded file IDs.
+/// JSON edits support GPT image models only; DALL-E edits require multipart (`dall-e-2` only).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Builder, Default)]
+#[builder(name = "EditImageJsonRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct EditImageJsonRequest {
+    /// The model to use for image editing.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<ImageModel>,
+
+    /// Input image references to edit. For GPT image models, you can provide up to 16 images.
+    pub images: Vec<ImageRefParam>,
+
+    /// An optional mask image reference indicating which areas of the image should be edited.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mask: Option<ImageRefParam>,
+
+    /// A text description of the desired image edit.
+    pub prompt: String,
+
+    /// The number of edited images to generate. Must be between 1 and 10.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub n: Option<u8>,
+
+    /// The quality of the image that will be generated.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub quality: Option<ImageQuality>,
+
+    /// Control how much effort the model will exert to match the style and features,
+    /// especially facial features, of input images. Supports `high` and `low`. Defaults to `low`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_fidelity: Option<InputFidelity>,
+
+    /// The size of the generated image.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub size: Option<ImageSize>,
+
+    /// A unique identifier representing your end-user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<String>,
+
+    /// The output format for the generated image.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_format: Option<ImageOutputFormat>,
+
+    /// The compression level (0-100%) for the generated images.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_compression: Option<u8>,
+
+    /// Control the content-moderation level for images.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub moderation: Option<ImageModeration>,
+
+    /// The background style for the generated image.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub background: Option<ImageBackground>,
+
+    /// Whether to stream the image generation. Defaults to `false`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stream: Option<bool>,
+
+    /// The number of partial images to generate during streaming.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub partial_images: Option<u8>,
+}
