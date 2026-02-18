@@ -69,10 +69,7 @@ impl<'c, C: Config> SkillVersions<'c, C> {
 
     /// Delete a skill version.
     #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
-    pub async fn delete(
-        &self,
-        version: &str,
-    ) -> Result<DeletedSkillVersionResource, OpenAIError> {
+    pub async fn delete(&self, version: &str) -> Result<DeletedSkillVersionResource, OpenAIError> {
         self.client
             .delete(
                 format!("/skills/{}/versions/{version}", self.skill_id).as_str(),

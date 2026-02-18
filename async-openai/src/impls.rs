@@ -43,12 +43,12 @@ use crate::{
 use crate::{audio::Audio, audio::Speech, audio::Transcriptions, audio::Translations};
 #[cfg(feature = "container")]
 use crate::{containers::ContainerFiles, containers::Containers};
-#[cfg(feature = "skill")]
-use crate::{skills::SkillVersions, skills::Skills};
 #[cfg(feature = "evals")]
 use crate::{evals::EvalRunOutputItems, evals::EvalRuns, evals::Evals};
 #[cfg(feature = "responses")]
 use crate::{responses::ConversationItems, responses::Conversations, responses::Responses};
+#[cfg(feature = "skill")]
+use crate::{skills::SkillVersions, skills::Skills};
 #[cfg(feature = "vectorstore")]
 use crate::{
     vectorstores::VectorStoreFileBatches, vectorstores::VectorStoreFiles,

@@ -34,10 +34,7 @@ impl<'c, C: Config> Skills<'c, C> {
         R = serde::de::DeserializeOwned,
         where_clause = "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
     )]
-    pub async fn create(
-        &self,
-        request: CreateSkillRequest,
-    ) -> Result<SkillResource, OpenAIError> {
+    pub async fn create(&self, request: CreateSkillRequest) -> Result<SkillResource, OpenAIError> {
         self.client
             .post_form("/skills", request, &self.request_options)
             .await

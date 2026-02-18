@@ -258,8 +258,6 @@ mod completion;
 pub mod config;
 #[cfg(feature = "container")]
 mod containers;
-#[cfg(feature = "skill")]
-mod skills;
 #[cfg(feature = "image")]
 mod download;
 #[cfg(feature = "embedding")]
@@ -285,6 +283,8 @@ mod realtime;
 mod request_options;
 #[cfg(feature = "responses")]
 mod responses;
+#[cfg(feature = "skill")]
+mod skills;
 #[cfg(feature = "_api")]
 pub mod traits;
 pub mod types;
@@ -335,8 +335,6 @@ pub use client::Client;
 pub use completion::Completions;
 #[cfg(feature = "container")]
 pub use containers::{ContainerFiles, Containers};
-#[cfg(feature = "skill")]
-pub use skills::{SkillVersions, Skills};
 #[cfg(feature = "embedding")]
 pub use embedding::Embeddings;
 #[cfg(feature = "evals")]
@@ -357,6 +355,8 @@ pub use realtime::Realtime;
 pub use request_options::RequestOptions;
 #[cfg(feature = "responses")]
 pub use responses::{ConversationItems, Conversations, Responses};
+#[cfg(feature = "skill")]
+pub use skills::{SkillVersions, Skills};
 #[cfg(feature = "upload")]
 pub use uploads::Uploads;
 #[cfg(feature = "vectorstore")]

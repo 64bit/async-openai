@@ -1,7 +1,7 @@
 mod api;
-mod skill;
 #[cfg(feature = "_api")]
 mod form;
+mod skill;
 
 pub use api::*;
 pub use skill::*;

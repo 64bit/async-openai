@@ -16,8 +16,6 @@ pub mod chatkit;
 pub mod completions;
 #[cfg(feature = "container-types")]
 pub mod containers;
-#[cfg(feature = "skill-types")]
-pub mod skills;
 #[cfg(feature = "embedding-types")]
 pub mod embeddings;
 #[cfg(feature = "eval-types")]
@@ -79,6 +77,8 @@ pub mod responses;
     feature = "image-types"
 ))]
 mod shared;
+#[cfg(feature = "skill-types")]
+pub mod skills;
 #[cfg(feature = "upload-types")]
 pub mod uploads;
 #[cfg(feature = "vectorstore-types")]
