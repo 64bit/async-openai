@@ -2,6 +2,36 @@ use serde::{Deserialize, Serialize};
 
 use crate::types::InputSource;
 
+/// Reference a skill by ID when providing it to a tool or container.
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct SkillReferenceParam {
+    /// The ID of the skill to reference.
+    pub skill_id: String,
+    /// An optional specific version to use.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+}
+
+/// The source for an inline skill (base64-encoded zip archive).
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct InlineSkillSourceParam {
+    /// The media type. Always `"application/zip"`.
+    pub media_type: String,
+    /// The base64-encoded skill data.
+    pub data: String,
+}
+
+/// An inline skill definition provided directly in a request.
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct InlineSkillParam {
+    /// The name of the skill.
+    pub name: String,
+    /// The description of the skill.
+    pub description: String,
+    /// The inline source for the skill.
+    pub source: InlineSkillSourceParam,
+}
+
 /// Represents a skill object.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct SkillResource {
