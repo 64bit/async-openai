@@ -29,6 +29,7 @@
 | **Vector stores** | Vector stores, Vector store files, Vector store file batches | `vectorstore` |
 | **ChatKit** <sub>(Beta)</sub> | ChatKit | `chatkit` |
 | **Containers** | Containers, Container Files | `container` |
+| **Skills** | Skills | `skill` |
 | **Realtime** | Realtime Calls, Client secrets, Client events, Server events | `realtime` |
 | **Chat Completions** | Chat Completions, Streaming | `chat-completion` |
 | **Assistants** <sub>(Beta)</sub> | Assistants, Threads, Messages, Runs, Run steps, Streaming | `assistant` |

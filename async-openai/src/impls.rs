@@ -47,6 +47,8 @@ use crate::{containers::ContainerFiles, containers::Containers};
 use crate::{evals::EvalRunOutputItems, evals::EvalRuns, evals::Evals};
 #[cfg(feature = "responses")]
 use crate::{responses::ConversationItems, responses::Conversations, responses::Responses};
+#[cfg(feature = "skill")]
+use crate::{skills::SkillVersions, skills::Skills};
 #[cfg(feature = "vectorstore")]
 use crate::{
     vectorstores::VectorStoreFileBatches, vectorstores::VectorStoreFiles,
@@ -158,6 +160,10 @@ impl_request_options_builder!(Realtime);
 impl_request_options_builder!(Responses);
 #[cfg(feature = "assistant")]
 impl_request_options_builder!(Runs);
+#[cfg(feature = "skill")]
+impl_request_options_builder!(SkillVersions);
+#[cfg(feature = "skill")]
+impl_request_options_builder!(Skills);
 #[cfg(feature = "audio")]
 impl_request_options_builder!(Speech);
 #[cfg(feature = "assistant")]

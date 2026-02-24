@@ -2,7 +2,7 @@ use crate::error::OpenAIError;
 use crate::types::mcp::{MCPListToolsTool, MCPTool};
 use crate::types::responses::{
     CustomGrammarFormatParam, Filter, ImageDetail, ReasoningEffort, ResponseFormatJsonSchema,
-    ResponseUsage,
+    ResponseUsage, SummaryTextContent,
 };
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
@@ -846,7 +846,7 @@ pub enum ReasoningSummary {
 /// The retention policy for the prompt cache.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 pub enum PromptCacheRetention {
-    #[serde(rename = "in-memory")]
+    #[serde(rename = "in_memory")]
     InMemory,
     #[serde(rename = "24h")]
     Hours24,
@@ -922,7 +922,7 @@ pub enum Tool {
     /// A tool that allows the model to execute shell commands in a local environment.
     LocalShell,
     /// A tool that allows the model to execute shell commands.
-    Shell,
+    Shell(FunctionShellToolParam),
     /// A custom tool that processes input using a specified format. Learn more about   [custom
     /// tools](https://platform.openai.com/docs/guides/function-calling#custom-tools)
     Custom(CustomToolParam),
@@ -1197,6 +1197,19 @@ pub enum ImageGenToolModeration {
     Low,
 }
 
+/// Whether to generate a new image or edit an existing image.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ImageGenActionEnum {
+    /// Generate a new image.
+    Generate,
+    /// Edit an existing image.
+    Edit,
+    /// Automatically determine whether to generate or edit.
+    #[default]
+    Auto,
+}
+
 /// Image generation tool definition.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(
@@ -1244,6 +1257,9 @@ pub struct ImageGenTool {
     /// `1536x1024`, or `auto`. Default: `auto`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub size: Option<ImageGenToolSize>,
+    /// Whether to generate a new image or edit an existing image. Default: `auto`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub action: Option<ImageGenActionEnum>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
@@ -1596,17 +1612,10 @@ pub struct ReasoningItem {
     pub status: Option<OutputStatus>,
 }
 
-/// A single summary text fragment from reasoning.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct Summary {
-    /// A summary of the reasoning output from the model so far.
-    pub text: String,
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum SummaryPart {
-    SummaryText(Summary),
+    SummaryText(SummaryTextContent),
 }
 
 /// File search tool call output.
@@ -1743,9 +1752,9 @@ pub struct ComputerToolCall {
     pub status: OutputStatus,
 }
 
-/// A point in 2D space.
+/// An x/y coordinate pair.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct DragPoint {
+pub struct CoordParam {
     /// The x-coordinate.
     pub x: i32,
     /// The y-coordinate.
@@ -1763,22 +1772,22 @@ pub enum ComputerAction {
     DoubleClick(DoubleClickAction),
 
     /// A drag action.
-    Drag(Drag),
+    Drag(DragParam),
 
     /// A collection of keypresses the model would like to perform.
     Keypress(KeyPressAction),
 
     /// A mouse move action.
-    Move(Move),
+    Move(MoveParam),
 
     /// A screenshot action.
     Screenshot,
 
     /// A scroll action.
-    Scroll(Scroll),
+    Scroll(ScrollParam),
 
     /// An action to type in text.
-    Type(Type),
+    Type(TypeParam),
 
     /// A wait action.
     Wait,
@@ -1817,9 +1826,9 @@ pub struct DoubleClickAction {
 
 /// A drag action.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Drag {
-    /// The path of points the cursor drags through.
-    pub path: Vec<DragPoint>,
+pub struct DragParam {
+    /// An array of coordinates representing the path of the drag action.
+    pub path: Vec<CoordParam>,
 }
 
 /// A keypress action.
@@ -1832,7 +1841,7 @@ pub struct KeyPressAction {
 
 /// A mouse move action.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Move {
+pub struct MoveParam {
     /// The x-coordinate to move to.
     pub x: i32,
     /// The y-coordinate to move to.
@@ -1841,7 +1850,7 @@ pub struct Move {
 
 /// A scroll action.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Scroll {
+pub struct ScrollParam {
     /// The horizontal scroll distance.
     pub scroll_x: i32,
     /// The vertical scroll distance.
@@ -1854,7 +1863,7 @@ pub struct Scroll {
 
 /// A typing (text entry) action.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Type {
+pub struct TypeParam {
     /// The text to type.
     pub text: String,
 }
@@ -2003,6 +2012,16 @@ pub enum FunctionShellCallItemStatus {
     Incomplete,
 }
 
+/// The environment for a shell call item (request side).
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum FunctionShellCallItemEnvironment {
+    /// Use a local computer environment.
+    Local(LocalEnvironmentParam),
+    /// Reference an existing container by ID.
+    ContainerReference(ContainerReferenceParam),
+}
+
 /// A tool representing a request to execute one or more shell commands.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct FunctionShellCallItemParam {
@@ -2016,6 +2035,9 @@ pub struct FunctionShellCallItemParam {
     /// The status of the shell call. One of `in_progress`, `completed`, or `incomplete`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<FunctionShellCallItemStatus>,
+    /// The environment to execute the shell commands in.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub environment: Option<FunctionShellCallItemEnvironment>,
 }
 
 /// Indicates that the shell commands finished and returned an exit code.
@@ -2159,6 +2181,16 @@ pub enum LocalShellCallStatus {
     Incomplete,
 }
 
+/// The environment for a shell call (response side).
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum FunctionShellCallEnvironment {
+    /// A local computer environment.
+    Local,
+    /// A referenced container.
+    ContainerReference(ContainerReferenceResource),
+}
+
 /// A tool call that executes one or more shell commands in a managed environment.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct FunctionShellCall {
@@ -2170,6 +2202,8 @@ pub struct FunctionShellCall {
     pub action: FunctionShellAction,
     /// The status of the shell call. One of `in_progress`, `completed`, or `incomplete`.
     pub status: LocalShellCallStatus,
+    /// The environment in which the shell commands were executed.
+    pub environment: Option<FunctionShellCallEnvironment>,
     /// The ID of the entity that created this tool call.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
@@ -2864,4 +2898,157 @@ pub struct CompactResource {
     pub created_at: u64,
     /// Token accounting for the compaction pass, including cached, reasoning, and total tokens.
     pub usage: ResponseUsage,
+}
+
+// ============================================================
+// Container / Environment Types
+// ============================================================
+
+/// A domain-scoped secret injected for allowlisted domains.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ContainerNetworkPolicyDomainSecretParam {
+    /// The domain associated with the secret.
+    pub domain: String,
+    /// The name of the secret to inject for the domain.
+    pub name: String,
+    /// The secret value to inject for the domain.
+    pub value: String,
+}
+
+/// Details for an allowlist network policy.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct ContainerNetworkPolicyAllowlistDetails {
+    /// A list of allowed domains.
+    pub allowed_domains: Vec<String>,
+    /// Optional domain-scoped secrets for allowlisted domains.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub domain_secrets: Option<Vec<ContainerNetworkPolicyDomainSecretParam>>,
+}
+
+/// Network access policy for a container.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ContainerNetworkPolicy {
+    /// Disable all outbound network access.
+    Disabled,
+    /// Allow access only to specified domains.
+    Allowlist(ContainerNetworkPolicyAllowlistDetails),
+}
+
+/// A skill referenced by ID.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct SkillReferenceParam {
+    /// The ID of the skill to reference.
+    pub skill_id: String,
+    /// An optional specific version to use.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+}
+
+/// An inline skill source (base64-encoded zip).
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct InlineSkillSourceParam {
+    /// The media type. Always `"application/zip"`.
+    pub media_type: String,
+    /// The base64-encoded skill data.
+    pub data: String,
+}
+
+/// An inline skill definition.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct InlineSkillParam {
+    /// The name of the skill.
+    pub name: String,
+    /// The description of the skill.
+    pub description: String,
+    /// The inline source for the skill.
+    pub source: InlineSkillSourceParam,
+}
+
+/// A skill parameter — either a reference or inline definition.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SkillParam {
+    /// Reference a skill by ID.
+    SkillReference(SkillReferenceParam),
+    /// Provide an inline skill definition.
+    Inline(InlineSkillParam),
+}
+
+/// Automatically creates a container for the request.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct ContainerAutoParam {
+    /// An optional list of uploaded file IDs to make available in the container.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub file_ids: Option<Vec<String>>,
+    /// Network access policy for the container.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub network_policy: Option<ContainerNetworkPolicy>,
+    /// An optional list of skills to make available in the container.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub skills: Option<Vec<SkillParam>>,
+}
+
+/// A local skill available in a local environment.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct LocalSkillParam {
+    /// The name of the skill.
+    pub name: String,
+    /// The description of the skill.
+    pub description: String,
+    /// The path to the directory containing the skill.
+    pub path: String,
+}
+
+/// Uses a local computer environment.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct LocalEnvironmentParam {
+    /// An optional list of local skills.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub skills: Option<Vec<LocalSkillParam>>,
+}
+
+/// References a container created with the /v1/containers endpoint.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ContainerReferenceParam {
+    /// The ID of the referenced container.
+    pub container_id: String,
+}
+
+/// A resource reference to a container by ID.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ContainerReferenceResource {
+    /// The ID of the referenced container.
+    pub container_id: String,
+}
+
+/// The execution environment for a shell tool — container or local.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum FunctionShellEnvironment {
+    /// Automatically creates a container for this request.
+    ContainerAuto(ContainerAutoParam),
+    /// Use a local computer environment.
+    Local(LocalEnvironmentParam),
+    /// Reference an existing container by ID.
+    ContainerReference(ContainerReferenceParam),
+}
+
+/// Parameters for the shell function tool.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct FunctionShellToolParam {
+    /// The execution environment for the shell tool.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub environment: Option<FunctionShellEnvironment>,
+}
+
+/// Context management configuration.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ContextManagementParam {
+    /// The context management strategy type.
+    #[serde(rename = "type")]
+    pub type_: String,
+    /// Minimum number of tokens to retain before compacting.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub compact_threshold: Option<u32>,
 }

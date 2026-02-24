@@ -444,6 +444,8 @@ pub struct RealtimeServerEventResponseFunctionCallArgumentsDone {
     pub output_index: u32,
     /// The ID of the function call.
     pub call_id: String,
+    /// The name of the function that was called.
+    pub name: String,
     /// The final arguments as a JSON string.
     pub arguments: String,
 }
