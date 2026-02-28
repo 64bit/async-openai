@@ -116,6 +116,8 @@ impl std::fmt::Display for ApiError {
     }
 }
 
+impl std::error::Error for ApiError {}
+
 /// Wrapper to deserialize the error object nested in "error" JSON key
 #[derive(Debug, Deserialize, Serialize)]
 pub struct WrappedError {
