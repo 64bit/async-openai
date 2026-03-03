@@ -222,6 +222,10 @@ name = "ser_de"
 required-features = ["chat-completion-types"]
 
 [[test]]
+name = "responses_input_item_serde"
+required-features = ["response-types"]
+
+[[test]]
 name = "whisper"
 required-features = ["audio"]
 
