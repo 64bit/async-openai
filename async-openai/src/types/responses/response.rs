@@ -360,7 +360,8 @@ pub struct CustomToolCallOutput {
 )]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct EasyInputMessage {
-    /// The type of the message input. Always set to `message`.
+    /// The type of the message input. Defaults to `message` when omitted in JSON input.
+    #[serde(default)]
     pub r#type: MessageType,
     /// The role of the message input. One of `user`, `assistant`, `system`, or `developer`.
     pub role: Role,
@@ -1114,7 +1115,8 @@ pub enum WebSearchApproximateLocationType {
 )]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct WebSearchApproximateLocation {
-    /// The type of location approximation. Always `approximate`.
+    /// The type of location approximation. Defaults to `approximate` when omitted in JSON input.
+    #[serde(default)]
     pub r#type: WebSearchApproximateLocationType,
     /// Free text input for the city of the user, e.g. `San Francisco`.
     #[serde(skip_serializing_if = "Option::is_none")]
