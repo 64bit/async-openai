@@ -9,12 +9,13 @@ use crate::types::responses::{
     ImageGenTool, ImageGenToolCall, InputContent, InputFileContent, InputImageContent, InputItem,
     InputMessage, InputParam, InputTextContent, Item, ItemReference, ItemReferenceType,
     LocalShellToolCall, LocalShellToolCallOutput, MCPApprovalRequest, MCPApprovalResponse,
-    MCPListTools, MCPToolCall, MessageItem, MessageType, OutputMessage, OutputMessageContent,
-    OutputTextContent, Prompt, Reasoning, ReasoningEffort, ReasoningItem, ReasoningSummary,
-    RefusalContent, ResponseFormatJsonSchema, ResponsePromptVariables, ResponseStreamOptions,
-    ResponseTextParam, Role, TextResponseFormatConfiguration, Tool, ToolChoiceCustom,
-    ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes,
-    WebSearchTool, WebSearchToolCall,
+    MCPListTools, MCPToolCall, MessageItem, MessageType, NamespaceTool, NamespaceToolItem,
+    OutputMessage, OutputMessageContent, OutputTextContent, Prompt, Reasoning, ReasoningEffort,
+    ReasoningItem, ReasoningSummary, RefusalContent, ResponseFormatJsonSchema,
+    ResponsePromptVariables, ResponseStreamOptions, ResponseTextParam, Role,
+    TextResponseFormatConfiguration, Tool, ToolChoiceCustom, ToolChoiceFunction, ToolChoiceMCP,
+    ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes, ToolSearchCall, ToolSearchOutput,
+    ToolSearchTool, WebSearchTool, WebSearchToolCall,
 };
 
 impl<S: Into<String>> From<S> for EasyInputMessage {
@@ -430,9 +431,21 @@ impl From<FunctionToolCall> for Item {
     }
 }
 
+impl From<ToolSearchCall> for Item {
+    fn from(call: ToolSearchCall) -> Self {
+        Item::ToolSearchCall(call)
+    }
+}
+
 impl From<FunctionCallOutputItemParam> for Item {
     fn from(output: FunctionCallOutputItemParam) -> Self {
         Item::FunctionCallOutput(output)
+    }
+}
+
+impl From<ToolSearchOutput> for Item {
+    fn from(output: ToolSearchOutput) -> Self {
+        Item::ToolSearchOutput(output)
     }
 }
 
@@ -534,6 +547,24 @@ impl From<FunctionTool> for Tool {
     }
 }
 
+impl From<FunctionTool> for NamespaceToolItem {
+    fn from(tool: FunctionTool) -> Self {
+        NamespaceToolItem::Function(tool)
+    }
+}
+
+impl From<NamespaceTool> for Tool {
+    fn from(tool: NamespaceTool) -> Self {
+        Tool::Namespace(tool)
+    }
+}
+
+impl From<ToolSearchTool> for Tool {
+    fn from(tool: ToolSearchTool) -> Self {
+        Tool::ToolSearch(tool)
+    }
+}
+
 impl From<FileSearchTool> for Tool {
     fn from(tool: FileSearchTool) -> Self {
         Tool::FileSearch(tool)
@@ -587,6 +618,18 @@ impl From<Tool> for Vec<Tool> {
 impl From<FunctionTool> for Vec<Tool> {
     fn from(tool: FunctionTool) -> Self {
         vec![Tool::Function(tool)]
+    }
+}
+
+impl From<NamespaceTool> for Vec<Tool> {
+    fn from(tool: NamespaceTool) -> Self {
+        vec![Tool::Namespace(tool)]
+    }
+}
+
+impl From<ToolSearchTool> for Vec<Tool> {
+    fn from(tool: ToolSearchTool) -> Self {
+        vec![Tool::ToolSearch(tool)]
     }
 }
 

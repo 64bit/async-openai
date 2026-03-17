@@ -75,6 +75,7 @@ async fn run_non_streaming() -> Result<(), Box<dyn Error>> {
             }
         )),
         strict: None,
+        defer_loading: None,
     })];
 
     let mut input_items: Vec<InputItem> =
@@ -190,6 +191,7 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
             }
         )),
         strict: None,
+        defer_loading: None,
     })];
 
     let mut input_items: Vec<InputItem> =
@@ -262,6 +264,7 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
                                 name: name.clone(),
                                 arguments: arguments,
                                 call_id: call_id.clone(),
+                                namespace: None,
                                 id: Some(done.item_id.clone()),
                                 status: None,
                             });
