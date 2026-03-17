@@ -118,12 +118,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let function_result = list_open_orders(&args.customer_id);
     println!("Function result: {}", function_result);
 
-    prior_items.push(Item::FunctionCallOutput(FunctionCallOutputItemParam {
-        call_id: function_call_request.call_id,
-        output: FunctionCallOutput::Text(function_result),
-        id: None,
-        status: None,
-    }).into());
+    prior_items.push(
+        Item::FunctionCallOutput(FunctionCallOutputItemParam {
+            call_id: function_call_request.call_id,
+            output: FunctionCallOutput::Text(function_result),
+            id: None,
+            status: None,
+        })
+        .into(),
+    );
 
     let final_request = CreateResponseArgs::default()
         .model("gpt-5.4")

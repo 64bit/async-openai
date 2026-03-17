@@ -2,9 +2,9 @@ use std::error::Error;
 
 use async_openai::{
     types::responses::{
-        CreateResponseArgs, EasyInputMessage, FunctionToolArgs, InputParam, Item, OutputItem,
-        OutputStatus, Tool, ToolSearchExecution, ToolSearchOutput, ToolSearchToolArgs,
-        FunctionCallOutput, FunctionCallOutputItemParam,
+        CreateResponseArgs, EasyInputMessage, FunctionCallOutput, FunctionCallOutputItemParam,
+        FunctionToolArgs, InputParam, Item, OutputItem, OutputStatus, Tool, ToolSearchExecution,
+        ToolSearchOutput, ToolSearchToolArgs,
     },
     Client,
 };
