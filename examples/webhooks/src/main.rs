@@ -154,6 +154,7 @@ async fn send_background_response() -> Result<String, Box<dyn std::error::Error>
                 r#type: MessageType::Message,
                 role: Role::User,
                 content: EasyInputContent::Text("What is the day today?".to_string()),
+                phase: None,
             },
         )]))
         .build()?;

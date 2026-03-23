@@ -9,7 +9,7 @@ fn main() {
 #[component]
 fn App() -> Element {
     let mut user_input = use_signal(|| "what is 10+10?".to_string());
-    let mut response_text = use_signal(|| String::new());
+    let mut response_text = use_signal(String::new);
     let mut is_loading = use_signal(|| false);
     let mut api_key = use_signal(|| "abc".to_string());
 

@@ -7,4 +7,5 @@ pub enum ImageDetail {
     Auto,
     Low,
     High,
+    Original,
 }

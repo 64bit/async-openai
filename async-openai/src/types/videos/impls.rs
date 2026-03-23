@@ -26,6 +26,9 @@ impl Display for VideoSeconds {
                 Self::Four => "4",
                 Self::Eight => "8",
                 Self::Twelve => "12",
+                Self::Sixteen => "16",
+                Self::Twenty => "20",
+                Self::Other(other) => other,
             }
         )
     }

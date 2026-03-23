@@ -2,19 +2,20 @@ use crate::types::mcp::MCPTool;
 use crate::types::responses::{
     ApplyPatchToolCallItemParam, ApplyPatchToolCallOutputItemParam, CodeInterpreterContainerAuto,
     CodeInterpreterTool, CodeInterpreterToolCall, CodeInterpreterToolContainer,
-    ComputerCallOutputItemParam, ComputerToolCall, ComputerUsePreviewTool, ConversationParam,
-    CustomToolCall, CustomToolCallOutput, CustomToolParam, EasyInputContent, EasyInputMessage,
-    FileSearchTool, FileSearchToolCall, FunctionCallOutput, FunctionCallOutputItemParam,
-    FunctionShellCallItemParam, FunctionShellCallOutputItemParam, FunctionTool, FunctionToolCall,
-    ImageGenTool, ImageGenToolCall, InputContent, InputFileContent, InputImageContent, InputItem,
-    InputMessage, InputParam, InputTextContent, Item, ItemReference, ItemReferenceType,
-    LocalShellToolCall, LocalShellToolCallOutput, MCPApprovalRequest, MCPApprovalResponse,
-    MCPListTools, MCPToolCall, MessageItem, MessageType, OutputMessage, OutputMessageContent,
-    OutputTextContent, Prompt, Reasoning, ReasoningEffort, ReasoningItem, ReasoningSummary,
-    RefusalContent, ResponseFormatJsonSchema, ResponsePromptVariables, ResponseStreamOptions,
-    ResponseTextParam, Role, TextResponseFormatConfiguration, Tool, ToolChoiceCustom,
-    ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes,
-    WebSearchTool, WebSearchToolCall,
+    ComputerCallOutputItemParam, ComputerTool, ComputerToolCall, ComputerUsePreviewTool,
+    ConversationParam, CustomToolCall, CustomToolCallOutput, CustomToolParam, EasyInputContent,
+    EasyInputMessage, FileSearchTool, FileSearchToolCall, FunctionCallOutput,
+    FunctionCallOutputItemParam, FunctionShellCallItemParam, FunctionShellCallOutputItemParam,
+    FunctionTool, FunctionToolCall, ImageGenTool, ImageGenToolCall, InputContent, InputFileContent,
+    InputImageContent, InputItem, InputMessage, InputParam, InputTextContent, Item, ItemReference,
+    ItemReferenceType, LocalShellToolCall, LocalShellToolCallOutput, MCPApprovalRequest,
+    MCPApprovalResponse, MCPListTools, MCPToolCall, MessageItem, MessageType, NamespaceToolParam,
+    OutputMessage, OutputMessageContent, OutputTextContent, Prompt, Reasoning, ReasoningEffort,
+    ReasoningItem, ReasoningSummary, RefusalContent, ResponseFormatJsonSchema,
+    ResponsePromptVariables, ResponseStreamOptions, ResponseTextParam, Role,
+    TextResponseFormatConfiguration, Tool, ToolChoiceCustom, ToolChoiceFunction, ToolChoiceMCP,
+    ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes, ToolSearchCallItemParam,
+    ToolSearchOutputItemParam, ToolSearchToolParam, WebSearchTool, WebSearchToolCall,
 };
 
 impl<S: Into<String>> From<S> for EasyInputMessage {
@@ -23,6 +24,7 @@ impl<S: Into<String>> From<S> for EasyInputMessage {
             r#type: MessageType::Message,
             role: Role::User,
             content: EasyInputContent::Text(value.into()),
+            phase: None,
         }
     }
 }
@@ -128,6 +130,7 @@ macro_rules! impl_inputparam_easy_from_collection {
                                 r#type: MessageType::Message,
                                 role: Role::User,
                                 content: EasyInputContent::Text($map(value)),
+                                phase: None,
                             })
                         })
                         .collect(),
@@ -145,6 +148,7 @@ macro_rules! impl_inputparam_easy_from_collection {
                                 r#type: MessageType::Message,
                                 role: Role::User,
                                 content: EasyInputContent::Text($map(value)),
+                                phase: None,
                             })
                         })
                         .collect(),
@@ -162,6 +166,7 @@ macro_rules! impl_inputparam_easy_from_collection {
                                 r#type: MessageType::Message,
                                 role: Role::User,
                                 content: EasyInputContent::Text($clone(value)),
+                                phase: None,
                             })
                         })
                         .collect(),
@@ -526,6 +531,18 @@ impl From<CustomToolCall> for Item {
     }
 }
 
+impl From<ToolSearchCallItemParam> for Item {
+    fn from(call: ToolSearchCallItemParam) -> Self {
+        Item::ToolSearchCall(call)
+    }
+}
+
+impl From<ToolSearchOutputItemParam> for Item {
+    fn from(output: ToolSearchOutputItemParam) -> Self {
+        Item::ToolSearchOutput(output)
+    }
+}
+
 // Tool ergonomics
 
 impl From<FunctionTool> for Tool {
@@ -573,6 +590,24 @@ impl From<ImageGenTool> for Tool {
 impl From<CustomToolParam> for Tool {
     fn from(tool: CustomToolParam) -> Self {
         Tool::Custom(tool)
+    }
+}
+
+impl From<ComputerTool> for Tool {
+    fn from(tool: ComputerTool) -> Self {
+        Tool::Computer(tool)
+    }
+}
+
+impl From<NamespaceToolParam> for Tool {
+    fn from(tool: NamespaceToolParam) -> Self {
+        Tool::Namespace(tool)
+    }
+}
+
+impl From<ToolSearchToolParam> for Tool {
+    fn from(tool: ToolSearchToolParam) -> Self {
+        Tool::ToolSearch(tool)
     }
 }
 

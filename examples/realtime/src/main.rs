@@ -77,7 +77,7 @@ async fn main() {
             }
 
             // after every message add newline
-            eprint!("\n");
+            eprintln!();
         })
     };
 
