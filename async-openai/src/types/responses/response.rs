@@ -58,7 +58,7 @@ pub enum FunctionCallOutputStatusEnum {
 pub struct ComputerTool {}
 
 /// Groups function/custom tools under a shared namespace.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder, Default)]
 #[builder(
     name = "NamespaceToolParamArgs",
     pattern = "mutable",
@@ -73,16 +73,6 @@ pub struct NamespaceToolParam {
     pub description: String,
     /// The function/custom tools available inside this namespace.
     pub tools: Vec<NamespaceToolParamTool>,
-}
-
-impl Default for NamespaceToolParam {
-    fn default() -> Self {
-        Self {
-            name: String::new(),
-            description: String::new(),
-            tools: Vec::new(),
-        }
-    }
 }
 
 /// A function or custom tool that belongs to a namespace.

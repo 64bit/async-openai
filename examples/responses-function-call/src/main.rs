@@ -234,9 +234,9 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
                         // Accumulate function call arguments
                         let args = function_call_args
                             .entry(delta.item_id.clone())
-                            .or_insert_with(String::new);
+                            .or_default();
                         args.push_str(&delta.delta);
-                        write!(stdout_lock, "{}: {}\n", delta.event_type(), delta.delta)?;
+                        writeln!(stdout_lock, "{}: {}", delta.event_type(), delta.delta)?;
                         stdout().flush()?;
                     }
                     ResponseStreamEvent::ResponseFunctionCallArgumentsDone(done) => {
@@ -263,7 +263,7 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
                             function_call_request = Some(FunctionToolCall {
                                 namespace: None,
                                 name: name.clone(),
-                                arguments: arguments,
+                                arguments,
                                 call_id: call_id.clone(),
                                 id: Some(done.item_id.clone()),
                                 status: None,
@@ -271,7 +271,7 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
                         }
                     }
                     ResponseStreamEvent::ResponseOutputTextDelta(delta) => {
-                        write!(stdout_lock, "{}: {}\n", delta.event_type(), delta.delta)?;
+                        writeln!(stdout_lock, "{}: {}", delta.event_type(), delta.delta)?;
                         stdout().flush()?;
                     }
                     _ => {
@@ -341,7 +341,7 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
         match result {
             Ok(event) => match &event {
                 ResponseStreamEvent::ResponseOutputTextDelta(delta) => {
-                    write!(stdout_lock, "{}: {}\n", delta.event_type(), delta.delta)?;
+                    writeln!(stdout_lock, "{}: {}", delta.event_type(), delta.delta)?;
                     stdout().flush()?;
                 }
                 _ => {
