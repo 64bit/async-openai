@@ -48,6 +48,7 @@ async fn run_non_streaming() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let tools = vec![Tool::Function(FunctionTool {
+        defer_loading: None,
         name: "get_weather".to_string(),
         description: Some("Retrieves current weather for the given location".to_string()),
         parameters: Some(serde_json::json!(
@@ -163,6 +164,7 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let tools = vec![Tool::Function(FunctionTool {
+        defer_loading: None,
         name: "get_weather".to_string(),
         description: Some("Retrieves current weather for the given location".to_string()),
         parameters: Some(serde_json::json!(
@@ -259,6 +261,7 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
 
                             // Create the function call request
                             function_call_request = Some(FunctionToolCall {
+                                namespace: None,
                                 name: name.clone(),
                                 arguments: arguments,
                                 call_id: call_id.clone(),

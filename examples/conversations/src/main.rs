@@ -140,6 +140,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 custom_tool_call_output.id.unwrap()
             }
             ConversationItem::ItemReference(any_item_reference) => any_item_reference.id,
+            ConversationItem::ToolSearchCall(tool_search_call) => tool_search_call.id,
+            ConversationItem::ToolSearchOutput(tool_search_output) => tool_search_output.id,
+            ConversationItem::ShellCall(shell_call) => shell_call.id,
+            ConversationItem::ShellCallOutput(shell_call_output) => shell_call_output.id,
+            ConversationItem::ApplyPatchCall(apply_patch_call) => apply_patch_call.id,
+            ConversationItem::ApplyPatchCallOutput(apply_patch_call_output) => {
+                apply_patch_call_output.id
+            }
         };
 
         let conversation_resource = client
