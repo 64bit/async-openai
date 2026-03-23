@@ -6,7 +6,15 @@ use crate::error::OpenAIError;
 use crate::types::audio::{LogProbProperties, TranscriptTextUsageDuration, TranscriptionUsage};
 use crate::types::InputSource;
 
-// openapi spec type: VoiceIdsShared
+/// A custom voice reference, identified by its voice ID.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct CustomVoiceRef {
+    /// The custom voice ID, e.g. `voice_1234`.
+    pub id: String,
+}
+
+// openapi spec type: VoiceIdsOrCustomVoice
+// anyOf[VoiceIdsShared, CustomVoiceRef]
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum Voice {
@@ -22,6 +30,11 @@ pub enum Voice {
     Sage,
     Shimmer,
     Verse,
+    Marin,
+    Cedar,
+    /// A custom voice reference with an `id` field.
+    #[serde(untagged)]
+    Custom(CustomVoiceRef),
     #[serde(untagged)]
     Other(String),
 }
