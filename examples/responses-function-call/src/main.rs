@@ -232,9 +232,7 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
                     }
                     ResponseStreamEvent::ResponseFunctionCallArgumentsDelta(delta) => {
                         // Accumulate function call arguments
-                        let args = function_call_args
-                            .entry(delta.item_id.clone())
-                            .or_default();
+                        let args = function_call_args.entry(delta.item_id.clone()).or_default();
                         args.push_str(&delta.delta);
                         writeln!(stdout_lock, "{}: {}", delta.event_type(), delta.delta)?;
                         stdout().flush()?;
