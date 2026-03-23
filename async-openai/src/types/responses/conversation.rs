@@ -4,12 +4,13 @@ use serde::{Deserialize, Serialize};
 use crate::{
     error::OpenAIError,
     types::responses::{
-        AnyItemReference, CodeInterpreterToolCall, ComputerToolCall, CustomToolCall,
-        CustomToolCallOutput, FileSearchToolCall, ImageGenToolCall, InputFileContent,
+        AnyItemReference, ApplyPatchToolCall, ApplyPatchToolCallOutput, CodeInterpreterToolCall,
+        ComputerToolCall, CustomToolCall, CustomToolCallOutput, FileSearchToolCall,
+        FunctionShellCall, FunctionShellCallOutput, ImageGenToolCall, InputFileContent,
         InputImageContent, InputItem, InputTextContent, LocalShellToolCall,
         LocalShellToolCallOutput, MCPApprovalRequest, MCPApprovalResponse, MCPListTools,
         MCPToolCall, OutputTextContent, ReasoningItem, ReasoningTextContent, RefusalContent,
-        WebSearchToolCall,
+        ToolSearchCall, ToolSearchOutput, WebSearchToolCall,
     },
 };
 
@@ -172,10 +173,16 @@ pub enum ConversationItem {
     WebSearchCall(WebSearchToolCall),
     ImageGenerationCall(ImageGenToolCall),
     ComputerCall(ComputerToolCall),
+    ToolSearchCall(ToolSearchCall),
+    ToolSearchOutput(ToolSearchOutput),
     Reasoning(ReasoningItem),
     CodeInterpreterCall(CodeInterpreterToolCall),
     LocalShellCall(LocalShellToolCall),
     LocalShellCallOutput(LocalShellToolCallOutput),
+    ShellCall(FunctionShellCall),
+    ShellCallOutput(FunctionShellCallOutput),
+    ApplyPatchCall(ApplyPatchToolCall),
+    ApplyPatchCallOutput(ApplyPatchToolCallOutput),
     McpListTools(MCPListTools),
     McpApprovalRequest(MCPApprovalRequest),
     McpApprovalResponse(MCPApprovalResponse),
