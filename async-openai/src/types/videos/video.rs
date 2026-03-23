@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 use crate::types::videos::ImageInput;
+use crate::types::InputSource;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub enum VideoSize {
@@ -26,9 +27,33 @@ pub enum VideoSeconds {
     Eight,
     #[serde(rename = "12")]
     Twelve,
+    #[serde(rename = "16")]
+    Sixteen,
+    #[serde(rename = "20")]
+    Twenty,
+    #[serde(untagged)]
+    Other(String),
 }
 
-// CreateVideoBody in the spec
+/// Reference to a completed video by its ID.
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub struct VideoReferenceInputParam {
+    /// The identifier of the completed video.
+    pub id: String,
+}
+
+/// Image reference parameter for video generation.
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ImageRefParam {
+    /// A fully qualified URL or base64-encoded data URL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub image_url: Option<String>,
+    /// A file ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub file_id: Option<String>,
+}
+
+// CreateVideoJsonBody in the spec
 #[derive(Clone, Default, Debug, Builder, PartialEq)]
 #[builder(name = "CreateVideoRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -50,6 +75,65 @@ pub struct CreateVideoRequest {
     pub input_reference: Option<ImageInput>,
     /// Character IDs to include in the generation.
     pub character_ids: Option<Vec<String>>,
+}
+
+/// Parameters for creating a video character.
+#[derive(Clone, Default, Debug, Builder, PartialEq)]
+#[builder(name = "CreateVideoCharacterRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateVideoCharacterRequest {
+    /// Video file used to create a character.
+    pub video: InputSource,
+    /// Display name for this API character.
+    pub name: String,
+}
+
+/// Parameters for editing an existing generated video.
+#[derive(Clone, Default, Debug, Builder, PartialEq)]
+#[builder(name = "CreateVideoEditRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateVideoEditRequest {
+    /// Reference to the completed video to edit (video ID or uploaded file).
+    pub video: VideoEditInput,
+    /// Text prompt that describes how to edit the source video.
+    pub prompt: String,
+}
+
+/// Input for video edit - either a reference to an existing video or a file upload.
+#[derive(Clone, Debug, PartialEq)]
+pub enum VideoEditInput {
+    /// A reference to a completed video by its ID.
+    Reference(VideoReferenceInputParam),
+    /// A video input source.
+    Input(InputSource),
+}
+
+impl Default for VideoEditInput {
+    fn default() -> Self {
+        Self::Reference(VideoReferenceInputParam::default())
+    }
+}
+
+/// Parameters for extending a completed video.
+#[derive(Clone, Default, Debug, Builder, PartialEq)]
+#[builder(name = "CreateVideoExtendRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateVideoExtendRequest {
+    /// Reference to the completed video to extend (video ID or uploaded file).
+    pub video: VideoEditInput,
+    /// Updated text prompt that directs the extension generation.
+    pub prompt: String,
+    /// Length of the newly generated extension segment in seconds (allowed values: 4, 8, 12, 16, 20).
+    pub seconds: Option<VideoSeconds>,
 }
 
 #[derive(Clone, Default, Debug, Builder, PartialEq, Serialize)]
@@ -98,7 +182,7 @@ pub struct VideoResource {
     /// Identifier of the source video if this video is a remix.
     pub remixed_from_video_id: Option<String>,
 
-    /// Duration of the generated clip in seconds.
+    /// Duration of the generated clip in seconds. For extensions, this is the stitched total duration.
     pub seconds: VideoSeconds,
 
     /// The resolution of the generated video.
@@ -106,6 +190,17 @@ pub struct VideoResource {
 
     /// Current lifecycle status of the video job.
     pub status: VideoStatus,
+}
+
+/// Character resource returned by character creation and retrieval.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VideoCharacterResource {
+    /// Identifier for the character.
+    pub id: Option<String>,
+    /// Display name for the character.
+    pub name: Option<String>,
+    /// Unix timestamp (in seconds) when the character was created.
+    pub created_at: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

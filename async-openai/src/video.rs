@@ -2,8 +2,9 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::videos::{
-        CreateVideoRequest, DeletedVideoResource, RemixVideoRequest, VideoListResource,
-        VideoResource,
+        CreateVideoCharacterRequest, CreateVideoEditRequest, CreateVideoExtendRequest,
+        CreateVideoRequest, DeletedVideoResource, RemixVideoRequest, VideoCharacterResource,
+        VideoListResource, VideoResource,
     },
     Client, RequestOptions,
 };
@@ -49,6 +50,65 @@ impl<'c, C: Config> Videos<'c, C> {
                 request,
                 &self.request_options,
             )
+            .await
+    }
+
+    /// Create a character from an uploaded video.
+    #[crate::byot(
+        T0 = Clone,
+        R = serde::de::DeserializeOwned,
+        where_clause = "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+    )]
+    pub async fn create_character(
+        &self,
+        request: CreateVideoCharacterRequest,
+    ) -> Result<VideoCharacterResource, OpenAIError> {
+        self.client
+            .post_form("/videos/characters", request, &self.request_options)
+            .await
+    }
+
+    /// Fetch a character by its ID.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn get_character(
+        &self,
+        character_id: &str,
+    ) -> Result<VideoCharacterResource, OpenAIError> {
+        self.client
+            .get(
+                &format!("/videos/characters/{character_id}"),
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Create a new video generation job by editing a source video.
+    #[crate::byot(
+        T0 = Clone,
+        R = serde::de::DeserializeOwned,
+        where_clause = "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+    )]
+    pub async fn edit(
+        &self,
+        request: CreateVideoEditRequest,
+    ) -> Result<VideoResource, OpenAIError> {
+        self.client
+            .post_form("/videos/edits", request, &self.request_options)
+            .await
+    }
+
+    /// Create an extension of a completed video.
+    #[crate::byot(
+        T0 = Clone,
+        R = serde::de::DeserializeOwned,
+        where_clause = "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+    )]
+    pub async fn extend(
+        &self,
+        request: CreateVideoExtendRequest,
+    ) -> Result<VideoResource, OpenAIError> {
+        self.client
+            .post_form("/videos/extensions", request, &self.request_options)
             .await
     }
 
