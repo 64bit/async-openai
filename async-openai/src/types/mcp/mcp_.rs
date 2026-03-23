@@ -68,6 +68,10 @@ pub struct MCPTool {
     /// The URL for the MCP server. One of `server_url` or `connector_id` must be provided.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub server_url: Option<String>,
+
+    /// Whether this MCP tool is deferred and discovered via tool search.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub defer_loading: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
