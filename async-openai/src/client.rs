@@ -77,13 +77,38 @@ pub struct Client<C: Config> {
     backoff: backoff::ExponentialBackoff,
 }
 
+/// Build an optimized default reqwest client.
+///
+/// Enables gzip, TCP_NODELAY, HTTP/2 keep-alive, adaptive window,
+/// and connection pool tuning for lower latency with OpenAI API.
+fn default_http_client() -> reqwest::Client {
+    #[cfg(not(target_family = "wasm"))]
+    {
+        use std::time::Duration;
+        reqwest::Client::builder()
+            .tcp_nodelay(true)
+            .gzip(true)
+            .pool_max_idle_per_host(4)
+            .http2_keep_alive_interval(Some(Duration::from_secs(20)))
+            .http2_keep_alive_timeout(Duration::from_secs(10))
+            .http2_keep_alive_while_idle(true)
+            .http2_adaptive_window(true)
+            .build()
+            .expect("failed to build default HTTP client")
+    }
+    #[cfg(target_family = "wasm")]
+    {
+        reqwest::Client::new()
+    }
+}
+
 impl<C: Config> Default for Client<C>
 where
     C: Default,
 {
     fn default() -> Self {
         Self {
-            http_client: reqwest::Client::new(),
+            http_client: default_http_client(),
             config: C::default(),
             #[cfg(not(target_family = "wasm"))]
             backoff: Default::default(),
@@ -125,7 +150,7 @@ impl<C: Config> Client<C> {
     /// Create client with [OpenAIConfig] or [crate::config::AzureConfig]
     pub fn with_config(config: C) -> Self {
         Self {
-            http_client: reqwest::Client::new(),
+            http_client: default_http_client(),
             config,
             #[cfg(not(target_family = "wasm"))]
             backoff: Default::default(),
