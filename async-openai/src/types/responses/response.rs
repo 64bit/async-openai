@@ -1829,7 +1829,7 @@ pub struct ReasoningTextContent {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ReasoningItem {
     /// Unique identifier of the reasoning content.
-    pub id: String,
+    pub id: Option<String>,
     /// Reasoning summary content.
     pub summary: Vec<SummaryPart>,
     /// Reasoning text content.
