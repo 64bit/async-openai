@@ -5,12 +5,13 @@ use crate::{
     error::OpenAIError,
     types::responses::{
         AnyItemReference, ApplyPatchToolCall, ApplyPatchToolCallOutput, CodeInterpreterToolCall,
-        ComputerToolCall, CustomToolCall, CustomToolCallOutput, FileSearchToolCall,
-        FunctionShellCall, FunctionShellCallOutput, ImageGenToolCall, InputFileContent,
-        InputImageContent, InputItem, InputTextContent, LocalShellToolCall,
+        CompactionBody, ComputerToolCall, ComputerToolCallOutputResource, CustomToolCall,
+        CustomToolCallOutput, FileSearchToolCall, FunctionShellCall, FunctionShellCallOutput,
+        FunctionToolCallOutputResource, FunctionToolCallResource, ImageGenToolCall,
+        InputFileContent, InputImageContent, InputItem, InputTextContent, LocalShellToolCall,
         LocalShellToolCallOutput, MCPApprovalRequest, MCPApprovalResponse, MCPListTools,
-        MCPToolCall, OutputTextContent, ReasoningItem, ReasoningTextContent, RefusalContent,
-        ToolSearchCall, ToolSearchOutput, WebSearchToolCall,
+        MCPToolCall, MessagePhase, OutputTextContent, ReasoningItem, ReasoningTextContent,
+        RefusalContent, ToolSearchCall, ToolSearchOutput, WebSearchToolCall,
     },
 };
 
@@ -163,19 +164,27 @@ pub struct Message {
     pub role: MessageRole,
     /// The content of the message.
     pub content: Vec<MessageContent>,
+    /// Labels an `assistant` message as intermediate commentary (`commentary`) or the final
+    /// answer (`final_answer`). Not used for user messages.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub phase: Option<MessagePhase>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ConversationItem {
     Message(Message),
+    FunctionCall(FunctionToolCallResource),
+    FunctionCallOutput(FunctionToolCallOutputResource),
     FileSearchCall(FileSearchToolCall),
     WebSearchCall(WebSearchToolCall),
     ImageGenerationCall(ImageGenToolCall),
     ComputerCall(ComputerToolCall),
+    ComputerCallOutput(ComputerToolCallOutputResource),
     ToolSearchCall(ToolSearchCall),
     ToolSearchOutput(ToolSearchOutput),
     Reasoning(ReasoningItem),
+    Compaction(CompactionBody),
     CodeInterpreterCall(CodeInterpreterToolCall),
     LocalShellCall(LocalShellToolCall),
     LocalShellCallOutput(LocalShellToolCallOutput),
