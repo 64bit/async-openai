@@ -117,11 +117,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     for item in all_items.data {
         let item_id = match item {
             ConversationItem::Message(message) => message.id,
+            ConversationItem::FunctionCall(function_tool_call) => function_tool_call.id,
+            ConversationItem::FunctionCallOutput(function_tool_call_output) => {
+                function_tool_call_output.id
+            }
             ConversationItem::FileSearchCall(file_search_tool_call) => file_search_tool_call.id,
             ConversationItem::WebSearchCall(web_search_tool_call) => web_search_tool_call.id,
             ConversationItem::ImageGenerationCall(image_gen_tool_call) => image_gen_tool_call.id,
             ConversationItem::ComputerCall(computer_tool_call) => computer_tool_call.id,
+            ConversationItem::ComputerCallOutput(computer_tool_call_output) => {
+                computer_tool_call_output.id
+            }
             ConversationItem::Reasoning(reasoning_item) => reasoning_item.id,
+            ConversationItem::Compaction(compaction) => compaction.id,
             ConversationItem::CodeInterpreterCall(code_interpreter_tool_call) => {
                 code_interpreter_tool_call.id
             }
