@@ -891,8 +891,8 @@ paths:
                 )
                 speech = client.audio.speech.create(
                     input="input",
-                    model="string",
-                    voice="string",
+                    model="tts-1",
+                    voice="alloy",
                 )
                 print(speech)
                 content = speech.read()
@@ -944,15 +944,15 @@ paths:
 
                 const speech = await client.audio.speech.create({
                   input: 'input',
-                  model: 'string',
-                  voice: 'string',
+                  model: 'tts-1',
+                  voice: 'alloy',
                 });
 
                 console.log(speech);
 
                 const content = await speech.blob();
                 console.log(content);
-              go: "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\n\t\"github.com/openai/openai-go\"\n\t\"github.com/openai/openai-go/option\"\n)\n\nfunc main() {\n\tclient := openai.NewClient(\n\t\toption.WithAPIKey(\"My API Key\"),\n\t)\n\tspeech, err := client.Audio.Speech.New(context.TODO(), openai.AudioSpeechNewParams{\n\t\tInput: \"input\",\n\t\tModel: openai.SpeechModelTTS1,\n\t\tVoice: openai.AudioSpeechNewParamsVoiceUnion{\n\t\t\tOfString: openai.String(\"string\"),\n\t\t},\n\t})\n\tif err != nil {\n\t\tpanic(err.Error())\n\t}\n\tfmt.Printf(\"%+v\\n\", speech)\n}\n"
+              go: "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\n\t\"github.com/openai/openai-go\"\n\t\"github.com/openai/openai-go/option\"\n)\n\nfunc main() {\n\tclient := openai.NewClient(\n\t\toption.WithAPIKey(\"My API Key\"),\n\t)\n\tspeech, err := client.Audio.Speech.New(context.TODO(), openai.AudioSpeechNewParams{\n\t\tInput: \"input\",\n\t\tModel: openai.SpeechModelTTS1,\n\t\tVoice: openai.AudioSpeechNewParamsVoiceUnion{\n\t\t\tOfAudioSpeechNewsVoiceString2: openai.String(\"alloy\"),\n\t\t},\n\t})\n\tif err != nil {\n\t\tpanic(err.Error())\n\t}\n\tfmt.Printf(\"%+v\\n\", speech)\n}\n"
               java: |-
                 package com.openai.example;
 
@@ -971,7 +971,7 @@ paths:
                         SpeechCreateParams params = SpeechCreateParams.builder()
                             .input("input")
                             .model(SpeechModel.TTS_1)
-                            .voice("string")
+                            .voice(SpeechCreateParams.Voice.UnionMember1.ALLOY)
                             .build();
                         HttpResponse speech = client.audio().speech().create(params);
                     }
@@ -984,7 +984,7 @@ paths:
 
 
                 speech = openai.audio.speech.create(input: "input", model:
-                :"tts-1", voice: "string")
+                :"tts-1", voice: :alloy)
 
 
                 puts(speech)
@@ -1009,8 +1009,8 @@ paths:
 
                 const speech = await client.audio.speech.create({
                   input: 'input',
-                  model: 'string',
-                  voice: 'string',
+                  model: 'tts-1',
+                  voice: 'alloy',
                 });
 
                 console.log(speech);
@@ -1026,13 +1026,13 @@ paths:
                 )
                 speech = client.audio.speech.create(
                     input="input",
-                    model="string",
-                    voice="string",
+                    model="tts-1",
+                    voice="alloy",
                 )
                 print(speech)
                 content = speech.read()
                 print(content)
-              go: "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\n\t\"github.com/openai/openai-go\"\n\t\"github.com/openai/openai-go/option\"\n)\n\nfunc main() {\n\tclient := openai.NewClient(\n\t\toption.WithAPIKey(\"My API Key\"),\n\t)\n\tspeech, err := client.Audio.Speech.New(context.TODO(), openai.AudioSpeechNewParams{\n\t\tInput: \"input\",\n\t\tModel: openai.SpeechModelTTS1,\n\t\tVoice: openai.AudioSpeechNewParamsVoiceUnion{\n\t\t\tOfString: openai.String(\"string\"),\n\t\t},\n\t})\n\tif err != nil {\n\t\tpanic(err.Error())\n\t}\n\tfmt.Printf(\"%+v\\n\", speech)\n}\n"
+              go: "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\n\t\"github.com/openai/openai-go\"\n\t\"github.com/openai/openai-go/option\"\n)\n\nfunc main() {\n\tclient := openai.NewClient(\n\t\toption.WithAPIKey(\"My API Key\"),\n\t)\n\tspeech, err := client.Audio.Speech.New(context.TODO(), openai.AudioSpeechNewParams{\n\t\tInput: \"input\",\n\t\tModel: openai.SpeechModelTTS1,\n\t\tVoice: openai.AudioSpeechNewParamsVoiceUnion{\n\t\t\tOfAudioSpeechNewsVoiceString2: openai.String(\"alloy\"),\n\t\t},\n\t})\n\tif err != nil {\n\t\tpanic(err.Error())\n\t}\n\tfmt.Printf(\"%+v\\n\", speech)\n}\n"
               java: |-
                 package com.openai.example;
 
@@ -1051,7 +1051,7 @@ paths:
                         SpeechCreateParams params = SpeechCreateParams.builder()
                             .input("input")
                             .model(SpeechModel.TTS_1)
-                            .voice("string")
+                            .voice(SpeechCreateParams.Voice.UnionMember1.ALLOY)
                             .build();
                         HttpResponse speech = client.audio().speech().create(params);
                     }
@@ -1064,7 +1064,7 @@ paths:
 
 
                 speech = openai.audio.speech.create(input: "input", model:
-                :"tts-1", voice: "string")
+                :"tts-1", voice: :alloy)
 
 
                 puts(speech)
@@ -1162,6 +1162,7 @@ paths:
 
                 Console.WriteLine($"{transcription.Text}");
               node.js: |-
+                import fs from 'fs';
                 import OpenAI from 'openai';
 
                 const client = new OpenAI({
@@ -1201,7 +1202,7 @@ paths:
                         OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                         TranscriptionCreateParams params = TranscriptionCreateParams.builder()
-                            .file(ByteArrayInputStream("Example data".getBytes()))
+                            .file(new ByteArrayInputStream("Example data".getBytes()))
                             .model(AudioModel.GPT_4O_TRANSCRIBE)
                             .build();
                         TranscriptionCreateResponse transcription = client.audio().transcriptions().create(params);
@@ -1284,6 +1285,7 @@ paths:
 
                 console.log(transcript.segments);
               node.js: |-
+                import fs from 'fs';
                 import OpenAI from 'openai';
 
                 const client = new OpenAI({
@@ -1323,7 +1325,7 @@ paths:
                         OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                         TranscriptionCreateParams params = TranscriptionCreateParams.builder()
-                            .file(ByteArrayInputStream("Example data".getBytes()))
+                            .file(new ByteArrayInputStream("Example data".getBytes()))
                             .model(AudioModel.GPT_4O_TRANSCRIBE)
                             .build();
                         TranscriptionCreateResponse transcription = client.audio().transcriptions().create(params);
@@ -1414,6 +1416,7 @@ paths:
                   console.log(event);
                 }
               node.js: |-
+                import fs from 'fs';
                 import OpenAI from 'openai';
 
                 const client = new OpenAI({
@@ -1453,7 +1456,7 @@ paths:
                         OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                         TranscriptionCreateParams params = TranscriptionCreateParams.builder()
-                            .file(ByteArrayInputStream("Example data".getBytes()))
+                            .file(new ByteArrayInputStream("Example data".getBytes()))
                             .model(AudioModel.GPT_4O_TRANSCRIBE)
                             .build();
                         TranscriptionCreateResponse transcription = client.audio().transcriptions().create(params);
@@ -1690,6 +1693,7 @@ paths:
                 }
                 main();
               node.js: |-
+                import fs from 'fs';
                 import OpenAI from 'openai';
 
                 const client = new OpenAI({
@@ -1729,7 +1733,7 @@ paths:
                         OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                         TranscriptionCreateParams params = TranscriptionCreateParams.builder()
-                            .file(ByteArrayInputStream("Example data".getBytes()))
+                            .file(new ByteArrayInputStream("Example data".getBytes()))
                             .model(AudioModel.GPT_4O_TRANSCRIBE)
                             .build();
                         TranscriptionCreateResponse transcription = client.audio().transcriptions().create(params);
@@ -1872,6 +1876,7 @@ paths:
 
                 Console.WriteLine($"{transcription.Text}");
               node.js: |-
+                import fs from 'fs';
                 import OpenAI from 'openai';
 
                 const client = new OpenAI({
@@ -1911,7 +1916,7 @@ paths:
                         OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                         TranscriptionCreateParams params = TranscriptionCreateParams.builder()
-                            .file(ByteArrayInputStream("Example data".getBytes()))
+                            .file(new ByteArrayInputStream("Example data".getBytes()))
                             .model(AudioModel.GPT_4O_TRANSCRIBE)
                             .build();
                         TranscriptionCreateResponse transcription = client.audio().transcriptions().create(params);
@@ -2022,6 +2027,7 @@ paths:
 
                 Console.WriteLine($"{transcription.Text}");
               node.js: |-
+                import fs from 'fs';
                 import OpenAI from 'openai';
 
                 const client = new OpenAI({
@@ -2061,7 +2067,7 @@ paths:
                         OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                         TranscriptionCreateParams params = TranscriptionCreateParams.builder()
-                            .file(ByteArrayInputStream("Example data".getBytes()))
+                            .file(new ByteArrayInputStream("Example data".getBytes()))
                             .model(AudioModel.GPT_4O_TRANSCRIBE)
                             .build();
                         TranscriptionCreateResponse transcription = client.audio().transcriptions().create(params);
@@ -2188,6 +2194,7 @@ paths:
 
               Console.WriteLine($"{transcription.Text}");
             node.js: |-
+              import fs from 'fs';
               import OpenAI from 'openai';
 
               const client = new OpenAI({
@@ -2227,7 +2234,7 @@ paths:
                       OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                       TranslationCreateParams params = TranslationCreateParams.builder()
-                          .file(ByteArrayInputStream("Example data".getBytes()))
+                          .file(new ByteArrayInputStream("Example data".getBytes()))
                           .model(AudioModel.WHISPER_1)
                           .build();
                       TranslationCreateResponse translation = client.audio().translations().create(params);
@@ -4967,7 +4974,7 @@ paths:
                     api_key=os.environ.get("OPENAI_API_KEY"),  # This is the default and can be omitted
                 )
                 for completion in client.completions.create(
-                    model="string",
+                    model="gpt-3.5-turbo-instruct",
                     prompt="This is a test.",
                 ):
                   print(completion)
@@ -4987,18 +4994,17 @@ paths:
                   console.log(completion);
                 }
                 main();
-              node.js: >-
+              node.js: |-
                 import OpenAI from 'openai';
-
 
                 const client = new OpenAI({
                   apiKey: process.env['OPENAI_API_KEY'], // This is the default and can be omitted
                 });
 
-
-                const completion = await client.completions.create({ model:
-                'string', prompt: 'This is a test.' });
-
+                const completion = await client.completions.create({
+                  model: 'gpt-3.5-turbo-instruct',
+                  prompt: 'This is a test.',
+                });
 
                 console.log(completion);
               go: "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\n\t\"github.com/openai/openai-go\"\n\t\"github.com/openai/openai-go/option\"\n)\n\nfunc main() {\n\tclient := openai.NewClient(\n\t\toption.WithAPIKey(\"My API Key\"),\n\t)\n\tcompletion, err := client.Completions.New(context.TODO(), openai.CompletionNewParams{\n\t\tModel: openai.CompletionNewParamsModelGPT3_5TurboInstruct,\n\t\tPrompt: openai.CompletionNewParamsPromptUnion{\n\t\t\tOfString: openai.String(\"This is a test.\"),\n\t\t},\n\t})\n\tif err != nil {\n\t\tpanic(err.Error())\n\t}\n\tfmt.Printf(\"%+v\\n\", completion)\n}\n"
@@ -5077,7 +5083,7 @@ paths:
                     api_key=os.environ.get("OPENAI_API_KEY"),  # This is the default and can be omitted
                 )
                 for completion in client.completions.create(
-                    model="string",
+                    model="gpt-3.5-turbo-instruct",
                     prompt="This is a test.",
                 ):
                   print(completion)
@@ -5098,18 +5104,17 @@ paths:
                   }
                 }
                 main();
-              node.js: >-
+              node.js: |-
                 import OpenAI from 'openai';
-
 
                 const client = new OpenAI({
                   apiKey: process.env['OPENAI_API_KEY'], // This is the default and can be omitted
                 });
 
-
-                const completion = await client.completions.create({ model:
-                'string', prompt: 'This is a test.' });
-
+                const completion = await client.completions.create({
+                  model: 'gpt-3.5-turbo-instruct',
+                  prompt: 'This is a test.',
+                });
 
                 console.log(completion);
               go: "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\n\t\"github.com/openai/openai-go\"\n\t\"github.com/openai/openai-go/option\"\n)\n\nfunc main() {\n\tclient := openai.NewClient(\n\t\toption.WithAPIKey(\"My API Key\"),\n\t)\n\tcompletion, err := client.Completions.New(context.TODO(), openai.CompletionNewParams{\n\t\tModel: openai.CompletionNewParamsModelGPT3_5TurboInstruct,\n\t\tPrompt: openai.CompletionNewParamsPromptUnion{\n\t\t\tOfString: openai.String(\"This is a test.\"),\n\t\t},\n\t})\n\tif err != nil {\n\t\tpanic(err.Error())\n\t}\n\tfmt.Printf(\"%+v\\n\", completion)\n}\n"
@@ -5624,6 +5629,7 @@ paths:
                 -H "Authorization: Bearer $OPENAI_API_KEY" \
                 -F file="@example.txt"
             node.js: |-
+              import fs from 'fs';
               import OpenAI from 'openai';
 
               const client = new OpenAI({
@@ -9539,6 +9545,7 @@ paths:
 
               main();
             node.js: |-
+              import fs from 'fs';
               import OpenAI from 'openai';
 
               const client = new OpenAI({
@@ -9569,7 +9576,7 @@ paths:
                       OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                       FileCreateParams params = FileCreateParams.builder()
-                          .file(ByteArrayInputStream("Example data".getBytes()))
+                          .file(new ByteArrayInputStream("Example data".getBytes()))
                           .purpose(FilePurpose.ASSISTANTS)
                           .build();
                       FileObject fileObject = client.files().create(params);
@@ -12664,6 +12671,7 @@ paths:
                 const image_bytes = Buffer.from(image_base64, "base64");
                 fs.writeFileSync("basket.png", image_bytes);
               node.js: |-
+                import fs from 'fs';
                 import OpenAI from 'openai';
 
                 const client = new OpenAI({
@@ -12694,7 +12702,7 @@ paths:
                         OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                         ImageEditParams params = ImageEditParams.builder()
-                            .image(ByteArrayInputStream("Example data".getBytes()))
+                            .image(new ByteArrayInputStream("Example data".getBytes()))
                             .prompt("A cute baby sea otter wearing a beret")
                             .build();
                         ImagesResponse imagesResponse = client.images().edit(params);
@@ -12769,6 +12777,7 @@ paths:
                     console.log(event);
                 }
               node.js: |-
+                import fs from 'fs';
                 import OpenAI from 'openai';
 
                 const client = new OpenAI({
@@ -12799,7 +12808,7 @@ paths:
                         OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                         ImageEditParams params = ImageEditParams.builder()
-                            .image(ByteArrayInputStream("Example data".getBytes()))
+                            .image(new ByteArrayInputStream("Example data".getBytes()))
                             .prompt("A cute baby sea otter wearing a beret")
                             .build();
                         ImagesResponse imagesResponse = client.images().edit(params);
@@ -13134,6 +13143,7 @@ paths:
 
               Console.WriteLine(image.ImageUri);
             node.js: |-
+              import fs from 'fs';
               import OpenAI from 'openai';
 
               const client = new OpenAI({
@@ -13162,7 +13172,7 @@ paths:
                       OpenAIClient client = OpenAIOkHttpClient.fromEnv();
 
                       ImageCreateVariationParams params = ImageCreateVariationParams.builder()
-                          .image(ByteArrayInputStream("Example data".getBytes()))
+                          .image(new ByteArrayInputStream("Example data".getBytes()))
                           .build();
                       ImagesResponse imagesResponse = client.images().createVariation(params);
                   }
@@ -26728,6 +26738,8 @@ paths:
               curl https://api.openai.com/v1/uploads/upload_abc123/parts
                 -F data="aHR0cHM6Ly9hcGkub3BlbmFpLmNvbS92MS91cGxvYWRz..."
             node.js: >-
+              import fs from 'fs';
+
               import OpenAI from 'openai';
 
 
@@ -26773,7 +26785,7 @@ paths:
 
                       PartCreateParams params = PartCreateParams.builder()
                           .uploadId("upload_abc123")
-                          .data(ByteArrayInputStream("Example data".getBytes()))
+                          .data(new ByteArrayInputStream("Example data".getBytes()))
                           .build();
                       UploadPart uploadPart = client.uploads().parts().create(params);
                   }
@@ -27388,7 +27400,15 @@ paths:
       tags:
         - Vector stores
       summary: Create a vector store file batch.
-      description: The maximum number of files in a single batch request is 2000.
+      description: >
+        The maximum number of files in a single batch request is 2000.
+
+        Vector store file attach requests are rate limited per vector store (300
+        requests per minute across both this endpoint and
+        `/vector_stores/{vector_store_id}/files`).
+
+        For ingesting multiple files into the same vector store, this batch
+        endpoint is recommended.
       parameters:
         - in: path
           name: vector_store_id
@@ -27414,6 +27434,11 @@ paths:
       x-oaiMeta:
         name: Create vector store file batch
         group: vector_stores
+        description: >
+          Attaches multiple files to a vector store in one request. This is the
+          recommended approach for multi-file ingestion, especially because
+          per-vector-store file attach writes are rate-limited (300
+          requests/minute shared with `/vector_stores/{vector_store_id}/files`).
         examples:
           request:
             curl: >
@@ -28204,6 +28229,13 @@ paths:
         Create a vector store file by attaching a
         [File](/docs/api-reference/files) to a [vector
         store](/docs/api-reference/vector-stores/object).
+      description: >-
+        This endpoint is subject to a per-vector-store write rate limit of 300
+        requests per minute, shared with
+        `/vector_stores/{vector_store_id}/file_batches`.
+
+        For uploading multiple files to the same vector store, use the file
+        batches endpoint to reduce request volume.
       parameters:
         - in: path
           name: vector_store_id
@@ -28229,6 +28261,11 @@ paths:
       x-oaiMeta:
         name: Create vector store file
         group: vector_stores
+        description: >
+          Attaches one file to a vector store. File attach writes are
+          rate-limited per vector store (300 requests/minute shared with
+          `/vector_stores/{vector_store_id}/file_batches`), so use file batches
+          when uploading multiple files.
         examples:
           request:
             curl: |
@@ -29698,6 +29735,7 @@ paths:
           response: ''
           request:
             node.js: |-
+              import fs from 'fs';
               import OpenAI from 'openai';
 
               const client = new OpenAI({
@@ -29740,7 +29778,7 @@ paths:
 
                       VideoCreateCharacterParams params = VideoCreateCharacterParams.builder()
                           .name("x")
-                          .video(ByteArrayInputStream("Example data".getBytes()))
+                          .video(new ByteArrayInputStream("Example data".getBytes()))
                           .build();
                       VideoCreateCharacterResponse response = client.videos().createCharacter(params);
                   }
@@ -29902,7 +29940,7 @@ paths:
 
                       VideoEditParams params = VideoEditParams.builder()
                           .prompt("x")
-                          .video(ByteArrayInputStream("Example data".getBytes()))
+                          .video(new ByteArrayInputStream("Example data".getBytes()))
                           .build();
                       Video video = client.videos().edit(params);
                   }
@@ -29993,7 +30031,7 @@ paths:
                       VideoExtendParams params = VideoExtendParams.builder()
                           .prompt("x")
                           .seconds(VideoSeconds._4)
-                          .video(ByteArrayInputStream("Example data".getBytes()))
+                          .video(new ByteArrayInputStream("Example data".getBytes()))
                           .build();
                       Video video = client.videos().extend(params);
                   }
@@ -36271,8 +36309,20 @@ components:
               type: string
               description: |
                 The unique ID of the computer call tool output.
+            status:
+              description: >
+                The status of the message input. One of `in_progress`,
+                `completed`, or
+
+                `incomplete`. Populated when input items are returned via API.
+              $ref: '#/components/schemas/ComputerCallOutputStatus'
+            created_by:
+              type: string
+              description: |
+                The identifier of the actor that created the item.
           required:
             - id
+            - status
     ContainerFileListResource:
       type: object
       properties:
@@ -36493,6 +36543,7 @@ components:
         - $ref: '#/components/schemas/ToolSearchCall'
         - $ref: '#/components/schemas/ToolSearchOutput'
         - $ref: '#/components/schemas/ReasoningItem'
+        - $ref: '#/components/schemas/CompactionBody'
         - $ref: '#/components/schemas/CodeInterpreterToolCall'
         - $ref: '#/components/schemas/LocalShellToolCall'
         - $ref: '#/components/schemas/LocalShellToolCallOutput'
@@ -40136,6 +40187,15 @@ components:
                   items:
                     $ref: '#/components/schemas/ContextManagementParam'
                 - type: 'null'
+            max_output_tokens:
+              anyOf:
+                - description: >
+                    An upper bound for the number of tokens that can be
+                    generated for a response, including visible output tokens
+                    and [reasoning tokens](/docs/guides/reasoning).
+                  type: integer
+                  minimum: 16
+                - type: 'null'
     CreateRunRequest:
       type: object
       additionalProperties: false
@@ -41160,7 +41220,9 @@ components:
             store should use. Useful for tools like `file_search` that can
             access files.  If `attributes` or `chunking_strategy` are provided,
             they will be  applied to all files in the batch. The maximum batch
-            size is 2000 files. Mutually exclusive with `files`.
+            size is 2000 files. This endpoint is recommended for multi-file
+            ingestion and helps reduce per-vector-store write request pressure.
+            Mutually exclusive with `files`.
           type: array
           minItems: 1
           maxItems: 2000
@@ -41172,7 +41234,9 @@ components:
             `attributes` or `chunking_strategy`. Use this when you need to
             override metadata for specific files. The global `attributes` or
             `chunking_strategy` will be ignored and must be specified for each
-            file. The maximum batch size is 2000 files. Mutually exclusive with
+            file. The maximum batch size is 2000 files. This endpoint is
+            recommended for multi-file ingestion and helps reduce
+            per-vector-store write request pressure. Mutually exclusive with
             `file_ids`.
           type: array
           minItems: 1
@@ -41195,7 +41259,10 @@ components:
         file_id:
           description: >-
             A [File](/docs/api-reference/files) ID that the vector store should
-            use. Useful for tools like `file_search` that can access files.
+            use. Useful for tools like `file_search` that can access files. For
+            multi-file ingestion, we recommend
+            [`file_batches`](/docs/api-reference/vector-stores-file-batches/createBatch)
+            to minimize per-vector-store write requests.
           type: string
         chunking_strategy:
           $ref: '#/components/schemas/ChunkingStrategyRequestParam'
@@ -41372,6 +41439,50 @@ components:
         - type
         - call_id
         - output
+    CustomToolCallOutputResource:
+      title: ResponseCustomToolCallOutputItem
+      allOf:
+        - $ref: '#/components/schemas/CustomToolCallOutput'
+        - type: object
+          properties:
+            id:
+              type: string
+              description: |
+                The unique ID of the custom tool call output item.
+            status:
+              description: |
+                The status of the item. One of `in_progress`, `completed`, or
+                `incomplete`. Populated when items are returned via API.
+              $ref: '#/components/schemas/FunctionCallOutputStatusEnum'
+            created_by:
+              type: string
+              description: |
+                The identifier of the actor that created the item.
+          required:
+            - id
+            - status
+    CustomToolCallResource:
+      title: ResponseCustomToolCallItem
+      allOf:
+        - $ref: '#/components/schemas/CustomToolCall'
+        - type: object
+          properties:
+            id:
+              type: string
+              description: |
+                The unique ID of the custom tool call item.
+            status:
+              description: |
+                The status of the item. One of `in_progress`, `completed`, or
+                `incomplete`. Populated when items are returned via API.
+              $ref: '#/components/schemas/FunctionCallStatus'
+            created_by:
+              type: string
+              description: |
+                The identifier of the actor that created the item.
+          required:
+            - id
+            - status
     CustomToolChatCompletions:
       type: object
       title: Custom tool
@@ -44456,8 +44567,18 @@ components:
               type: string
               description: |
                 The unique ID of the function call tool output.
+            status:
+              description: |
+                The status of the item. One of `in_progress`, `completed`, or
+                `incomplete`. Populated when items are returned via API.
+              $ref: '#/components/schemas/FunctionCallOutputStatusEnum'
+            created_by:
+              type: string
+              description: |
+                The identifier of the actor that created the item.
           required:
             - id
+            - status
     FunctionToolCallResource:
       allOf:
         - $ref: '#/components/schemas/FunctionToolCall'
@@ -44467,8 +44588,18 @@ components:
               type: string
               description: |
                 The unique ID of the function tool call.
+            status:
+              description: |
+                The status of the item. One of `in_progress`, `completed`, or
+                `incomplete`. Populated when items are returned via API.
+              $ref: '#/components/schemas/FunctionCallStatus'
+            created_by:
+              type: string
+              description: |
+                The identifier of the actor that created the item.
           required:
             - id
+            - status
     GraderLabelModel:
       type: object
       title: LabelModelGrader
@@ -46189,6 +46320,8 @@ components:
         - $ref: '#/components/schemas/FunctionToolCallOutputResource'
         - $ref: '#/components/schemas/ToolSearchCall'
         - $ref: '#/components/schemas/ToolSearchOutput'
+        - $ref: '#/components/schemas/ReasoningItem'
+        - $ref: '#/components/schemas/CompactionBody'
         - $ref: '#/components/schemas/ImageGenToolCall'
         - $ref: '#/components/schemas/CodeInterpreterToolCall'
         - $ref: '#/components/schemas/LocalShellToolCall'
@@ -46201,6 +46334,8 @@ components:
         - $ref: '#/components/schemas/MCPApprovalRequest'
         - $ref: '#/components/schemas/MCPApprovalResponseResource'
         - $ref: '#/components/schemas/MCPToolCall'
+        - $ref: '#/components/schemas/CustomToolCallResource'
+        - $ref: '#/components/schemas/CustomToolCallOutputResource'
       discriminator:
         propertyName: type
     ListAssistantsResponse:
@@ -48436,12 +48571,14 @@ components:
       discriminator:
         propertyName: type
     OutputItem:
-      anyOf:
+      oneOf:
         - $ref: '#/components/schemas/OutputMessage'
         - $ref: '#/components/schemas/FileSearchToolCall'
         - $ref: '#/components/schemas/FunctionToolCall'
+        - $ref: '#/components/schemas/FunctionToolCallOutputResource'
         - $ref: '#/components/schemas/WebSearchToolCall'
         - $ref: '#/components/schemas/ComputerToolCall'
+        - $ref: '#/components/schemas/ComputerToolCallOutputResource'
         - $ref: '#/components/schemas/ReasoningItem'
         - $ref: '#/components/schemas/ToolSearchCall'
         - $ref: '#/components/schemas/ToolSearchOutput'
@@ -48449,6 +48586,7 @@ components:
         - $ref: '#/components/schemas/ImageGenToolCall'
         - $ref: '#/components/schemas/CodeInterpreterToolCall'
         - $ref: '#/components/schemas/LocalShellToolCall'
+        - $ref: '#/components/schemas/LocalShellToolCallOutput'
         - $ref: '#/components/schemas/FunctionShellCall'
         - $ref: '#/components/schemas/FunctionShellCallOutput'
         - $ref: '#/components/schemas/ApplyPatchToolCall'
@@ -48456,7 +48594,9 @@ components:
         - $ref: '#/components/schemas/MCPToolCall'
         - $ref: '#/components/schemas/MCPListTools'
         - $ref: '#/components/schemas/MCPApprovalRequest'
+        - $ref: '#/components/schemas/MCPApprovalResponseResource'
         - $ref: '#/components/schemas/CustomToolCall'
+        - $ref: '#/components/schemas/CustomToolCallOutputResource'
       discriminator:
         propertyName: type
     OutputMessage:
@@ -57855,7 +57995,8 @@ components:
           default: null
           description: >
             Realtime API can write session traces to the [Traces
-            Dashboard](/logs?api=traces). Set to null to disable tracing. Once
+            Dashboard](https://platform.openai.com/logs?api=traces). Set to null
+            to disable tracing. Once
 
             tracing is enabled for a session, the configuration cannot be
             modified.
@@ -58393,8 +58534,8 @@ components:
               default: null
               description: >
                 Realtime API can write session traces to the [Traces
-                Dashboard](/logs?api=traces). Set to null to disable tracing.
-                Once
+                Dashboard](https://platform.openai.com/logs?api=traces). Set to
+                null to disable tracing. Once
 
                 tracing is enabled for a session, the configuration cannot be
                 modified.
@@ -59418,6 +59559,14 @@ components:
               anyOf:
                 - default: null
                   $ref: '#/components/schemas/Conversation-2'
+                - type: 'null'
+            max_output_tokens:
+              anyOf:
+                - description: >
+                    An upper bound for the number of tokens that can be
+                    generated for a response, including visible output tokens
+                    and [reasoning tokens](/docs/guides/reasoning).
+                  type: integer
                 - type: 'null'
           required:
             - id
@@ -61550,14 +61699,6 @@ components:
                 Whether to run the model response in the background.
                 [Learn more](/docs/guides/background).
               default: false
-            - type: 'null'
-        max_output_tokens:
-          anyOf:
-            - description: >
-                An upper bound for the number of tokens that can be generated
-                for a response, including visible output tokens and [reasoning
-                tokens](/docs/guides/reasoning).
-              type: integer
             - type: 'null'
         max_tool_calls:
           anyOf:
@@ -68426,6 +68567,11 @@ components:
         - detail
       title: Computer screenshot
       description: A screenshot of a computer.
+    FileInputDetail:
+      type: string
+      enum:
+        - low
+        - high
     InputFileContent:
       properties:
         type:
@@ -68450,11 +68596,22 @@ components:
         file_url:
           type: string
           description: The URL of the file to be sent to the model.
+        detail:
+          $ref: '#/components/schemas/FileInputDetail'
+          description: >-
+            The detail level of the file to be sent to the model. Use `low` for
+            the default rendering behavior, or `high` to render the file at
+            higher quality. Defaults to `low`.
       type: object
       required: &ref_0
         - type
       title: Input file
       description: A file input to the model.
+    MessagePhase-2:
+      type: string
+      enum:
+        - commentary
+        - final_answer
     Message:
       properties:
         type:
@@ -68494,6 +68651,16 @@ components:
               propertyName: type
           type: array
           description: The content of the message
+        phase:
+          anyOf:
+            - $ref: '#/components/schemas/MessagePhase-2'
+              description: >-
+                Labels an `assistant` message as intermediate commentary
+                (`commentary`) or the final answer (`final_answer`). For models
+                like `gpt-5.3-codex` and beyond, when sending follow-up
+                requests, preserve and resend phase on all assistant messages —
+                dropping it can degrade performance. Not used for user messages.
+            - type: 'null'
       type: object
       required:
         - type
@@ -68503,6 +68670,18 @@ components:
         - content
       title: Message
       description: A message to or from the model.
+    FunctionCallStatus:
+      type: string
+      enum:
+        - in_progress
+        - completed
+        - incomplete
+    FunctionCallOutputStatusEnum:
+      type: string
+      enum:
+        - in_progress
+        - completed
+        - incomplete
     ClickButtonType:
       type: string
       enum:
@@ -68533,6 +68712,13 @@ components:
         'y':
           type: integer
           description: The y-coordinate where the click occurred.
+        keys:
+          anyOf:
+            - items:
+                type: string
+              type: array
+              description: The keys being held while clicking.
+            - type: 'null'
       type: object
       required:
         - type
@@ -68558,11 +68744,19 @@ components:
         'y':
           type: integer
           description: The y-coordinate where the double click occurred.
+        keys:
+          anyOf:
+            - items:
+                type: string
+              type: array
+              description: The keys being held while double-clicking.
+            - type: 'null'
       type: object
       required:
         - type
         - x
         - 'y'
+        - keys
       title: DoubleClick
       description: A double click action.
     CoordParam:
@@ -68606,6 +68800,13 @@ components:
             ]
 
             ```
+        keys:
+          anyOf:
+            - items:
+                type: string
+              type: array
+              description: The keys being held while dragging the mouse.
+            - type: 'null'
       type: object
       required:
         - type
@@ -68654,6 +68855,13 @@ components:
         'y':
           type: integer
           description: The y-coordinate to move to.
+        keys:
+          anyOf:
+            - items:
+                type: string
+              type: array
+              description: The keys being held while moving the mouse.
+            - type: 'null'
       type: object
       required:
         - type
@@ -68700,6 +68908,13 @@ components:
         scroll_y:
           type: integer
           description: The vertical scroll distance.
+        keys:
+          anyOf:
+            - items:
+                type: string
+              type: array
+              description: The keys being held while scrolling.
+            - type: 'null'
       type: object
       required:
         - type
@@ -68764,17 +68979,17 @@ components:
       required:
         - id
       description: A pending safety check for the computer call.
+    ComputerCallOutputStatus:
+      type: string
+      enum:
+        - completed
+        - incomplete
+        - failed
     ToolSearchExecutionType:
       type: string
       enum:
         - server
         - client
-    FunctionCallStatus:
-      type: string
-      enum:
-        - in_progress
-        - completed
-        - incomplete
     ToolSearchCall:
       properties:
         type:
@@ -69451,12 +69666,6 @@ components:
       description: >-
         Allows the assistant to create, delete, or update files using unified
         diffs.
-    FunctionCallOutputStatusEnum:
-      type: string
-      enum:
-        - in_progress
-        - completed
-        - incomplete
     ToolSearchOutput:
       properties:
         type:
@@ -69496,6 +69705,33 @@ components:
         - execution
         - tools
         - status
+    CompactionBody:
+      properties:
+        type:
+          type: string
+          enum:
+            - compaction
+          description: The type of the item. Always `compaction`.
+          default: compaction
+          x-stainless-const: true
+        id:
+          type: string
+          description: The unique ID of the compaction item.
+        encrypted_content:
+          type: string
+          description: The encrypted content that was produced by compaction.
+        created_by:
+          type: string
+          description: The identifier of the actor that created the item.
+      type: object
+      required:
+        - type
+        - id
+        - encrypted_content
+      title: Compaction item
+      description: >-
+        A compaction item generated by the [`v1/responses/compact`
+        API](/docs/api-reference/responses/compact).
     CodeInterpreterOutputLogs:
       properties:
         type:
@@ -70083,6 +70319,11 @@ components:
       description: >-
         An image input to the model. Learn about [image
         inputs](/docs/guides/vision)
+    FileDetailEnum:
+      type: string
+      enum:
+        - low
+        - high
     InputFileContentParam:
       properties:
         type:
@@ -70106,7 +70347,7 @@ components:
         file_data:
           anyOf:
             - type: string
-              maxLength: 33554432
+              maxLength: 73400320
               description: The base64-encoded data of the file to be sent to the model.
             - type: 'null'
         file_url:
@@ -70114,6 +70355,12 @@ components:
             - type: string
               description: The URL of the file to be sent to the model.
             - type: 'null'
+        detail:
+          $ref: '#/components/schemas/FileDetailEnum'
+          description: >-
+            The detail level of the file to be sent to the model. Use `low` for
+            the default rendering behavior, or `high` to render the file at
+            higher quality. Defaults to `low`.
       type: object
       required:
         - type
@@ -70809,33 +71056,6 @@ components:
       type: object
       required:
         - type
-    CompactionBody:
-      properties:
-        type:
-          type: string
-          enum:
-            - compaction
-          description: The type of the item. Always `compaction`.
-          default: compaction
-          x-stainless-const: true
-        id:
-          type: string
-          description: The unique ID of the compaction item.
-        encrypted_content:
-          type: string
-          description: The encrypted content that was produced by compaction.
-        created_by:
-          type: string
-          description: The identifier of the actor that created the item.
-      type: object
-      required:
-        - type
-        - id
-        - encrypted_content
-      title: Compaction item
-      description: >-
-        A compaction item generated by the [`v1/responses/compact`
-        API](/docs/api-reference/responses/compact).
     Conversation-2:
       properties:
         id:
@@ -71436,6 +71656,11 @@ components:
       example:
         object: response.input_tokens
         input_tokens: 123
+    PromptCacheRetentionEnum:
+      type: string
+      enum:
+        - in_memory
+        - 24h
     CompactResponseMethodPublicBody:
       properties:
         model:
@@ -71485,6 +71710,11 @@ components:
             - type: string
               maxLength: 64
               description: A key to use when reading from or writing to the prompt cache.
+            - type: 'null'
+        prompt_cache_retention:
+          anyOf:
+            - $ref: '#/components/schemas/PromptCacheRetentionEnum'
+              description: How long to retain a prompt cache entry created by this request.
             - type: 'null'
       type: object
       required:
