@@ -128,7 +128,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             ConversationItem::ComputerCallOutput(computer_tool_call_output) => {
                 computer_tool_call_output.id
             }
-            ConversationItem::Reasoning(reasoning_item) => reasoning_item.id,
+            ConversationItem::Reasoning(reasoning_item) => reasoning_item.id.unwrap(),
             ConversationItem::Compaction(compaction) => compaction.id,
             ConversationItem::CodeInterpreterCall(code_interpreter_tool_call) => {
                 code_interpreter_tool_call.id
