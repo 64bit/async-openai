@@ -71,9 +71,6 @@ impl std::error::Error for OpenAIError {}
 #[cfg(all(feature = "_api", not(target_family = "wasm")))]
 #[derive(Debug, thiserror::Error)]
 pub enum StreamError {
-    /// Underlying error from reqwest_eventsource library when reading the stream
-    #[error("{0}")]
-    ReqwestEventSource(#[from] reqwest_eventsource::Error),
     /// Error when a stream event does not match one of the expected values
     #[error("Unknown event: {0:#?}")]
     UnknownEvent(eventsource_stream::Event),
