@@ -31,7 +31,9 @@ async fn chat_completion_example(client: &Client<AzureConfig>) -> Result<(), Box
     for choice in response.choices {
         println!(
             "{}: Role: {}  Content: {:?}",
-            choice.index, choice.message.role, choice.message.content
+            choice.index,
+            choice.message.role,
+            choice.message.content.unwrap_or_default()
         );
     }
     Ok(())
