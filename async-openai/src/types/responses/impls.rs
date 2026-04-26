@@ -12,10 +12,10 @@ use crate::types::responses::{
     ContainerReferenceResource, ConversationParam, CustomToolCall, CustomToolCallOutput,
     CustomToolCallOutputResource, CustomToolParam, EasyInputContent, EasyInputMessage,
     FileSearchTool, FileSearchToolCall, FunctionCallOutput, FunctionCallOutputItemParam,
-    FunctionCallOutputStatusEnum, FunctionCallStatus, FunctionShellAction, FunctionShellActionParam,
-    FunctionShellCall, FunctionShellCallEnvironment, FunctionShellCallItemEnvironment,
-    FunctionShellCallItemParam, FunctionShellCallItemStatus, FunctionShellCallOutput,
-    FunctionShellCallOutputContent, FunctionShellCallOutputContentParam,
+    FunctionCallOutputStatusEnum, FunctionCallStatus, FunctionShellAction,
+    FunctionShellActionParam, FunctionShellCall, FunctionShellCallEnvironment,
+    FunctionShellCallItemEnvironment, FunctionShellCallItemParam, FunctionShellCallItemStatus,
+    FunctionShellCallOutput, FunctionShellCallOutputContent, FunctionShellCallOutputContentParam,
     FunctionShellCallOutputExitOutcome, FunctionShellCallOutputExitOutcomeParam,
     FunctionShellCallOutputItemParam, FunctionShellCallOutputOutcome,
     FunctionShellCallOutputOutcomeParam, FunctionTool, FunctionToolCall,
@@ -817,9 +817,9 @@ impl From<FunctionShellCallEnvironment> for FunctionShellCallItemEnvironment {
             // The response side carries no payload for `Local`; the param
             // side accepts an optional `skills` list which we leave None
             // (it's a request-only knob).
-            FunctionShellCallEnvironment::Local => FunctionShellCallItemEnvironment::Local(
-                LocalEnvironmentParam { skills: None },
-            ),
+            FunctionShellCallEnvironment::Local => {
+                FunctionShellCallItemEnvironment::Local(LocalEnvironmentParam { skills: None })
+            }
             FunctionShellCallEnvironment::ContainerReference(r) => {
                 FunctionShellCallItemEnvironment::ContainerReference(r.into())
             }
