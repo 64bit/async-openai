@@ -1,20 +1,34 @@
 use crate::types::mcp::MCPTool;
 use crate::types::responses::{
-    ApplyPatchToolCallItemParam, ApplyPatchToolCallOutputItemParam, CodeInterpreterContainerAuto,
-    CodeInterpreterTool, CodeInterpreterToolCall, CodeInterpreterToolContainer,
-    ComputerCallOutputItemParam, ComputerTool, ComputerToolCall, ComputerUsePreviewTool,
-    ConversationParam, CustomToolCall, CustomToolCallOutput, CustomToolParam, EasyInputContent,
-    EasyInputMessage, FileSearchTool, FileSearchToolCall, FunctionCallOutput,
-    FunctionCallOutputItemParam, FunctionShellCallItemParam, FunctionShellCallOutputItemParam,
-    FunctionTool, FunctionToolCall, ImageGenTool, ImageGenToolCall, InputContent, InputFileContent,
+    ApplyPatchCallOutputStatus, ApplyPatchCallOutputStatusParam, ApplyPatchCallStatus,
+    ApplyPatchCallStatusParam, ApplyPatchCreateFileOperation, ApplyPatchCreateFileOperationParam,
+    ApplyPatchDeleteFileOperation, ApplyPatchDeleteFileOperationParam, ApplyPatchOperation,
+    ApplyPatchOperationParam, ApplyPatchToolCall, ApplyPatchToolCallItemParam,
+    ApplyPatchToolCallOutput, ApplyPatchToolCallOutputItemParam, ApplyPatchUpdateFileOperation,
+    ApplyPatchUpdateFileOperationParam, CodeInterpreterContainerAuto, CodeInterpreterTool,
+    CodeInterpreterToolCall, CodeInterpreterToolContainer, CompactionBody,
+    CompactionSummaryItemParam, ComputerCallOutputItemParam, ComputerTool, ComputerToolCall,
+    ComputerToolCallOutputResource, ComputerUsePreviewTool, ContainerReferenceParam,
+    ContainerReferenceResource, ConversationParam, CustomToolCall, CustomToolCallOutput,
+    CustomToolCallOutputResource, CustomToolParam, EasyInputContent, EasyInputMessage,
+    FileSearchTool, FileSearchToolCall, FunctionCallOutput, FunctionCallOutputItemParam,
+    FunctionCallOutputStatusEnum, FunctionCallStatus, FunctionShellAction, FunctionShellActionParam,
+    FunctionShellCall, FunctionShellCallEnvironment, FunctionShellCallItemEnvironment,
+    FunctionShellCallItemParam, FunctionShellCallItemStatus, FunctionShellCallOutput,
+    FunctionShellCallOutputContent, FunctionShellCallOutputContentParam,
+    FunctionShellCallOutputExitOutcome, FunctionShellCallOutputExitOutcomeParam,
+    FunctionShellCallOutputItemParam, FunctionShellCallOutputOutcome,
+    FunctionShellCallOutputOutcomeParam, FunctionTool, FunctionToolCall,
+    FunctionToolCallOutputResource, ImageGenTool, ImageGenToolCall, InputContent, InputFileContent,
     InputImageContent, InputItem, InputMessage, InputParam, InputTextContent, Item, ItemReference,
-    ItemReferenceType, LocalShellToolCall, LocalShellToolCallOutput, MCPApprovalRequest,
-    MCPApprovalResponse, MCPListTools, MCPToolCall, MessageItem, MessageType, NamespaceToolParam,
-    OutputMessage, OutputMessageContent, OutputTextContent, Prompt, Reasoning, ReasoningEffort,
-    ReasoningItem, ReasoningSummary, RefusalContent, ResponseFormatJsonSchema,
-    ResponsePromptVariables, ResponseStreamOptions, ResponseTextParam, Role,
-    TextResponseFormatConfiguration, Tool, ToolChoiceCustom, ToolChoiceFunction, ToolChoiceMCP,
-    ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes, ToolSearchCallItemParam,
+    ItemReferenceType, LocalEnvironmentParam, LocalShellCallStatus, LocalShellToolCall,
+    LocalShellToolCallOutput, MCPApprovalRequest, MCPApprovalResponse, MCPListTools, MCPToolCall,
+    MessageItem, MessageType, NamespaceToolParam, OutputItem, OutputMessage, OutputMessageContent,
+    OutputStatus, OutputTextContent, Prompt, Reasoning, ReasoningEffort, ReasoningItem,
+    ReasoningSummary, RefusalContent, ResponseFormatJsonSchema, ResponsePromptVariables,
+    ResponseStreamOptions, ResponseTextParam, Role, TextResponseFormatConfiguration, Tool,
+    ToolChoiceCustom, ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions, ToolChoiceParam,
+    ToolChoiceTypes, ToolSearchCall, ToolSearchCallItemParam, ToolSearchOutput,
     ToolSearchOutputItemParam, ToolSearchToolParam, WebSearchTool, WebSearchToolCall,
 };
 
@@ -708,5 +722,355 @@ impl ItemReference {
             r#type: Some(ItemReferenceType::ItemReference),
             id: id.into(),
         }
+    }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// OutputItem -> Item / InputItem (multi-turn responses helpers)
+//
+// The Responses API requires reasoning items to be echoed back into the
+// next request's `input` alongside the function-call items they preceded —
+// otherwise the server rejects the request with
+// `Item 'fc_...' was provided without its required 'reasoning' item: ...`.
+// In the official Python and Node SDKs the canonical pattern is just
+// `input_list += response.output`, since their input/output item types
+// are the same. In Rust the OpenAPI-derived schemas split into Item (input
+// side) and OutputItem (output side), so an explicit conversion is needed.
+//
+// The conversions below give that "just append the output" ergonomic via
+// `From<OutputItem> for Item` (and through it, `From<OutputItem> for
+// InputItem`). For variants where input and output already share a struct
+// the conversion is a one-liner; for the handful of variants where the
+// schemas differ (resource types carry required `id`/`status`, while their
+// input-side `*ItemParam` counterparts have those optional), per-pair
+// `From` impls map the fields so callers don't have to write boilerplate
+// per use site.
+//
+// References:
+//   - https://github.com/64bit/async-openai/issues/492
+//   - https://platform.openai.com/docs/guides/conversation-state
+// ──────────────────────────────────────────────────────────────────────────
+
+// Status enum mappings (resource side → param side).
+
+impl From<FunctionCallOutputStatusEnum> for OutputStatus {
+    fn from(status: FunctionCallOutputStatusEnum) -> Self {
+        match status {
+            FunctionCallOutputStatusEnum::InProgress => OutputStatus::InProgress,
+            FunctionCallOutputStatusEnum::Completed => OutputStatus::Completed,
+            FunctionCallOutputStatusEnum::Incomplete => OutputStatus::Incomplete,
+        }
+    }
+}
+
+impl From<FunctionCallStatus> for OutputStatus {
+    fn from(status: FunctionCallStatus) -> Self {
+        match status {
+            FunctionCallStatus::InProgress => OutputStatus::InProgress,
+            FunctionCallStatus::Completed => OutputStatus::Completed,
+            FunctionCallStatus::Incomplete => OutputStatus::Incomplete,
+        }
+    }
+}
+
+impl From<LocalShellCallStatus> for FunctionShellCallItemStatus {
+    fn from(status: LocalShellCallStatus) -> Self {
+        match status {
+            LocalShellCallStatus::InProgress => FunctionShellCallItemStatus::InProgress,
+            LocalShellCallStatus::Completed => FunctionShellCallItemStatus::Completed,
+            LocalShellCallStatus::Incomplete => FunctionShellCallItemStatus::Incomplete,
+        }
+    }
+}
+
+impl From<ApplyPatchCallStatus> for ApplyPatchCallStatusParam {
+    fn from(status: ApplyPatchCallStatus) -> Self {
+        match status {
+            ApplyPatchCallStatus::InProgress => ApplyPatchCallStatusParam::InProgress,
+            ApplyPatchCallStatus::Completed => ApplyPatchCallStatusParam::Completed,
+        }
+    }
+}
+
+impl From<ApplyPatchCallOutputStatus> for ApplyPatchCallOutputStatusParam {
+    fn from(status: ApplyPatchCallOutputStatus) -> Self {
+        match status {
+            ApplyPatchCallOutputStatus::Completed => ApplyPatchCallOutputStatusParam::Completed,
+            ApplyPatchCallOutputStatus::Failed => ApplyPatchCallOutputStatusParam::Failed,
+        }
+    }
+}
+
+// Shell environment / outcome mappings.
+
+impl From<ContainerReferenceResource> for ContainerReferenceParam {
+    fn from(r: ContainerReferenceResource) -> Self {
+        ContainerReferenceParam {
+            container_id: r.container_id,
+        }
+    }
+}
+
+impl From<FunctionShellCallEnvironment> for FunctionShellCallItemEnvironment {
+    fn from(env: FunctionShellCallEnvironment) -> Self {
+        match env {
+            // The response side carries no payload for `Local`; the param
+            // side accepts an optional `skills` list which we leave None
+            // (it's a request-only knob).
+            FunctionShellCallEnvironment::Local => FunctionShellCallItemEnvironment::Local(
+                LocalEnvironmentParam { skills: None },
+            ),
+            FunctionShellCallEnvironment::ContainerReference(r) => {
+                FunctionShellCallItemEnvironment::ContainerReference(r.into())
+            }
+        }
+    }
+}
+
+impl From<FunctionShellCallOutputExitOutcome> for FunctionShellCallOutputExitOutcomeParam {
+    fn from(o: FunctionShellCallOutputExitOutcome) -> Self {
+        FunctionShellCallOutputExitOutcomeParam {
+            exit_code: o.exit_code,
+        }
+    }
+}
+
+impl From<FunctionShellCallOutputOutcome> for FunctionShellCallOutputOutcomeParam {
+    fn from(o: FunctionShellCallOutputOutcome) -> Self {
+        match o {
+            FunctionShellCallOutputOutcome::Timeout => FunctionShellCallOutputOutcomeParam::Timeout,
+            FunctionShellCallOutputOutcome::Exit(e) => {
+                FunctionShellCallOutputOutcomeParam::Exit(e.into())
+            }
+        }
+    }
+}
+
+impl From<FunctionShellCallOutputContent> for FunctionShellCallOutputContentParam {
+    fn from(c: FunctionShellCallOutputContent) -> Self {
+        FunctionShellCallOutputContentParam {
+            stdout: c.stdout,
+            stderr: c.stderr,
+            outcome: c.outcome.into(),
+        }
+    }
+}
+
+impl From<FunctionShellAction> for FunctionShellActionParam {
+    fn from(a: FunctionShellAction) -> Self {
+        FunctionShellActionParam {
+            commands: a.commands,
+            timeout_ms: a.timeout_ms,
+            max_output_length: a.max_output_length,
+        }
+    }
+}
+
+// ApplyPatch operation mappings.
+
+impl From<ApplyPatchCreateFileOperation> for ApplyPatchCreateFileOperationParam {
+    fn from(op: ApplyPatchCreateFileOperation) -> Self {
+        ApplyPatchCreateFileOperationParam {
+            path: op.path,
+            diff: op.diff,
+        }
+    }
+}
+
+impl From<ApplyPatchDeleteFileOperation> for ApplyPatchDeleteFileOperationParam {
+    fn from(op: ApplyPatchDeleteFileOperation) -> Self {
+        ApplyPatchDeleteFileOperationParam { path: op.path }
+    }
+}
+
+impl From<ApplyPatchUpdateFileOperation> for ApplyPatchUpdateFileOperationParam {
+    fn from(op: ApplyPatchUpdateFileOperation) -> Self {
+        ApplyPatchUpdateFileOperationParam {
+            path: op.path,
+            diff: op.diff,
+        }
+    }
+}
+
+impl From<ApplyPatchOperation> for ApplyPatchOperationParam {
+    fn from(op: ApplyPatchOperation) -> Self {
+        match op {
+            ApplyPatchOperation::CreateFile(o) => ApplyPatchOperationParam::CreateFile(o.into()),
+            ApplyPatchOperation::DeleteFile(o) => ApplyPatchOperationParam::DeleteFile(o.into()),
+            ApplyPatchOperation::UpdateFile(o) => ApplyPatchOperationParam::UpdateFile(o.into()),
+        }
+    }
+}
+
+// Per-resource-output → input-param conversions. Required `id` / `status`
+// fields on the resource side become wrapped in `Some(...)` on the input
+// side; status enums fold through the `From` impls above. The `created_by`
+// field exists only on the resource side and is dropped on the way in —
+// it's a server-assigned annotation that the input schema doesn't accept.
+
+impl From<FunctionToolCallOutputResource> for FunctionCallOutputItemParam {
+    fn from(r: FunctionToolCallOutputResource) -> Self {
+        FunctionCallOutputItemParam {
+            call_id: r.call_id,
+            output: r.output,
+            id: Some(r.id),
+            status: Some(r.status.into()),
+        }
+    }
+}
+
+impl From<ComputerToolCallOutputResource> for ComputerCallOutputItemParam {
+    fn from(r: ComputerToolCallOutputResource) -> Self {
+        ComputerCallOutputItemParam {
+            call_id: r.call_id,
+            output: r.output,
+            acknowledged_safety_checks: r.acknowledged_safety_checks,
+            id: Some(r.id),
+            // ComputerCallOutputStatus has a `Failed` variant that
+            // OutputStatus doesn't model. The Responses API silently
+            // accepts a missing status here, so collapse `Failed` to None
+            // rather than fabricate a value the schema can't represent.
+            status: match r.status {
+                crate::types::responses::ComputerCallOutputStatus::InProgress => {
+                    Some(OutputStatus::InProgress)
+                }
+                crate::types::responses::ComputerCallOutputStatus::Completed => {
+                    Some(OutputStatus::Completed)
+                }
+                crate::types::responses::ComputerCallOutputStatus::Incomplete => {
+                    Some(OutputStatus::Incomplete)
+                }
+                crate::types::responses::ComputerCallOutputStatus::Failed => None,
+            },
+        }
+    }
+}
+
+impl From<CustomToolCallOutputResource> for CustomToolCallOutput {
+    fn from(r: CustomToolCallOutputResource) -> Self {
+        CustomToolCallOutput {
+            call_id: r.call_id,
+            output: r.output,
+            id: Some(r.id),
+        }
+    }
+}
+
+impl From<FunctionShellCall> for FunctionShellCallItemParam {
+    fn from(c: FunctionShellCall) -> Self {
+        FunctionShellCallItemParam {
+            id: Some(c.id),
+            call_id: c.call_id,
+            action: c.action.into(),
+            status: Some(c.status.into()),
+            environment: c.environment.map(Into::into),
+        }
+    }
+}
+
+impl From<FunctionShellCallOutput> for FunctionShellCallOutputItemParam {
+    fn from(o: FunctionShellCallOutput) -> Self {
+        FunctionShellCallOutputItemParam {
+            id: Some(o.id),
+            call_id: o.call_id,
+            output: o.output.into_iter().map(Into::into).collect(),
+            max_output_length: o.max_output_length,
+        }
+    }
+}
+
+impl From<ApplyPatchToolCall> for ApplyPatchToolCallItemParam {
+    fn from(c: ApplyPatchToolCall) -> Self {
+        ApplyPatchToolCallItemParam {
+            id: Some(c.id),
+            call_id: c.call_id,
+            status: c.status.into(),
+            operation: c.operation.into(),
+        }
+    }
+}
+
+impl From<ApplyPatchToolCallOutput> for ApplyPatchToolCallOutputItemParam {
+    fn from(o: ApplyPatchToolCallOutput) -> Self {
+        ApplyPatchToolCallOutputItemParam {
+            id: Some(o.id),
+            call_id: o.call_id,
+            status: o.status.into(),
+            output: o.output,
+        }
+    }
+}
+
+impl From<CompactionBody> for CompactionSummaryItemParam {
+    fn from(b: CompactionBody) -> Self {
+        CompactionSummaryItemParam {
+            id: Some(b.id),
+            encrypted_content: b.encrypted_content,
+        }
+    }
+}
+
+impl From<ToolSearchCall> for ToolSearchCallItemParam {
+    fn from(c: ToolSearchCall) -> Self {
+        ToolSearchCallItemParam {
+            id: Some(c.id),
+            call_id: c.call_id,
+            execution: Some(c.execution),
+            arguments: c.arguments,
+            status: Some(c.status.into()),
+        }
+    }
+}
+
+impl From<ToolSearchOutput> for ToolSearchOutputItemParam {
+    fn from(o: ToolSearchOutput) -> Self {
+        ToolSearchOutputItemParam {
+            id: Some(o.id),
+            call_id: o.call_id,
+            execution: Some(o.execution),
+            tools: o.tools,
+            status: Some(o.status.into()),
+        }
+    }
+}
+
+// Top-level: any output item rolls into an Item, and through the existing
+// `From<Item> for InputItem` impl, into an InputItem too. This is the entry
+// point callers actually want — see the `responses-multi-turn-reasoning`
+// example for the round-trip pattern.
+
+impl From<OutputItem> for Item {
+    fn from(item: OutputItem) -> Self {
+        match item {
+            OutputItem::Message(m) => Item::Message(m.into()),
+            OutputItem::FileSearchCall(c) => c.into(),
+            OutputItem::FunctionCall(c) => c.into(),
+            OutputItem::FunctionCallOutput(o) => Item::FunctionCallOutput(o.into()),
+            OutputItem::WebSearchCall(c) => c.into(),
+            OutputItem::ComputerCall(c) => c.into(),
+            OutputItem::ComputerCallOutput(o) => Item::ComputerCallOutput(o.into()),
+            OutputItem::Reasoning(r) => r.into(),
+            OutputItem::Compaction(c) => Item::Compaction(c.into()),
+            OutputItem::ImageGenerationCall(c) => c.into(),
+            OutputItem::CodeInterpreterCall(c) => c.into(),
+            OutputItem::LocalShellCall(c) => c.into(),
+            OutputItem::ShellCall(c) => Item::ShellCall(c.into()),
+            OutputItem::ShellCallOutput(o) => Item::ShellCallOutput(o.into()),
+            OutputItem::ApplyPatchCall(c) => Item::ApplyPatchCall(c.into()),
+            OutputItem::ApplyPatchCallOutput(o) => Item::ApplyPatchCallOutput(o.into()),
+            OutputItem::McpCall(c) => c.into(),
+            OutputItem::McpListTools(c) => c.into(),
+            OutputItem::McpApprovalRequest(c) => c.into(),
+            OutputItem::CustomToolCall(c) => c.into(),
+            OutputItem::CustomToolCallOutput(o) => Item::CustomToolCallOutput(o.into()),
+            OutputItem::ToolSearchCall(c) => Item::ToolSearchCall(c.into()),
+            OutputItem::ToolSearchOutput(o) => Item::ToolSearchOutput(o.into()),
+        }
+    }
+}
+
+impl From<OutputItem> for InputItem {
+    fn from(item: OutputItem) -> Self {
+        Item::from(item).into()
     }
 }
