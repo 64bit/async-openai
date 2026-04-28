@@ -23,6 +23,9 @@ pub enum OpenAIError {
     /// Error on SSE streaming
     #[error("stream failed: {0}")]
     StreamError(Box<StreamError>),
+    /// Error from middleware or transport layers around HTTP dispatch
+    #[error("transport error: {0}")]
+    Transport(String),
     /// Error from client side validation
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]
@@ -42,6 +45,9 @@ pub enum OpenAIError {
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: error:{0} content:{1}")]
     JSONDeserialize(serde_json::Error, String),
+    /// Error from middleware or transport layers around HTTP dispatch
+    #[error("transport error: {0}")]
+    Transport(String),
     /// Error from client side validation
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]

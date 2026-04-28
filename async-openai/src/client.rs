@@ -1,17 +1,26 @@
 #[cfg(not(target_family = "wasm"))]
 use std::pin::Pin;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use bytes::Bytes;
 #[cfg(not(target_family = "wasm"))]
 use futures::{stream::StreamExt, Stream};
-use reqwest::{header::HeaderMap, multipart::Form, Response};
+use reqwest::{
+    header::HeaderMap,
+    multipart::Form,
+    Response,
+};
 use serde::{de::DeserializeOwned, Serialize};
 
 #[cfg(not(target_family = "wasm"))]
 use crate::error::StreamError;
+#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+use crate::http_executor::TowerExecutor;
 use crate::{
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, ApiError, OpenAIError, WrappedError},
+    http_executor::{HttpRequestFactory, HttpRetryPolicy, SharedExecutor},
     traits::AsyncTryFrom,
     RequestOptions,
 };
@@ -65,14 +74,25 @@ use crate::VectorStores;
 #[cfg(feature = "video")]
 use crate::Videos;
 
-#[derive(Debug, Clone)]
-/// Client is a container for config, backoff and http_client
+#[derive(Clone)]
+/// Client is a container for config and HTTP execution
 /// used to make API calls.
 pub struct Client<C: Config> {
-    http_client: reqwest::Client,
+    request_client: reqwest::Client,
+    executor: Option<SharedExecutor>,
     config: C,
-    #[cfg(not(target_family = "wasm"))]
-    backoff: backoff::ExponentialBackoff,
+}
+
+impl<C> std::fmt::Debug for Client<C>
+where
+    C: Config + std::fmt::Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Client")
+            .field("request_client", &self.request_client)
+            .field("config", &self.config)
+            .finish()
+    }
 }
 
 impl<C: Config> Default for Client<C>
@@ -81,10 +101,9 @@ where
 {
     fn default() -> Self {
         Self {
-            http_client: reqwest::Client::new(),
+            request_client: reqwest::Client::new(),
+            executor: None,
             config: C::default(),
-            #[cfg(not(target_family = "wasm"))]
-            backoff: Default::default(),
         }
     }
 }
@@ -97,25 +116,11 @@ impl Client<OpenAIConfig> {
 }
 
 impl<C: Config> Client<C> {
-    /// Create client with a custom HTTP client, OpenAI config, and backoff.
-    #[cfg(not(target_family = "wasm"))]
-    pub fn build(
-        http_client: reqwest::Client,
-        config: C,
-        backoff: backoff::ExponentialBackoff,
-    ) -> Self {
-        Self {
-            http_client,
-            config,
-            backoff,
-        }
-    }
-
-    /// Create client with a custom HTTP client and config (WASM version without backoff).
-    #[cfg(target_family = "wasm")]
+    /// Create client with a custom HTTP client and config.
     pub fn build(http_client: reqwest::Client, config: C) -> Self {
         Self {
-            http_client,
+            request_client: http_client,
+            executor: None,
             config,
         }
     }
@@ -123,10 +128,9 @@ impl<C: Config> Client<C> {
     /// Create client with [OpenAIConfig] or [crate::config::AzureConfig]
     pub fn with_config(config: C) -> Self {
         Self {
-            http_client: reqwest::Client::new(),
+            request_client: reqwest::Client::new(),
+            executor: None,
             config,
-            #[cfg(not(target_family = "wasm"))]
-            backoff: Default::default(),
         }
     }
 
@@ -134,14 +138,24 @@ impl<C: Config> Client<C> {
     ///
     /// [client]: reqwest::Client
     pub fn with_http_client(mut self, http_client: reqwest::Client) -> Self {
-        self.http_client = http_client;
+        self.request_client = http_client;
+        self.executor = None;
         self
     }
 
-    /// Exponential backoff for retrying [rate limited](https://platform.openai.com/docs/guides/rate-limits) requests.
-    #[cfg(not(target_family = "wasm"))]
-    pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
-        self.backoff = backoff;
+    /// Provide your own tower-compatible service to execute HTTP requests.
+    #[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+    pub fn with_http_service<S>(mut self, service: S) -> Self
+    where
+        S: tower::Service<HttpRequestFactory, Response = Response> + Clone + Send + Sync + 'static,
+        S::Future: Send + 'static,
+        S::Error: std::fmt::Display + Send + Sync + 'static,
+    {
+        // This is the public middleware escape hatch. We erase the concrete
+        // tower stack here so the rest of the client does not become generic
+        // over the service type, which would otherwise leak through every API
+        // group and make the crate much harder to use.
+        self.executor = Some(Arc::new(TowerExecutor::new(service)));
         self
     }
 
@@ -297,23 +311,17 @@ impl<C: Config> Client<C> {
         &self.config
     }
 
-    /// Helper function to build a request builder with common configuration
-    fn build_request_builder(
-        &self,
+    fn build_request_builder_from_parts(
+        request_client: reqwest::Client,
         method: reqwest::Method,
-        path: &str,
-        request_options: &RequestOptions,
+        url: String,
+        config_headers: HeaderMap,
+        config_query: Vec<(String, String)>,
+        request_options: RequestOptions,
     ) -> reqwest::RequestBuilder {
-        let mut request_builder = if let Some(path) = request_options.path() {
-            self.http_client
-                .request(method, self.config.url(path.as_str()))
-        } else {
-            self.http_client.request(method, self.config.url(path))
-        };
+        let mut request_builder = request_client.request(method, url);
 
-        request_builder = request_builder
-            .query(&self.config.query())
-            .headers(self.config.headers());
+        request_builder = request_builder.query(&config_query).headers(config_headers);
 
         if let Some(headers) = request_options.headers() {
             request_builder = request_builder.headers(headers.clone());
@@ -326,6 +334,179 @@ impl<C: Config> Client<C> {
         request_builder
     }
 
+    fn build_request_factory(
+        &self,
+        method: reqwest::Method,
+        path: &str,
+        request_options: &RequestOptions,
+    ) -> HttpRequestFactory {
+        // Simple requests capture only immutable routing/context data. The
+        // actual `reqwest::Request` is rebuilt later so retries never need to
+        // clone a half-built request.
+        let request_client = self.request_client.clone();
+        let url = if let Some(path) = request_options.path() {
+            self.config.url(path.as_str())
+        } else {
+            self.config.url(path)
+        };
+        let config_headers = self.config.headers();
+        let config_query = self
+            .config
+            .query()
+            .into_iter()
+            .map(|(key, value)| (key.to_string(), value.to_string()))
+            .collect::<Vec<_>>();
+        let request_options = request_options.clone();
+
+        HttpRequestFactory::new(move || {
+            let request_client = request_client.clone();
+            let url = url.clone();
+            let config_headers = config_headers.clone();
+            let config_query = config_query.clone();
+            let request_options = request_options.clone();
+            let method = method.clone();
+
+            async move {
+                let request_builder = Self::build_request_builder_from_parts(
+                    request_client,
+                    method,
+                    url,
+                    config_headers,
+                    config_query,
+                    request_options,
+                );
+
+                Ok(request_builder.build()?)
+            }
+        })
+    }
+
+    fn build_request_factory_with_json<I>(
+        &self,
+        method: reqwest::Method,
+        path: &str,
+        request: I,
+        request_options: &RequestOptions,
+    ) -> HttpRequestFactory
+    where
+        I: Serialize + Send + Sync + 'static,
+    {
+        // JSON requests are replayed by holding on to the original request
+        // value and serializing it when the request is actually built. That
+        // keeps memory usage lower than storing a pre-serialized byte buffer
+        // while still giving retries a fresh request each time.
+        let request = Arc::new(request);
+        let request_client = self.request_client.clone();
+        let url = if let Some(path) = request_options.path() {
+            self.config.url(path.as_str())
+        } else {
+            self.config.url(path)
+        };
+        let config_headers = self.config.headers();
+        let config_query = self
+            .config
+            .query()
+            .into_iter()
+            .map(|(key, value)| (key.to_string(), value.to_string()))
+            .collect::<Vec<_>>();
+        let request_options = request_options.clone();
+
+        HttpRequestFactory::new(move || {
+            let request_client = request_client.clone();
+            let url = url.clone();
+            let config_headers = config_headers.clone();
+            let config_query = config_query.clone();
+            let request_options = request_options.clone();
+            let method = method.clone();
+            let request = request.clone();
+
+            async move {
+                let request_builder = Self::build_request_builder_from_parts(
+                    request_client,
+                    method,
+                    url,
+                    config_headers,
+                    config_query,
+                    request_options,
+                )
+                .json(&*request);
+
+                Ok(request_builder.build()?)
+            }
+        })
+    }
+
+    async fn build_request_factory_with_form<F>(
+        &self,
+        method: reqwest::Method,
+        path: &str,
+        form: F,
+        request_options: &RequestOptions,
+    ) -> Result<HttpRequestFactory, OpenAIError>
+    where
+        F: Clone + Send + 'static,
+        Form: AsyncTryFrom<F, Error = OpenAIError>,
+    {
+        // Multipart is the reason the factory exists.
+        //
+        // The original code buffered multipart into memory so the client could
+        // retry it. That worked, but it destroyed the streaming behavior of
+        // file-backed parts. Instead we keep the original request object and
+        // rebuild a fresh `Form` for every attempt.
+        //
+        // `Mutex` is only here to make the captured state `Sync` so the request
+        // factory can live behind `Arc<dyn Fn()>`. It is not used to serialize
+        // network access, only to guard the cloneable request input.
+        let form = Arc::new(Mutex::new(form));
+        let request_client = self.request_client.clone();
+        let url = if let Some(path) = request_options.path() {
+            self.config.url(path.as_str())
+        } else {
+            self.config.url(path)
+        };
+        let config_headers = self.config.headers();
+        let config_query = self
+            .config
+            .query()
+            .into_iter()
+            .map(|(key, value)| (key.to_string(), value.to_string()))
+            .collect::<Vec<_>>();
+        let request_options = request_options.clone();
+
+        Ok(HttpRequestFactory::new(move || {
+            let request_client = request_client.clone();
+            let url = url.clone();
+            let config_headers = config_headers.clone();
+            let config_query = config_query.clone();
+            let request_options = request_options.clone();
+            let method = method.clone();
+            let form = form.clone();
+
+            async move {
+                // Clone the original request object for this attempt, then
+                // rebuild the multipart form from scratch. This preserves the
+                // streaming body produced by reqwest, while still giving us a
+                // replayable factory for retries.
+                let form = form
+                    .lock()
+                    .expect("multipart request factory mutex poisoned")
+                    .clone();
+                let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
+                let request_builder = Self::build_request_builder_from_parts(
+                    request_client,
+                    method,
+                    url,
+                    config_headers,
+                    config_query,
+                    request_options,
+                )
+                .multipart(form);
+
+                Ok(request_builder.build()?)
+            }
+        }))
+    }
+
     /// Make a GET request to {path} and deserialize the response body
     #[allow(unused)]
     pub(crate) async fn get<O>(
@@ -336,13 +517,9 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned,
     {
-        let request_maker = || async {
-            Ok(self
-                .build_request_builder(reqwest::Method::GET, path, request_options)
-                .build()?)
-        };
-
-        self.execute(request_maker).await
+        let request_factory =
+            self.build_request_factory(reqwest::Method::GET, path, request_options);
+        self.execute(request_factory).await
     }
 
     /// Make a DELETE request to {path} and deserialize the response body
@@ -355,13 +532,9 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned,
     {
-        let request_maker = || async {
-            Ok(self
-                .build_request_builder(reqwest::Method::DELETE, path, request_options)
-                .build()?)
-        };
-
-        self.execute(request_maker).await
+        let request_factory =
+            self.build_request_factory(reqwest::Method::DELETE, path, request_options);
+        self.execute(request_factory).await
     }
 
     /// Make a GET request to {path} and return the response body
@@ -371,13 +544,9 @@ impl<C: Config> Client<C> {
         path: &str,
         request_options: &RequestOptions,
     ) -> Result<(Bytes, HeaderMap), OpenAIError> {
-        let request_maker = || async {
-            Ok(self
-                .build_request_builder(reqwest::Method::GET, path, request_options)
-                .build()?)
-        };
-
-        self.execute_raw(request_maker).await
+        let request_factory =
+            self.build_request_factory(reqwest::Method::GET, path, request_options);
+        self.execute_raw(request_factory).await
     }
 
     /// Make a POST request to {path} and return the response body
@@ -389,16 +558,11 @@ impl<C: Config> Client<C> {
         request_options: &RequestOptions,
     ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
-        I: Serialize,
+        I: Serialize + Send + Sync + 'static,
     {
-        let request_maker = || async {
-            Ok(self
-                .build_request_builder(reqwest::Method::POST, path, request_options)
-                .json(&request)
-                .build()?)
-        };
-
-        self.execute_raw(request_maker).await
+        let request_factory =
+            self.build_request_factory_with_json(reqwest::Method::POST, path, request, request_options);
+        self.execute_raw(request_factory).await
     }
 
     /// Make a POST request to {path} and deserialize the response body
@@ -410,17 +574,12 @@ impl<C: Config> Client<C> {
         request_options: &RequestOptions,
     ) -> Result<O, OpenAIError>
     where
-        I: Serialize,
+        I: Serialize + Send + Sync + 'static,
         O: DeserializeOwned,
     {
-        let request_maker = || async {
-            Ok(self
-                .build_request_builder(reqwest::Method::POST, path, request_options)
-                .json(&request)
-                .build()?)
-        };
-
-        self.execute(request_maker).await
+        let request_factory =
+            self.build_request_factory_with_json(reqwest::Method::POST, path, request, request_options);
+        self.execute(request_factory).await
     }
 
     /// POST a form at {path} and return the response body
@@ -432,17 +591,13 @@ impl<C: Config> Client<C> {
         request_options: &RequestOptions,
     ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
+        F: Clone + Send + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
-        F: Clone,
     {
-        let request_maker = || async {
-            Ok(self
-                .build_request_builder(reqwest::Method::POST, path, request_options)
-                .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
-                .build()?)
-        };
-
-        self.execute_raw(request_maker).await
+        let request_factory = self
+            .build_request_factory_with_form(reqwest::Method::POST, path, form, request_options)
+            .await?;
+        self.execute_raw(request_factory).await
     }
 
     /// POST a form at {path} and deserialize the response body
@@ -455,17 +610,13 @@ impl<C: Config> Client<C> {
     ) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
+        F: Clone + Send + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
-        F: Clone,
     {
-        let request_maker = || async {
-            Ok(self
-                .build_request_builder(reqwest::Method::POST, path, request_options)
-                .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
-                .build()?)
-        };
-
-        self.execute(request_maker).await
+        let request_factory = self
+            .build_request_factory_with_form(reqwest::Method::POST, path, form, request_options)
+            .await?;
+        self.execute(request_factory).await
     }
 
     #[allow(unused)]
@@ -477,106 +628,130 @@ impl<C: Config> Client<C> {
         request_options: &RequestOptions,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
     where
-        F: Clone,
+        F: Clone + Send + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        // Build and execute request manually since multipart::Form is not Clone
-        let request_builder = self
-            .build_request_builder(reqwest::Method::POST, path, request_options)
-            .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?);
-
-        Ok(stream(request_builder).await)
-    }
-
-    /// Execute a HTTP request and retry on rate limit (non-WASM version with backoff)
-    ///
-    /// request_maker serves one purpose: to be able to create request again
-    /// to retry API call after getting rate limited. request_maker is async because
-    /// reqwest::multipart::Form is created by async calls to read files for uploads.
-    #[cfg(not(target_family = "wasm"))]
-    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<(Bytes, HeaderMap), OpenAIError>
-    where
-        M: Fn() -> Fut,
-        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
-    {
-        let client = self.http_client.clone();
-
-        backoff::future::retry(self.backoff.clone(), || async {
-            let request = request_maker().await.map_err(backoff::Error::Permanent)?;
-            let response = client
-                .execute(request)
-                .await
-                .map_err(OpenAIError::Reqwest)
-                .map_err(backoff::Error::Permanent)?;
-
-            let status = response.status();
-
-            match read_response(response).await {
-                Ok((bytes, headers)) => Ok((bytes, headers)),
-                Err(e) => {
-                    match e {
-                        OpenAIError::ApiError(api_error) => {
-                            if status.is_server_error() {
-                                Err(backoff::Error::Transient {
-                                    err: OpenAIError::ApiError(api_error),
-                                    retry_after: None,
-                                })
-                            } else if status.as_u16() == 429
-                                && api_error.r#type != Some("insufficient_quota".to_string())
-                            {
-                                // Rate limited retry...
-                                tracing::warn!("Rate limited: {}", api_error.message);
-                                Err(backoff::Error::Transient {
-                                    err: OpenAIError::ApiError(api_error),
-                                    retry_after: None,
-                                })
-                            } else {
-                                Err(backoff::Error::Permanent(OpenAIError::ApiError(api_error)))
-                            }
-                        }
-                        _ => Err(backoff::Error::Permanent(e)),
-                    }
-                }
-            }
-        })
-        .await
-    }
-
-    /// Execute a HTTP request (WASM version - single attempt, no retry)
-    #[cfg(target_family = "wasm")]
-    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<(Bytes, HeaderMap), OpenAIError>
-    where
-        M: Fn() -> Fut,
-        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
-    {
-        let request = request_maker().await?;
-        let response = self
-            .http_client
-            .execute(request)
+        let request_factory = match self
+            .build_request_factory_with_form(reqwest::Method::POST, path, form, request_options)
             .await
-            .map_err(OpenAIError::Reqwest)?;
+        {
+            Ok(request_factory) => request_factory,
+            Err(error) => return Ok(error_stream(error)),
+        };
+        Ok(self.execute_stream(request_factory).await)
+    }
 
+    #[cfg(not(target_family = "wasm"))]
+    async fn execute_raw(
+        &self,
+        request_factory: HttpRequestFactory,
+    ) -> Result<(Bytes, HeaderMap), OpenAIError> {
+        let response = self.execute_response(request_factory).await?;
         read_response(response).await
     }
 
-    /// Execute a HTTP request and retry on rate limit
-    ///
-    /// request_maker serves one purpose: to be able to create request again
-    /// to retry API call after getting rate limited. request_maker is async because
-    /// reqwest::multipart::Form is created by async calls to read files for uploads.
-    async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
+    #[cfg(target_family = "wasm")]
+    async fn execute_raw(
+        &self,
+        request_factory: HttpRequestFactory,
+    ) -> Result<(Bytes, HeaderMap), OpenAIError> {
+        let response = self.execute_response(request_factory).await?;
+        read_response(response).await
+    }
+
+    async fn execute<O>(&self, request_factory: HttpRequestFactory) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
-        M: Fn() -> Fut,
-        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
     {
-        let (bytes, _headers) = self.execute_raw(request_maker).await?;
+        let (bytes, _headers) = self.execute_raw(request_factory).await?;
 
         let response: O = serde_json::from_slice(bytes.as_ref())
             .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
 
         Ok(response)
+    }
+
+    #[cfg(not(target_family = "wasm"))]
+    async fn execute_response(
+        &self,
+        request_factory: HttpRequestFactory,
+    ) -> Result<Response, OpenAIError> {
+        if let Some(executor) = &self.executor {
+            // If the caller installed middleware, that layer owns transport
+            // policy. The client just hands it the replayable request factory.
+            return executor.execute(request_factory).await;
+        }
+
+        use tower::ServiceExt;
+        let client = self.request_client.clone();
+        // Even the default path uses tower internally so the behavior is
+        // structurally the same with or without `with_http_service(...)`.
+        // That keeps retries and cloning semantics in one place.
+        let service = tower::ServiceBuilder::new()
+            .retry(HttpRetryPolicy::default())
+            .service(tower::service_fn(
+                move |request_factory: HttpRequestFactory| {
+                    let client = client.clone();
+                    async move {
+                        // Build the request as late as possible so retries
+                        // always start from the original request inputs.
+                        let request = request_factory.build().await?;
+                        client.execute(request).await.map_err(OpenAIError::Reqwest)
+                    }
+                },
+            ));
+
+        service.oneshot(request_factory).await
+    }
+
+    #[cfg(target_family = "wasm")]
+    async fn execute_response(
+        &self,
+        request_factory: HttpRequestFactory,
+    ) -> Result<Response, OpenAIError> {
+        if let Some(executor) = &self.executor {
+            return executor.execute(request_factory).await;
+        }
+
+        let request = request_factory.build().await?;
+        self.request_client
+            .execute(request)
+            .await
+            .map_err(OpenAIError::Reqwest)
+    }
+
+    #[cfg(not(target_family = "wasm"))]
+    async fn execute_stream<O>(
+        &self,
+        request_factory: HttpRequestFactory,
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    where
+        O: DeserializeOwned + std::marker::Send + 'static,
+    {
+        // The transport boundary is identical for unary and streaming calls.
+        // The only difference is what we do with the opened response body.
+        match self.execute_response(request_factory).await {
+            Ok(response) => stream(response).await,
+            Err(error) => error_stream(error),
+        }
+    }
+
+    #[cfg(not(target_family = "wasm"))]
+    async fn execute_stream_mapped_raw_events<O>(
+        &self,
+        request_factory: HttpRequestFactory,
+        event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
+    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    where
+        O: DeserializeOwned + std::marker::Send + 'static,
+    {
+        // Raw-event mapping still rides on the same request factory. This
+        // avoids having a second transport pipeline just for SSE variants.
+        match self.execute_response(request_factory).await {
+            Ok(response) => stream_mapped_raw_events(response, event_mapper).await,
+            Err(error) => error_stream(error),
+        }
     }
 
     /// Make HTTP POST request to receive SSE
@@ -589,14 +764,14 @@ impl<C: Config> Client<C> {
         request_options: &RequestOptions,
     ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
     where
-        I: Serialize,
+        I: Serialize + Send + Sync + 'static,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let request_builder = self
-            .build_request_builder(reqwest::Method::POST, path, request_options)
-            .json(&request);
-
-        stream(request_builder).await
+        let request_factory =
+            self.build_request_factory_with_json(reqwest::Method::POST, path, request, request_options);
+        // Stream setup is still request/response first. We only create the SSE
+        // stream after the HTTP layer has returned a response object.
+        self.execute_stream(request_factory).await
     }
 
     #[allow(unused)]
@@ -609,14 +784,15 @@ impl<C: Config> Client<C> {
         event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
     ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
     where
-        I: Serialize,
+        I: Serialize + Send + Sync + 'static,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let request_builder = self
-            .build_request_builder(reqwest::Method::POST, path, request_options)
-            .json(&request);
-
-        stream_mapped_raw_events(request_builder, event_mapper).await
+        let request_factory =
+            self.build_request_factory_with_json(reqwest::Method::POST, path, request, request_options);
+        // The raw-event stream uses the same transport path as the chunked
+        // stream. The difference is only the parser used once bytes arrive.
+        self.execute_stream_mapped_raw_events(request_factory, event_mapper)
+            .await
     }
 
     /// Make HTTP GET request to receive SSE
@@ -630,10 +806,11 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let request_builder =
-            self.build_request_builder(reqwest::Method::GET, path, request_options);
-
-        stream(request_builder).await
+        let request_factory =
+            self.build_request_factory(reqwest::Method::GET, path, request_options);
+        // GET-based SSE is intentionally routed through the same executor as
+        // POST-based SSE, so middleware behavior stays consistent.
+        self.execute_stream(request_factory).await
     }
 }
 
@@ -668,8 +845,21 @@ async fn read_response(response: Response) -> Result<(Bytes, HeaderMap), OpenAIE
 /// Request which responds with SSE.
 /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
 #[cfg(not(target_family = "wasm"))]
+fn error_stream<O>(error: OpenAIError) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+where
+    O: DeserializeOwned + std::marker::Send + 'static,
+{
+    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+    let _ = tx.send(Err(error));
+
+    Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+}
+
+/// Request which responds with SSE.
+/// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
+#[cfg(not(target_family = "wasm"))]
 pub(crate) async fn stream<O>(
-    request_builder: reqwest::RequestBuilder,
+    response: Response,
 ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
 where
     O: DeserializeOwned + std::marker::Send + 'static,
@@ -677,13 +867,6 @@ where
     let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
     tokio::spawn(async move {
-        let response = match request_builder.send().await {
-            Ok(r) => r,
-            Err(e) => {
-                let _ = tx.send(Err(OpenAIError::Reqwest(e)));
-                return;
-            }
-        };
         if !response.status().is_success() {
             if let Err(e) = read_response(response).await {
                 let _ = tx.send(Err(e));
@@ -726,7 +909,7 @@ where
 
 #[cfg(not(target_family = "wasm"))]
 pub(crate) async fn stream_mapped_raw_events<O>(
-    request_builder: reqwest::RequestBuilder,
+    response: Response,
     event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
 ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
 where
@@ -735,13 +918,6 @@ where
     let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
     tokio::spawn(async move {
-        let response = match request_builder.send().await {
-            Ok(r) => r,
-            Err(e) => {
-                let _ = tx.send(Err(OpenAIError::Reqwest(e)));
-                return;
-            }
-        };
         if !response.status().is_success() {
             if let Err(e) = read_response(response).await {
                 let _ = tx.send(Err(e));
@@ -782,4 +958,163 @@ where
     });
 
     Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+}
+
+#[cfg(all(test, feature = "middleware", not(target_family = "wasm")))]
+mod tests {
+    use std::sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    };
+
+    use futures::StreamExt;
+    use http::Response as HttpResponse;
+    use serde_json::json;
+    use tower::{service_fn, ServiceBuilder};
+
+    use super::Client;
+    use crate::{
+        config::OpenAIConfig,
+        error::OpenAIError,
+        http_executor::{HttpRequestFactory, HttpRetryPolicy},
+        RequestOptions,
+    };
+
+    #[tokio::test]
+    async fn unary_requests_dispatch_through_middleware_service() {
+        let request_count = Arc::new(AtomicUsize::new(0));
+        let service = {
+            let request_count = request_count.clone();
+            ServiceBuilder::new()
+                .concurrency_limit(1)
+                .service(service_fn(move |factory: HttpRequestFactory| {
+                    let request_count = request_count.clone();
+                    async move {
+                        let request = factory.build().await?;
+                        assert_eq!(request.url().path(), "/models");
+                        request_count.fetch_add(1, Ordering::SeqCst);
+                        Ok::<reqwest::Response, OpenAIError>(
+                            HttpResponse::builder()
+                                .status(200)
+                                .header("content-type", "application/json")
+                                .body(reqwest::Body::from(
+                                    "{\"object\":\"list\",\"data\":[{\"id\":\"model\"}]}",
+                                ))
+                                .unwrap()
+                                .into(),
+                        )
+                    }
+                }))
+        };
+
+        let client = Client::with_config(
+            OpenAIConfig::new()
+                .with_api_base("http://example.test")
+                .with_api_key("test-key"),
+        )
+        .with_http_service(service);
+
+        let value: serde_json::Value = client.get("/models", &RequestOptions::new()).await.unwrap();
+
+        assert_eq!(value["object"], "list");
+        assert_eq!(request_count.load(Ordering::SeqCst), 1);
+    }
+
+    #[tokio::test]
+    async fn stream_requests_open_through_middleware_service() {
+        let request_count = Arc::new(AtomicUsize::new(0));
+        let service = {
+            let request_count = request_count.clone();
+            ServiceBuilder::new()
+                .concurrency_limit(1)
+                .service(service_fn(move |factory: HttpRequestFactory| {
+                    let request_count = request_count.clone();
+                    async move {
+                        let request = factory.build().await?;
+                        assert_eq!(request.url().path(), "/responses");
+                        request_count.fetch_add(1, Ordering::SeqCst);
+                        Ok::<reqwest::Response, OpenAIError>(
+                            HttpResponse::builder()
+                                .status(200)
+                                .header("content-type", "text/event-stream")
+                                .body(reqwest::Body::from(
+                                    "data: {\"ok\":true}\n\ndata: [DONE]\n\n",
+                                ))
+                                .unwrap()
+                                .into(),
+                        )
+                    }
+                }))
+        };
+
+        let client = Client::with_config(
+            OpenAIConfig::new()
+                .with_api_base("http://example.test")
+                .with_api_key("test-key"),
+        )
+        .with_http_service(service);
+
+        let mut stream = client
+            .post_stream::<_, serde_json::Value>(
+                "/responses",
+                json!({ "stream": true }),
+                &RequestOptions::new(),
+            )
+            .await;
+
+        let first = stream.next().await.unwrap().unwrap();
+
+        assert_eq!(first, json!({ "ok": true }));
+        assert_eq!(request_count.load(Ordering::SeqCst), 1);
+    }
+
+    #[tokio::test]
+    async fn middleware_retry_policy_retries_429_responses() {
+        let request_count = Arc::new(AtomicUsize::new(0));
+        let service = {
+            let request_count = request_count.clone();
+            ServiceBuilder::new()
+                .retry(HttpRetryPolicy::default())
+                .service(service_fn(move |factory: HttpRequestFactory| {
+                    let request_count = request_count.clone();
+                    async move {
+                        let request = factory.build().await?;
+                        assert_eq!(request.url().path(), "/models");
+                        let attempt = request_count.fetch_add(1, Ordering::SeqCst);
+
+                        let response = if attempt == 0 {
+                            HttpResponse::builder()
+                                .status(429)
+                                .header("content-type", "application/json")
+                                .body(reqwest::Body::from(
+                                    r#"{"error":{"message":"retry me","type":"rate_limit_error","param":null,"code":null}}"#,
+                                ))
+                                .unwrap()
+                        } else {
+                            HttpResponse::builder()
+                                .status(200)
+                                .header("content-type", "application/json")
+                                .body(reqwest::Body::from(
+                                    r#"{"object":"list","data":[{"id":"retry-model"}]}"#,
+                                ))
+                                .unwrap()
+                        };
+
+                        Ok::<reqwest::Response, OpenAIError>(response.into())
+                    }
+                }))
+        };
+
+        let client = Client::with_config(
+            OpenAIConfig::new()
+                .with_api_base("http://example.test")
+                .with_api_key("test-key"),
+        )
+        .with_http_service(service);
+
+        let value: serde_json::Value = client.get("/models", &RequestOptions::new()).await.unwrap();
+
+        assert_eq!(value["data"][0]["id"], "retry-model");
+        assert_eq!(request_count.load(Ordering::SeqCst), 2);
+    }
 }
