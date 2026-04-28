@@ -16,7 +16,7 @@ use serde::{de::DeserializeOwned, Serialize};
 #[cfg(not(target_family = "wasm"))]
 use crate::error::StreamError;
 #[cfg(all(feature = "middleware", not(target_family = "wasm")))]
-use crate::http_executor::TowerExecutor;
+use crate::http_executor::{ReqwestService, TowerExecutor};
 use crate::{
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, ApiError, OpenAIError, WrappedError},
@@ -690,17 +690,7 @@ impl<C: Config> Client<C> {
         // That keeps retries and cloning semantics in one place.
         let service = tower::ServiceBuilder::new()
             .retry(HttpRetryPolicy::default())
-            .service(tower::service_fn(
-                move |request_factory: HttpRequestFactory| {
-                    let client = client.clone();
-                    async move {
-                        // Build the request as late as possible so retries
-                        // always start from the original request inputs.
-                        let request = request_factory.build().await?;
-                        client.execute(request).await.map_err(OpenAIError::Reqwest)
-                    }
-                },
-            ));
+            .service(ReqwestService::new(client));
 
         service.oneshot(request_factory).await
     }

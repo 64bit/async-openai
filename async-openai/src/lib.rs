@@ -351,7 +351,7 @@ pub use file::Files;
 #[cfg(feature = "finetuning")]
 pub use fine_tuning::FineTuning;
 #[cfg(all(feature = "middleware", not(target_family = "wasm")))]
-pub use http_executor::{HttpExecutor, HttpRequestFactory, HttpRetryPolicy};
+pub use http_executor::{HttpExecutor, HttpRequestFactory, HttpRetryPolicy, ReqwestService};
 #[cfg(feature = "image")]
 pub use image::Images;
 #[cfg(feature = "model")]

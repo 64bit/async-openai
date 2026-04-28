@@ -68,6 +68,48 @@ pub trait HttpExecutor: Send + Sync {
     fn execute(&self, request: HttpRequestFactory) -> HttpFuture;
 }
 
+/// Default tower-compatible service backed directly by `reqwest::Client`.
+///
+/// Users can layer retry, timeout, rate limiting, tracing, or any other tower
+/// middleware around this service and then install the composed service with
+/// `Client::with_http_service(...)`.
+#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+#[derive(Clone, Debug)]
+pub struct ReqwestService {
+    client: reqwest::Client,
+}
+
+#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+impl ReqwestService {
+    pub fn new(client: reqwest::Client) -> Self {
+        Self { client }
+    }
+}
+
+#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+impl tower::Service<HttpRequestFactory> for ReqwestService {
+    type Response = Response;
+    type Error = OpenAIError;
+    type Future = HttpFuture;
+
+    fn poll_ready(
+        &mut self,
+        _cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Result<(), Self::Error>> {
+        std::task::Poll::Ready(Ok(()))
+    }
+
+    fn call(&mut self, request: HttpRequestFactory) -> Self::Future {
+        let client = self.client.clone();
+        Box::pin(async move {
+            // This is the plain reqwest transport path. It intentionally does
+            // nothing beyond rebuilding the request and executing it.
+            let request = request.build().await?;
+            client.execute(request).await.map_err(OpenAIError::Reqwest)
+        })
+    }
+}
+
 #[cfg(all(feature = "middleware", not(target_family = "wasm")))]
 pub(crate) struct TowerExecutor<S> {
     service: S,
