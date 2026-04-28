@@ -26,9 +26,9 @@
 //! ```
 //!
 //! To install tower-compatible HTTP middleware, enable the `middleware` feature and provide a
-//! custom service with `Client::with_http_service(...)`. The middleware surface also exposes
-//! `HttpRequestFactory` and `HttpRetryPolicy` so retry and request rebuilding can be composed
-//! in tower layers.
+//! custom service with `Client::with_http_service(...)`. The middleware surface is namespaced
+//! under [`middleware`] and exposes `HttpRequestFactory`, `HttpRetryPolicy`, and `ReqwestService`
+//! so retry and request rebuilding can be composed in tower layers.
 //!
 //!
 //! ## Making requests
@@ -351,7 +351,12 @@ pub use file::Files;
 #[cfg(feature = "finetuning")]
 pub use fine_tuning::FineTuning;
 #[cfg(all(feature = "middleware", not(target_family = "wasm")))]
-pub use http_executor::{HttpExecutor, HttpRequestFactory, HttpRetryPolicy, ReqwestService};
+/// Tower-compatible middleware integration for HTTP dispatch.
+pub mod middleware {
+    pub use crate::http_executor::{
+        HttpExecutor, HttpRequestFactory, HttpRetryPolicy, ReqwestService,
+    };
+}
 #[cfg(feature = "image")]
 pub use image::Images;
 #[cfg(feature = "model")]

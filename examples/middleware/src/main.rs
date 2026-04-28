@@ -6,10 +6,11 @@ use std::sync::{
 
 use async_openai::config::OpenAIConfig;
 use async_openai::error::OpenAIError;
+use async_openai::middleware::{HttpRequestFactory, HttpRetryPolicy};
 use async_openai::types::chat::{
     ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
 };
-use async_openai::{Client, HttpRequestFactory, HttpRetryPolicy};
+use async_openai::Client;
 use futures::StreamExt;
 use http::Response as HttpResponse;
 use tower::{service_fn, util::BoxCloneSyncService, ServiceBuilder};

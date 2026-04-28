@@ -283,8 +283,7 @@ and compose your layers around it.
 use async_openai::{
     config::OpenAIConfig,
     Client,
-    HttpRetryPolicy,
-    ReqwestService,
+    middleware::{HttpRetryPolicy, ReqwestService},
 };
 use tower::{util::BoxCloneSyncService, ServiceBuilder};
 
@@ -318,7 +317,7 @@ use async_openai::{
     config::OpenAIConfig,
     error::OpenAIError,
     Client,
-    HttpRequestFactory,
+    middleware::HttpRequestFactory,
 };
 use http::Response as HttpResponse;
 use tower::{service_fn, util::BoxCloneSyncService, ServiceBuilder};
