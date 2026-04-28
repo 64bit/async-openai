@@ -88,7 +88,7 @@ impl<S> HttpExecutor for TowerExecutor<S>
 where
     S: tower::Service<HttpRequestFactory, Response = Response> + Clone + Send + Sync + 'static,
     S::Future: Send + 'static,
-    S::Error: std::fmt::Display + Send + Sync + 'static,
+    S::Error: Into<OpenAIError> + Send + Sync + 'static,
 {
     fn execute(&self, request: HttpRequestFactory) -> HttpFuture {
         use tower::ServiceExt;
@@ -101,7 +101,7 @@ where
             service
                 .oneshot(request)
                 .await
-                .map_err(|error| OpenAIError::Transport(error.to_string()))
+                .map_err(Into::into)
         })
     }
 }

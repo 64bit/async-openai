@@ -149,7 +149,7 @@ impl<C: Config> Client<C> {
     where
         S: tower::Service<HttpRequestFactory, Response = Response> + Clone + Send + Sync + 'static,
         S::Future: Send + 'static,
-        S::Error: std::fmt::Display + Send + Sync + 'static,
+        S::Error: Into<OpenAIError> + Send + Sync + 'static,
     {
         // This is the public middleware escape hatch. We erase the concrete
         // tower stack here so the rest of the client does not become generic
