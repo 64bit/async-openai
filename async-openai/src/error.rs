@@ -32,6 +32,24 @@ pub enum OpenAIError {
     InvalidArgument(String),
 }
 
+#[cfg(all(feature = "_api", feature = "middleware", not(target_family = "wasm")))]
+impl From<tower::BoxError> for OpenAIError {
+    fn from(error: tower::BoxError) -> Self {
+        // Tower layers like `timeout` and `retry` often erase their concrete
+        // error into `BoxError` when the stack is composed. Converting it here
+        // keeps the middleware API ergonomic without forcing every caller to
+        // manually map boxed errors back into `OpenAIError`.
+        OpenAIError::Transport(error.to_string())
+    }
+}
+
+#[cfg(all(feature = "_api", feature = "middleware", not(target_family = "wasm")))]
+impl From<tower::timeout::error::Elapsed> for OpenAIError {
+    fn from(error: tower::timeout::error::Elapsed) -> Self {
+        OpenAIError::Transport(error.to_string())
+    }
+}
+
 // no streaming support for wasm yet
 #[cfg(all(feature = "_api", target_family = "wasm"))]
 #[derive(Debug, thiserror::Error)]
@@ -52,6 +70,20 @@ pub enum OpenAIError {
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]
     InvalidArgument(String),
+}
+
+#[cfg(all(feature = "_api", feature = "middleware", target_family = "wasm"))]
+impl From<tower::BoxError> for OpenAIError {
+    fn from(error: tower::BoxError) -> Self {
+        OpenAIError::Transport(error.to_string())
+    }
+}
+
+#[cfg(all(feature = "_api", feature = "middleware", target_family = "wasm"))]
+impl From<tower::timeout::error::Elapsed> for OpenAIError {
+    fn from(error: tower::timeout::error::Elapsed) -> Self {
+        OpenAIError::Transport(error.to_string())
+    }
 }
 
 #[cfg(not(feature = "_api"))]
