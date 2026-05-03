@@ -16,7 +16,7 @@ use serde::{de::DeserializeOwned, Serialize};
 
 #[cfg(not(target_family = "wasm"))]
 use crate::error::StreamError;
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+#[cfg(feature = "middleware")]
 use crate::http_executor::TowerExecutor;
 use crate::{
     config::{Config, OpenAIConfig},
@@ -158,6 +158,22 @@ impl<C: Config> Client<C> {
         // tower stack here so the rest of the client does not become generic
         // over the service type, which would otherwise leak through every API
         // group and make the crate much harder to use.
+        self.executor = Arc::new(TowerExecutor::new(service));
+        self
+    }
+
+    /// Provide your own tower-compatible service to execute HTTP requests.
+    #[cfg(all(feature = "middleware", target_family = "wasm"))]
+    pub fn with_http_service<S>(mut self, service: S) -> Self
+    where
+        S: tower::Service<HttpRequestFactory, Response = Response> + Clone + 'static,
+        S::Future: 'static,
+        S::Error: Into<OpenAIError> + 'static,
+    {
+        // wasm futures produced by reqwest are not `Send`, so the wasm version
+        // intentionally avoids native thread-safety bounds. Users are still
+        // responsible for choosing tower layers that work in their wasm
+        // runtime.
         self.executor = Arc::new(TowerExecutor::new(service));
         self
     }

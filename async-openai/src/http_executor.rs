@@ -4,9 +4,31 @@ use reqwest::{Request, Response};
 
 use crate::error::OpenAIError;
 
+#[cfg(not(target_family = "wasm"))]
 type RequestFuture = Pin<Box<dyn Future<Output = Result<Request, OpenAIError>> + Send + 'static>>;
+#[cfg(target_family = "wasm")]
+type RequestFuture = Pin<Box<dyn Future<Output = Result<Request, OpenAIError>> + 'static>>;
+
+#[cfg(not(target_family = "wasm"))]
 pub(crate) type HttpFuture =
     Pin<Box<dyn Future<Output = Result<Response, OpenAIError>> + Send + 'static>>;
+#[cfg(target_family = "wasm")]
+pub(crate) type HttpFuture = Pin<Box<dyn Future<Output = Result<Response, OpenAIError>> + 'static>>;
+
+#[cfg(not(target_family = "wasm"))]
+type RequestFn = dyn Fn() -> RequestFuture + Send + Sync + 'static;
+#[cfg(target_family = "wasm")]
+type RequestFn = dyn Fn() -> RequestFuture + 'static;
+
+#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+pub trait MiddlewareInput: Send + Sync + 'static {}
+#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+impl<T> MiddlewareInput for T where T: Send + Sync + 'static {}
+
+#[cfg(all(feature = "middleware", target_family = "wasm"))]
+pub trait MiddlewareInput: 'static {}
+#[cfg(all(feature = "middleware", target_family = "wasm"))]
+impl<T> MiddlewareInput for T where T: 'static {}
 
 /// Cheaply cloneable request factory used to rebuild a request on demand.
 ///
@@ -22,7 +44,7 @@ pub(crate) type HttpFuture =
 /// `build()` is actually called.
 #[derive(Clone)]
 pub struct HttpRequestFactory {
-    make_request: Arc<dyn Fn() -> RequestFuture + Send + Sync + 'static>,
+    make_request: Arc<RequestFn>,
 }
 
 impl std::fmt::Debug for HttpRequestFactory {
@@ -38,10 +60,22 @@ impl HttpRequestFactory {
     /// clone when it is passed through tower layers. The closure itself must be
     /// `Sync` because the service stack may hold shared references to the
     /// factory while retry and load-shedding layers make decisions.
+    #[cfg(not(target_family = "wasm"))]
     pub fn new<F, Fut>(make_request: F) -> Self
     where
         F: Fn() -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Result<Request, OpenAIError>> + Send + 'static,
+    {
+        Self {
+            make_request: Arc::new(move || Box::pin(make_request())),
+        }
+    }
+
+    #[cfg(target_family = "wasm")]
+    pub fn new<F, Fut>(make_request: F) -> Self
+    where
+        F: Fn() -> Fut + 'static,
+        Fut: Future<Output = Result<Request, OpenAIError>> + 'static,
     {
         Self {
             make_request: Arc::new(move || Box::pin(make_request())),
@@ -64,7 +98,13 @@ impl HttpRequestFactory {
 /// can decide when to rebuild and send. That keeps the retry decision close to
 /// transport execution and avoids forcing every call site to know whether a
 /// request body is cloneable.
+#[cfg(not(target_family = "wasm"))]
 pub trait HttpExecutor: Send + Sync {
+    fn execute(&self, request: HttpRequestFactory) -> HttpFuture;
+}
+
+#[cfg(target_family = "wasm")]
+pub trait HttpExecutor {
     fn execute(&self, request: HttpRequestFactory) -> HttpFuture;
 }
 
@@ -73,20 +113,17 @@ pub trait HttpExecutor: Send + Sync {
 /// Users can layer retry, timeout, rate limiting, tracing, or any other tower
 /// middleware around this service and then install the composed service with
 /// `Client::with_http_service(...)`.
-#[cfg(not(target_family = "wasm"))]
 #[derive(Clone, Debug)]
 pub struct ReqwestService {
     client: reqwest::Client,
 }
 
-#[cfg(not(target_family = "wasm"))]
 impl ReqwestService {
     pub fn new(client: reqwest::Client) -> Self {
         Self { client }
     }
 }
 
-#[cfg(not(target_family = "wasm"))]
 impl tower::Service<HttpRequestFactory> for ReqwestService {
     type Response = Response;
     type Error = OpenAIError;
@@ -110,13 +147,11 @@ impl tower::Service<HttpRequestFactory> for ReqwestService {
     }
 }
 
-#[cfg(not(target_family = "wasm"))]
 #[derive(Clone, Debug)]
 pub(crate) struct ReqwestExecutor {
     service: tower::retry::Retry<HttpRetryPolicy, ReqwestService>,
 }
 
-#[cfg(not(target_family = "wasm"))]
 impl ReqwestExecutor {
     pub(crate) fn new(client: reqwest::Client) -> Self {
         Self {
@@ -127,7 +162,6 @@ impl ReqwestExecutor {
     }
 }
 
-#[cfg(not(target_family = "wasm"))]
 impl HttpExecutor for ReqwestExecutor {
     fn execute(&self, request: HttpRequestFactory) -> HttpFuture {
         use tower::ServiceExt;
@@ -137,36 +171,12 @@ impl HttpExecutor for ReqwestExecutor {
     }
 }
 
-#[cfg(target_family = "wasm")]
-#[derive(Clone, Debug)]
-pub(crate) struct ReqwestExecutor {
-    client: reqwest::Client,
-}
-
-#[cfg(target_family = "wasm")]
-impl ReqwestExecutor {
-    pub(crate) fn new(client: reqwest::Client) -> Self {
-        Self { client }
-    }
-}
-
-#[cfg(target_family = "wasm")]
-impl HttpExecutor for ReqwestExecutor {
-    fn execute(&self, request: HttpRequestFactory) -> HttpFuture {
-        let client = self.client.clone();
-        Box::pin(async move {
-            let request = request.build().await?;
-            client.execute(request).await.map_err(OpenAIError::Reqwest)
-        })
-    }
-}
-
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+#[cfg(feature = "middleware")]
 pub(crate) struct TowerExecutor<S> {
     service: S,
 }
 
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+#[cfg(feature = "middleware")]
 impl<S> TowerExecutor<S> {
     pub(crate) fn new(service: S) -> Self {
         // The executor is just an adapter around a user-supplied tower stack.
@@ -199,14 +209,27 @@ where
     }
 }
 
-#[cfg(not(target_family = "wasm"))]
+#[cfg(all(feature = "middleware", target_family = "wasm"))]
+impl<S> HttpExecutor for TowerExecutor<S>
+where
+    S: tower::Service<HttpRequestFactory, Response = Response> + Clone + 'static,
+    S::Future: 'static,
+    S::Error: Into<OpenAIError> + 'static,
+{
+    fn execute(&self, request: HttpRequestFactory) -> HttpFuture {
+        use tower::ServiceExt;
+
+        let service = self.service.clone();
+        Box::pin(async move { service.oneshot(request).await.map_err(Into::into) })
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct HttpRetryPolicy {
     retries_remaining: usize,
     attempt: u32,
 }
 
-#[cfg(not(target_family = "wasm"))]
 impl HttpRetryPolicy {
     pub fn new(retries_remaining: usize) -> Self {
         // The retry policy is public so users can place it anywhere in their
@@ -220,16 +243,17 @@ impl HttpRetryPolicy {
     }
 }
 
-#[cfg(not(target_family = "wasm"))]
 impl Default for HttpRetryPolicy {
     fn default() -> Self {
         Self::new(3)
     }
 }
 
-#[cfg(not(target_family = "wasm"))]
 impl tower::retry::Policy<HttpRequestFactory, Response, OpenAIError> for HttpRetryPolicy {
+    #[cfg(not(target_family = "wasm"))]
     type Future = Pin<Box<dyn Future<Output = ()> + Send + 'static>>;
+    #[cfg(target_family = "wasm")]
+    type Future = Pin<Box<dyn Future<Output = ()> + 'static>>;
 
     fn retry(
         &mut self,
@@ -253,7 +277,10 @@ impl tower::retry::Policy<HttpRequestFactory, Response, OpenAIError> for HttpRet
                 let status = response.status();
                 status.is_server_error() || status.as_u16() == 429
             }
+            #[cfg(not(target_family = "wasm"))]
             Err(OpenAIError::Reqwest(error)) => error.is_connect() || error.is_timeout(),
+            #[cfg(target_family = "wasm")]
+            Err(OpenAIError::Reqwest(_)) => true,
             Err(OpenAIError::Transport(_)) => true,
             _ => false,
         };
@@ -282,6 +309,18 @@ impl tower::retry::Policy<HttpRequestFactory, Response, OpenAIError> for HttpRet
         });
 
         self.retries_remaining -= 1;
+
+        #[cfg(target_family = "wasm")]
+        {
+            // wasm has no universal timer runtime. We still preserve retry
+            // behavior by immediately replaying the request factory; callers
+            // that need timed backoff can install a wasm-runtime-compatible
+            // tower layer in their own service stack.
+            let _ = delay;
+            return Some(Box::pin(std::future::ready(())));
+        }
+
+        #[cfg(not(target_family = "wasm"))]
         Some(Box::pin(tokio::time::sleep(delay)))
     }
 

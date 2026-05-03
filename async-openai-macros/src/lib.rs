@@ -93,9 +93,9 @@ pub fn byot(args: TokenStream, item: TokenStream) -> TokenStream {
                                     && !bound.to_token_stream().to_string().contains("Display")
                             });
                         if middleware_enabled && needs_middleware_replay_bounds {
-                            type_param.bounds.push(parse_quote!(::std::marker::Send));
-                            type_param.bounds.push(parse_quote!(::std::marker::Sync));
-                            type_param.bounds.push(parse_quote!('static));
+                            type_param
+                                .bounds
+                                .push(parse_quote!(crate::middleware::MiddlewareInput));
                         }
 
                         new_params.push(GenericParam::Type(type_param));

@@ -350,11 +350,11 @@ pub use evals::{EvalRunOutputItems, EvalRuns, Evals};
 pub use file::Files;
 #[cfg(feature = "finetuning")]
 pub use fine_tuning::FineTuning;
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+#[cfg(feature = "middleware")]
 /// Tower-compatible middleware integration for HTTP dispatch.
 pub mod middleware {
     pub use crate::http_executor::{
-        HttpExecutor, HttpRequestFactory, HttpRetryPolicy, ReqwestService,
+        HttpExecutor, HttpRequestFactory, HttpRetryPolicy, MiddlewareInput, ReqwestService,
     };
 }
 #[cfg(feature = "image")]
