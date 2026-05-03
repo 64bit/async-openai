@@ -73,20 +73,20 @@ pub trait HttpExecutor: Send + Sync {
 /// Users can layer retry, timeout, rate limiting, tracing, or any other tower
 /// middleware around this service and then install the composed service with
 /// `Client::with_http_service(...)`.
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+#[cfg(not(target_family = "wasm"))]
 #[derive(Clone, Debug)]
 pub struct ReqwestService {
     client: reqwest::Client,
 }
 
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+#[cfg(not(target_family = "wasm"))]
 impl ReqwestService {
     pub fn new(client: reqwest::Client) -> Self {
         Self { client }
     }
 }
 
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+#[cfg(not(target_family = "wasm"))]
 impl tower::Service<HttpRequestFactory> for ReqwestService {
     type Response = Response;
     type Error = OpenAIError;
@@ -104,6 +104,57 @@ impl tower::Service<HttpRequestFactory> for ReqwestService {
         Box::pin(async move {
             // This is the plain reqwest transport path. It intentionally does
             // nothing beyond rebuilding the request and executing it.
+            let request = request.build().await?;
+            client.execute(request).await.map_err(OpenAIError::Reqwest)
+        })
+    }
+}
+
+#[cfg(not(target_family = "wasm"))]
+#[derive(Clone, Debug)]
+pub(crate) struct ReqwestExecutor {
+    service: tower::retry::Retry<HttpRetryPolicy, ReqwestService>,
+}
+
+#[cfg(not(target_family = "wasm"))]
+impl ReqwestExecutor {
+    pub(crate) fn new(client: reqwest::Client) -> Self {
+        Self {
+            service: tower::ServiceBuilder::new()
+                .retry(HttpRetryPolicy::default())
+                .service(ReqwestService::new(client)),
+        }
+    }
+}
+
+#[cfg(not(target_family = "wasm"))]
+impl HttpExecutor for ReqwestExecutor {
+    fn execute(&self, request: HttpRequestFactory) -> HttpFuture {
+        use tower::ServiceExt;
+
+        let service = self.service.clone();
+        Box::pin(async move { service.oneshot(request).await })
+    }
+}
+
+#[cfg(target_family = "wasm")]
+#[derive(Clone, Debug)]
+pub(crate) struct ReqwestExecutor {
+    client: reqwest::Client,
+}
+
+#[cfg(target_family = "wasm")]
+impl ReqwestExecutor {
+    pub(crate) fn new(client: reqwest::Client) -> Self {
+        Self { client }
+    }
+}
+
+#[cfg(target_family = "wasm")]
+impl HttpExecutor for ReqwestExecutor {
+    fn execute(&self, request: HttpRequestFactory) -> HttpFuture {
+        let client = self.client.clone();
+        Box::pin(async move {
             let request = request.build().await?;
             client.execute(request).await.map_err(OpenAIError::Reqwest)
         })
@@ -148,14 +199,14 @@ where
     }
 }
 
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+#[cfg(not(target_family = "wasm"))]
 #[derive(Clone, Debug)]
 pub struct HttpRetryPolicy {
     retries_remaining: usize,
     attempt: u32,
 }
 
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+#[cfg(not(target_family = "wasm"))]
 impl HttpRetryPolicy {
     pub fn new(retries_remaining: usize) -> Self {
         // The retry policy is public so users can place it anywhere in their
@@ -169,14 +220,14 @@ impl HttpRetryPolicy {
     }
 }
 
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+#[cfg(not(target_family = "wasm"))]
 impl Default for HttpRetryPolicy {
     fn default() -> Self {
         Self::new(3)
     }
 }
 
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
+#[cfg(not(target_family = "wasm"))]
 impl tower::retry::Policy<HttpRequestFactory, Response, OpenAIError> for HttpRetryPolicy {
     type Future = Pin<Box<dyn Future<Output = ()> + Send + 'static>>;
 

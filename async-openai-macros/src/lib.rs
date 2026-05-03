@@ -3,6 +3,7 @@ use quote::{quote, ToTokens};
 use syn::{
     parse::{Parse, ParseStream},
     parse_macro_input,
+    parse_quote,
     punctuated::Punctuated,
     token::Comma,
     FnArg, GenericParam, Generics, ItemFn, Pat, PatType, TypeParam, WhereClause,
@@ -57,6 +58,7 @@ pub fn byot(args: TokenStream, item: TokenStream) -> TokenStream {
     let input = parse_macro_input!(item as ItemFn);
     let mut new_generics = Generics::default();
     let mut param_count = 0;
+    let middleware_enabled = cfg!(feature = "middleware");
 
     // Process function arguments
     let mut new_params = Vec::new();
@@ -81,6 +83,19 @@ pub fn byot(args: TokenStream, item: TokenStream) -> TokenStream {
                             .find(|(name, _)| name == &generic_name)
                         {
                             type_param.bounds.extend(vec![bound.clone()]);
+                        }
+                        let needs_middleware_replay_bounds = bounds_args
+                            .bounds
+                            .iter()
+                            .any(|(name, bound)| {
+                                name == &generic_name
+                                    && bound.to_token_stream().to_string().contains("Clone")
+                                    && !bound.to_token_stream().to_string().contains("Display")
+                            });
+                        if middleware_enabled && needs_middleware_replay_bounds {
+                            type_param.bounds.push(parse_quote!(::std::marker::Send));
+                            type_param.bounds.push(parse_quote!(::std::marker::Sync));
+                            type_param.bounds.push(parse_quote!('static));
                         }
 
                         new_params.push(GenericParam::Type(type_param));

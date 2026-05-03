@@ -49,7 +49,7 @@ chat-completion = ["chat-completion-types", "_api"]
 assistant = ["assistant-types", "_api", ]
 administration = ["administration-types", "_api"]
 completions = ["completion-types", "_api"]
-middleware = ["dep:tower"]
+middleware = ["dep:tower", "_api", "async-openai-macros?/middleware"]
 
 # Type feature flags - these enable only the types
 response-types = ["dep:derive_builder"]
