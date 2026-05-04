@@ -113,7 +113,7 @@ pub trait HttpExecutor {
 /// Users can layer retry, timeout, rate limiting, tracing, or any other tower
 /// middleware around this service and then install the composed service with
 /// `Client::with_http_service(...)`.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct ReqwestService {
     client: reqwest::Client,
 }
@@ -201,10 +201,7 @@ where
             // `oneshot` keeps the client-side executor simple: the tower stack
             // decides how to use the replayable request factory, and the client
             // does not need to manage readiness or buffering itself.
-            service
-                .oneshot(request)
-                .await
-                .map_err(Into::into)
+            service.oneshot(request).await.map_err(Into::into)
         })
     }
 }
