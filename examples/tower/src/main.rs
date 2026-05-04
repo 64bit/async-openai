@@ -49,7 +49,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     }
                 }
                 Err(e) => {
-                    println!("Task {i} error: {e:?}");
+                    println!("Task {i} error: {e} \n(debug: {e:?})");
                 }
             }
         });
