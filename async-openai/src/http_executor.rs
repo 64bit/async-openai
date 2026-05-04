@@ -278,7 +278,8 @@ impl tower::retry::Policy<HttpRequestFactory, Response, OpenAIError> for HttpRet
             Err(OpenAIError::Reqwest(error)) => error.is_connect() || error.is_timeout(),
             #[cfg(target_family = "wasm")]
             Err(OpenAIError::Reqwest(_)) => true,
-            Err(OpenAIError::Transport(_)) => true,
+            #[cfg(feature = "middleware")]
+            Err(OpenAIError::Boxed(_)) => true,
             _ => false,
         };
 

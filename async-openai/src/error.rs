@@ -24,8 +24,9 @@ pub enum OpenAIError {
     #[error("stream failed: {0}")]
     StreamError(Box<StreamError>),
     /// Error from middleware or transport layers around HTTP dispatch
-    #[error("transport error: {0}")]
-    Transport(String),
+    #[cfg(feature = "middleware")]
+    #[error(transparent)]
+    Boxed(Box<dyn std::error::Error + Send + Sync + 'static>),
     /// Error from client side validation
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]
@@ -35,18 +36,10 @@ pub enum OpenAIError {
 #[cfg(all(feature = "_api", feature = "middleware", not(target_family = "wasm")))]
 impl From<tower::BoxError> for OpenAIError {
     fn from(error: tower::BoxError) -> Self {
-        // Tower layers like `timeout` and `retry` often erase their concrete
-        // error into `BoxError` when the stack is composed. Converting it here
-        // keeps the middleware API ergonomic without forcing every caller to
-        // manually map boxed errors back into `OpenAIError`.
-        OpenAIError::Transport(error.to_string())
-    }
-}
-
-#[cfg(all(feature = "_api", feature = "middleware", not(target_family = "wasm")))]
-impl From<tower::timeout::error::Elapsed> for OpenAIError {
-    fn from(error: tower::timeout::error::Elapsed) -> Self {
-        OpenAIError::Transport(error.to_string())
+        // Tower layers often erase their concrete errors into `BoxError` when
+        // stacks are composed. Preserve the boxed source instead of flattening
+        // it to a string so callers can still inspect/downcast the real error.
+        OpenAIError::Boxed(error)
     }
 }
 
@@ -64,8 +57,9 @@ pub enum OpenAIError {
     #[error("failed to deserialize api response: error:{0} content:{1}")]
     JSONDeserialize(serde_json::Error, String),
     /// Error from middleware or transport layers around HTTP dispatch
-    #[error("transport error: {0}")]
-    Transport(String),
+    #[cfg(feature = "middleware")]
+    #[error(transparent)]
+    Boxed(Box<dyn std::error::Error + 'static>),
     /// Error from client side validation
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]
@@ -75,14 +69,7 @@ pub enum OpenAIError {
 #[cfg(all(feature = "_api", feature = "middleware", target_family = "wasm"))]
 impl From<tower::BoxError> for OpenAIError {
     fn from(error: tower::BoxError) -> Self {
-        OpenAIError::Transport(error.to_string())
-    }
-}
-
-#[cfg(all(feature = "_api", feature = "middleware", target_family = "wasm"))]
-impl From<tower::timeout::error::Elapsed> for OpenAIError {
-    fn from(error: tower::timeout::error::Elapsed) -> Self {
-        OpenAIError::Transport(error.to_string())
+        OpenAIError::Boxed(error)
     }
 }
 
