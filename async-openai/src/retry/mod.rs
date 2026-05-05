@@ -14,9 +14,39 @@
 
 use std::{future::Future, pin::Pin};
 
-use reqwest::Response;
+use reqwest::{header::HeaderMap, Response};
 
 use crate::{error::OpenAIError, executor::HttpRequestFactory};
+
+/// Header containing the maximum request count permitted before rate-limit exhaustion.
+pub const X_RATELIMIT_LIMIT_REQUESTS: &str = "x-ratelimit-limit-requests";
+/// Header containing the maximum token count permitted before rate-limit exhaustion.
+pub const X_RATELIMIT_LIMIT_TOKENS: &str = "x-ratelimit-limit-tokens";
+/// Header containing the remaining request count before rate-limit exhaustion.
+pub const X_RATELIMIT_REMAINING_REQUESTS: &str = "x-ratelimit-remaining-requests";
+/// Header containing the remaining token count before rate-limit exhaustion.
+pub const X_RATELIMIT_REMAINING_TOKENS: &str = "x-ratelimit-remaining-tokens";
+/// Header containing the duration until the request-count rate limit resets.
+pub const X_RATELIMIT_RESET_REQUESTS: &str = "x-ratelimit-reset-requests";
+/// Header containing the duration until the token-count rate limit resets.
+pub const X_RATELIMIT_RESET_TOKENS: &str = "x-ratelimit-reset-tokens";
+
+const RATE_LIMIT_HEADERS: [&str; 6] = [
+    X_RATELIMIT_LIMIT_REQUESTS,
+    X_RATELIMIT_LIMIT_TOKENS,
+    X_RATELIMIT_REMAINING_REQUESTS,
+    X_RATELIMIT_REMAINING_TOKENS,
+    X_RATELIMIT_RESET_REQUESTS,
+    X_RATELIMIT_RESET_TOKENS,
+];
+
+fn log_rate_limit_headers(headers: &HeaderMap) {
+    for header in RATE_LIMIT_HEADERS {
+        if let Some(value) = headers.get(header).and_then(|value| value.to_str().ok()) {
+            tracing::warn!(header, value, "retrying request with rate-limit header");
+        }
+    }
+}
 
 /// Return whether async-openai's simple retry policy should retry this result.
 ///
@@ -97,6 +127,10 @@ impl tower::retry::Policy<HttpRequestFactory, Response, OpenAIError> for SimpleR
     ) -> Option<Self::Future> {
         if self.attempts >= self.max_retries || !should_retry(result) {
             return None;
+        }
+
+        if let Ok(response) = result.as_ref() {
+            log_rate_limit_headers(response.headers());
         }
 
         let retry_after = result
