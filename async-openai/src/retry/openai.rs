@@ -155,10 +155,9 @@ where
     let mut attempts = 0;
     let mut backoff_attempt = 0;
 
-    loop {
-        // ensure that service is ready before calling it again to adhere to the backpressure semantics of a Service.
-        let result = service.ready().await?.call(request.clone()).await;
+    let mut result = service.call(request.clone()).await;
 
+    loop {
         // In this match satatement return early if the error is not retryable.
         let (final_result, headers, retry_after) = match result {
             Ok(response) if response.status().as_u16() == 429 => {
@@ -218,6 +217,13 @@ where
         // on wasm there is no standard sleep so we retry immediately
         #[cfg(not(target_family = "wasm"))]
         tokio::time::sleep(delay).await;
+        #[cfg(target_family = "wasm")]
+        let _ = delay;
+
+        // The service moved into this future was already made ready before the
+        // first call. For retries we must poll readiness again before each
+        // additional call, matching tower::retry's service contract.
+        result = service.ready().await?.call(request.clone()).await;
     }
 }
 
