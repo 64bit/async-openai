@@ -20,6 +20,7 @@ type RequestFn = dyn Fn() -> RequestFuture + Send + Sync + 'static;
 #[cfg(target_family = "wasm")]
 type RequestFn = dyn Fn() -> RequestFuture + 'static;
 
+/// Trait for types allowed as input in `*_byot` macro methods that works with `middleware` feature.
 #[cfg(all(feature = "middleware", not(target_family = "wasm")))]
 pub trait MiddlewareInput: Send + Sync + 'static {}
 #[cfg(all(feature = "middleware", not(target_family = "wasm")))]
