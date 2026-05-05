@@ -6,7 +6,8 @@ use std::sync::{
 
 use async_openai::config::OpenAIConfig;
 use async_openai::error::OpenAIError;
-use async_openai::middleware::{HttpRequestFactory, HttpRetryPolicy};
+use async_openai::middleware::HttpRequestFactory;
+use async_openai::retry::SimpleRetryPolicy;
 use async_openai::types::chat::{
     ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
 };
@@ -73,7 +74,7 @@ fn build_service(
     // applications.
     let service = ServiceBuilder::new()
         .concurrency_limit(1)
-        .retry(HttpRetryPolicy::default())
+        .retry(SimpleRetryPolicy::default())
         .service(service_fn(move |factory: HttpRequestFactory| {
             let request_count = request_count.clone();
             async move {

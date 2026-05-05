@@ -2,7 +2,7 @@
 
 Minimal Dioxus web app using async-openai's Response API through the `middleware` feature.
 
-The default `HttpRetryPolicy` retries immediately on wasm because wasm has no universal timer runtime. If you need delayed backoff, compose a tower layer that is compatible with your wasm runtime.
+The default `SimpleRetryPolicy` retries immediately on wasm because wasm has no universal timer runtime. On wasm it retries rate limits only. If you need delayed backoff, compose a tower layer that is compatible with your wasm runtime.
 
 ## Running
 

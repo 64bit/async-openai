@@ -7,7 +7,8 @@ use std::{
 use async_openai::{
     config::OpenAIConfig,
     error::OpenAIError,
-    middleware::{HttpRequestFactory, HttpRetryPolicy, ReqwestService},
+    middleware::{HttpRequestFactory, ReqwestService},
+    retry::SimpleRetryPolicy,
     types::responses::CreateResponseArgs,
     Client,
 };
@@ -66,7 +67,7 @@ fn build_client(api_key: String) -> Client<OpenAIConfig> {
     let config = OpenAIConfig::new().with_api_key(api_key);
     let service = ServiceBuilder::new()
         .layer(LogLayer)
-        .retry(HttpRetryPolicy::default())
+        .retry(SimpleRetryPolicy::default())
         .service(ReqwestService::default());
 
     Client::with_config(config).with_http_service(service)

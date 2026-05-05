@@ -3,7 +3,8 @@ use std::time::Duration;
 
 use async_openai::config::OpenAIConfig;
 use async_openai::error::OpenAIError;
-use async_openai::middleware::{HttpRetryPolicy, ReqwestService};
+use async_openai::middleware::ReqwestService;
+use async_openai::retry::SimpleRetryPolicy;
 use async_openai::types::chat::{
     ChatCompletionRequestMessage, CreateChatCompletionRequestArgs, CreateChatCompletionResponse,
 };
@@ -16,7 +17,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let service = ServiceBuilder::new()
         .concurrency_limit(1)
         .timeout(Duration::from_millis(10))
-        .retry(HttpRetryPolicy::default())
+        .retry(SimpleRetryPolicy::default())
         .service(base);
     let service = BoxCloneSyncService::new(service);
 
