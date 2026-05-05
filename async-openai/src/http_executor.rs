@@ -57,9 +57,7 @@ impl HttpRequestFactory {
     /// Create a replayable request factory from an async request builder.
     ///
     /// The closure is stored behind an `Arc` so this value stays cheap to
-    /// clone when it is passed through tower layers. The closure itself must be
-    /// `Sync` because the service stack may hold shared references to the
-    /// factory while retry and load-shedding layers make decisions.
+    /// clone when it is passed through tower layers.
     #[cfg(not(target_family = "wasm"))]
     pub fn new<F, Fut>(make_request: F) -> Self
     where
