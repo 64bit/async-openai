@@ -17,11 +17,11 @@ use serde::{de::DeserializeOwned, Serialize};
 #[cfg(not(target_family = "wasm"))]
 use crate::error::StreamError;
 #[cfg(feature = "middleware")]
-use crate::http_executor::TowerExecutor;
+use crate::executor::TowerExecutor;
 use crate::{
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, ApiError, OpenAIError, WrappedError},
-    http_executor::{HttpRequestFactory, ReqwestExecutor, SharedExecutor},
+    executor::{HttpRequestFactory, ReqwestExecutor, SharedExecutor},
     traits::AsyncTryFrom,
     RequestOptions,
 };
@@ -1086,7 +1086,7 @@ mod tests {
     use crate::{
         config::OpenAIConfig,
         error::OpenAIError,
-        http_executor::{HttpRequestFactory, HttpRetryPolicy},
+        executor::{HttpRequestFactory, HttpRetryPolicy},
         traits::AsyncTryFrom,
         RequestOptions,
     };

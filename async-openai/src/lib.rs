@@ -275,7 +275,7 @@ mod file;
 #[cfg(feature = "finetuning")]
 mod fine_tuning;
 #[cfg(feature = "_api")]
-mod http_executor;
+mod executor;
 #[cfg(feature = "image")]
 mod image;
 #[cfg(feature = "_api")]
@@ -284,6 +284,8 @@ mod impls;
 mod model;
 #[cfg(feature = "moderation")]
 mod moderation;
+#[cfg(feature = "middleware")]
+pub mod middleware;
 #[cfg(feature = "realtime")]
 mod realtime;
 #[cfg(feature = "_api")]
@@ -350,13 +352,6 @@ pub use evals::{EvalRunOutputItems, EvalRuns, Evals};
 pub use file::Files;
 #[cfg(feature = "finetuning")]
 pub use fine_tuning::FineTuning;
-#[cfg(feature = "middleware")]
-/// Tower-compatible middleware integration for HTTP dispatch.
-pub mod middleware {
-    pub use crate::http_executor::{
-        HttpExecutor, HttpRequestFactory, HttpRetryPolicy, MiddlewareInput, ReqwestService,
-    };
-}
 #[cfg(feature = "image")]
 pub use image::Images;
 #[cfg(feature = "model")]
