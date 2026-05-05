@@ -284,7 +284,7 @@ use async_openai::{
     config::OpenAIConfig,
     Client,
     middleware::ReqwestService,
-    retry::SimpleRetryPolicy,
+    retry::OpenAIRetryLayer,
 };
 use tower::{util::BoxCloneSyncService, ServiceBuilder};
 
@@ -292,7 +292,7 @@ let base = ReqwestService::new(reqwest::Client::new());
 
 let service = ServiceBuilder::new()
     .concurrency_limit(8)
-    .retry(SimpleRetryPolicy::default())
+    .layer(OpenAIRetryLayer::default())
     .service(base);
 
 let service = BoxCloneSyncService::new(service);
@@ -368,11 +368,11 @@ middleware / tower
   - request interception
 ```
 
-The public retry policy, `SimpleRetryPolicy`, is exposed so you can place it anywhere in your tower
-stack. It retries rate limits (`429`), server errors (`5xx`), and native connect errors; it
-intentionally does not retry timeouts because many API calls are non-idempotent `POST` requests.
-Use `async_openai::retry::should_retry` if you want to reuse the same classification in a
-custom tower retry policy.
+The public retry layer, `OpenAIRetryLayer`, is exposed so you can place it anywhere in your tower
+stack. It retries rate limits (`429`), server errors (`5xx`), parsed retryable API errors, and
+native connect errors. It parses `429` error bodies before retrying so quota exhaustion is treated
+as permanent instead of being retried as an ordinary rate limit. `SimpleRetryPolicy` and
+`async_openai::retry::should_retry` remain available if you want a status-only tower retry policy.
 
 ## Contributing
 

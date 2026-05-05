@@ -271,30 +271,30 @@ mod embedding;
 pub mod error;
 #[cfg(feature = "evals")]
 mod evals;
+#[cfg(feature = "_api")]
+mod executor;
 #[cfg(feature = "file")]
 mod file;
 #[cfg(feature = "finetuning")]
 mod fine_tuning;
-#[cfg(feature = "_api")]
-mod executor;
 #[cfg(feature = "image")]
 mod image;
 #[cfg(feature = "_api")]
 mod impls;
+#[cfg(feature = "middleware")]
+pub mod middleware;
 #[cfg(feature = "model")]
 mod model;
 #[cfg(feature = "moderation")]
 mod moderation;
-#[cfg(feature = "middleware")]
-pub mod middleware;
 #[cfg(feature = "realtime")]
 mod realtime;
 #[cfg(feature = "_api")]
 mod request_options;
-#[cfg(feature = "_api")]
-pub mod retry;
 #[cfg(feature = "responses")]
 mod responses;
+#[cfg(feature = "_api")]
+pub mod retry;
 #[cfg(feature = "skill")]
 mod skills;
 #[cfg(feature = "_api")]

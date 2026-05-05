@@ -4,7 +4,7 @@ use std::time::Duration;
 use async_openai::config::OpenAIConfig;
 use async_openai::error::OpenAIError;
 use async_openai::middleware::ReqwestService;
-use async_openai::retry::SimpleRetryPolicy;
+use async_openai::retry::{OpenAIRetryLayer, SimpleRetryPolicy};
 use async_openai::types::chat::{
     ChatCompletionRequestMessage, CreateChatCompletionRequestArgs, CreateChatCompletionResponse,
 };
@@ -16,8 +16,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let base = ReqwestService::new(reqwest::Client::new());
     let service = ServiceBuilder::new()
         .concurrency_limit(1)
-        .timeout(Duration::from_millis(10))
-        .retry(SimpleRetryPolicy::default())
+        .timeout(Duration::from_millis(700))
+        // .timeout(Duration::from_millis(700))
+        .layer(OpenAIRetryLayer::default())
+        // .retry(SimpleRetryPolicy::default())
         .service(base);
     let service = BoxCloneSyncService::new(service);
 

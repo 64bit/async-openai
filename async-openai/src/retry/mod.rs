@@ -1,8 +1,9 @@
 //! Retry utilities.
 //!
-//! The retry module is available when API features are enabled. It contains a
-//! small default tower retry policy, [`SimpleRetryPolicy`], and the public
-//! [`should_retry`] classifier used by that policy.
+//! The retry module is available when API features are enabled. It contains
+//! [`OpenAIRetryLayer`], the default OpenAI-aware tower retry layer, plus
+//! [`SimpleRetryPolicy`] and [`should_retry`] for status-only tower retry
+//! composition.
 //!
 //! The retry boundary is [`crate::middleware::HttpRequestFactory`]. Retrying
 //! clones the factory and rebuilds a fresh `reqwest::Request` for each attempt
@@ -11,6 +12,10 @@
 //!
 //! Custom tower retry policies can call [`should_retry`] to reuse the same
 //! retry classification while changing delay behavior.
+
+mod openai;
+
+pub use openai::{OpenAIRetry, OpenAIRetryLayer};
 
 use std::{future::Future, pin::Pin};
 
@@ -43,8 +48,15 @@ const RATE_LIMIT_HEADERS: [&str; 6] = [
 fn log_rate_limit_headers(headers: &HeaderMap) {
     for header in RATE_LIMIT_HEADERS {
         if let Some(value) = headers.get(header).and_then(|value| value.to_str().ok()) {
-            tracing::warn!(header, value, "retrying request with rate-limit header");
+            tracing::warn!("rate-limit: {header} = {value}");
         }
+    }
+    // Also log the Retry-After header if present
+    if let Some(value) = headers
+        .get(reqwest::header::RETRY_AFTER)
+        .and_then(|value| value.to_str().ok())
+    {
+        tracing::warn!("retry-after={value}");
     }
 }
 

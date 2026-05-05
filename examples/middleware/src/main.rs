@@ -7,7 +7,7 @@ use std::sync::{
 use async_openai::config::OpenAIConfig;
 use async_openai::error::OpenAIError;
 use async_openai::middleware::HttpRequestFactory;
-use async_openai::retry::SimpleRetryPolicy;
+use async_openai::retry::OpenAIRetryLayer;
 use async_openai::types::chat::{
     ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
 };
@@ -65,7 +65,7 @@ fn build_service(
     // The tower stack is ordered intentionally:
     // - `concurrency_limit` is outermost so it governs the total number of
     //   in-flight requests seen by the example.
-    // - `retry` sits inside the limit so each retry attempt still goes through
+    // - `OpenAIRetryLayer` sits inside the limit so each retry attempt still goes through
     //   the same request factory and can rebuild the request safely.
     // - the leaf service actually builds the `reqwest::Request` and returns a
     //   `reqwest::Response`.
@@ -74,7 +74,7 @@ fn build_service(
     // applications.
     let service = ServiceBuilder::new()
         .concurrency_limit(1)
-        .retry(SimpleRetryPolicy::default())
+        .layer(OpenAIRetryLayer::default())
         .service(service_fn(move |factory: HttpRequestFactory| {
             let request_count = request_count.clone();
             async move {

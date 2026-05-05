@@ -7,11 +7,7 @@ use std::sync::Mutex;
 use bytes::Bytes;
 #[cfg(not(target_family = "wasm"))]
 use futures::{stream::StreamExt, Stream};
-use reqwest::{
-    header::HeaderMap,
-    multipart::Form,
-    Response,
-};
+use reqwest::{header::HeaderMap, multipart::Form, Response};
 use serde::{de::DeserializeOwned, Serialize};
 
 #[cfg(not(target_family = "wasm"))]
@@ -613,8 +609,12 @@ impl<C: Config> Client<C> {
     where
         I: Serialize,
     {
-        let request_factory =
-            self.build_request_factory_with_json(reqwest::Method::POST, path, request, request_options)?;
+        let request_factory = self.build_request_factory_with_json(
+            reqwest::Method::POST,
+            path,
+            request,
+            request_options,
+        )?;
         self.execute_raw(request_factory).await
     }
 
@@ -630,8 +630,12 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned,
     {
-        let request_factory =
-            self.build_request_factory_with_json(reqwest::Method::POST, path, request, request_options)?;
+        let request_factory = self.build_request_factory_with_json(
+            reqwest::Method::POST,
+            path,
+            request,
+            request_options,
+        )?;
         self.execute(request_factory).await
     }
 
@@ -1084,12 +1088,8 @@ mod tests {
 
     use super::Client;
     use crate::{
-        config::OpenAIConfig,
-        error::OpenAIError,
-        executor::HttpRequestFactory,
-        retry::SimpleRetryPolicy,
-        traits::AsyncTryFrom,
-        RequestOptions,
+        config::OpenAIConfig, error::OpenAIError, executor::HttpRequestFactory,
+        retry::SimpleRetryPolicy, traits::AsyncTryFrom, RequestOptions,
     };
 
     #[tokio::test]

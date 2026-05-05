@@ -2,8 +2,7 @@ use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{
     parse::{Parse, ParseStream},
-    parse_macro_input,
-    parse_quote,
+    parse_macro_input, parse_quote,
     punctuated::Punctuated,
     token::Comma,
     FnArg, GenericParam, Generics, ItemFn, Pat, PatType, TypeParam, WhereClause,
@@ -84,10 +83,8 @@ pub fn byot(args: TokenStream, item: TokenStream) -> TokenStream {
                         {
                             type_param.bounds.extend(vec![bound.clone()]);
                         }
-                        let needs_middleware_replay_bounds = bounds_args
-                            .bounds
-                            .iter()
-                            .any(|(name, bound)| {
+                        let needs_middleware_replay_bounds =
+                            bounds_args.bounds.iter().any(|(name, bound)| {
                                 name == &generic_name
                                     && bound.to_token_stream().to_string().contains("Clone")
                                     && !bound.to_token_stream().to_string().contains("Display")

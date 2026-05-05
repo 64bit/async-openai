@@ -41,12 +41,12 @@
 //!
 //! ```no_run
 //! # use async_openai::{Client, config::OpenAIConfig};
-//! # use async_openai::{middleware::ReqwestService, retry::SimpleRetryPolicy};
+//! # use async_openai::{middleware::ReqwestService, retry::OpenAIRetryLayer};
 //! # use std::time::Duration;
 //! let service = tower::ServiceBuilder::new()
 //!     .concurrency_limit(8)
 //!     .timeout(Duration::from_secs(30))
-//!     .retry(SimpleRetryPolicy::default())
+//!     .layer(OpenAIRetryLayer::default())
 //!     .service(ReqwestService::new(reqwest::Client::new()));
 //!
 //! let client = Client::with_config(OpenAIConfig::default())
@@ -77,26 +77,32 @@
 //!     .with_http_service(service);
 //! ```
 //!
-//! ## Retry policy
+//! ## Retry layer
 //!
-//! [`crate::retry::SimpleRetryPolicy`] is public so it can be composed anywhere in your tower
-//! stack. The default async-openai client uses this policy internally to
+//! [`crate::retry::OpenAIRetryLayer`] is public so it can be composed anywhere in your tower
+//! stack. The default async-openai client uses this layer internally to
 //! preserve the library's default retry behavior. When you provide your own
-//! service with `Client::with_http_service`, place [`crate::retry::SimpleRetryPolicy`] wherever
+//! service with `Client::with_http_service`, place [`crate::retry::OpenAIRetryLayer`] wherever
 //! it makes sense for your stack.
 //!
-//! The policy retries:
+//! The layer retries:
 //!
 //! - HTTP `429` responses.
 //! - HTTP `5xx` responses.
+//! - Parsed API errors, except `insufficient_quota`.
 //! - Native reqwest connect errors.
 //!
-//! The [`crate::retry::should_retry`] helper exposes the same classification logic
-//! so custom retry policies can reuse async-openai's conservative defaults.
+//! Unlike a [`tower::retry::Policy`], this layer owns the full async retry loop,
+//! so it can consume a `429` response body and parse OpenAI's error shape
+//! before deciding whether the error is retryable. This is how it avoids
+//! retrying quota exhaustion that also arrives with HTTP status `429`.
 //!
-//! On native targets the policy waits using `tokio::time::sleep` with a simple
+//! [`crate::retry::SimpleRetryPolicy`] and [`crate::retry::should_retry`] remain
+//! available for users who want a status-only Tower retry policy.
+//!
+//! On native targets the layer waits using `tokio::time::sleep` with a simple
 //! exponential backoff. On `wasm32` there is no universal timer runtime, so the
-//! policy retries immediately. If you need delayed wasm backoff, compose a
+//! layer retries immediately. If you need delayed wasm backoff, compose a
 //! wasm-runtime-compatible tower layer in your own service stack.
 //!
 //! ## Native and wasm bounds

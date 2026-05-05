@@ -2,7 +2,7 @@ use std::{future::Future, pin::Pin, sync::Arc};
 
 use reqwest::{Request, Response};
 
-use crate::{error::OpenAIError, retry::SimpleRetryPolicy};
+use crate::{error::OpenAIError, retry::OpenAIRetry};
 
 #[cfg(not(target_family = "wasm"))]
 type RequestFuture = Pin<Box<dyn Future<Output = Result<Request, OpenAIError>> + Send + 'static>>;
@@ -148,14 +148,14 @@ impl tower::Service<HttpRequestFactory> for ReqwestService {
 
 #[derive(Clone, Debug)]
 pub(crate) struct ReqwestExecutor {
-    service: tower::retry::Retry<SimpleRetryPolicy, ReqwestService>,
+    service: OpenAIRetry<ReqwestService>,
 }
 
 impl ReqwestExecutor {
     pub(crate) fn new(client: reqwest::Client) -> Self {
         Self {
             service: tower::ServiceBuilder::new()
-                .retry(SimpleRetryPolicy::default())
+                .layer(crate::retry::OpenAIRetryLayer::default())
                 .service(ReqwestService::new(client)),
         }
     }
