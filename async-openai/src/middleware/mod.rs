@@ -41,12 +41,12 @@
 //!
 //! ```no_run
 //! # use async_openai::{Client, config::OpenAIConfig};
-//! # use async_openai::middleware::{HttpRetryPolicy, ReqwestService};
+//! # use async_openai::{middleware::ReqwestService, retry::SimpleRetryPolicy};
 //! # use std::time::Duration;
 //! let service = tower::ServiceBuilder::new()
 //!     .concurrency_limit(8)
 //!     .timeout(Duration::from_secs(30))
-//!     .retry(HttpRetryPolicy::default())
+//!     .retry(SimpleRetryPolicy::default())
 //!     .service(ReqwestService::new(reqwest::Client::new()));
 //!
 //! let client = Client::with_config(OpenAIConfig::default())
@@ -79,18 +79,20 @@
 //!
 //! ## Retry policy
 //!
-//! [`HttpRetryPolicy`] is public so it can be composed anywhere in your tower
+//! [`crate::retry::SimpleRetryPolicy`] is public so it can be composed anywhere in your tower
 //! stack. The default async-openai client uses this policy internally to
 //! preserve the library's default retry behavior. When you provide your own
-//! service with `Client::with_http_service`, place [`HttpRetryPolicy`] wherever
+//! service with `Client::with_http_service`, place [`crate::retry::SimpleRetryPolicy`] wherever
 //! it makes sense for your stack.
 //!
 //! The policy retries:
 //!
 //! - HTTP `429` responses.
 //! - HTTP `5xx` responses.
-//! - retryable reqwest transport errors.
-//! - boxed middleware errors.
+//! - Native reqwest connect errors.
+//!
+//! The [`crate::retry::should_retry`] helper exposes the same classification logic
+//! so custom retry policies can reuse async-openai's conservative defaults.
 //!
 //! On native targets the policy waits using `tokio::time::sleep` with a simple
 //! exponential backoff. On `wasm32` there is no universal timer runtime, so the
@@ -117,6 +119,4 @@
 //! This preserves streaming multipart behavior instead of buffering entire
 //! forms into memory.
 
-pub use crate::executor::{
-    HttpExecutor, HttpRequestFactory, HttpRetryPolicy, MiddlewareInput, ReqwestService,
-};
+pub use crate::executor::{HttpExecutor, HttpRequestFactory, MiddlewareInput, ReqwestService};

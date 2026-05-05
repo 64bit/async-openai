@@ -1086,7 +1086,8 @@ mod tests {
     use crate::{
         config::OpenAIConfig,
         error::OpenAIError,
-        executor::{HttpRequestFactory, HttpRetryPolicy},
+        executor::HttpRequestFactory,
+        retry::SimpleRetryPolicy,
         traits::AsyncTryFrom,
         RequestOptions,
     };
@@ -1185,7 +1186,7 @@ mod tests {
         let service = {
             let request_count = request_count.clone();
             ServiceBuilder::new()
-                .retry(HttpRetryPolicy::default())
+                .retry(SimpleRetryPolicy::default())
                 .service(service_fn(move |factory: HttpRequestFactory| {
                     let request_count = request_count.clone();
                     async move {
@@ -1251,7 +1252,7 @@ mod tests {
         let service = {
             let request_count = request_count.clone();
             ServiceBuilder::new()
-                .retry(HttpRetryPolicy::default())
+                .retry(SimpleRetryPolicy::default())
                 .service(service_fn(move |factory: HttpRequestFactory| {
                     let request_count = request_count.clone();
                     async move {

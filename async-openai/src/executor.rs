@@ -2,7 +2,7 @@ use std::{future::Future, pin::Pin, sync::Arc};
 
 use reqwest::{Request, Response};
 
-use crate::error::OpenAIError;
+use crate::{error::OpenAIError, retry::SimpleRetryPolicy};
 
 #[cfg(not(target_family = "wasm"))]
 type RequestFuture = Pin<Box<dyn Future<Output = Result<Request, OpenAIError>> + Send + 'static>>;
@@ -148,14 +148,14 @@ impl tower::Service<HttpRequestFactory> for ReqwestService {
 
 #[derive(Clone, Debug)]
 pub(crate) struct ReqwestExecutor {
-    service: tower::retry::Retry<HttpRetryPolicy, ReqwestService>,
+    service: tower::retry::Retry<SimpleRetryPolicy, ReqwestService>,
 }
 
 impl ReqwestExecutor {
     pub(crate) fn new(client: reqwest::Client) -> Self {
         Self {
             service: tower::ServiceBuilder::new()
-                .retry(HttpRetryPolicy::default())
+                .retry(SimpleRetryPolicy::default())
                 .service(ReqwestService::new(client)),
         }
     }
@@ -217,115 +217,6 @@ where
 
         let service = self.service.clone();
         Box::pin(async move { service.oneshot(request).await.map_err(Into::into) })
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct HttpRetryPolicy {
-    retries_remaining: usize,
-    attempt: u32,
-}
-
-impl HttpRetryPolicy {
-    pub fn new(retries_remaining: usize) -> Self {
-        // The retry policy is public so users can place it anywhere in their
-        // tower builder. We still provide a sensible default here to preserve
-        // the old "retry a few times" client behavior when the middleware
-        // feature is enabled.
-        Self {
-            retries_remaining,
-            attempt: 0,
-        }
-    }
-}
-
-impl Default for HttpRetryPolicy {
-    fn default() -> Self {
-        Self::new(3)
-    }
-}
-
-impl tower::retry::Policy<HttpRequestFactory, Response, OpenAIError> for HttpRetryPolicy {
-    #[cfg(not(target_family = "wasm"))]
-    type Future = Pin<Box<dyn Future<Output = ()> + Send + 'static>>;
-    #[cfg(target_family = "wasm")]
-    type Future = Pin<Box<dyn Future<Output = ()> + 'static>>;
-
-    fn retry(
-        &mut self,
-        _req: &mut HttpRequestFactory,
-        result: &mut Result<Response, OpenAIError>,
-    ) -> Option<Self::Future> {
-        // Once the response body is handed back to the caller we do not try to
-        // interpret it here. Retry policy stays shallow:
-        // - 5xx and 429 are retried
-        // - connect/timeout transport errors are retried
-        // - everything else is treated as a terminal failure
-        //
-        // That keeps transport concerns in the middleware layer while leaving
-        // API body parsing in `client.rs`.
-        if self.retries_remaining == 0 {
-            return None;
-        }
-
-        let should_retry = match result {
-            Ok(response) => {
-                let status = response.status();
-                status.is_server_error() || status.as_u16() == 429
-            }
-            #[cfg(not(target_family = "wasm"))]
-            Err(OpenAIError::Reqwest(error)) => error.is_connect() || error.is_timeout(),
-            #[cfg(target_family = "wasm")]
-            Err(OpenAIError::Reqwest(_)) => true,
-            #[cfg(feature = "middleware")]
-            Err(OpenAIError::Boxed(_)) => true,
-            _ => false,
-        };
-
-        if !should_retry {
-            return None;
-        }
-
-        let retry_after = result
-            .as_ref()
-            .ok()
-            .and_then(|response| response.headers().get(reqwest::header::RETRY_AFTER))
-            .and_then(|value| value.to_str().ok())
-            .and_then(|value| value.parse::<u64>().ok())
-            .map(std::time::Duration::from_secs);
-
-        let delay = retry_after.unwrap_or_else(|| {
-            // Exponential backoff is intentionally simple here: the purpose of
-            // this policy is to provide a reusable default that users can also
-            // compose or replace in tower. More advanced retry strategies can
-            // be layered on top without changing the client.
-            let delay = std::time::Duration::from_millis(500)
-                .saturating_mul(2_u32.saturating_pow(self.attempt));
-            self.attempt = self.attempt.saturating_add(1);
-            delay.min(std::time::Duration::from_secs(8))
-        });
-
-        self.retries_remaining -= 1;
-
-        #[cfg(target_family = "wasm")]
-        {
-            // wasm has no universal timer runtime. We still preserve retry
-            // behavior by immediately replaying the request factory; callers
-            // that need timed backoff can install a wasm-runtime-compatible
-            // tower layer in their own service stack.
-            let _ = delay;
-            return Some(Box::pin(std::future::ready(())));
-        }
-
-        #[cfg(not(target_family = "wasm"))]
-        Some(Box::pin(tokio::time::sleep(delay)))
-    }
-
-    fn clone_request(&mut self, req: &HttpRequestFactory) -> Option<HttpRequestFactory> {
-        // Retry requires a fresh factory for each attempt. Cloning the factory
-        // is intentionally cheap because it only clones the shared `Arc`, not
-        // the underlying request payload.
-        Some(req.clone())
     }
 }
 

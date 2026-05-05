@@ -27,8 +27,9 @@
 //!
 //! To install tower-compatible HTTP middleware, enable the `middleware` feature and provide a
 //! custom service with `Client::with_http_service(...)`. The middleware surface is namespaced
-//! under [`middleware`] and exposes `HttpRequestFactory`, `HttpRetryPolicy`, and `ReqwestService`
-//! so retry and request rebuilding can be composed in tower layers.
+//! under [`middleware`] and exposes `HttpRequestFactory` and `ReqwestService`
+//! so request rebuilding and transport layers can be composed with tower.
+//! Retry helpers are exposed under [`retry`].
 //!
 //!
 //! ## Making requests
@@ -290,6 +291,8 @@ pub mod middleware;
 mod realtime;
 #[cfg(feature = "_api")]
 mod request_options;
+#[cfg(feature = "_api")]
+pub mod retry;
 #[cfg(feature = "responses")]
 mod responses;
 #[cfg(feature = "skill")]
