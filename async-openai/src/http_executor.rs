@@ -94,7 +94,7 @@ impl HttpRequestFactory {
 ///
 /// The executor sees the replayable factory rather than a built request so it
 /// can decide when to rebuild and send. That keeps the retry decision close to
-/// transport execution and avoids forcing every call site to know whether a
+/// execution and avoids forcing every call site to know whether a
 /// request body is cloneable.
 #[cfg(not(target_family = "wasm"))]
 pub trait HttpExecutor: Send + Sync {
