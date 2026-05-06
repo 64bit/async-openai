@@ -1037,7 +1037,8 @@ mod tests {
                 json!({ "stream": true }),
                 &RequestOptions::new(),
             )
-            .await;
+            .await
+            .unwrap();
 
         let first = stream.next().await.unwrap().unwrap();
 
