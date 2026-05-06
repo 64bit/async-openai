@@ -122,6 +122,15 @@
 //! When `middleware` feature is enabled additional [`MiddlewareInput`] bounds are added
 //! based on native or WASM targets so the input can be stored long enough to
 //! rebuild a fresh request for retries.
+//!
+//! ## Error Handling
+//!
+//! `OpenAIError::Boxed` is available only when the `middleware` feature is enabled.
+//!
+//! Custom middleware services installed with `Client::with_http_service` may use any error type that implements `Into<OpenAIError>`. This lets middleware preserve structured errors when it has a dedicated `OpenAIError` conversion.
+//!
+//! Tower's `BoxError` converts into `OpenAIError::Boxed`, which is useful for generic tower layers whose concrete error type is erased. Callers can still downcast the boxed error when they know the original error type.
+//!
 
 /// Retry layers and policies for middleware.
 pub mod retry {
