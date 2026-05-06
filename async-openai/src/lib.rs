@@ -29,7 +29,7 @@
 //! custom service with `Client::with_http_service(...)`. The middleware surface is namespaced
 //! under [`middleware`] and exposes `HttpRequestFactory` and `ReqwestService`
 //! so request rebuilding and transport layers can be composed with tower.
-//! Retry helpers are exposed under [`retry`].
+//! Retry helpers are exposed under [`middleware::retry`].
 //!
 //!
 //! ## Making requests
@@ -298,7 +298,9 @@ mod request_options;
 #[cfg(feature = "responses")]
 mod responses;
 #[cfg(feature = "_api")]
-pub mod retry;
+#[allow(dead_code)]
+#[path = "middleware/retry/mod.rs"]
+mod retry;
 #[cfg(feature = "skill")]
 mod skills;
 #[cfg(feature = "_api")]

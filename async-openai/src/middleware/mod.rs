@@ -41,7 +41,7 @@
 //!
 //! ```no_run
 //! # use async_openai::{Client, config::OpenAIConfig};
-//! # use async_openai::{middleware::ReqwestService, retry::OpenAIRetryLayer};
+//! # use async_openai::middleware::{retry::OpenAIRetryLayer, ReqwestService};
 //! # use std::time::Duration;
 //! let service = tower::ServiceBuilder::new()
 //!     .concurrency_limit(8)
@@ -79,10 +79,10 @@
 //!
 //! ## Retry layer
 //!
-//! [`crate::retry::OpenAIRetryLayer`] is public so it can be composed anywhere in your tower
+//! [`retry::OpenAIRetryLayer`] is public so it can be composed anywhere in your tower
 //! stack. The default async-openai client uses this layer internally to
 //! preserve the library's default retry behavior. When you provide your own
-//! service with `Client::with_http_service`, place [`crate::retry::OpenAIRetryLayer`] wherever
+//! service with `Client::with_http_service`, place [`retry::OpenAIRetryLayer`] wherever
 //! it makes sense for your stack.
 //!
 //! The layer retries:
@@ -97,7 +97,7 @@
 //! before deciding whether the error is retryable. This is how it avoids
 //! retrying quota exhaustion that also arrives with HTTP status `429`.
 //!
-//! [`crate::retry::SimpleRetryPolicy`] and [`crate::retry::should_retry`] remain
+//! [`retry::SimpleRetryPolicy`] and [`retry::should_retry`] remain
 //! available for users who want a status-only Tower retry policy.
 //!
 //! On native targets the layer waits using `tokio::time::sleep` with a simple
@@ -124,5 +124,20 @@
 //! the input can be stored long enough to rebuild a fresh form for retries.
 //! This preserves streaming multipart behavior instead of buffering entire
 //! forms into memory.
+
+/// Retry layers and policies for middleware service stacks.
+///
+/// [`OpenAIRetryLayer`](retry::OpenAIRetryLayer) is the default OpenAI-aware
+/// tower retry layer. It retries rate limits, server errors, and native
+/// connect errors, and it consumes `429` response bodies to distinguish
+/// retryable rate limits from permanent quota exhaustion.
+///
+/// [`SimpleRetryPolicy`](retry::SimpleRetryPolicy) is also available for users
+/// who want a status-only [`tower::retry::Policy`] that does not consume
+/// response bodies.
+pub mod retry {
+    #[doc(inline)]
+    pub use crate::retry::*;
+}
 
 pub use crate::executor::{HttpExecutor, HttpRequestFactory, MiddlewareInput, ReqwestService};

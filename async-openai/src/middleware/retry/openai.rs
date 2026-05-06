@@ -20,7 +20,7 @@ type RetryFuture = Pin<Box<dyn Future<Output = Result<Response, OpenAIError>> + 
 /// This layer consumes response body to check if 429 is from rate limit (retryable) or insufficient quota (permanent)
 /// that's why any layer above it could receive OpenAIError as a result of parsing response body.
 ///
-/// This is why [crate::retry::SimpleRetryPolicy] is also available which doesn't consume response body.
+/// This is why [`crate::middleware::retry::SimpleRetryPolicy`] is also available which doesn't consume response body.
 #[derive(Clone)]
 pub struct OpenAIRetryLayer {
     max_retries: usize,

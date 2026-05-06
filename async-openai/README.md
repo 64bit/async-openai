@@ -283,8 +283,7 @@ and compose your layers around it.
 use async_openai::{
     config::OpenAIConfig,
     Client,
-    middleware::ReqwestService,
-    retry::OpenAIRetryLayer,
+    middleware::{retry::OpenAIRetryLayer, ReqwestService},
 };
 use tower::{util::BoxCloneSyncService, ServiceBuilder};
 
@@ -372,7 +371,8 @@ The public retry layer, `OpenAIRetryLayer`, is exposed so you can place it anywh
 stack. It retries rate limits (`429`), server errors (`5xx`), parsed retryable API errors, and
 native connect errors. It parses `429` error bodies before retrying so quota exhaustion is treated
 as permanent instead of being retried as an ordinary rate limit. `SimpleRetryPolicy` and
-`async_openai::retry::should_retry` remain available if you want a status-only tower retry policy.
+`async_openai::middleware::retry::should_retry` remain available if you want a status-only tower
+retry policy.
 
 ## Contributing
 
