@@ -98,3 +98,9 @@ jobs:
         env:
           RUSTFLAGS: "-D warnings"
         run: cargo build --no-default-features --features ${{ matrix.feature }} --verbose --target ${{ matrix.target }}
+
+      - name: Build with feature ${{ matrix.feature }}, middleware, and target ${{ matrix.target }}
+        if: ${{ !contains(matrix.feature, 'types') }}
+        env:
+          RUSTFLAGS: "-D warnings"
+        run: cargo build --no-default-features --features ${{ matrix.feature }},middleware --verbose --target ${{ matrix.target }}
