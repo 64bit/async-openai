@@ -775,16 +775,6 @@ impl<C: Config> Client<C> {
         Ok(stream(response).await)
     }
 
-    #[cfg(not(target_family = "wasm"))]
-    async fn execute_raw(
-        &self,
-        request_factory: HttpRequestFactory,
-    ) -> Result<(Bytes, HeaderMap), OpenAIError> {
-        let response = self.execute_response(request_factory).await?;
-        read_response(response).await
-    }
-
-    #[cfg(target_family = "wasm")]
     async fn execute_raw(
         &self,
         request_factory: HttpRequestFactory,
@@ -805,15 +795,6 @@ impl<C: Config> Client<C> {
         Ok(response)
     }
 
-    #[cfg(not(target_family = "wasm"))]
-    async fn execute_response(
-        &self,
-        request_factory: HttpRequestFactory,
-    ) -> Result<Response, OpenAIError> {
-        self.executor.execute(request_factory).await
-    }
-
-    #[cfg(target_family = "wasm")]
     async fn execute_response(
         &self,
         request_factory: HttpRequestFactory,
