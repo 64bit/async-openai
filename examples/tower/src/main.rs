@@ -3,8 +3,11 @@ use std::time::Duration;
 
 use async_openai::config::OpenAIConfig;
 use async_openai::error::OpenAIError;
-use async_openai::middleware::ReqwestService;
-use async_openai::retry::{OpenAIRetryLayer, SimpleRetryPolicy};
+#[allow(unused_imports)]
+use async_openai::middleware::{
+    retry::{OpenAIRetryLayer, SimpleRetryPolicy},
+    ReqwestService,
+};
 use async_openai::types::chat::{
     ChatCompletionRequestMessage, CreateChatCompletionRequestArgs, CreateChatCompletionResponse,
 };
@@ -15,11 +18,10 @@ use tower::{util::BoxCloneSyncService, ServiceBuilder};
 async fn main() -> Result<(), Box<dyn Error>> {
     let base = ReqwestService::new(reqwest::Client::new());
     let service = ServiceBuilder::new()
-        .concurrency_limit(1)
-        .timeout(Duration::from_millis(700))
-        // .timeout(Duration::from_millis(700))
+        .concurrency_limit(10)
+        .timeout(Duration::from_secs(1))
         .layer(OpenAIRetryLayer::default())
-        // .retry(SimpleRetryPolicy::default())
+        // .retry(SimpleRetryPolicy::default()) / use this or the layer above but not both
         .service(base);
     let service = BoxCloneSyncService::new(service);
 
@@ -27,12 +29,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Spawn several concurrent tasks to test the concurrency_limit
     let mut handles = vec![];
-    for i in 0..1 {
+    for i in 0..10 {
         let client = client.clone();
         let handle = tokio::spawn(async move {
             // Build a simple chat completion request
             let request = CreateChatCompletionRequestArgs::default()
-                .model("gpt-3.5-turbo")
+                .model("gpt-5.4-mini")
                 .messages([ChatCompletionRequestMessage::User("hello".into())])
                 .build()
                 .unwrap();
@@ -62,8 +64,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // Wait for all tasks to complete
         let _ = handle.await;
     }
-    // let models = client.models().list().await?;
-    // println!("first model: {}", models.data[0].id);
 
     Ok(())
 }
