@@ -3,28 +3,30 @@
 //! Enable the `middleware` feature to customize the HTTP execution path with
 //! [`tower`] services and layers:
 //!
-//! ```toml
-//! async-openai = { version = "...", features = ["middleware", "responses"] }
-//! ```
-//!
 //! The middleware boundary is intentionally below the API groups and above the
-//! concrete HTTP transport:
+//! concrete HTTP transport, for example, a stack like this:
 //!
 //! ```text
 //! async-openai API groups
-//!     responses(), chat(), files(), ...
+//!   responses(), chat(), files(), ...
 //!             |
 //!             v
-//! HttpRequestFactory
+//!      HttpRequestFactory
 //!             |
 //!             v
-//! user tower layers and services
+//! +----- concurrency_limit ------+
+//! | +------- timeout ----------+ |
+//! | | +-- OpenAIRetryLayer --+ | |
+//! | | |                      | | |
+//! | | |  ReqwestService or   | | |
+//! | | |  custom service      | | |
+//! | | |                      | | |
+//! | | +-- OpenAIRetryLayer --+ | |
+//! | +------- timeout ----------+ |
+//! +----- concurrency_limit ------+
 //!             |
 //!             v
-//! ReqwestService or Custom Service
-//!             |
-//!             v
-//! reqwest::Response
+//!      reqwest::Response
 //! ```
 //!
 //! The request value passed through tower is [`HttpRequestFactory`], not
