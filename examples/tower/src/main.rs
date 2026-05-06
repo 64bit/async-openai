@@ -18,7 +18,7 @@ use tower::ServiceBuilder;
 async fn main() -> Result<(), Box<dyn Error>> {
     let service = ServiceBuilder::new()
         .concurrency_limit(10)
-        .timeout(Duration::from_secs(1))
+        .timeout(Duration::from_secs(2))
         .layer(OpenAIRetryLayer::default())
         // .retry(SimpleRetryPolicy::default()) / use this or the layer above but not both
         .service(ReqwestService::new(reqwest::Client::new()));
@@ -30,10 +30,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     for i in 0..10 {
         let client = client.clone();
         let handle = tokio::spawn(async move {
-            // Build a simple chat completion request
+            let a: i32 = rand::random_range(1..=100);
+            let b: i32 = rand::random_range(1..=100);
+
             let request = CreateChatCompletionRequestArgs::default()
                 .model("gpt-5.4-mini")
-                .messages([ChatCompletionRequestMessage::User("hello".into())])
+                .messages([ChatCompletionRequestMessage::User(
+                    format!("tell me a random joke, also add {a} and {b}").into(),
+                )])
                 .build()
                 .unwrap();
 
@@ -43,7 +47,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 Ok(response) => {
                     if let Some(choice) = response.choices.first() {
                         if let Some(content) = &choice.message.content {
-                            println!("Task {i}: Chat completion = {}", content);
+                            println!("Task {i}: Chat completion => \n{}\n", content);
                         } else {
                             println!("Task {i}: No content in completion.");
                         }
