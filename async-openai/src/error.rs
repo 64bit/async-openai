@@ -36,9 +36,6 @@ pub enum OpenAIError {
 #[cfg(all(feature = "_api", feature = "middleware"))]
 impl From<tower::BoxError> for OpenAIError {
     fn from(error: tower::BoxError) -> Self {
-        // Tower layers often erase their concrete errors into `BoxError` when
-        // stacks are composed. Preserve the boxed source instead of flattening
-        // it to a string so callers can still inspect/downcast the real error.
         OpenAIError::Boxed(error)
     }
 }
