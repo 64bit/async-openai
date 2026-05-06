@@ -25,12 +25,6 @@
 //! let client = Client::new().with_http_client(http_client);
 //! ```
 //!
-//! To install tower-compatible HTTP middleware, enable the `middleware` feature and provide a
-//! custom service with `Client::with_http_service(...)`. The middleware surface is namespaced
-//! under [`middleware`] and exposes `HttpRequestFactory` and `ReqwestService`
-//! so request rebuilding and transport layers can be composed with tower.
-//! Retry helpers are exposed under [`middleware::retry`].
-//!
 //!
 //! ## Making requests
 //!
