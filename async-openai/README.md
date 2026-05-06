@@ -238,7 +238,7 @@ fn chat_completion(client: &Client<Box<dyn Config>>) {
 
 ## Middleware
 
-Middleware is supported via Tower ecosystem. See [middleware](middleware.md) for more detail.
+Middleware is supported via Tower ecosystem. See [middleware](MIDDLEWARE.md) for more detail.
 
 ## Contributing
 
