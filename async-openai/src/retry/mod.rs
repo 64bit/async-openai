@@ -1,14 +1,18 @@
 //! Retry utilities.
 //!
-//! The retry module is available when API features are enabled. It contains
-//! [`OpenAIRetryLayer`], the default OpenAI-aware tower retry layer, plus
-//! [`SimpleRetryPolicy`] and [`should_retry`] for status-only tower retry
-//! composition.
+//! [`OpenAIRetryLayer`] is Tower layer and [`SimpleRetryPolicy`] is Tower retry policy.
+//!
+//! Both retires on 429, 5xx and connection errors.
+//!
+//! The differnce is that upon seeing 429, [OpenAIRetryLayer] consumes response body to check if it is rate
+//! limit (retryable error) or insufficient quota (permanent error).
+//!
+//!
+//! [SimpleRetryPolicy] uses [`should_retry`] to determine if the request should be retried.
 //!
 //! The retry boundary is [`crate::middleware::HttpRequestFactory`]. Retrying
 //! clones the factory and rebuilds a fresh `reqwest::Request` for each attempt
-//! instead of cloning a built request. That matters for multipart and streaming
-//! bodies, because `reqwest::Request` is not generally cloneable.
+//! instead of cloning a built request. That matters because `reqwest::Request` is not Clone.
 //!
 //! Custom tower retry policies can call [`should_retry`] to reuse the same
 //! retry classification while changing delay behavior.
@@ -60,7 +64,7 @@ fn log_rate_limit_headers(headers: &HeaderMap) {
     }
 }
 
-/// Return whether async-openai's simple retry policy should retry this result.
+/// Return whether [SimpleRetryPolicy] should retry this result.
 ///
 /// It retries only:
 ///
@@ -81,7 +85,7 @@ pub fn should_retry(result: &Result<Response, OpenAIError>) -> bool {
     }
 }
 
-/// Simple [`tower::retry::Policy`] for async-openai HTTP requests.
+/// Simple [`tower::retry::Policy`] for OpenAI compatible APIs.
 ///
 /// `SimpleRetryPolicy` retries rate limits, server errors, and native connect
 /// errors. It can be used directly with [`tower::ServiceBuilder::retry`]
