@@ -44,7 +44,7 @@ Features that makes `async-openai` unique:
 - Ergonomic builder pattern for all request objects.
 - Granular feature flags to enable any types or apis: good for faster compilation and crate reuse.
 - Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec).
-- WASM (doesn't include streaming yet)
+- WASM (doesn't support streaming yet)
 - Middleware support with [tower](https://crates.io/crates/tower) ecosystem
 
 ## Usage
