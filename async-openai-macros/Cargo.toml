@@ -1,6 +1,6 @@
 [package]
 name = "async-openai-macros"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Himanshu Neema"]
 keywords = ["openai", "macros", "ai"]
 description = "Macros for async-openai"
@@ -13,6 +13,9 @@ readme = "README.md"
 
 [lib]
 proc-macro = true
+
+[features]
+middleware = []
 
 [dependencies]
 syn = { version = "2.0", features = ["full"] }

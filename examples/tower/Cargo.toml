@@ -1,0 +1,12 @@
+[package]
+name = "tower-example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+async-openai = { path = "../../async-openai", features = ["middleware", "chat-completion", "byot"] }
+rand = "0.9"
+reqwest = { version = "0.13", default-features = false }
+tokio = { version = "1", features = ["full"] }
+tower = { version = "0.5", features = ["limit", "retry", "util"] }

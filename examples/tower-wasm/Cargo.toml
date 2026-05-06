@@ -1,0 +1,17 @@
+[package]
+name = "tower-wasm"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-openai = { path = "../../async-openai", features = ["middleware", "responses"] }
+dioxus = { version = "0.7", features = ["web"] }
+dioxus-logger = "0.5"
+reqwest = { version = "0.13", default-features = false }
+tower = { version = "0.5", features = ["retry", "util"] }
+tracing = "0.1"
+web-sys = { version = "0.3.97", features = ["console"] }
+
+[profile.release]
+opt-level = "z"
+lto = true

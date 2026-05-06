@@ -61,10 +61,9 @@ impl<'c, C: Config> Images<'c, C> {
             request.stream = Some(true);
         }
 
-        Ok(self
-            .client
+        self.client
             .post_stream("/images/generations", request, &self.request_options)
-            .await)
+            .await
     }
 
     /// Creates an edited or extended image given one or more source images and a prompt.

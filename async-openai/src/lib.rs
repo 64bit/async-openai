@@ -118,8 +118,8 @@
 //! These granular types are enabled when the corresponding API feature is enabled - for example `responses` will enable `response-types`.
 //!
 //! ## WASM
-//! For WASM targets streaming, retries, file operations are not implemented yet.
-//! See [examples/wasm-responses](https://github.com/64bit/async-openai/tree/main/examples/wasm-responses) for a working example.
+//! For WASM targets SSE streaming is not implemented yet.
+//! See [examples/wasm-responses](https://github.com/64bit/async-openai/tree/main/examples/wasm-responses) or [examples/tower-wasm](https://github.com/64bit/async-openai/tree/main/examples/tower-wasm).
 //!
 //! ## Configurable Requests
 //!
@@ -219,15 +219,21 @@
 //! ```
 //!
 //!
+//! ## Middleware
+//!
+//! Middleware is supported via Tower ecosystem. See [`middleware`] for more detail.
+//!
 //! ## Examples
 //! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //!
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(all(feature = "_api", feature = "byot"))]
+#[allow(unused_imports)]
 pub(crate) use async_openai_macros::byot;
 
 #[cfg(all(feature = "_api", not(feature = "byot")))]
+#[allow(unused_imports)]
 pub(crate) use async_openai_macros::byot_passthrough as byot;
 
 // #[cfg(all(not(feature = "_api"), not(feature = "byot")))]
@@ -265,6 +271,8 @@ mod embedding;
 pub mod error;
 #[cfg(feature = "evals")]
 mod evals;
+#[cfg(feature = "_api")]
+mod executor;
 #[cfg(feature = "file")]
 mod file;
 #[cfg(feature = "finetuning")]
@@ -273,6 +281,8 @@ mod fine_tuning;
 mod image;
 #[cfg(feature = "_api")]
 mod impls;
+#[cfg(feature = "middleware")]
+pub mod middleware;
 #[cfg(feature = "model")]
 mod model;
 #[cfg(feature = "moderation")]
@@ -283,6 +293,10 @@ mod realtime;
 mod request_options;
 #[cfg(feature = "responses")]
 mod responses;
+#[cfg(feature = "_api")]
+#[allow(dead_code)]
+#[path = "middleware/retry/mod.rs"]
+mod retry;
 #[cfg(feature = "skill")]
 mod skills;
 #[cfg(feature = "_api")]

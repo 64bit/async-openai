@@ -1,0 +1,13 @@
+[package]
+name = "middleware"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+async-openai = { path = "../../async-openai", features = ["middleware", "model", "chat-completion"] }
+futures = "0.3"
+http = "1"
+reqwest = { version = "0.13", default-features = false }
+tokio = { version = "1", features = ["full"] }
+tower = { version = "0.5", features = ["limit", "util"] }

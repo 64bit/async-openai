@@ -12,6 +12,7 @@ pub struct RequestOptions {
 }
 
 impl RequestOptions {
+    #[allow(dead_code)]
     pub(crate) fn new() -> Self {
         Self {
             query: None,

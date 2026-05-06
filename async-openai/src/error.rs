@@ -23,10 +23,21 @@ pub enum OpenAIError {
     /// Error on SSE streaming
     #[error("stream failed: {0}")]
     StreamError(Box<StreamError>),
+    /// Error from middlewares
+    #[cfg(feature = "middleware")]
+    #[error(transparent)]
+    Boxed(Box<dyn std::error::Error + Send + Sync + 'static>),
     /// Error from client side validation
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]
     InvalidArgument(String),
+}
+
+#[cfg(all(feature = "_api", feature = "middleware"))]
+impl From<tower::BoxError> for OpenAIError {
+    fn from(error: tower::BoxError) -> Self {
+        OpenAIError::Boxed(error)
+    }
 }
 
 // no streaming support for wasm yet
@@ -42,6 +53,10 @@ pub enum OpenAIError {
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: error:{0} content:{1}")]
     JSONDeserialize(serde_json::Error, String),
+    /// Error from middlewares
+    #[cfg(feature = "middleware")]
+    #[error(transparent)]
+    Boxed(Box<dyn std::error::Error + 'static>),
     /// Error from client side validation
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]

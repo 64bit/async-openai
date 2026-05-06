@@ -44,7 +44,8 @@ Features that makes `async-openai` unique:
 - Ergonomic builder pattern for all request objects.
 - Granular feature flags to enable any types or apis: good for faster compilation and crate reuse.
 - Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec).
-- WASM (doesn't include streaming and retry support yet)
+- WASM (doesn't support streaming yet)
+- Middleware support with [tower](https://crates.io/crates/tower) ecosystem
 
 ## Usage
 
@@ -235,6 +236,10 @@ fn chat_completion(client: &Client<Box<dyn Config>>) {
     todo!() 
 }
 ```
+
+## Middleware
+
+Middleware is supported via Tower ecosystem, which can be enabled with `middleware` feature. See [middleware](https://github.com/64bit/async-openai/blob/main/async-openai/MIDDLEWARE.md) for more detail.
 
 ## Contributing
 
