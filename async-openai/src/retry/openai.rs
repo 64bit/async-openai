@@ -107,10 +107,11 @@ where
 
     fn call(&mut self, request: HttpRequestFactory) -> Self::Future {
         let clone = self.inner.clone();
-        let service = std::mem::replace(&mut self.inner, clone);
+        let mut service = std::mem::replace(&mut self.inner, clone);
+        let first_attempt = service.call(request.clone());
         let max_retries = self.max_retries;
 
-        Box::pin(async move { retry_request(service, request, max_retries).await })
+        Box::pin(async move { retry_request(service, first_attempt, request, max_retries).await })
     }
 }
 
@@ -135,15 +136,17 @@ where
 
     fn call(&mut self, request: HttpRequestFactory) -> Self::Future {
         let clone = self.inner.clone();
-        let service = std::mem::replace(&mut self.inner, clone);
+        let mut service = std::mem::replace(&mut self.inner, clone);
+        let first_attempt = service.call(request.clone());
         let max_retries = self.max_retries;
 
-        Box::pin(async move { retry_request(service, request, max_retries).await })
+        Box::pin(async move { retry_request(service, first_attempt, request, max_retries).await })
     }
 }
 
 async fn retry_request<S>(
     mut service: S,
+    first_attempt: S::Future,
     request: HttpRequestFactory,
     max_retries: usize,
 ) -> Result<Response, OpenAIError>
@@ -155,7 +158,7 @@ where
     let mut attempts = 0;
     let mut backoff_attempt = 0;
 
-    let mut result = service.call(request.clone()).await;
+    let mut result = first_attempt.await;
 
     loop {
         // In this match satatement return early if the error is not retryable.
@@ -207,7 +210,7 @@ where
 
         let delay = retry_after.unwrap_or_else(|| {
             let delay =
-                Duration::from_millis(500).saturating_mul(2_u32.saturating_pow(backoff_attempt));
+                Duration::from_millis(100).saturating_mul(2_u32.saturating_pow(backoff_attempt));
             backoff_attempt = backoff_attempt.saturating_add(1);
             delay.min(Duration::from_secs(8))
         });

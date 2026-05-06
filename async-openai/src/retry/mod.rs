@@ -154,7 +154,7 @@ impl tower::retry::Policy<HttpRequestFactory, Response, OpenAIError> for SimpleR
             .map(std::time::Duration::from_secs);
 
         let delay = retry_after.unwrap_or_else(|| {
-            let delay = std::time::Duration::from_millis(500)
+            let delay = std::time::Duration::from_millis(100)
                 .saturating_mul(2_u32.saturating_pow(self.backoff_attempt));
             self.backoff_attempt = self.backoff_attempt.saturating_add(1);
             delay.min(std::time::Duration::from_secs(8))
