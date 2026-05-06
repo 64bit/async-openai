@@ -7,8 +7,7 @@ use std::{
 use async_openai::{
     config::OpenAIConfig,
     error::OpenAIError,
-    middleware::{HttpRequestFactory, ReqwestService},
-    retry::SimpleRetryPolicy,
+    middleware::{retry::SimpleRetryPolicy, HttpRequestFactory, ReqwestService},
     types::responses::CreateResponseArgs,
     Client,
 };

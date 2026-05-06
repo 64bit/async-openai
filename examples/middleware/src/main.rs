@@ -6,8 +6,7 @@ use std::sync::{
 
 use async_openai::config::OpenAIConfig;
 use async_openai::error::OpenAIError;
-use async_openai::middleware::HttpRequestFactory;
-use async_openai::retry::OpenAIRetryLayer;
+use async_openai::middleware::{retry::OpenAIRetryLayer, HttpRequestFactory};
 use async_openai::types::chat::{
     ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
 };
