@@ -442,14 +442,7 @@ impl<C: Config> Client<C> {
     {
         // Multipart is the reason the factory exists.
         //
-        // The original code buffered multipart into memory so the client could
-        // retry it. That worked, but it destroyed the streaming behavior of
-        // file-backed parts. Instead we keep the original request object and
-        // rebuild a fresh `Form` for every attempt.
-        //
-        // `Mutex` is only here to make the captured state `Sync` so the request
-        // factory can live behind `Arc<dyn Fn()>`. It is not used to serialize
-        // network access, only to guard the cloneable request input.
+        // `Mutex` is only here to make the captured state `Sync`
         let form = Arc::new(Mutex::new(form));
         let request_parts = self.build_request_parts(method, path, request_options);
 
