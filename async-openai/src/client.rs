@@ -1,7 +1,7 @@
 #[cfg(not(target_family = "wasm"))]
 use std::pin::Pin;
 use std::sync::Arc;
-#[cfg(feature = "middleware")]
+#[cfg(not(target_family = "wasm"))]
 use std::sync::Mutex;
 
 use bytes::Bytes;
@@ -21,6 +21,23 @@ use crate::{
     traits::AsyncTryFrom,
     RequestOptions,
 };
+
+struct RequestParts {
+    request_client: reqwest::Client,
+    method: reqwest::Method,
+    url: String,
+    headers: HeaderMap,
+    query: Vec<(String, String)>,
+}
+
+impl RequestParts {
+    fn build_request_builder(&self) -> reqwest::RequestBuilder {
+        self.request_client
+            .request(self.method.clone(), self.url.clone())
+            .query(&self.query)
+            .headers(self.headers.clone())
+    }
+}
 
 #[cfg(feature = "administration")]
 use crate::admin::Admin;
@@ -326,57 +343,37 @@ impl<C: Config> Client<C> {
         &self.config
     }
 
-    fn build_request_builder_from_parts(
-        request_client: reqwest::Client,
-        method: reqwest::Method,
-        url: String,
-        config_headers: HeaderMap,
-        config_query: Vec<(String, String)>,
-        request_options: RequestOptions,
-    ) -> reqwest::RequestBuilder {
-        let mut request_builder = request_client.request(method, url);
-
-        request_builder = request_builder.query(&config_query).headers(config_headers);
-
-        if let Some(headers) = request_options.headers() {
-            request_builder = request_builder.headers(headers.clone());
-        }
-
-        if !request_options.query().is_empty() {
-            request_builder = request_builder.query(request_options.query());
-        }
-
-        request_builder
-    }
-
-    #[cfg(not(feature = "middleware"))]
-    fn build_request_builder(
+    fn build_request_parts(
         &self,
         method: reqwest::Method,
         path: &str,
         request_options: &RequestOptions,
-    ) -> reqwest::RequestBuilder {
+    ) -> Arc<RequestParts> {
         let url = if let Some(path) = request_options.path() {
             self.config.url(path.as_str())
         } else {
             self.config.url(path)
         };
-        let config_headers = self.config.headers();
-        let config_query = self
+        let mut headers = self.config.headers();
+        if let Some(request_headers) = request_options.headers() {
+            headers.extend(request_headers.clone());
+        }
+
+        let mut query = self
             .config
             .query()
             .into_iter()
             .map(|(key, value)| (key.to_string(), value.to_string()))
             .collect::<Vec<_>>();
+        query.extend_from_slice(request_options.query());
 
-        Self::build_request_builder_from_parts(
-            self.request_client.clone(),
+        Arc::new(RequestParts {
+            request_client: self.request_client.clone(),
             method,
             url,
-            config_headers,
-            config_query,
-            request_options.clone(),
-        )
+            headers,
+            query,
+        })
     }
 
     fn build_request_factory(
@@ -385,43 +382,14 @@ impl<C: Config> Client<C> {
         path: &str,
         request_options: &RequestOptions,
     ) -> HttpRequestFactory {
-        // Simple requests capture only immutable routing/context data. The
-        // actual `reqwest::Request` is rebuilt later so retries never need to
-        // clone a half-built request.
-        let request_client = self.request_client.clone();
-        let url = if let Some(path) = request_options.path() {
-            self.config.url(path.as_str())
-        } else {
-            self.config.url(path)
-        };
-        let config_headers = self.config.headers();
-        let config_query = self
-            .config
-            .query()
-            .into_iter()
-            .map(|(key, value)| (key.to_string(), value.to_string()))
-            .collect::<Vec<_>>();
-        let request_options = request_options.clone();
+        let request_parts = self.build_request_parts(method, path, request_options);
 
         HttpRequestFactory::new(move || {
-            let request_client = request_client.clone();
-            let url = url.clone();
-            let config_headers = config_headers.clone();
-            let config_query = config_query.clone();
-            let request_options = request_options.clone();
-            let method = method.clone();
+            let request_parts = request_parts.clone();
 
             async move {
-                let request_builder = Self::build_request_builder_from_parts(
-                    request_client,
-                    method,
-                    url,
-                    config_headers,
-                    config_query,
-                    request_options,
-                );
-
-                Ok(request_builder.build()?)
+                let request = request_parts.build_request_builder().build()?;
+                Ok(request)
             }
         })
     }
@@ -443,48 +411,24 @@ impl<C: Config> Client<C> {
         let request = Bytes::from(serde_json::to_vec(&request).map_err(|error| {
             OpenAIError::InvalidArgument(format!("failed to serialize request: {error}"))
         })?);
-        let request_client = self.request_client.clone();
-        let url = if let Some(path) = request_options.path() {
-            self.config.url(path.as_str())
-        } else {
-            self.config.url(path)
-        };
-        let config_headers = self.config.headers();
-        let config_query = self
-            .config
-            .query()
-            .into_iter()
-            .map(|(key, value)| (key.to_string(), value.to_string()))
-            .collect::<Vec<_>>();
-        let request_options = request_options.clone();
+        let request_parts = self.build_request_parts(method, path, request_options);
 
         Ok(HttpRequestFactory::new(move || {
-            let request_client = request_client.clone();
-            let url = url.clone();
-            let config_headers = config_headers.clone();
-            let config_query = config_query.clone();
-            let request_options = request_options.clone();
-            let method = method.clone();
+            let request_parts = request_parts.clone();
             let request = request.clone();
 
             async move {
-                let request_builder = Self::build_request_builder_from_parts(
-                    request_client,
-                    method,
-                    url,
-                    config_headers,
-                    config_query,
-                    request_options,
-                )
-                .header(reqwest::header::CONTENT_TYPE, "application/json")
-                .body(request.clone());
+                let request_builder = request_parts
+                    .build_request_builder()
+                    .header(reqwest::header::CONTENT_TYPE, "application/json")
+                    .body(request.clone());
 
                 Ok(request_builder.build()?)
             }
         }))
     }
 
-    #[cfg(feature = "middleware")]
+    #[cfg(not(target_family = "wasm"))]
     async fn build_request_factory_with_form<F>(
         &self,
         method: reqwest::Method,
@@ -507,28 +451,10 @@ impl<C: Config> Client<C> {
         // factory can live behind `Arc<dyn Fn()>`. It is not used to serialize
         // network access, only to guard the cloneable request input.
         let form = Arc::new(Mutex::new(form));
-        let request_client = self.request_client.clone();
-        let url = if let Some(path) = request_options.path() {
-            self.config.url(path.as_str())
-        } else {
-            self.config.url(path)
-        };
-        let config_headers = self.config.headers();
-        let config_query = self
-            .config
-            .query()
-            .into_iter()
-            .map(|(key, value)| (key.to_string(), value.to_string()))
-            .collect::<Vec<_>>();
-        let request_options = request_options.clone();
+        let request_parts = self.build_request_parts(method, path, request_options);
 
         Ok(HttpRequestFactory::new(move || {
-            let request_client = request_client.clone();
-            let url = url.clone();
-            let config_headers = config_headers.clone();
-            let config_query = config_query.clone();
-            let request_options = request_options.clone();
-            let method = method.clone();
+            let request_parts = request_parts.clone();
             let form = form.clone();
 
             async move {
@@ -541,15 +467,34 @@ impl<C: Config> Client<C> {
                     .expect("multipart request factory mutex poisoned")
                     .clone();
                 let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
-                let request_builder = Self::build_request_builder_from_parts(
-                    request_client,
-                    method,
-                    url,
-                    config_headers,
-                    config_query,
-                    request_options,
-                )
-                .multipart(form);
+                let request_builder = request_parts.build_request_builder().multipart(form);
+
+                Ok(request_builder.build()?)
+            }
+        }))
+    }
+
+    #[cfg(target_family = "wasm")]
+    async fn build_request_factory_with_form<F>(
+        &self,
+        method: reqwest::Method,
+        path: &str,
+        form: F,
+        request_options: &RequestOptions,
+    ) -> Result<HttpRequestFactory, OpenAIError>
+    where
+        F: Clone + 'static,
+        Form: AsyncTryFrom<F, Error = OpenAIError>,
+    {
+        let request_parts = self.build_request_parts(method, path, request_options);
+
+        Ok(HttpRequestFactory::new(move || {
+            let request_parts = request_parts.clone();
+            let form = form.clone();
+
+            async move {
+                let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
+                let request_builder = request_parts.build_request_builder().multipart(form);
 
                 Ok(request_builder.build()?)
             }
@@ -641,7 +586,7 @@ impl<C: Config> Client<C> {
 
     /// POST a form at {path} and return the response body
     #[allow(unused)]
-    #[cfg(feature = "middleware")]
+    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn post_form_raw<F>(
         &self,
         path: &str,
@@ -660,7 +605,7 @@ impl<C: Config> Client<C> {
 
     /// POST a form at {path} and return the response body
     #[allow(unused)]
-    #[cfg(not(feature = "middleware"))]
+    #[cfg(target_family = "wasm")]
     pub(crate) async fn post_form_raw<F>(
         &self,
         path: &str,
@@ -668,24 +613,18 @@ impl<C: Config> Client<C> {
         request_options: &RequestOptions,
     ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
+        F: Clone + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
-        let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
-        let request = self
-            .build_request_builder(reqwest::Method::POST, path, request_options)
-            .multipart(form)
-            .build()?;
-        let response = self
-            .request_client
-            .execute(request)
-            .await
-            .map_err(OpenAIError::Reqwest)?;
-        read_response(response).await
+        let request_factory = self
+            .build_request_factory_with_form(reqwest::Method::POST, path, form, request_options)
+            .await?;
+        self.execute_raw(request_factory).await
     }
 
     /// POST a form at {path} and deserialize the response body
     #[allow(unused)]
-    #[cfg(feature = "middleware")]
+    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn post_form<O, F>(
         &self,
         path: &str,
@@ -705,7 +644,7 @@ impl<C: Config> Client<C> {
 
     /// POST a form at {path} and deserialize the response body
     #[allow(unused)]
-    #[cfg(not(feature = "middleware"))]
+    #[cfg(target_family = "wasm")]
     pub(crate) async fn post_form<O, F>(
         &self,
         path: &str,
@@ -714,19 +653,17 @@ impl<C: Config> Client<C> {
     ) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
+        F: Clone + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
-        let (bytes, _headers) = self.post_form_raw(path, form, request_options).await?;
-
-        let response: O = serde_json::from_slice(bytes.as_ref())
-            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
-
-        Ok(response)
+        let request_factory = self
+            .build_request_factory_with_form(reqwest::Method::POST, path, form, request_options)
+            .await?;
+        self.execute(request_factory).await
     }
 
     #[allow(unused)]
     #[cfg(not(target_family = "wasm"))]
-    #[cfg(feature = "middleware")]
     pub(crate) async fn post_form_stream<O, F>(
         &self,
         path: &str,
@@ -746,33 +683,6 @@ impl<C: Config> Client<C> {
             Err(error) => return Ok(error_stream(error)),
         };
         Ok(self.execute_stream(request_factory).await)
-    }
-
-    #[allow(unused)]
-    #[cfg(not(target_family = "wasm"))]
-    #[cfg(not(feature = "middleware"))]
-    pub(crate) async fn post_form_stream<O, F>(
-        &self,
-        path: &str,
-        form: F,
-        request_options: &RequestOptions,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
-    where
-        Form: AsyncTryFrom<F, Error = OpenAIError>,
-        O: DeserializeOwned + std::marker::Send + 'static,
-    {
-        let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
-        let request = self
-            .build_request_builder(reqwest::Method::POST, path, request_options)
-            .multipart(form)
-            .build()?;
-        let response = self
-            .request_client
-            .execute(request)
-            .await
-            .map_err(OpenAIError::Reqwest)?;
-
-        Ok(stream(response).await)
     }
 
     async fn execute_raw(
