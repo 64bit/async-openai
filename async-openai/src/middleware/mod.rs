@@ -79,62 +79,47 @@
 //!
 //! ## Retry layer
 //!
-//! [`retry::OpenAIRetryLayer`] is public so it can be composed anywhere in your tower
-//! stack. The default async-openai client uses this layer internally to
-//! preserve the library's default retry behavior. When you provide your own
-//! service with `Client::with_http_service`, place [`retry::OpenAIRetryLayer`] wherever
-//! it makes sense for your stack.
 //!
-//! The layer retries:
+//! [`retry::OpenAIRetryLayer`] is a Tower layer and [`retry::SimpleRetryPolicy`] is a Tower retry policy.
 //!
-//! - HTTP `429` responses.
-//! - HTTP `5xx` responses.
-//! - Parsed API errors, except `insufficient_quota`.
-//! - Native reqwest connect errors.
+//! Both retries with exponential backoff on `429`, `5xx` and connection errors and respects `Retry-After` header.
 //!
-//! Unlike a [`tower::retry::Policy`], this layer owns the full async retry loop,
-//! so it can consume a `429` response body and parse OpenAI's error shape
-//! before deciding whether the error is retryable. This is how it avoids
-//! retrying quota exhaustion that also arrives with HTTP status `429`.
+//! The difference is that upon seeing 429, `OpenAIRetryLayer` consumes response body to check if it is a rate
+//! limit (retryable error) or insufficient quota (permanent error). The default async-openai client uses this layer internally
+//! for library's default retry behavior.
 //!
-//! [`retry::SimpleRetryPolicy`] and [`retry::should_retry`] remain
-//! available for users who want a status-only Tower retry policy.
+//!
+//! The retry boundary is [`HttpRequestFactory`]. Retrying
+//! clones the factory and rebuilds a fresh `reqwest::Request` for each attempt
+//! instead of cloning a built request. That matters because `reqwest::Request` is not Clone.
+//!
+//! [`retry::SimpleRetryPolicy`] uses [`retry::should_retry`] to determine if a request should be retried.
+//!
+//! Custom tower retry policies can call [`retry::should_retry`] to reuse the same
+//! retry classification while changing delay behavior.
 //!
 //! On native targets the layer waits using `tokio::time::sleep` with a simple
-//! exponential backoff. On `wasm32` there is no universal timer runtime, so the
-//! layer retries immediately. If you need delayed wasm backoff, compose a
-//! wasm-runtime-compatible tower layer in your own service stack.
+//! exponential backoff. On `wasm` the layer retries immediately.
 //!
-//! ## Native and wasm bounds
+//! ## Native and WASM bounds
 //!
-//! Native reqwest futures are `Send`, so native middleware services installed
+//! The conceptual middleware boundary stays the same; only
+//! the platform thread-safety bounds differ.
+//!
+//! On native targets, middleware services installed
 //! with `Client::with_http_service` must be `Send + Sync + 'static` and return
 //! `Send + 'static` futures.
 //!
-//! In browsers, reqwest is backed by JavaScript promises and those futures are
-//! not `Send`. On wasm, async-openai relaxes the middleware service and future
-//! bounds accordingly. The conceptual middleware boundary stays the same; only
-//! the platform thread-safety bounds differ.
+//! On WASM targets, middleware services and futures must be `'static`.
 //!
-//! ## Bring-your-own-types interaction
+//! ## Bring Your Own Types (BYOT) interaction
 //!
-//! With the `byot` feature, generated `*_byot` methods keep their existing
-//! behavior for normal JSON requests. For replayable multipart/form requests
-//! under `middleware`, the generated methods add an internal hidden bound so
-//! the input can be stored long enough to rebuild a fresh form for retries.
-//! This preserves streaming multipart behavior instead of buffering entire
-//! forms into memory.
+//! With the `byot` feature, generated `*_byot` methods keep minimal trait bounds.
+//! When `middleware` feature is enabled, the generated methods add an internal `MiddlewareInput` bound
+//! based on native or WASM targets so the input can be stored long enough to
+//! rebuild a fresh request for retries.
 
-/// Retry layers and policies for middleware service stacks.
-///
-/// [`OpenAIRetryLayer`](retry::OpenAIRetryLayer) is the default OpenAI-aware
-/// tower retry layer. It retries rate limits, server errors, and native
-/// connect errors, and it consumes `429` response bodies to distinguish
-/// retryable rate limits from permanent quota exhaustion.
-///
-/// [`SimpleRetryPolicy`](retry::SimpleRetryPolicy) is also available for users
-/// who want a status-only [`tower::retry::Policy`] that does not consume
-/// response bodies.
+/// Retry layers and policies for middleware.
 pub mod retry {
     #[doc(inline)]
     pub use crate::retry::*;

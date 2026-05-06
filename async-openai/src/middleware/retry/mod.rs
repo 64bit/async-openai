@@ -1,22 +1,3 @@
-//! Retry utilities.
-//!
-//! [`OpenAIRetryLayer`] is Tower layer and [`SimpleRetryPolicy`] is Tower retry policy.
-//!
-//! Both retires on 429, 5xx and connection errors and honors Retry-After header.
-//!
-//! The differnce is that upon seeing 429, [OpenAIRetryLayer] consumes response body to check if it is rate
-//! limit (retryable error) or insufficient quota (permanent error).
-//!
-//!
-//! [SimpleRetryPolicy] uses [`should_retry`] to determine if the request should be retried.
-//!
-//! The retry boundary is [`crate::middleware::HttpRequestFactory`]. Retrying
-//! clones the factory and rebuilds a fresh `reqwest::Request` for each attempt
-//! instead of cloning a built request. That matters because `reqwest::Request` is not Clone.
-//!
-//! Custom tower retry policies can call [`should_retry`] to reuse the same
-//! retry classification while changing delay behavior.
-
 mod openai;
 
 pub use openai::{OpenAIRetry, OpenAIRetryLayer};
