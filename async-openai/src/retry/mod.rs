@@ -2,7 +2,7 @@
 //!
 //! [`OpenAIRetryLayer`] is Tower layer and [`SimpleRetryPolicy`] is Tower retry policy.
 //!
-//! Both retires on 429, 5xx and connection errors.
+//! Both retires on 429, 5xx and connection errors and honors Retry-After header.
 //!
 //! The differnce is that upon seeing 429, [OpenAIRetryLayer] consumes response body to check if it is rate
 //! limit (retryable error) or insufficient quota (permanent error).
