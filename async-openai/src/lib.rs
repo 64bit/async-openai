@@ -225,6 +225,10 @@
 //! ```
 //!
 //!
+//! ## Middleware
+//!
+//! Middleware is supported via Tower ecosystem. See [`middleware`] for more detail.
+//!
 //! ## Examples
 //! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //!
