@@ -163,6 +163,7 @@ where
     loop {
         // In this match satatement return early if the error is not retryable.
         let (final_result, headers, retry_after) = match result {
+            Ok(response) if response.status().is_success() => return Ok(response),
             Ok(response) if response.status().as_u16() == 429 => {
                 let headers = response.headers().clone();
                 let retry_after = retry_after(&headers);
