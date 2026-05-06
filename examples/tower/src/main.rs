@@ -12,18 +12,16 @@ use async_openai::types::chat::{
     ChatCompletionRequestMessage, CreateChatCompletionRequestArgs, CreateChatCompletionResponse,
 };
 use async_openai::Client;
-use tower::{util::BoxCloneSyncService, ServiceBuilder};
+use tower::ServiceBuilder;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let base = ReqwestService::new(reqwest::Client::new());
     let service = ServiceBuilder::new()
         .concurrency_limit(10)
         .timeout(Duration::from_secs(1))
         .layer(OpenAIRetryLayer::default())
         // .retry(SimpleRetryPolicy::default()) / use this or the layer above but not both
-        .service(base);
-    let service = BoxCloneSyncService::new(service);
+        .service(ReqwestService::new(reqwest::Client::new()));
 
     let client = Client::with_config(OpenAIConfig::default()).with_http_service(service);
 
