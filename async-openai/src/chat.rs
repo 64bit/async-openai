@@ -88,10 +88,9 @@ impl<'c, C: Config> Chat<'c, C> {
 
             request.stream = Some(true);
         }
-        Ok(self
-            .client
+        self.client
             .post_stream("/chat/completions", request, &self.request_options)
-            .await)
+            .await
     }
 
     /// List stored Chat Completions. Only Chat Completions that have been stored

@@ -429,7 +429,7 @@ impl<C: Config> Client<C> {
     }
 
     #[cfg(not(target_family = "wasm"))]
-    async fn build_request_factory_with_form<F>(
+    fn build_request_factory_with_form<F>(
         &self,
         method: reqwest::Method,
         path: &str,
@@ -468,7 +468,7 @@ impl<C: Config> Client<C> {
     }
 
     #[cfg(target_family = "wasm")]
-    async fn build_request_factory_with_form<F>(
+    fn build_request_factory_with_form<F>(
         &self,
         method: reqwest::Method,
         path: &str,
@@ -590,9 +590,12 @@ impl<C: Config> Client<C> {
         F: Clone + Send + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
-        let request_factory = self
-            .build_request_factory_with_form(reqwest::Method::POST, path, form, request_options)
-            .await?;
+        let request_factory = self.build_request_factory_with_form(
+            reqwest::Method::POST,
+            path,
+            form,
+            request_options,
+        )?;
         self.execute_raw(request_factory).await
     }
 
@@ -609,9 +612,12 @@ impl<C: Config> Client<C> {
         F: Clone + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
-        let request_factory = self
-            .build_request_factory_with_form(reqwest::Method::POST, path, form, request_options)
-            .await?;
+        let request_factory = self.build_request_factory_with_form(
+            reqwest::Method::POST,
+            path,
+            form,
+            request_options,
+        )?;
         self.execute_raw(request_factory).await
     }
 
@@ -629,9 +635,12 @@ impl<C: Config> Client<C> {
         F: Clone + Send + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
-        let request_factory = self
-            .build_request_factory_with_form(reqwest::Method::POST, path, form, request_options)
-            .await?;
+        let request_factory = self.build_request_factory_with_form(
+            reqwest::Method::POST,
+            path,
+            form,
+            request_options,
+        )?;
         self.execute(request_factory).await
     }
 
@@ -649,9 +658,12 @@ impl<C: Config> Client<C> {
         F: Clone + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
-        let request_factory = self
-            .build_request_factory_with_form(reqwest::Method::POST, path, form, request_options)
-            .await?;
+        let request_factory = self.build_request_factory_with_form(
+            reqwest::Method::POST,
+            path,
+            form,
+            request_options,
+        )?;
         self.execute(request_factory).await
     }
 
@@ -668,14 +680,14 @@ impl<C: Config> Client<C> {
         Form: AsyncTryFrom<F, Error = OpenAIError>,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let request_factory = match self
-            .build_request_factory_with_form(reqwest::Method::POST, path, form, request_options)
-            .await
-        {
-            Ok(request_factory) => request_factory,
-            Err(error) => return Ok(error_stream(error)),
-        };
-        Ok(self.execute_stream(request_factory).await)
+        let request_factory = self.build_request_factory_with_form(
+            reqwest::Method::POST,
+            path,
+            form,
+            request_options,
+        )?;
+
+        self.execute_stream(request_factory).await
     }
 
     async fn execute_raw(
@@ -709,16 +721,12 @@ impl<C: Config> Client<C> {
     async fn execute_stream<O>(
         &self,
         request_factory: HttpRequestFactory,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
     where
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        // The transport boundary is identical for unary and streaming calls.
-        // The only difference is what we do with the opened response body.
-        match self.execute_response(request_factory).await {
-            Ok(response) => stream(response).await,
-            Err(error) => error_stream(error),
-        }
+        let response = self.execute_response(request_factory).await?;
+        Ok(stream(response).await)
     }
 
     #[cfg(not(target_family = "wasm"))]
@@ -726,16 +734,12 @@ impl<C: Config> Client<C> {
         &self,
         request_factory: HttpRequestFactory,
         event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
     where
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        // Raw-event mapping still rides on the same request factory. This
-        // avoids having a second transport pipeline just for SSE variants.
-        match self.execute_response(request_factory).await {
-            Ok(response) => stream_mapped_raw_events(response, event_mapper).await,
-            Err(error) => error_stream(error),
-        }
+        let response = self.execute_response(request_factory).await?;
+        Ok(stream_mapped_raw_events(response, event_mapper).await)
     }
 
     /// Make HTTP POST request to receive SSE
@@ -746,20 +750,17 @@ impl<C: Config> Client<C> {
         path: &str,
         request: I,
         request_options: &RequestOptions,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
     where
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let request_factory = match self.build_request_factory_with_json(
+        let request_factory = self.build_request_factory_with_json(
             reqwest::Method::POST,
             path,
             request,
             request_options,
-        ) {
-            Ok(request_factory) => request_factory,
-            Err(error) => return error_stream(error),
-        };
+        )?;
         // Stream setup is still request/response first. We only create the SSE
         // stream after the HTTP layer has returned a response object.
         self.execute_stream(request_factory).await
@@ -773,22 +774,17 @@ impl<C: Config> Client<C> {
         request: I,
         request_options: &RequestOptions,
         event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
     where
         I: Serialize,
         O: DeserializeOwned + std::marker::Send + 'static,
     {
-        let request_factory = match self.build_request_factory_with_json(
+        let request_factory = self.build_request_factory_with_json(
             reqwest::Method::POST,
             path,
             request,
             request_options,
-        ) {
-            Ok(request_factory) => request_factory,
-            Err(error) => return error_stream(error),
-        };
-        // The raw-event stream uses the same transport path as the chunked
-        // stream. The difference is only the parser used once bytes arrive.
+        )?;
         self.execute_stream_mapped_raw_events(request_factory, event_mapper)
             .await
     }
@@ -800,14 +796,12 @@ impl<C: Config> Client<C> {
         &self,
         path: &str,
         request_options: &RequestOptions,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
     where
         O: DeserializeOwned + std::marker::Send + 'static,
     {
         let request_factory =
             self.build_request_factory(reqwest::Method::GET, path, request_options);
-        // GET-based SSE is intentionally routed through the same executor as
-        // POST-based SSE, so middleware behavior stays consistent.
         self.execute_stream(request_factory).await
     }
 }
@@ -838,19 +832,6 @@ async fn read_response(response: Response) -> Result<(Bytes, HeaderMap), OpenAIE
     }
 
     Ok((bytes, headers))
-}
-
-/// Request which responds with SSE.
-/// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-#[cfg(not(target_family = "wasm"))]
-fn error_stream<O>(error: OpenAIError) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
-where
-    O: DeserializeOwned + std::marker::Send + 'static,
-{
-    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-    let _ = tx.send(Err(error));
-
-    Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
 }
 
 /// Request which responds with SSE.

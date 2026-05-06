@@ -68,10 +68,9 @@ impl<'c, C: Config> Responses<'c, C> {
             }
             request.stream = Some(true);
         }
-        Ok(self
-            .client
+        self.client
             .post_stream("/responses", request, &self.request_options)
-            .await)
+            .await
     }
 
     /// Retrieves a model response with the given ID.
@@ -99,10 +98,9 @@ impl<'c, C: Config> Responses<'c, C> {
         let mut request_options = self.request_options.clone();
         request_options.with_query(&[("stream", "true")])?;
 
-        Ok(self
-            .client
+        self.client
             .get_stream(&format!("/responses/{}", response_id), &request_options)
-            .await)
+            .await
     }
 
     /// Deletes a model response with the given ID.

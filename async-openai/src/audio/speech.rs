@@ -60,9 +60,8 @@ impl<'c, C: Config> Speech<'c, C> {
 
             request.stream_format = Some(StreamFormat::SSE);
         }
-        Ok(self
-            .client
+        self.client
             .post_stream("/audio/speech", request, &self.request_options)
-            .await)
+            .await
     }
 }
