@@ -1,10 +1,10 @@
 //! Tower based middlewares
 //!
 //! Enable the `middleware` feature to customize the HTTP execution path with
-//! [`tower`] services and layers:
+//! Tower services and layers.
 //!
 //! The middleware boundary is intentionally below the API groups and above the
-//! concrete HTTP transport, for example, a stack like this:
+//! concrete HTTP transport, an example middleware stack:
 //!
 //! ```text
 //! async-openai API groups
