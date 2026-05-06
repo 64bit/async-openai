@@ -33,7 +33,7 @@ pub enum OpenAIError {
     InvalidArgument(String),
 }
 
-#[cfg(all(feature = "_api", feature = "middleware", not(target_family = "wasm")))]
+#[cfg(all(feature = "_api", feature = "middleware"))]
 impl From<tower::BoxError> for OpenAIError {
     fn from(error: tower::BoxError) -> Self {
         // Tower layers often erase their concrete errors into `BoxError` when
@@ -64,13 +64,6 @@ pub enum OpenAIError {
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]
     InvalidArgument(String),
-}
-
-#[cfg(all(feature = "_api", feature = "middleware", target_family = "wasm"))]
-impl From<tower::BoxError> for OpenAIError {
-    fn from(error: tower::BoxError) -> Self {
-        OpenAIError::Boxed(error)
-    }
 }
 
 #[cfg(not(feature = "_api"))]
