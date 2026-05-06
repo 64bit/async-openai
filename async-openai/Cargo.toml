@@ -129,6 +129,7 @@ full = [
     "completions",
     "types",
     "byot",
+    "middleware",
 ]
 
 # Internal feature to enable API dependencies
