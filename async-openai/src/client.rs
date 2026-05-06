@@ -451,10 +451,6 @@ impl<C: Config> Client<C> {
             let form = form.clone();
 
             async move {
-                // Clone the original request object for this attempt, then
-                // rebuild the multipart form from scratch. This preserves the
-                // streaming body produced by reqwest, while still giving us a
-                // replayable factory for retries.
                 let form = form
                     .lock()
                     .expect("multipart request factory mutex poisoned")
