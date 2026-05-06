@@ -1,4 +1,4 @@
-//! Tower-compatible middleware support for async-openai HTTP requests.
+//! Tower based middlewares
 //!
 //! Enable the `middleware` feature to customize the HTTP execution path with
 //! [`tower`] services and layers:
@@ -21,7 +21,7 @@
 //! user tower layers and services
 //!             |
 //!             v
-//! ReqwestService or custom transport
+//! ReqwestService or Custom Service
 //!             |
 //!             v
 //! reqwest::Response
@@ -33,11 +33,10 @@
 //! way to replay a request. The factory is cheap to clone and rebuilds a fresh
 //! `reqwest::Request` for each attempt.
 //!
-//! ## Use the default reqwest transport
+//! ## Use the Default `ReqwestService`
 //!
-//! [`ReqwestService`] is the default tower-compatible service backed by
-//! `reqwest::Client`. Start with it when you want tower layers but still want
-//! async-openai to use reqwest for the actual network I/O:
+//! [`ReqwestService`] is a tower service backed by `reqwest::Client`.
+//! It is used by default to make outbound HTTP requests.
 //!
 //! ```no_run
 //! # use async_openai::{Client, config::OpenAIConfig};
@@ -53,7 +52,7 @@
 //!     .with_http_service(service);
 //! ```
 //!
-//! ## Use a custom service
+//! ## Use a Custom Service
 //!
 //! You can replace [`ReqwestService`] entirely. This is useful for logging,
 //! metrics, tests, mocks, alternate transports, or policy layers that want to
@@ -65,6 +64,10 @@
 //! # use tower::service_fn;
 //! let service = service_fn(|factory: HttpRequestFactory| async move {
 //!     let request = factory.build().await?;
+//!
+//!     // here you can inspect, modify, or log the request, route it somewhere else,
+//!     // or return a synthetic response for testing.
+//!
 //!     println!("sending {} {}", request.method(), request.url());
 //!
 //!     reqwest::Client::new()
@@ -82,7 +85,7 @@
 //!
 //! [`retry::OpenAIRetryLayer`] is a Tower layer and [`retry::SimpleRetryPolicy`] is a Tower retry policy.
 //!
-//! Both retries with exponential backoff on `429`, `5xx` and connection errors and respects `Retry-After` header.
+//! Both attempt retries with exponential backoff on `429`, `5xx` and connection errors and respects `Retry-After` header.
 //!
 //! The difference is that upon seeing 429, `OpenAIRetryLayer` consumes response body to check if it is a rate
 //! limit (retryable error) or insufficient quota (permanent error). The default async-openai client uses this layer internally
@@ -98,8 +101,7 @@
 //! Custom tower retry policies can call [`retry::should_retry`] to reuse the same
 //! retry classification while changing delay behavior.
 //!
-//! On native targets the layer waits using `tokio::time::sleep` with a simple
-//! exponential backoff. On `wasm` the layer retries immediately.
+//! On native targets retries wait using `tokio::time::sleep`. On WASM retries are immediate.
 //!
 //! ## Native and WASM bounds
 //!
@@ -112,10 +114,10 @@
 //!
 //! On WASM targets, middleware services and futures must be `'static`.
 //!
-//! ## Bring Your Own Types (BYOT) interaction
+//! ## Bring Your Own Types Interaction
 //!
 //! With the `byot` feature, generated `*_byot` methods keep minimal trait bounds.
-//! When `middleware` feature is enabled, the generated methods add an internal `MiddlewareInput` bound
+//! When `middleware` feature is enabled additional [`MiddlewareInput`] bounds are added
 //! based on native or WASM targets so the input can be stored long enough to
 //! rebuild a fresh request for retries.
 
