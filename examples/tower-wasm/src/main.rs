@@ -1,82 +1,90 @@
-use std::{
-    future::Future,
-    pin::Pin,
-    task::{Context, Poll},
-};
-
-use async_openai::{
-    config::OpenAIConfig,
-    error::OpenAIError,
-    middleware::{retry::SimpleRetryPolicy, HttpRequestFactory, ReqwestService},
-    types::responses::CreateResponseArgs,
-    Client,
-};
+#[cfg(target_family = "wasm")]
+use async_openai::{config::OpenAIConfig, types::responses::CreateResponseArgs, Client};
+#[allow(unused_imports)]
 use dioxus::prelude::*;
-use tower::{Layer, Service, ServiceBuilder};
 
-type LogFuture = Pin<Box<dyn Future<Output = Result<reqwest::Response, OpenAIError>> + 'static>>;
+#[cfg(target_family = "wasm")]
+pub mod wasmonly {
+    use async_openai::{
+        config::OpenAIConfig,
+        error::OpenAIError,
+        middleware::{retry::SimpleRetryPolicy, HttpRequestFactory, ReqwestService},
+        types::responses::CreateResponseArgs,
+        Client,
+    };
+    use std::{
+        future::Future,
+        pin::Pin,
+        task::{Context, Poll},
+    };
+    use tower::{Layer, Service, ServiceBuilder};
+    type LogFuture =
+        Pin<Box<dyn Future<Output = Result<reqwest::Response, OpenAIError>> + 'static>>;
 
-#[derive(Clone, Debug)]
-struct LogLayer;
+    #[derive(Clone, Debug)]
+    struct LogLayer;
 
-impl<S> Layer<S> for LogLayer {
-    type Service = LogService<S>;
+    impl<S> Layer<S> for LogLayer {
+        type Service = LogService<S>;
 
-    fn layer(&self, inner: S) -> Self::Service {
-        LogService { inner }
-    }
-}
-
-#[derive(Clone, Debug)]
-struct LogService<S> {
-    inner: S,
-}
-
-impl<S> Service<HttpRequestFactory> for LogService<S>
-where
-    S: Service<HttpRequestFactory, Response = reqwest::Response, Error = OpenAIError>
-        + Clone
-        + 'static,
-    S::Future: 'static,
-{
-    type Response = reqwest::Response;
-    type Error = OpenAIError;
-    type Future = LogFuture;
-
-    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        self.inner.poll_ready(cx)
+        fn layer(&self, inner: S) -> Self::Service {
+            LogService { inner }
+        }
     }
 
-    fn call(&mut self, request: HttpRequestFactory) -> Self::Future {
-        let mut inner = self.inner.clone();
-
-        Box::pin(async move {
-            web_sys::console::log_1(&"tower-wasm middleware: sending request".into());
-
-            let result = inner.call(request).await;
-
-            web_sys::console::log_1(&"tower-wasm middleware: received response".into());
-
-            result
-        })
+    #[derive(Clone, Debug)]
+    struct LogService<S> {
+        inner: S,
     }
-}
 
-fn build_client(api_key: String) -> Client<OpenAIConfig> {
-    let config = OpenAIConfig::new().with_api_key(api_key);
-    let service = ServiceBuilder::new()
-        .layer(LogLayer)
-        .retry(SimpleRetryPolicy::default())
-        .service(ReqwestService::default());
+    impl<S> Service<HttpRequestFactory> for LogService<S>
+    where
+        S: Service<HttpRequestFactory, Response = reqwest::Response, Error = OpenAIError>
+            + Clone
+            + 'static,
+        S::Future: 'static,
+    {
+        type Response = reqwest::Response;
+        type Error = OpenAIError;
+        type Future = LogFuture;
 
-    Client::with_config(config).with_http_service(service)
+        fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+            self.inner.poll_ready(cx)
+        }
+
+        fn call(&mut self, request: HttpRequestFactory) -> Self::Future {
+            let mut inner = self.inner.clone();
+
+            Box::pin(async move {
+                web_sys::console::log_1(&"tower-wasm middleware: sending request".into());
+
+                let result = inner.call(request).await;
+
+                web_sys::console::log_1(&"tower-wasm middleware: received response".into());
+
+                result
+            })
+        }
+    }
+
+    pub fn build_client(api_key: String) -> Client<OpenAIConfig> {
+        let config = OpenAIConfig::new().with_api_key(api_key);
+        let service = ServiceBuilder::new()
+            .layer(LogLayer)
+            .retry(SimpleRetryPolicy::default())
+            .service(ReqwestService::default());
+
+        Client::with_config(config).with_http_service(service)
+    }
 }
 
 fn main() {
     dioxus_logger::init(tracing::Level::INFO).expect("failed to init logger");
+    #[cfg(target_family = "wasm")]
     launch(App);
 }
 
+#[cfg(target_family = "wasm")]
 #[component]
 fn App() -> Element {
     let mut user_input = use_signal(|| "tell me two dad jokes".to_string());
@@ -93,7 +101,7 @@ fn App() -> Element {
             return;
         }
 
-        client.set(Some(build_client(key)));
+        client.set(Some(wasmonly::build_client(key)));
         response_text
             .set("Client configured. Requests will reuse the same tower service.".to_string());
     };
