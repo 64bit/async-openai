@@ -59,6 +59,7 @@ use crate::{
 
 /// Macro to implement `RequestOptionsBuilder` for wrapper types containing `RequestOptions`
 #[cfg(feature = "_api")]
+#[allow(unused_macros)]
 macro_rules! impl_request_options_builder {
     ($type:ident) => {
         #[allow(deprecated)]

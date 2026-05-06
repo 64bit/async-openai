@@ -235,6 +235,7 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(all(feature = "_api", feature = "byot"))]
+#[allow(unused_imports)]
 pub(crate) use async_openai_macros::byot;
 
 #[cfg(all(feature = "_api", not(feature = "byot")))]
