@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("{:#?}", response);
 
     // api doesnt return the chat completion immediately, so retrieval doesnt work immediately, sleep
-    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+    tokio::time::sleep(std::time::Duration::from_secs(8)).await;
 
     // get chat completion object
     let chat_completion = client.chat().retrieve(&response.id).await?;
