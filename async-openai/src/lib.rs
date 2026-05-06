@@ -118,8 +118,8 @@
 //! These granular types are enabled when the corresponding API feature is enabled - for example `responses` will enable `response-types`.
 //!
 //! ## WASM
-//! For WASM targets streaming, retries, file operations are not implemented yet.
-//! See [examples/wasm-responses](https://github.com/64bit/async-openai/tree/main/examples/wasm-responses) for a working example.
+//! For WASM targets SSE streaming is not implemented yet.
+//! See [examples/wasm-responses](https://github.com/64bit/async-openai/tree/main/examples/wasm-responses) or [examples/tower-wasm](https://github.com/64bit/async-openai/tree/main/examples/tower-wasm).
 //!
 //! ## Configurable Requests
 //!
