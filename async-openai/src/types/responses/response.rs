@@ -1887,6 +1887,14 @@ pub struct ReasoningTextContent {
     pub text: String,
 }
 
+/// [ReasoningTextContent] used elsewhere which adds type,
+/// but here in [ReasoningItem] content field we need type too hence an enum:
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ReasoningItemContent {
+    ReasoningText(ReasoningTextContent),
+}
+
 /// A reasoning item representing the model's chain of thought, including summary paragraphs.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ReasoningItem {
@@ -1896,7 +1904,7 @@ pub struct ReasoningItem {
     pub summary: Vec<SummaryPart>,
     /// Reasoning text content.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub content: Option<Vec<ReasoningTextContent>>,
+    pub content: Option<Vec<ReasoningItemContent>>,
     /// The encrypted content of the reasoning item - populated when a response is generated with
     /// `reasoning.encrypted_content` in the `include` parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
