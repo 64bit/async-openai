@@ -69,7 +69,7 @@ impl<'c, C: Config> Images<'c, C> {
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
-        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>, T0: crate::traits::MaybeSend + 'static",
     )]
     pub async fn edit(
         &self,
@@ -86,7 +86,7 @@ impl<'c, C: Config> Images<'c, C> {
         T0 = Clone,
         R = serde::de::DeserializeOwned,
         stream = "true",
-        where_clause = "R: crate::traits::MaybeSend + 'static, reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>"
+        where_clause = "R: crate::traits::MaybeSend + 'static, reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>, T0: crate::traits::MaybeSend + 'static"
     )]
     #[allow(unused_mut)]
     pub async fn edit_stream(
@@ -113,7 +113,7 @@ impl<'c, C: Config> Images<'c, C> {
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
-        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>, T0: crate::traits::MaybeSend + 'static",
     )]
     pub async fn create_variation(
         &self,

@@ -118,10 +118,10 @@
 //!
 //! ## Bring Your Own Types Interaction
 //!
-//! With the `byot` feature, generated `*_byot` methods keep minimal trait bounds.
-//! When `middleware` feature is enabled additional [`MiddlewareInput`] bounds are added
-//! based on native or WASM targets so the input can be stored long enough to
-//! rebuild a fresh request for retries.
+//! With the `byot` feature, generated `*_byot` methods keep the same minimal
+//! trait bounds with or without middleware. JSON request bodies are serialized
+//! before they enter the replayable middleware request factory; multipart
+//! request bodies use the client-level replay bounds required by form handling.
 //!
 //! ## Error Handling
 //!
@@ -138,4 +138,4 @@ pub mod retry {
     pub use crate::retry::*;
 }
 
-pub use crate::executor::{HttpExecutor, HttpRequestFactory, MiddlewareInput, ReqwestService};
+pub use crate::executor::{HttpExecutor, HttpRequestFactory, ReqwestService};

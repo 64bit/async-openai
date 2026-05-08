@@ -29,7 +29,7 @@ impl<'c, C: Config> Videos<'c, C> {
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
-        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>, T0: crate::traits::MaybeSend + 'static",
     )]
     pub async fn create(&self, request: CreateVideoRequest) -> Result<VideoResource, OpenAIError> {
         self.client
@@ -57,7 +57,7 @@ impl<'c, C: Config> Videos<'c, C> {
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
-        where_clause = "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+        where_clause = "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>, T0: crate::traits::MaybeSend + 'static",
     )]
     pub async fn create_character(
         &self,
@@ -86,7 +86,7 @@ impl<'c, C: Config> Videos<'c, C> {
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
-        where_clause = "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+        where_clause = "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>, T0: crate::traits::MaybeSend + 'static",
     )]
     pub async fn edit(
         &self,
@@ -101,7 +101,7 @@ impl<'c, C: Config> Videos<'c, C> {
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
-        where_clause = "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+        where_clause = "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>, T0: crate::traits::MaybeSend + 'static",
     )]
     pub async fn extend(
         &self,

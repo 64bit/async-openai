@@ -20,17 +20,6 @@ type RequestFn = dyn Fn() -> RequestFuture + Send + Sync + 'static;
 #[cfg(target_family = "wasm")]
 type RequestFn = dyn Fn() -> RequestFuture + 'static;
 
-/// Trait for types allowed as input in `*_byot` macro methods that works with `middleware` feature.
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
-pub trait MiddlewareInput: Send + Sync + 'static {}
-#[cfg(all(feature = "middleware", not(target_family = "wasm")))]
-impl<T> MiddlewareInput for T where T: Send + Sync + 'static {}
-
-#[cfg(all(feature = "middleware", target_family = "wasm"))]
-pub trait MiddlewareInput: 'static {}
-#[cfg(all(feature = "middleware", target_family = "wasm"))]
-impl<T> MiddlewareInput for T where T: 'static {}
-
 /// Cheaply cloneable request factory used to rebuild a request on demand.
 ///
 /// This is the key boundary for middleware support:
