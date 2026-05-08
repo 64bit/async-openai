@@ -118,7 +118,7 @@
 //! These granular types are enabled when the corresponding API feature is enabled - for example `responses` will enable `response-types`.
 //!
 //! ## WASM
-//! WASM supported for all APIs.
+//! WASM is supported for all APIs.
 //! See [examples/wasm-responses](https://github.com/64bit/async-openai/tree/main/examples/wasm-responses) or [examples/tower-wasm](https://github.com/64bit/async-openai/tree/main/examples/tower-wasm).
 //!
 //! ## Configurable Requests
