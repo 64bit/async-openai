@@ -424,7 +424,6 @@ impl<C: Config> Client<C> {
         }))
     }
 
-    #[cfg(not(target_family = "wasm"))]
     fn build_request_factory_with_form<F>(
         &self,
         method: reqwest::Method,
@@ -438,7 +437,8 @@ impl<C: Config> Client<C> {
     {
         // Multipart is the reason the factory exists.
         //
-        // `Mutex` is only here to make the captured state `Sync`
+        // `Mutex` is only here to make the captured state `Sync` on native targets.
+        #[cfg(not(target_family = "wasm"))]
         let form = Arc::new(Mutex::new(form));
         let request_parts = self.build_request_parts(method, path, request_options);
 
@@ -447,37 +447,13 @@ impl<C: Config> Client<C> {
             let form = form.clone();
 
             async move {
+                #[cfg(not(target_family = "wasm"))]
                 let form = form
                     .lock()
                     .expect("multipart request factory mutex poisoned")
                     .clone();
-                let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
-                let request_builder = request_parts.build_request_builder().multipart(form);
-
-                Ok(request_builder.build()?)
-            }
-        }))
-    }
-
-    #[cfg(target_family = "wasm")]
-    fn build_request_factory_with_form<F>(
-        &self,
-        method: reqwest::Method,
-        path: &str,
-        form: F,
-        request_options: &RequestOptions,
-    ) -> Result<HttpRequestFactory, OpenAIError>
-    where
-        F: Clone + 'static,
-        Form: AsyncTryFrom<F, Error = OpenAIError>,
-    {
-        let request_parts = self.build_request_parts(method, path, request_options);
-
-        Ok(HttpRequestFactory::new(move || {
-            let request_parts = request_parts.clone();
-            let form = form.clone();
-
-            async move {
+                #[cfg(target_family = "wasm")]
+                let form = form.clone();
                 let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
                 let request_builder = request_parts.build_request_builder().multipart(form);
 
