@@ -181,8 +181,7 @@
 //!
 //! This allows you to use same code (say a `fn`) to call APIs on different OpenAI-compatible providers.
 //!
-//! For any struct that implements `Config` trait, wrap it in a smart pointer and cast the pointer to `dyn Config`
-//! trait object, then create a client with `Box` or `Arc` wrapped configuration.
+//! Create a client with `Box` or `Arc` wrapped configuration.
 //!
 //! For example:
 //! ```
