@@ -7,7 +7,6 @@ use crate::{
     Client, RequestOptions,
 };
 
-#[cfg(not(target_family = "wasm"))]
 use crate::types::images::{ImageEditStream, ImageGenStream};
 
 /// Given a prompt and/or an input image, the model will generate a new image.
@@ -38,12 +37,11 @@ impl<'c, C: Config> Images<'c, C> {
     }
 
     /// Creates an image given a prompt.
-    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
         stream = "true",
-        where_clause = "R: std::marker::Send + 'static"
+        where_clause = "R: crate::traits::MaybeSend + 'static"
     )]
     #[allow(unused_mut)]
     pub async fn generate_stream(
@@ -84,12 +82,11 @@ impl<'c, C: Config> Images<'c, C> {
 
     /// Creates an edited or extended image given one or more source images and a prompt.
     /// This endpoint only supports gpt-image-1 and dall-e-2.
-    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
         stream = "true",
-        where_clause = "R: std::marker::Send + 'static, reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>"
+        where_clause = "R: crate::traits::MaybeSend + 'static, reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>"
     )]
     #[allow(unused_mut)]
     pub async fn edit_stream(

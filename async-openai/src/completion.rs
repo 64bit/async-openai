@@ -6,7 +6,6 @@ use crate::{
     RequestOptions,
 };
 
-#[cfg(not(target_family = "wasm"))]
 use crate::types::completions::CompletionResponseStream;
 
 /// Given a prompt, the model will return one or more predicted completions,
@@ -61,12 +60,11 @@ impl<'c, C: Config> Completions<'c, C> {
     /// [CompletionResponseStream] is a parsed SSE stream until a \[DONE\] is received from server.
     ///
     /// You must ensure that "stream: true" in serialized `request`
-    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
         stream = "true",
-        where_clause = "R: std::marker::Send + 'static"
+        where_clause = "R: crate::traits::MaybeSend + 'static"
     )]
     #[allow(unused_mut)]
     pub async fn create_stream(

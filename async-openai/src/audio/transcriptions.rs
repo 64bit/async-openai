@@ -10,7 +10,6 @@ use crate::{
     Client, RequestOptions,
 };
 
-#[cfg(not(target_family = "wasm"))]
 use crate::types::audio::TranscriptionResponseStream;
 
 pub struct Transcriptions<'c, C: Config> {
@@ -41,12 +40,11 @@ impl<'c, C: Config> Transcriptions<'c, C> {
             .await
     }
 
-    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
         stream = "true",
-        where_clause = "R: std::marker::Send + 'static, reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>"
+        where_clause = "R: crate::traits::MaybeSend + 'static, reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>"
     )]
     #[allow(unused_mut)]
     pub async fn create_stream(
