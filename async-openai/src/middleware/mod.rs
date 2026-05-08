@@ -113,16 +113,6 @@
 //!
 //! Tower's `BoxError` converts into `OpenAIError::Boxed`, which is useful for generic tower layers whose concrete error type is erased. Callers can still downcast the boxed error when they know the original error type.
 //!
-//! ## Native and WASM bounds
-//!
-//! The conceptual middleware boundary stays the same; only
-//! the platform thread-safety bounds differ.
-//!
-//! On native targets, middleware services installed
-//! with `Client::with_http_service` must be `Send + Sync + 'static` and return
-//! `Send + 'static` futures.
-//!
-//! On WASM targets, middleware services and futures must be `'static`.
 //!
 //! ## Bring Your Own Types Interaction
 //!
