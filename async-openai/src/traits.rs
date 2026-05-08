@@ -3,6 +3,7 @@ use reqwest::header::HeaderMap;
 use crate::{error::OpenAIError, RequestOptions};
 use serde::Serialize;
 
+/// Trait to support WASM and native targets.
 #[cfg(not(target_family = "wasm"))]
 pub trait MaybeSend: Send {}
 #[cfg(not(target_family = "wasm"))]
@@ -13,6 +14,7 @@ pub trait MaybeSend {}
 #[cfg(target_family = "wasm")]
 impl<T> MaybeSend for T {}
 
+/// Trait for async conversion from one type to another.
 pub trait AsyncTryFrom<T>: Sized {
     /// The type returned in the event of a conversion error.
     type Error;
