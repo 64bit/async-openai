@@ -5,7 +5,6 @@ use crate::{
     Client, RequestOptions,
 };
 
-#[cfg(not(target_family = "wasm"))]
 use crate::types::audio::SpeechResponseStream;
 
 pub struct Speech<'c, C: Config> {
@@ -35,12 +34,11 @@ impl<'c, C: Config> Speech<'c, C> {
     }
 
     /// Generates audio from the input text in SSE stream format.
-    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
         stream = "true",
-        where_clause = "R: std::marker::Send + 'static"
+        where_clause = "R: crate::traits::MaybeSend + 'static"
     )]
     #[allow(unused_mut)]
     pub async fn create_stream(

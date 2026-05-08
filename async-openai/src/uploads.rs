@@ -53,7 +53,7 @@ impl<'c, C: Config> Uploads<'c, C> {
         T0 = std::fmt::Display,
         T1 = Clone,
         R = serde::de::DeserializeOwned,
-        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T1, Error = OpenAIError>")]
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T1, Error = OpenAIError>, T1: crate::traits::MaybeSend + 'static")]
     pub async fn add_part(
         &self,
         upload_id: &str,

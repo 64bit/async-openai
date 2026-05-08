@@ -19,7 +19,10 @@
 
 ## Overview
 
-`async-openai` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi). It implements all APIs from the spec:
+`async-openai` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi). It implements all APIs from the spec.
+
+<details>
+<summary>Feature Flags</summary>
 
 | What | APIs | Crate Feature Flags |
 |---|---|---|
@@ -36,16 +39,18 @@
 | **Administration** | Admin API Keys, Invites, Users, Groups, Roles, Role assignments, Projects, Project users, Project groups, Project service accounts, Project API keys, Project rate limits, Audit logs, Usage, Certificates | `administration` |
 | **Legacy** | Completions | `completions` |
 
-Features that makes `async-openai` unique:
+</details>
+
+
 - Bring your own custom types for Request or Response objects.
-- SSE streaming on available APIs.
-- Customize path, query and headers per request; customize path and headers globally (for all requests).
-- Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
+- Requests are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
 - Ergonomic builder pattern for all request objects.
-- Granular feature flags to enable any types or apis: good for faster compilation and crate reuse.
-- Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec).
-- WASM (doesn't support streaming yet)
-- Middleware support with [tower](https://crates.io/crates/tower) ecosystem
+- SSE streaming.
+- Customize path, query and headers per request or for all requests.
+- Granular feature flags to enable any types or apis.
+- Microsoft Azure OpenAI Service.
+- WASM.
+- Middleware support with [tower](https://crates.io/crates/tower) ecosystem.
 
 ## Usage
 
@@ -111,17 +116,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
   <sub>Scaled up for README, actual size 256x256</sub>
 </div>
 
-## Webhooks
-
-Support for webhook includes event types, signature verification, and building webhook events from payloads.
-
 ## Bring Your Own Types
 
 Enable methods whose input and outputs are generics with `byot` feature. It creates a new method with same name and `_byot` suffix. 
-
-`byot` requires trait bounds: 
-- a request type (`fn` input parameter) needs to implement `serde::Serialize` or `std::fmt::Display` trait
-- a response type (`fn` ouput parameter) needs to implement `serde::de::DeserializeOwned` trait.
 
 For example, to use `serde_json::Value` as request and response type:
 ```rust
@@ -147,8 +144,10 @@ let response: Value = client
 This can be useful in many scenarios:
 - To use this library with other OpenAI compatible APIs whose types don't exactly match OpenAI. 
 - Extend existing types in this crate with new fields with `serde` (for example with `#[serde(flatten)]`).
-- To avoid verbose types.
+- To avoid typing verbose types.
 - To escape deserialization errors.
+
+`*_byot` methods require same trait bounds as regular methods.
 
 Visit [examples/bring-your-own-type](https://github.com/64bit/async-openai/tree/main/examples/bring-your-own-type)
 directory to learn more.
@@ -217,8 +216,7 @@ client
 
 This allows you to use same code (say a `fn`) to call APIs on different OpenAI-compatible providers.
 
-For any struct that implements `Config` trait, wrap it in a smart pointer and cast the pointer to `dyn Config`
-trait object, then create a client with `Box` or `Arc` wrapped configuration.
+Create a client with `Box` or `Arc` wrapped configuration.
 
 For example:
 
@@ -236,6 +234,10 @@ fn chat_completion(client: &Client<Box<dyn Config>>) {
     todo!() 
 }
 ```
+
+## Webhooks
+
+Support for webhook includes event types, signature verification, and building webhook events from payloads.
 
 ## Middleware
 

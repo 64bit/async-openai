@@ -91,18 +91,6 @@ Custom tower retry policies can call `middleware::retry::should_retry` to reuse 
 
 On native targets retries wait using `tokio::time::sleep`. On WASM retries are immediate.
 
-## Native and WASM bounds
-
-The conceptual middleware boundary stays the same; only the platform thread-safety bounds differ.
-
-On native targets, middleware services installed with `Client::with_http_service` must be `Send + Sync + 'static` and return `Send + 'static` futures.
-
-On WASM targets, middleware services and futures must be `'static`.
-
-## Bring Your Own Types Interaction
-
-With the `byot` feature, generated `*_byot` methods keep minimal trait bounds. When `middleware` feature is enabled additional `MiddlewareInput` bounds are added based on native or WASM targets so the input can be stored long enough to rebuild a fresh request for retries.
-
 ## Error Handling
 
 `OpenAIError::Boxed` is available only when the `middleware` feature is enabled.
@@ -110,3 +98,10 @@ With the `byot` feature, generated `*_byot` methods keep minimal trait bounds. W
 Custom middleware services installed with `Client::with_http_service` may use any error type that implements `Into<OpenAIError>`. This lets middleware preserve structured errors when it has a dedicated `OpenAIError` conversion.
 
 Tower's `BoxError` converts into `OpenAIError::Boxed`, which is useful for generic tower layers whose concrete error type is erased. Callers can still downcast the boxed error when they know the original error type.
+
+
+## Bring Your Own Types Interaction
+
+With the `byot` feature, generated `*_byot` methods keep the same minimal trait bounds with or without middleware. JSON request bodies are serialized before they enter the replayable middleware request factory; multipart request bodies use the client-level replay bounds required by form handling.
+
+

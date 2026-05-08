@@ -9,7 +9,6 @@ use crate::{
     Client, RequestOptions,
 };
 
-#[cfg(not(target_family = "wasm"))]
 use crate::types::assistants::AssistantEventStream;
 
 /// Represents an execution run on a thread.
@@ -53,12 +52,11 @@ impl<'c, C: Config> Runs<'c, C> {
     /// Create a run.
     ///
     /// byot: You must ensure "stream: true" in serialized `request`
-    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
         stream = "true",
-        where_clause = "R: std::marker::Send + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
+        where_clause = "R: crate::traits::MaybeSend + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
     )]
     #[allow(unused_mut)]
     pub async fn create_stream(
@@ -144,13 +142,12 @@ impl<'c, C: Config> Runs<'c, C> {
     }
 
     /// byot: You must ensure "stream: true" in serialized `request`
-    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = std::fmt::Display,
         T1 = serde::Serialize,
         R = serde::de::DeserializeOwned,
         stream = "true",
-        where_clause = "R: std::marker::Send + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
+        where_clause = "R: crate::traits::MaybeSend + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
     )]
     #[allow(unused_mut)]
     pub async fn submit_tool_outputs_stream(

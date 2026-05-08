@@ -79,6 +79,8 @@ pub mod responses;
 mod shared;
 #[cfg(feature = "skill-types")]
 pub mod skills;
+#[cfg(feature = "_api")]
+pub mod stream;
 #[cfg(feature = "upload-types")]
 pub mod uploads;
 #[cfg(feature = "vectorstore-types")]

@@ -1,16 +1,12 @@
-#[cfg(not(target_family = "wasm"))]
-use std::pin::Pin;
 use std::sync::Arc;
 #[cfg(not(target_family = "wasm"))]
 use std::sync::Mutex;
 
 use bytes::Bytes;
-#[cfg(not(target_family = "wasm"))]
-use futures::{stream::StreamExt, Stream};
+use futures::stream::StreamExt;
 use reqwest::{header::HeaderMap, multipart::Form, Response};
 use serde::{de::DeserializeOwned, Serialize};
 
-#[cfg(not(target_family = "wasm"))]
 use crate::error::StreamError;
 #[cfg(feature = "middleware")]
 use crate::executor::TowerExecutor;
@@ -428,7 +424,6 @@ impl<C: Config> Client<C> {
         }))
     }
 
-    #[cfg(not(target_family = "wasm"))]
     fn build_request_factory_with_form<F>(
         &self,
         method: reqwest::Method,
@@ -437,12 +432,13 @@ impl<C: Config> Client<C> {
         request_options: &RequestOptions,
     ) -> Result<HttpRequestFactory, OpenAIError>
     where
-        F: Clone + Send + 'static,
+        F: Clone + crate::traits::MaybeSend + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
         // Multipart is the reason the factory exists.
         //
-        // `Mutex` is only here to make the captured state `Sync`
+        // `Mutex` is only here to make the captured state `Sync` on native targets.
+        #[cfg(not(target_family = "wasm"))]
         let form = Arc::new(Mutex::new(form));
         let request_parts = self.build_request_parts(method, path, request_options);
 
@@ -451,37 +447,13 @@ impl<C: Config> Client<C> {
             let form = form.clone();
 
             async move {
+                #[cfg(not(target_family = "wasm"))]
                 let form = form
                     .lock()
                     .expect("multipart request factory mutex poisoned")
                     .clone();
-                let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
-                let request_builder = request_parts.build_request_builder().multipart(form);
-
-                Ok(request_builder.build()?)
-            }
-        }))
-    }
-
-    #[cfg(target_family = "wasm")]
-    fn build_request_factory_with_form<F>(
-        &self,
-        method: reqwest::Method,
-        path: &str,
-        form: F,
-        request_options: &RequestOptions,
-    ) -> Result<HttpRequestFactory, OpenAIError>
-    where
-        F: Clone + 'static,
-        Form: AsyncTryFrom<F, Error = OpenAIError>,
-    {
-        let request_parts = self.build_request_parts(method, path, request_options);
-
-        Ok(HttpRequestFactory::new(move || {
-            let request_parts = request_parts.clone();
-            let form = form.clone();
-
-            async move {
+                #[cfg(target_family = "wasm")]
+                let form = form.clone();
                 let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
                 let request_builder = request_parts.build_request_builder().multipart(form);
 
@@ -575,7 +547,6 @@ impl<C: Config> Client<C> {
 
     /// POST a form at {path} and return the response body
     #[allow(unused)]
-    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn post_form_raw<F>(
         &self,
         path: &str,
@@ -583,29 +554,7 @@ impl<C: Config> Client<C> {
         request_options: &RequestOptions,
     ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
-        F: Clone + Send + 'static,
-        Form: AsyncTryFrom<F, Error = OpenAIError>,
-    {
-        let request_factory = self.build_request_factory_with_form(
-            reqwest::Method::POST,
-            path,
-            form,
-            request_options,
-        )?;
-        self.execute_raw(request_factory).await
-    }
-
-    /// POST a form at {path} and return the response body
-    #[allow(unused)]
-    #[cfg(target_family = "wasm")]
-    pub(crate) async fn post_form_raw<F>(
-        &self,
-        path: &str,
-        form: F,
-        request_options: &RequestOptions,
-    ) -> Result<(Bytes, HeaderMap), OpenAIError>
-    where
-        F: Clone + 'static,
+        F: Clone + crate::traits::MaybeSend + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
         let request_factory = self.build_request_factory_with_form(
@@ -619,7 +568,6 @@ impl<C: Config> Client<C> {
 
     /// POST a form at {path} and deserialize the response body
     #[allow(unused)]
-    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn post_form<O, F>(
         &self,
         path: &str,
@@ -628,30 +576,7 @@ impl<C: Config> Client<C> {
     ) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
-        F: Clone + Send + 'static,
-        Form: AsyncTryFrom<F, Error = OpenAIError>,
-    {
-        let request_factory = self.build_request_factory_with_form(
-            reqwest::Method::POST,
-            path,
-            form,
-            request_options,
-        )?;
-        self.execute(request_factory).await
-    }
-
-    /// POST a form at {path} and deserialize the response body
-    #[allow(unused)]
-    #[cfg(target_family = "wasm")]
-    pub(crate) async fn post_form<O, F>(
-        &self,
-        path: &str,
-        form: F,
-        request_options: &RequestOptions,
-    ) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
-        F: Clone + 'static,
+        F: Clone + crate::traits::MaybeSend + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
         let request_factory = self.build_request_factory_with_form(
@@ -664,17 +589,16 @@ impl<C: Config> Client<C> {
     }
 
     #[allow(unused)]
-    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn post_form_stream<O, F>(
         &self,
         path: &str,
         form: F,
         request_options: &RequestOptions,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
+    ) -> Result<crate::types::stream::StreamResponse<O>, OpenAIError>
     where
-        F: Clone + Send + 'static,
+        F: Clone + crate::traits::MaybeSend + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
-        O: DeserializeOwned + std::marker::Send + 'static,
+        O: DeserializeOwned + crate::traits::MaybeSend + 'static,
     {
         let request_factory = self.build_request_factory_with_form(
             reqwest::Method::POST,
@@ -713,26 +637,26 @@ impl<C: Config> Client<C> {
         self.executor.execute(request_factory).await
     }
 
-    #[cfg(not(target_family = "wasm"))]
     async fn execute_stream<O>(
         &self,
         request_factory: HttpRequestFactory,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
+    ) -> Result<crate::types::stream::StreamResponse<O>, OpenAIError>
     where
-        O: DeserializeOwned + std::marker::Send + 'static,
+        O: DeserializeOwned + crate::traits::MaybeSend + 'static,
     {
         let response = self.execute_response(request_factory).await?;
         Ok(stream(response).await)
     }
 
-    #[cfg(not(target_family = "wasm"))]
     async fn execute_stream_mapped_raw_events<O>(
         &self,
         request_factory: HttpRequestFactory,
-        event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
+        event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError>
+            + crate::traits::MaybeSend
+            + 'static,
+    ) -> Result<crate::types::stream::StreamResponse<O>, OpenAIError>
     where
-        O: DeserializeOwned + std::marker::Send + 'static,
+        O: DeserializeOwned + crate::traits::MaybeSend + 'static,
     {
         let response = self.execute_response(request_factory).await?;
         Ok(stream_mapped_raw_events(response, event_mapper).await)
@@ -740,16 +664,15 @@ impl<C: Config> Client<C> {
 
     /// Make HTTP POST request to receive SSE
     #[allow(unused)]
-    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn post_stream<I, O>(
         &self,
         path: &str,
         request: I,
         request_options: &RequestOptions,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
+    ) -> Result<crate::types::stream::StreamResponse<O>, OpenAIError>
     where
         I: Serialize,
-        O: DeserializeOwned + std::marker::Send + 'static,
+        O: DeserializeOwned + crate::traits::MaybeSend + 'static,
     {
         let request_factory = self.build_request_factory_with_json(
             reqwest::Method::POST,
@@ -763,17 +686,18 @@ impl<C: Config> Client<C> {
     }
 
     #[allow(unused)]
-    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn post_stream_mapped_raw_events<I, O>(
         &self,
         path: &str,
         request: I,
         request_options: &RequestOptions,
-        event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
+        event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError>
+            + crate::traits::MaybeSend
+            + 'static,
+    ) -> Result<crate::types::stream::StreamResponse<O>, OpenAIError>
     where
         I: Serialize,
-        O: DeserializeOwned + std::marker::Send + 'static,
+        O: DeserializeOwned + crate::traits::MaybeSend + 'static,
     {
         let request_factory = self.build_request_factory_with_json(
             reqwest::Method::POST,
@@ -787,14 +711,13 @@ impl<C: Config> Client<C> {
 
     /// Make HTTP GET request to receive SSE
     #[allow(unused)]
-    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn get_stream<O>(
         &self,
         path: &str,
         request_options: &RequestOptions,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
+    ) -> Result<crate::types::stream::StreamResponse<O>, OpenAIError>
     where
-        O: DeserializeOwned + std::marker::Send + 'static,
+        O: DeserializeOwned + crate::traits::MaybeSend + 'static,
     {
         let request_factory =
             self.build_request_factory(reqwest::Method::GET, path, request_options);
@@ -832,61 +755,80 @@ async fn read_response(response: Response) -> Result<(Bytes, HeaderMap), OpenAIE
 
 /// Request which responds with SSE.
 /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-#[cfg(not(target_family = "wasm"))]
-pub(crate) async fn stream<O>(
-    response: Response,
-) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+pub(crate) async fn stream<O>(response: Response) -> crate::types::stream::StreamResponse<O>
 where
-    O: DeserializeOwned + std::marker::Send + 'static,
+    O: DeserializeOwned + crate::traits::MaybeSend + 'static,
 {
-    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+    stream_mapped_raw_events(response, |event| {
+        serde_json::from_str::<O>(&event.data)
+            .map_err(|error| map_deserialization_error(error, event.data.as_bytes()))
+    })
+    .await
+}
 
-    tokio::spawn(async move {
-        if !response.status().is_success() {
-            if let Err(e) = read_response(response).await {
-                let _ = tx.send(Err(e));
+#[cfg(target_family = "wasm")]
+pub(crate) async fn stream_mapped_raw_events<O>(
+    response: Response,
+    event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + 'static,
+) -> crate::types::stream::StreamResponse<O>
+where
+    O: DeserializeOwned + 'static,
+{
+    if !response.status().is_success() {
+        return Box::pin(futures::stream::once(async move {
+            match read_response(response).await {
+                Ok(_) => Err(OpenAIError::InvalidArgument(
+                    "stream request failed without an error body".into(),
+                )),
+                Err(error) => Err(error),
             }
-            return;
-        }
-        let byte_stream = response
-            .bytes_stream()
-            .map(|r| r.map_err(std::io::Error::other));
-        let mut event_stream = std::pin::pin!(eventsource_stream::EventStream::new(byte_stream));
+        }));
+    }
 
-        while let Some(ev) = event_stream.next().await {
-            let event = match ev {
-                Ok(e) => e,
-                Err(e) => {
-                    let _ = tx.send(Err(OpenAIError::StreamError(Box::new(
-                        StreamError::EventStream(e.to_string()),
-                    ))));
-                    break;
+    let byte_stream = response
+        .bytes_stream()
+        .map(|result| result.map_err(std::io::Error::other));
+    let event_stream = Box::pin(eventsource_stream::EventStream::new(byte_stream));
+
+    Box::pin(futures::stream::unfold(
+        (event_stream, event_mapper, false),
+        |(mut event_stream, event_mapper, finished)| async move {
+            if finished {
+                return None;
+            }
+
+            loop {
+                let event = match event_stream.next().await {
+                    Some(Ok(event)) => event,
+                    Some(Err(error)) => {
+                        return Some((
+                            Err(OpenAIError::StreamError(Box::new(
+                                StreamError::EventStream(error.to_string()),
+                            ))),
+                            (event_stream, event_mapper, true),
+                        ));
+                    }
+                    None => return None,
+                };
+
+                let done = event.data == "[DONE]";
+
+                if event.event == "keepalive" {
+                    continue;
                 }
-            };
-            if event.data == "[DONE]" {
-                break;
-            }
-            if event.event == "keepalive" {
-                continue;
-            }
 
-            let response = serde_json::from_str::<O>(&event.data)
-                .map_err(|e| map_deserialization_error(e, event.data.as_bytes()));
-
-            if tx.send(response).is_err() {
-                break;
+                let response = event_mapper(event);
+                return Some((response, (event_stream, event_mapper, done)));
             }
-        }
-    });
-
-    Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+        },
+    ))
 }
 
 #[cfg(not(target_family = "wasm"))]
 pub(crate) async fn stream_mapped_raw_events<O>(
     response: Response,
     event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
-) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
+) -> crate::types::stream::StreamResponse<O>
 where
     O: DeserializeOwned + std::marker::Send + 'static,
 {

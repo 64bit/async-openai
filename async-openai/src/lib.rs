@@ -118,7 +118,7 @@
 //! These granular types are enabled when the corresponding API feature is enabled - for example `responses` will enable `response-types`.
 //!
 //! ## WASM
-//! For WASM targets SSE streaming is not implemented yet.
+//! WASM is supported for all APIs.
 //! See [examples/wasm-responses](https://github.com/64bit/async-openai/tree/main/examples/wasm-responses) or [examples/tower-wasm](https://github.com/64bit/async-openai/tree/main/examples/tower-wasm).
 //!
 //! ## Configurable Requests
@@ -181,8 +181,7 @@
 //!
 //! This allows you to use same code (say a `fn`) to call APIs on different OpenAI-compatible providers.
 //!
-//! For any struct that implements `Config` trait, wrap it in a smart pointer and cast the pointer to `dyn Config`
-//! trait object, then create a client with `Box` or `Arc` wrapped configuration.
+//! Create a client with `Box` or `Arc` wrapped configuration.
 //!
 //! For example:
 //! ```

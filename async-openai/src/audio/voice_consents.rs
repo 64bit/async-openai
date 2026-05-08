@@ -26,7 +26,7 @@ impl<'c, C: Config> VoiceConsents<'c, C> {
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
-        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>",
+        where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>, T0: crate::traits::MaybeSend + 'static",
     )]
     pub async fn create(
         &self,

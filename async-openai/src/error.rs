@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-#[cfg(all(feature = "_api", not(target_family = "wasm")))]
+#[cfg(feature = "_api")]
 #[derive(Debug, thiserror::Error)]
 pub enum OpenAIError {
     /// Underlying error from reqwest library after an API call was made
@@ -14,9 +14,11 @@ pub enum OpenAIError {
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: error:{0} content:{1}")]
     JSONDeserialize(serde_json::Error, String),
+    #[cfg(all(feature = "_api", not(target_family = "wasm")))]
     /// Error on the client side when saving file to file system
     #[error("failed to save file: {0}")]
     FileSaveError(String),
+    #[cfg(all(feature = "_api", not(target_family = "wasm")))]
     /// Error on the client side when reading file from file system
     #[error("failed to read file: {0}")]
     FileReadError(String),
@@ -40,29 +42,6 @@ impl From<tower::BoxError> for OpenAIError {
     }
 }
 
-// no streaming support for wasm yet
-#[cfg(all(feature = "_api", target_family = "wasm"))]
-#[derive(Debug, thiserror::Error)]
-pub enum OpenAIError {
-    /// Underlying error from reqwest library after an API call was made
-    #[error("http error: {0}")]
-    Reqwest(#[from] reqwest::Error),
-    /// OpenAI returns error object with details of API call failure
-    #[error("{0}")]
-    ApiError(ApiError),
-    /// Error when a response cannot be deserialized into a Rust type
-    #[error("failed to deserialize api response: error:{0} content:{1}")]
-    JSONDeserialize(serde_json::Error, String),
-    /// Error from middlewares
-    #[cfg(feature = "middleware")]
-    #[error(transparent)]
-    Boxed(Box<dyn std::error::Error + 'static>),
-    /// Error from client side validation
-    /// or when builder fails to build request before making API call
-    #[error("invalid args: {0}")]
-    InvalidArgument(String),
-}
-
 #[cfg(not(feature = "_api"))]
 #[derive(Debug)]
 pub enum OpenAIError {
@@ -83,7 +62,7 @@ impl std::fmt::Display for OpenAIError {
 #[cfg(not(feature = "_api"))]
 impl std::error::Error for OpenAIError {}
 
-#[cfg(all(feature = "_api", not(target_family = "wasm")))]
+#[cfg(feature = "_api")]
 #[derive(Debug, thiserror::Error)]
 pub enum StreamError {
     /// Error when a stream event does not match one of the expected values

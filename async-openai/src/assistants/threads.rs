@@ -8,7 +8,6 @@ use crate::{
     Client, Messages, RequestOptions, Runs,
 };
 
-#[cfg(not(target_family = "wasm"))]
 use crate::types::assistants::AssistantEventStream;
 
 /// Create threads that assistants can interact with.
@@ -54,12 +53,11 @@ impl<'c, C: Config> Threads<'c, C> {
     /// Create a thread and run it in one request (streaming).
     ///
     /// byot: You must ensure "stream: true" in serialized `request`
-    #[cfg(not(target_family = "wasm"))]
     #[crate::byot(
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
         stream = "true",
-        where_clause = "R: std::marker::Send + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
+        where_clause = "R: crate::traits::MaybeSend + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
     )]
     #[allow(unused_mut)]
     pub async fn create_and_run_stream(
