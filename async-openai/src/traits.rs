@@ -3,6 +3,16 @@ use reqwest::header::HeaderMap;
 use crate::{error::OpenAIError, RequestOptions};
 use serde::Serialize;
 
+#[cfg(not(target_family = "wasm"))]
+pub trait MaybeSend: Send {}
+#[cfg(not(target_family = "wasm"))]
+impl<T> MaybeSend for T where T: Send {}
+
+#[cfg(target_family = "wasm")]
+pub trait MaybeSend {}
+#[cfg(target_family = "wasm")]
+impl<T> MaybeSend for T {}
+
 pub trait AsyncTryFrom<T>: Sized {
     /// The type returned in the event of a conversion error.
     type Error;
