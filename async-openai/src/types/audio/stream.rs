@@ -91,24 +91,14 @@ pub enum CreateTranscriptionResponseStreamEvent {
     TranscriptTextDone(TranscriptionTextDoneEvent),
 }
 
-#[cfg(all(feature = "_api", not(target_family = "wasm")))]
-pub type TranscriptionResponseStream = std::pin::Pin<
-    Box<
-        dyn futures::Stream<
-                Item = Result<CreateTranscriptionResponseStreamEvent, crate::error::OpenAIError>,
-            > + Send,
-    >,
->;
+#[cfg(feature = "_api")]
+pub type TranscriptionResponseStream =
+    crate::types::stream::StreamResponse<CreateTranscriptionResponseStreamEvent>;
 
 /// Stream of response events
-#[cfg(all(feature = "_api", not(target_family = "wasm")))]
-pub type SpeechResponseStream = std::pin::Pin<
-    Box<
-        dyn futures::Stream<
-                Item = Result<CreateSpeechResponseStreamEvent, crate::error::OpenAIError>,
-            > + Send,
-    >,
->;
+#[cfg(feature = "_api")]
+pub type SpeechResponseStream =
+    crate::types::stream::StreamResponse<CreateSpeechResponseStreamEvent>;
 
 #[cfg(feature = "_api")]
 macro_rules! impl_event_type {
