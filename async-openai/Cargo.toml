@@ -162,7 +162,7 @@ bytes = { version = "1.11", optional = true }
 
 # API dependencies - only needed when API features are enabled
 # We use a feature gate to enable these when any API feature is enabled
-async-openai-macros = { path = "../async-openai-macros", version = "0.2.0", optional = true }
+async-openai-macros = { path = "../async-openai-macros", version = "0.3.0", optional = true }
 base64 = { version = "0.22", optional = true }
 futures = { version = "0.3", optional = true }
 rand = { version = "0.9", optional = true }

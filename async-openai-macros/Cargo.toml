@@ -1,6 +1,6 @@
 [package]
 name = "async-openai-macros"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Himanshu Neema"]
 keywords = ["openai", "macros", "ai"]
 description = "Macros for async-openai"
