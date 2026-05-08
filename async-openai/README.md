@@ -120,10 +120,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 Enable methods whose input and outputs are generics with `byot` feature. It creates a new method with same name and `_byot` suffix. 
 
-`byot` requires trait bounds: 
-- a request type (`fn` input parameter) needs to implement `serde::Serialize` or `std::fmt::Display` trait
-- a response type (`fn` ouput parameter) needs to implement `serde::de::DeserializeOwned` trait.
-
 For example, to use `serde_json::Value` as request and response type:
 ```rust
 let response: Value = client
@@ -148,8 +144,10 @@ let response: Value = client
 This can be useful in many scenarios:
 - To use this library with other OpenAI compatible APIs whose types don't exactly match OpenAI. 
 - Extend existing types in this crate with new fields with `serde` (for example with `#[serde(flatten)]`).
-- To avoid verbose types.
+- To avoid typing verbose types.
 - To escape deserialization errors.
+
+`*_byot` methods require same trait bounds as regular methods.
 
 Visit [examples/bring-your-own-type](https://github.com/64bit/async-openai/tree/main/examples/bring-your-own-type)
 directory to learn more.
