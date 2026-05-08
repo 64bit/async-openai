@@ -424,6 +424,7 @@ impl<C: Config> Client<C> {
         }))
     }
 
+    #[cfg(not(target_family = "wasm"))]
     fn build_request_factory_with_form<F>(
         &self,
         method: reqwest::Method,
@@ -450,6 +451,33 @@ impl<C: Config> Client<C> {
                     .lock()
                     .expect("multipart request factory mutex poisoned")
                     .clone();
+                let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
+                let request_builder = request_parts.build_request_builder().multipart(form);
+
+                Ok(request_builder.build()?)
+            }
+        }))
+    }
+
+    #[cfg(target_family = "wasm")]
+    fn build_request_factory_with_form<F>(
+        &self,
+        method: reqwest::Method,
+        path: &str,
+        form: F,
+        request_options: &RequestOptions,
+    ) -> Result<HttpRequestFactory, OpenAIError>
+    where
+        F: Clone + 'static,
+        Form: AsyncTryFrom<F, Error = OpenAIError>,
+    {
+        let request_parts = self.build_request_parts(method, path, request_options);
+
+        Ok(HttpRequestFactory::new(move || {
+            let request_parts = request_parts.clone();
+            let form = form.clone();
+
+            async move {
                 let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
                 let request_builder = request_parts.build_request_builder().multipart(form);
 
@@ -754,53 +782,11 @@ pub(crate) async fn stream<O>(response: Response) -> crate::types::stream::Strea
 where
     O: DeserializeOwned + 'static,
 {
-    if !response.status().is_success() {
-        return Box::pin(futures::stream::once(async move {
-            match read_response(response).await {
-                Ok(_) => Err(OpenAIError::InvalidArgument(
-                    "stream request failed without an error body".into(),
-                )),
-                Err(error) => Err(error),
-            }
-        }));
-    }
-
-    let byte_stream = response
-        .bytes_stream()
-        .map(|result| result.map_err(std::io::Error::other));
-    let event_stream = Box::pin(eventsource_stream::EventStream::new(byte_stream));
-
-    Box::pin(futures::stream::unfold(
-        event_stream,
-        |mut event_stream| async {
-            loop {
-                let event = match event_stream.next().await {
-                    Some(Ok(event)) => event,
-                    Some(Err(error)) => {
-                        return Some((
-                            Err(OpenAIError::StreamError(Box::new(
-                                StreamError::EventStream(error.to_string()),
-                            ))),
-                            event_stream,
-                        ));
-                    }
-                    None => return None,
-                };
-
-                if event.data == "[DONE]" {
-                    return None;
-                }
-                if event.event == "keepalive" {
-                    continue;
-                }
-
-                let response = serde_json::from_str::<O>(&event.data)
-                    .map_err(|error| map_deserialization_error(error, event.data.as_bytes()));
-
-                return Some((response, event_stream));
-            }
-        },
-    ))
+    stream_mapped_raw_events(response, |event| {
+        serde_json::from_str::<O>(&event.data)
+            .map_err(|error| map_deserialization_error(error, event.data.as_bytes()))
+    })
+    .await
 }
 
 #[cfg(target_family = "wasm")]
@@ -868,47 +854,11 @@ pub(crate) async fn stream<O>(response: Response) -> crate::types::stream::Strea
 where
     O: DeserializeOwned + std::marker::Send + 'static,
 {
-    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-
-    tokio::spawn(async move {
-        if !response.status().is_success() {
-            if let Err(e) = read_response(response).await {
-                let _ = tx.send(Err(e));
-            }
-            return;
-        }
-        let byte_stream = response
-            .bytes_stream()
-            .map(|r| r.map_err(std::io::Error::other));
-        let mut event_stream = std::pin::pin!(eventsource_stream::EventStream::new(byte_stream));
-
-        while let Some(ev) = event_stream.next().await {
-            let event = match ev {
-                Ok(e) => e,
-                Err(e) => {
-                    let _ = tx.send(Err(OpenAIError::StreamError(Box::new(
-                        StreamError::EventStream(e.to_string()),
-                    ))));
-                    break;
-                }
-            };
-            if event.data == "[DONE]" {
-                break;
-            }
-            if event.event == "keepalive" {
-                continue;
-            }
-
-            let response = serde_json::from_str::<O>(&event.data)
-                .map_err(|e| map_deserialization_error(e, event.data.as_bytes()));
-
-            if tx.send(response).is_err() {
-                break;
-            }
-        }
-    });
-
-    Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+    stream_mapped_raw_events(response, |event| {
+        serde_json::from_str::<O>(&event.data)
+            .map_err(|error| map_deserialization_error(error, event.data.as_bytes()))
+    })
+    .await
 }
 
 #[cfg(not(target_family = "wasm"))]
