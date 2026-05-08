@@ -19,7 +19,10 @@
 
 ## Overview
 
-`async-openai` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi). It implements all APIs from the spec:
+`async-openai` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi). It implements all APIs from the spec.
+
+<details>
+<summary>Feature Flags</summary>
 
 | What | APIs | Crate Feature Flags |
 |---|---|---|
@@ -36,16 +39,18 @@
 | **Administration** | Admin API Keys, Invites, Users, Groups, Roles, Role assignments, Projects, Project users, Project groups, Project service accounts, Project API keys, Project rate limits, Audit logs, Usage, Certificates | `administration` |
 | **Legacy** | Completions | `completions` |
 
-Features that makes `async-openai` unique:
+</details>
+
+
 - Bring your own custom types for Request or Response objects.
-- SSE streaming on available APIs.
-- Customize path, query and headers per request; customize path and headers globally (for all requests).
-- Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
+- Requests are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
 - Ergonomic builder pattern for all request objects.
-- Granular feature flags to enable any types or apis: good for faster compilation and crate reuse.
-- Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec).
-- WASM (doesn't support streaming yet)
-- Middleware support with [tower](https://crates.io/crates/tower) ecosystem
+- SSE streaming.
+- Customize path, query and headers per request or for all requests.
+- Granular feature flags to enable any types or apis.
+- Microsoft Azure OpenAI Service.
+- WASM.
+- Middleware support with [tower](https://crates.io/crates/tower) ecosystem.
 
 ## Usage
 
@@ -110,10 +115,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
   <br/>
   <sub>Scaled up for README, actual size 256x256</sub>
 </div>
-
-## Webhooks
-
-Support for webhook includes event types, signature verification, and building webhook events from payloads.
 
 ## Bring Your Own Types
 
@@ -236,6 +237,10 @@ fn chat_completion(client: &Client<Box<dyn Config>>) {
     todo!() 
 }
 ```
+
+## Webhooks
+
+Support for webhook includes event types, signature verification, and building webhook events from payloads.
 
 ## Middleware
 
