@@ -18,7 +18,9 @@ pub trait AsyncTryFrom<T>: Sized {
     type Error;
 
     /// Performs the conversion.
-    fn try_from(value: T) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send;
+    fn try_from(
+        value: T,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + MaybeSend;
 }
 
 /// Trait for events to get their event type string.
