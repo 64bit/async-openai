@@ -571,7 +571,6 @@ impl<C: Config> Client<C> {
 
     /// POST a form at {path} and return the response body
     #[allow(unused)]
-    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn post_form_raw<F>(
         &self,
         path: &str,
@@ -579,29 +578,7 @@ impl<C: Config> Client<C> {
         request_options: &RequestOptions,
     ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
-        F: Clone + Send + 'static,
-        Form: AsyncTryFrom<F, Error = OpenAIError>,
-    {
-        let request_factory = self.build_request_factory_with_form(
-            reqwest::Method::POST,
-            path,
-            form,
-            request_options,
-        )?;
-        self.execute_raw(request_factory).await
-    }
-
-    /// POST a form at {path} and return the response body
-    #[allow(unused)]
-    #[cfg(target_family = "wasm")]
-    pub(crate) async fn post_form_raw<F>(
-        &self,
-        path: &str,
-        form: F,
-        request_options: &RequestOptions,
-    ) -> Result<(Bytes, HeaderMap), OpenAIError>
-    where
-        F: Clone + 'static,
+        F: Clone + crate::traits::MaybeSend + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
         let request_factory = self.build_request_factory_with_form(
@@ -615,7 +592,6 @@ impl<C: Config> Client<C> {
 
     /// POST a form at {path} and deserialize the response body
     #[allow(unused)]
-    #[cfg(not(target_family = "wasm"))]
     pub(crate) async fn post_form<O, F>(
         &self,
         path: &str,
@@ -624,30 +600,7 @@ impl<C: Config> Client<C> {
     ) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
-        F: Clone + Send + 'static,
-        Form: AsyncTryFrom<F, Error = OpenAIError>,
-    {
-        let request_factory = self.build_request_factory_with_form(
-            reqwest::Method::POST,
-            path,
-            form,
-            request_options,
-        )?;
-        self.execute(request_factory).await
-    }
-
-    /// POST a form at {path} and deserialize the response body
-    #[allow(unused)]
-    #[cfg(target_family = "wasm")]
-    pub(crate) async fn post_form<O, F>(
-        &self,
-        path: &str,
-        form: F,
-        request_options: &RequestOptions,
-    ) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
-        F: Clone + 'static,
+        F: Clone + crate::traits::MaybeSend + 'static,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
         let request_factory = self.build_request_factory_with_form(
