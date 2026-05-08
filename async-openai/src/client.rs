@@ -777,10 +777,11 @@ async fn read_response(response: Response) -> Result<(Bytes, HeaderMap), OpenAIE
     Ok((bytes, headers))
 }
 
-#[cfg(target_family = "wasm")]
+/// Request which responds with SSE.
+/// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
 pub(crate) async fn stream<O>(response: Response) -> crate::types::stream::StreamResponse<O>
 where
-    O: DeserializeOwned + 'static,
+    O: DeserializeOwned + crate::traits::MaybeSend + 'static,
 {
     stream_mapped_raw_events(response, |event| {
         serde_json::from_str::<O>(&event.data)
@@ -845,20 +846,6 @@ where
             }
         },
     ))
-}
-
-/// Request which responds with SSE.
-/// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-#[cfg(not(target_family = "wasm"))]
-pub(crate) async fn stream<O>(response: Response) -> crate::types::stream::StreamResponse<O>
-where
-    O: DeserializeOwned + std::marker::Send + 'static,
-{
-    stream_mapped_raw_events(response, |event| {
-        serde_json::from_str::<O>(&event.data)
-            .map_err(|error| map_deserialization_error(error, event.data.as_bytes()))
-    })
-    .await
 }
 
 #[cfg(not(target_family = "wasm"))]
