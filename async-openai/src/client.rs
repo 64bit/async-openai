@@ -791,12 +791,8 @@ where
     let event_stream = Box::pin(eventsource_stream::EventStream::new(byte_stream));
 
     Box::pin(futures::stream::unfold(
-        (event_stream, event_mapper, false),
-        |(mut event_stream, event_mapper, finished)| async move {
-            if finished {
-                return None;
-            }
-
+        (event_stream, event_mapper),
+        |(mut event_stream, event_mapper)| async move {
             loop {
                 let event = match event_stream.next().await {
                     Some(Ok(event)) => event,
@@ -805,20 +801,22 @@ where
                             Err(OpenAIError::StreamError(Box::new(
                                 StreamError::EventStream(error.to_string()),
                             ))),
-                            (event_stream, event_mapper, true),
+                            (event_stream, event_mapper),
                         ));
                     }
                     None => return None,
                 };
 
-                let done = event.data == "[DONE]";
+                if event.data == "[DONE]" {
+                    return None;
+                }
 
                 if event.event == "keepalive" {
                     continue;
                 }
 
                 let response = event_mapper(event);
-                return Some((response, (event_stream, event_mapper, done)));
+                return Some((response, (event_stream, event_mapper)));
             }
         },
     ))
@@ -856,7 +854,9 @@ where
                     break;
                 }
             };
-            let done = event.data == "[DONE]";
+            if event.data == "[DONE]" {
+                break;
+            }
 
             if event.event == "keepalive" {
                 continue;
@@ -865,10 +865,6 @@ where
             let response = event_mapper(event);
 
             if tx.send(response).is_err() {
-                break;
-            }
-
-            if done {
                 break;
             }
         }
