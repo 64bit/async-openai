@@ -145,7 +145,7 @@
 //! Use `Config`, `OpenAIConfig` etc. for configuring url, headers or query parameters globally for all requests.
 //!
 //!
-//! **Dynamic Dispatch**
+//! ### Dynamic Dispatch
 //!
 //! This allows you to use same code (say a `fn`) to call APIs on different OpenAI-compatible providers.
 //!
