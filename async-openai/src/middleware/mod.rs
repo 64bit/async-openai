@@ -118,8 +118,7 @@
 //!
 //! With the `byot` feature, generated `*_byot` methods keep the same minimal
 //! trait bounds with or without middleware. JSON request bodies are serialized
-//! before they enter the replayable middleware request factory; multipart
-//! request bodies use the client-level replay bounds required by form handling.
+//! before they enter the replayable middleware request factory.
 
 /// Retry layers and policies for middleware.
 pub mod retry {

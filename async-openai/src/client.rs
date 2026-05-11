@@ -401,9 +401,7 @@ impl<C: Config> Client<C> {
         I: Serialize,
     {
         // JSON bodies are materialized once so the base BYOT path can keep
-        // accepting borrowed inputs. Middleware-enabled BYOT still adds owned
-        // replay bounds in the macro, but the core client does not force those
-        // bounds onto non-middleware users.
+        // accepting borrowed inputs.
         let request = Bytes::from(serde_json::to_vec(&request).map_err(|error| {
             OpenAIError::InvalidArgument(format!("failed to serialize request: {error}"))
         })?);
