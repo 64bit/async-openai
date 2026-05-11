@@ -119,7 +119,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
   <sub>Scaled up for README, actual size 256x256</sub>
 </div>
 
-## OpenAI-compatible Providers
+## OpenAI Compatible Providers
 
 Even though the scope of the crate is official OpenAI APIs, it is very configurable to work with compatible providers.
 
@@ -179,7 +179,7 @@ Configure path, headers, and query parameters for a HTTP request.
 #### Request Options
 Use `path()`, `.query()`, `.header()`, `.headers()` on the API group. Path overrides the default path but all other methods are additive - adds to existing query or headers.
 
-For example:
+For demonstration:
 ```rust
 client.
   .chat()
