@@ -54,7 +54,11 @@
 //! # });
 //!```
 //!
-//! ## Bring Your Own Types
+//! ## OpenAI Compatible Providers
+//!
+//! Even though the scope of the crate is official OpenAI APIs, it is very configurable to work with compatible providers.
+//!
+//! ### Bring Your Own Types
 //!
 //! To use custom types for inputs and outputs, enable `byot` feature which provides additional generic methods with same name and `_byot` suffix.
 //! This feature is available on methods whose return type is not `Bytes`
@@ -109,25 +113,14 @@
 //! # });
 //! ```
 //!
-//! ## Rust Types
+//! ### Configurable Requests
+//! Configure path, headers, and query parameters for a HTTP request.
 //!
-//! To only use Rust types from the crate - use feature flag `types`.
+//! **Request Options**
 //!
-//! There are granular feature flags like `response-types`, `chat-completion-types`, etc.
+//! Use `path()`, `.query()`, `.header()`, `.headers()` on the API group. Path overrides the default path but all other methods are additive - adds to existing query or headers.
 //!
-//! These granular types are enabled when the corresponding API feature is enabled - for example `responses` will enable `response-types`.
-//!
-//! ## WASM
-//! WASM is supported for all APIs.
-//! See [examples/wasm-responses](https://github.com/64bit/async-openai/tree/main/examples/wasm-responses) or [examples/tower-wasm](https://github.com/64bit/async-openai/tree/main/examples/tower-wasm).
-//!
-//! ## Configurable Requests
-//!
-//! **Individual Request**
-//!
-//! Certain individual APIs that need additional query or header parameters - these can be provided by chaining `.query()`, `.header()`, `.headers()` on the API group.
-//!
-//! For example:
+//! For demonstration:
 //! ```
 //! # tokio_test::block_on(async {
 //! # use async_openai::Client;
@@ -135,49 +128,24 @@
 //! # let client = Client::new();
 //! client
 //!   .chat()
-//!   // query can be a struct or a map too.
+//!   // override default path
+//!   .path("/v1/messages")
+//!   // query can be a struct or a map too - additive
 //!   .query(&[("limit", "10")])?
-//!   // header for demo
-//!   .header("key", "value")?
+//!   // header for unique id for this API request - additive
+//!   .header("x-request-id", "id123")?
 //!   .list()
 //!   .await?;
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! # });
 //! ```
 //!
-//! **All Requests**
+//! **Modifying all Requests**
 //!
 //! Use `Config`, `OpenAIConfig` etc. for configuring url, headers or query parameters globally for all requests.
 //!
-//! ## OpenAI-compatible Providers
 //!
-//! Even though the scope of the crate is official OpenAI APIs, it is very configurable to work with compatible providers.
-//!
-//! **Configurable Path**
-//!
-//! In addition to `.query()`, `.header()`, `.headers()` a path for individual request can be changed by using `.path()`, method on the API group.
-//!
-//! For example:
-//! ```
-//! # tokio_test::block_on(async {
-//! # use async_openai::{Client, types::chat::CreateChatCompletionRequestArgs};
-//! # use async_openai::traits::RequestOptionsBuilder;
-//! # let client = Client::new();
-//! # let request = CreateChatCompletionRequestArgs::default()
-//! #     .model("gpt-4")
-//! #     .messages([])
-//! #     .build()
-//! #     .unwrap();
-//! client
-//!   .chat()
-//!   .path("/v1/messages")?
-//!   .create(request)
-//!   .await?;
-//! # Ok::<(), Box<dyn std::error::Error>>(())
-//! # });
-//! ```
-//!
-//! **Dynamic Dispatch**
+//! ### Dynamic Dispatch
 //!
 //! This allows you to use same code (say a `fn`) to call APIs on different OpenAI-compatible providers.
 //!
@@ -199,7 +167,7 @@
 //! }
 //! ```
 //!
-//! ## Microsoft Azure
+//! ### Microsoft Azure
 //!
 //! ```
 //! use async_openai::{Client, config::AzureConfig};
@@ -212,10 +180,21 @@
 //!
 //! let client = Client::with_config(config);
 //!
-//! // Note that `async-openai` only implements OpenAI spec
-//! // and doesn't maintain parity with the spec of Azure OpenAI service.
 //!
 //! ```
+//!
+//!
+//! ## Rust Types
+//!
+//! To only use Rust types from the crate - use feature flag `types`.
+//!
+//! There are granular feature flags like `response-types`, `chat-completion-types`, etc.
+//!
+//! These granular types are enabled when the corresponding API feature is enabled - for example `responses` will enable `response-types`.
+//!
+//! ## WASM
+//! WASM is supported for all APIs.
+//! See [examples/wasm-responses](https://github.com/64bit/async-openai/tree/main/examples/wasm-responses) or [examples/tower-wasm](https://github.com/64bit/async-openai/tree/main/examples/tower-wasm).
 //!
 //!
 //! ## Middleware

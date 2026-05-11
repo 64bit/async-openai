@@ -19,7 +19,18 @@
 
 ## Overview
 
-`async-openai` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi). It implements all APIs from the spec.
+`async-openai` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi).
+  - Requests are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
+  - Ergonomic builder pattern for all request objects.
+  - SSE streaming.
+  - Granular feature flags to enable any types or apis.
+  - WASM.
+  - Middleware support with [tower](https://crates.io/crates/tower) ecosystem.
+
+**+ OpenAI compatible providers**
+  - Bring your own custom types for Request or Response objects.
+  - Customize path, query and headers per request or for all requests.
+  - Microsoft Azure OpenAI Service.
 
 <details>
 <summary>Feature Flags</summary>
@@ -40,17 +51,6 @@
 | **Legacy** | Completions | `completions` |
 
 </details>
-
-
-- Bring your own custom types for Request or Response objects.
-- Requests are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
-- Ergonomic builder pattern for all request objects.
-- SSE streaming.
-- Customize path, query and headers per request or for all requests.
-- Granular feature flags to enable any types or apis.
-- Microsoft Azure OpenAI Service.
-- WASM.
-- Middleware support with [tower](https://crates.io/crates/tower) ecosystem.
 
 ## Usage
 
@@ -116,7 +116,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
   <sub>Scaled up for README, actual size 256x256</sub>
 </div>
 
-## Bring Your Own Types
+## OpenAI Compatible Providers
+
+Even though the scope of the crate is official OpenAI APIs, it is very configurable to work with compatible providers.
+
+### Bring Your Own Types
 
 Enable methods whose input and outputs are generics with `byot` feature. It creates a new method with same name and `_byot` suffix. 
 
@@ -142,17 +146,17 @@ let response: Value = client
 ```
 
 This can be useful in many scenarios:
-- To use this library with other OpenAI compatible APIs whose types don't exactly match OpenAI. 
-- Extend existing types in this crate with new fields with `serde` (for example with `#[serde(flatten)]`).
+- When shape of request/response in OpenAI-compatible APIs don't exactly match OpenAI. 
+- Extend existing types in this crate with new fields like `extra_body` (with serde flatten)
 - To avoid typing verbose types.
-- To escape deserialization errors.
+- To escape deserialization errors on expected type and actual response mismatch.
 
 `*_byot` methods require same trait bounds as regular methods.
 
 Visit [examples/bring-your-own-type](https://github.com/64bit/async-openai/tree/main/examples/bring-your-own-type)
 directory to learn more.
 
-### References: Borrow Instead of Move
+#### References: Borrow Instead of Move
 
 With `byot` use reference to request types
 
@@ -165,52 +169,31 @@ let response: Response = client
 Visit [examples/borrow-instead-of-move](https://github.com/64bit/async-openai/tree/main/examples/borrow-instead-of-move) to learn more.
 
 
-## Rust Types
+### Configurable Requests
 
-To only use Rust types from the crate - disable default features and use feature flag `types`. 
+Configure path, headers, and query parameters for a HTTP request.
 
-There are granular feature flags like `response-types`, `chat-completion-types`, etc.
+#### Request Options
+Use `path()`, `.query()`, `.header()`, `.headers()` on the API group. Path overrides the default path but all other methods are additive - adds to existing query or headers.
 
-These granular types are enabled when the corresponding API feature is enabled - for example `responses` will enable `response-types`.
-
-## Configurable Requests
-
-### Individual Request
-Certain individual APIs that need additional query or header parameters - these can be provided by chaining `.query()`, `.header()`, `.headers()` on the API group. 
-
-For example:
+For demonstration:
 ```rust
 client.
   .chat()
-  // query can be a struct or a map too.
+  // override default path
+  .path("/v1/messages")
+  // query can be a struct or a map too - additive
   .query(&[("limit", "10")])?
-  // header for demo
-  .header("key", "value")?
+  // header for unique id for this API request - additive
+  .header("x-request-id", "id123")?
   .list()
   .await?
 ```
 
-### All Requests
+#### Modifying all Requests
 
 Use `Config`, `OpenAIConfig` etc. for configuring url, headers or query parameters globally for all requests.
 
-## OpenAI-compatible Providers
-
-Even though the scope of the crate is official OpenAI APIs, it is very configurable to work with compatible providers.
-
-### Configurable Path
-
-In addition to  `.query()`, `.header()`, `.headers()` a path for individual request can be changed by using `.path()`,  method on the API group.
-
-For example:
-
-```rust
-client
-  .chat()
-  .path("/v1/messages")?
-  .create(request)
-  .await?
-```
 
 ### Dynamic Dispatch
 
@@ -234,6 +217,14 @@ fn chat_completion(client: &Client<Box<dyn Config>>) {
     todo!() 
 }
 ```
+
+## Rust Types
+
+To only use Rust types from the crate - disable default features and use feature flag `types`. 
+
+There are granular feature flags like `response-types`, `chat-completion-types`, etc.
+
+These granular types are enabled when the corresponding API feature is enabled - for example `responses` will enable `response-types`.
 
 ## Webhooks
 

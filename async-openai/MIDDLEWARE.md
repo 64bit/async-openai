@@ -102,6 +102,6 @@ Tower's `BoxError` converts into `OpenAIError::Boxed`, which is useful for gener
 
 ## Bring Your Own Types Interaction
 
-With the `byot` feature, generated `*_byot` methods keep the same minimal trait bounds with or without middleware. JSON request bodies are serialized before they enter the replayable middleware request factory; multipart request bodies use the client-level replay bounds required by form handling.
+With the `byot` feature, generated `*_byot` methods keep the same minimal trait bounds with or without middleware. JSON request bodies are serialized before they enter the replayable middleware request factory.
 
 
