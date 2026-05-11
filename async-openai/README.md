@@ -20,6 +20,17 @@
 ## Overview
 
 `async-openai` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi).
+  - Requests are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
+  - Ergonomic builder pattern for all request objects.
+  - SSE streaming.
+  - Granular feature flags to enable any types or apis.
+  - WASM.
+  - Middleware support with [tower](https://crates.io/crates/tower) ecosystem.
+
+**+ OpenAI compatible providers**
+  - Bring your own custom types for Request or Response objects.
+  - Customize path, query and headers per request or for all requests.
+  - Microsoft Azure OpenAI Service.
 
 <details>
 <summary>Feature Flags</summary>
@@ -40,20 +51,6 @@
 | **Legacy** | Completions | `completions` |
 
 </details>
-
-
-**OpenAI**
-  - Requests are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
-  - Ergonomic builder pattern for all request objects.
-  - SSE streaming.
-  - Granular feature flags to enable any types or apis.
-  - WASM.
-  - Middleware support with [tower](https://crates.io/crates/tower) ecosystem.
-
-**+ OpenAI compatible providers**
-  - Bring your own custom types for Request or Response objects.
-  - Customize path, query and headers per request or for all requests.
-  - Microsoft Azure OpenAI Service.
 
 ## Usage
 
