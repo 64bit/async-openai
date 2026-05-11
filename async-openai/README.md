@@ -50,7 +50,7 @@
   - WASM.
   - Middleware support with [tower](https://crates.io/crates/tower) ecosystem.
 
-**OpenAI compatible providers**
+**+ OpenAI compatible providers**
   - Bring your own custom types for Request or Response objects.
   - Customize path, query and headers per request or for all requests.
   - Microsoft Azure OpenAI Service.
@@ -149,10 +149,10 @@ let response: Value = client
 ```
 
 This can be useful in many scenarios:
-- To use this library with other OpenAI compatible APIs whose types don't exactly match OpenAI. 
-- Extend existing types in this crate with new fields with `serde` (for example with `#[serde(flatten)]`).
+- When shape of request/response in OpenAI-compatible APIs don't exactly match OpenAI. 
+- Extend existing types in this crate with new fields like `extra_body` (with serde flatten)
 - To avoid typing verbose types.
-- To escape deserialization errors.
+- To escape deserialization errors on expected type and actual response mismatch.
 
 `*_byot` methods require same trait bounds as regular methods.
 
