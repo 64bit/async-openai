@@ -19,7 +19,7 @@
 
 ## Overview
 
-`async-openai` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi). It implements all APIs from the spec.
+`async-openai` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi).
 
 <details>
 <summary>Feature Flags</summary>
