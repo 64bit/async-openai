@@ -703,7 +703,8 @@ pub struct InputTextContent {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct InputImageContent {
     /// The detail level of the image to be sent to the model. One of `high`, `low`, or `auto`.
-    /// Defaults to `auto`.
+    /// Defaults to `auto` when omitted in JSON input.
+    #[serde(default)]
     pub detail: ImageDetail,
     /// The ID of the file to be sent to the model.
     #[serde(skip_serializing_if = "Option::is_none")]
