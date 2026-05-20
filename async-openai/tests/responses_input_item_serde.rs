@@ -64,6 +64,33 @@ fn web_search_approximate_location_without_type_defaults_and_serializes_canonica
 }
 
 #[test]
+fn response_output_item_added_web_search_call_without_action_deserializes() {
+    let event: ResponseStreamEvent = serde_json::from_value(json!({
+        "type": "response.output_item.added",
+        "sequence_number": 2,
+        "output_index": 0,
+        "item": {
+            "id": "ws_123",
+            "type": "web_search_call",
+            "status": "in_progress"
+        }
+    }))
+    .expect("deserialize in-progress web search call without action");
+
+    match event {
+        ResponseStreamEvent::ResponseOutputItemAdded(event) => match event.item {
+            OutputItem::WebSearchCall(call) => {
+                assert_eq!(call.id, "ws_123");
+                assert_eq!(call.status, WebSearchToolCallStatus::InProgress);
+                assert_eq!(call.action, None);
+            }
+            other => panic!("expected WebSearchCall, got {other:?}"),
+        },
+        other => panic!("expected ResponseOutputItemAdded, got {other:?}"),
+    }
+}
+
+#[test]
 fn input_item_easy_message_multimodal_without_detail_defaults_and_serializes_canonically() {
     let input_item: InputItem = serde_json::from_value(json!({
         "role": "user",
