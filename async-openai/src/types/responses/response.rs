@@ -1139,6 +1139,7 @@ pub struct ResponseTextParam {
     /// Setting to `{ "type": "json_object" }` enables the older JSON mode, which
     /// ensures the message the model generates is valid JSON. Using `json_schema`
     /// is preferred for models that support it.
+    #[serde(default)]
     pub format: TextResponseFormatConfiguration,
 
     /// Constrains the verbosity of the model's response. Lower values will result in
@@ -1149,10 +1150,11 @@ pub struct ResponseTextParam {
     pub verbosity: Option<Verbosity>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum TextResponseFormatConfiguration {
     /// Default response format. Used to generate text responses.
+    #[default]
     Text,
     /// JSON object response format. An older method of generating JSON responses.
     /// Using `json_schema` is recommended for models that support it.
