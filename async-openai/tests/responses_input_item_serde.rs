@@ -2,7 +2,8 @@
 
 use async_openai::types::responses::{
     EasyInputContent, ImageDetail, InputContent, InputItem, InputRole, Item, MessageItem,
-    MessageType, Role, WebSearchApproximateLocation, WebSearchApproximateLocationType,
+    MessageType, OutputItem, ResponseStreamEvent, Role, WebSearchApproximateLocation,
+    WebSearchApproximateLocationType, WebSearchToolCallStatus,
 };
 use serde_json::json;
 
