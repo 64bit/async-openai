@@ -12,7 +12,7 @@ use crate::error::StreamError;
 use crate::executor::TowerExecutor;
 use crate::{
     config::{Config, OpenAIConfig},
-    error::{map_deserialization_error, ApiError, OpenAIError, WrappedError},
+    error::{map_deserialization_error, ApiError, ApiErrorResponse, OpenAIError, WrappedError},
     executor::{HttpRequestFactory, ReqwestExecutor, SharedExecutor},
     traits::AsyncTryFrom,
     RequestOptions,
@@ -732,11 +732,14 @@ async fn read_response(response: Response) -> Result<(Bytes, HeaderMap), OpenAIE
         // OpenAI does not guarantee server errors are returned as JSON so we cannot deserialize them.
         let message: String = String::from_utf8_lossy(&bytes).into_owned();
         tracing::warn!("Server error: {status} - {message}");
-        return Err(OpenAIError::ApiError(ApiError {
-            message,
-            r#type: None,
-            param: None,
-            code: None,
+        return Err(OpenAIError::ApiError(ApiErrorResponse {
+            status_code: status,
+            api_error: ApiError {
+                message,
+                r#type: None,
+                param: None,
+                code: None,
+            },
         }));
     }
 
@@ -745,7 +748,10 @@ async fn read_response(response: Response) -> Result<(Bytes, HeaderMap), OpenAIE
         let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
             .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
 
-        return Err(OpenAIError::ApiError(wrapped_error.error));
+        return Err(OpenAIError::ApiError(ApiErrorResponse {
+            status_code: status,
+            api_error: wrapped_error.error,
+        }));
     }
 
     Ok((bytes, headers))
