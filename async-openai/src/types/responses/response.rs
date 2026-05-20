@@ -2034,7 +2034,12 @@ pub enum WebSearchToolCallAction {
 pub struct WebSearchToolCall {
     /// An object describing the specific action taken in this web search call. Includes
     /// details on how the model used the web (search, open_page, find, find_in_page).
-    pub action: WebSearchToolCallAction,
+    ///
+    /// This is optional because `response.output_item.added` events can include
+    /// in-progress web search calls before OpenAI has populated the action.
+    /// See <https://github.com/64bit/async-openai/issues/548>.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub action: Option<WebSearchToolCallAction>,
     /// The unique ID of the web search tool call.
     pub id: String,
     /// The status of the web search tool call.
