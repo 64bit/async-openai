@@ -2,7 +2,8 @@
 
 use async_openai::types::responses::{
     EasyInputContent, ImageDetail, InputContent, InputItem, InputRole, Item, MessageItem,
-    MessageType, OutputItem, ResponseStreamEvent, Role, WebSearchApproximateLocation,
+    MessageType, OutputItem, ResponseStreamEvent, ResponseTextParam, Role,
+    TextResponseFormatConfiguration, WebSearchApproximateLocation,
     WebSearchApproximateLocationType, WebSearchToolCallStatus,
 };
 use serde_json::json;
@@ -139,6 +140,15 @@ fn input_item_easy_message_multimodal_without_detail_defaults_and_serializes_can
             ]
         })
     );
+}
+
+#[test]
+fn response_text_param_without_format_defaults_to_text() {
+    let param: ResponseTextParam =
+        serde_json::from_value(json!({})).expect("deserialize ResponseTextParam without format");
+
+    assert_eq!(param.format, TextResponseFormatConfiguration::Text);
+    assert_eq!(param.verbosity, None);
 }
 
 #[test]
