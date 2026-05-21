@@ -34,7 +34,7 @@ pub async fn structured_output<T: serde::Serialize + DeserializeOwned + JsonSche
         json_schema: ResponseFormatJsonSchema {
             description: None,
             name: "math_reasoning".into(),
-            schema: Some(schema_value),
+            schema: schema_value,
             strict: Some(true),
         },
     };

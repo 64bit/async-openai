@@ -47,7 +47,7 @@ async fn chain_of_thought(client: &Client<OpenAIConfig>) -> Result<(), Box<dyn E
                 "A step-by-step reasoning process for solving math problems".to_string(),
             ),
             name: "math_reasoning".to_string(),
-            schema: Some(schema),
+            schema,
             strict: Some(true),
         })
         .input(vec![
@@ -107,7 +107,7 @@ async fn structured_data_extraction(client: &Client<OpenAIConfig>) -> Result<(),
         .text(ResponseFormatJsonSchema {
             description: Some("Extract structured information from text".to_string()),
             name: "person_info".to_string(),
-            schema: Some(schema),
+            schema,
             strict: Some(true),
         })
         .input(vec![
@@ -192,7 +192,7 @@ async fn ui_generation(client: &Client<OpenAIConfig>) -> Result<(), Box<dyn Erro
         .text(ResponseFormatJsonSchema {
             description: Some("Generate HTML and CSS code for UI components".to_string()),
             name: "ui_component".to_string(),
-            schema: Some(schema),
+            schema,
             strict: Some(true),
         })
         .input(vec![
@@ -257,7 +257,7 @@ async fn moderation(client: &Client<OpenAIConfig>) -> Result<(), Box<dyn Error>>
         .text(ResponseFormatJsonSchema {
             description: Some("Analyze content for policy violations and provide structured moderation results".to_string()),
             name: "moderation_result".to_string(),
-            schema: Some(schema),
+            schema,
             strict: Some(true),
         })
         .input(vec![
@@ -320,7 +320,7 @@ async fn streaming_structured_output(client: &Client<OpenAIConfig>) -> Result<()
         .text(ResponseFormatJsonSchema {
             description: Some("Extract entities from the input text".to_string()),
             name: "entities".to_string(),
-            schema: Some(schema),
+            schema,
             strict: Some(true),
         })
         .input(vec![
