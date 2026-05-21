@@ -16,6 +16,8 @@ repository = "https://github.com/64bit/async-openai"
 default = ["rustls"]
 # Enable rustls for TLS support (uses rustls-platform-verifier for roots in reqwest 0.13)
 rustls = ["dep:reqwest", "reqwest/rustls"]
+# Enable rustls without a crypto provider; consumer must install one (e.g. ring or aws-lc-rs)
+rustls-no-provider = ["dep:reqwest", "reqwest/rustls-no-provider"]
 # Enable native-tls for TLS support
 native-tls = ["dep:reqwest", "reqwest/native-tls"]
 # Remove dependency on OpenSSL
