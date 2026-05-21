@@ -116,7 +116,7 @@ impl std::error::Error for ApiError {}
 pub struct ApiErrorResponse {
     /// HTTP status code
     pub status_code: reqwest::StatusCode,
-    /// Parsed error from response 
+    /// Parsed error from response
     pub api_error: ApiError,
 }
 
