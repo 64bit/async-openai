@@ -304,7 +304,7 @@ async fn structured_output() -> Result<(), Box<dyn Error>> {
         )])
         .response_format(ResponseFormat::JsonSchema {
             json_schema: ResponseFormatJsonSchema {
-                schema: Some(schema),
+                schema,
                 description: None,
                 name: "math_reasoning".into(),
                 strict: Some(true),
