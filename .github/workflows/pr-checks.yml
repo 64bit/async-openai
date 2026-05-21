@@ -118,3 +118,55 @@ jobs:
         env:
           RUSTFLAGS: "-D warnings"
         run: cargo build --no-default-features --features ${{ matrix.feature }},middleware --verbose
+
+  tls-features:
+    name: TLS Feature - ${{ matrix.feature }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        feature: [rustls, rustls-no-provider, native-tls, native-tls-vendored]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build with TLS feature ${{ matrix.feature }}
+        env:
+          RUSTFLAGS: "-D warnings"
+        run: cargo build -p async-openai --no-default-features --features ${{ matrix.feature }},chat-completion --verbose
+
+      # -e normal,build matches what `cargo build` actually compiles.
+      # `--prefix none` keeps the
+      # output as one crate per line so the grep below can anchor on the
+      # crate name precisely.
+      - name: Verify aws-lc-rs is absent under ${{ matrix.feature }}
+        if: matrix.feature != 'rustls'
+        run: |
+          tree=$(cargo tree -p async-openai --no-default-features \
+            --features ${{ matrix.feature }},chat-completion \
+            -e normal,build --prefix none)
+          if echo "$tree" | grep -qE '^aws-lc-rs( |$)'; then
+            echo "ERROR: aws-lc-rs was pulled in by ${{ matrix.feature }}:"
+            echo "$tree" | grep -E '^aws-lc'
+            exit 1
+          fi
+          echo "OK: no aws-lc-rs in dependency tree"
+
+      - name: Verify aws-lc-rs is present under rustls (sanity check)
+        if: matrix.feature == 'rustls'
+        run: |
+          tree=$(cargo tree -p async-openai --no-default-features \
+            --features rustls,chat-completion \
+            -e normal,build --prefix none)
+          if ! echo "$tree" | grep -qE '^aws-lc-rs( |$)'; then
+            echo "ERROR: expected aws-lc-rs to be pulled in by rustls feature, but it was not"
+            exit 1
+          fi
+          echo "OK: aws-lc-rs present in dependency tree"
