@@ -38,7 +38,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         json_schema: ResponseFormatJsonSchema {
             description: None,
             name: "math_reasoning".into(),
-            schema: Some(schema),
+            schema,
             strict: Some(true),
         },
     };
