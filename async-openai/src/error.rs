@@ -8,9 +8,10 @@ pub enum OpenAIError {
     /// Underlying error from reqwest library after an API call was made
     #[error("http error: {0}")]
     Reqwest(#[from] reqwest::Error),
-    /// OpenAI returns error object with details of API call failure
+    /// OpenAI returns error object with details of API call failure, along
+    /// with the HTTP status code from the response.
     #[error("{0}")]
-    ApiError(ApiError),
+    ApiError(ApiErrorResponse),
     /// Error when a response cannot be deserialized into a Rust type
     #[error("failed to deserialize api response: error:{0} content:{1}")]
     JSONDeserialize(serde_json::Error, String),
@@ -108,6 +109,26 @@ impl std::fmt::Display for ApiError {
 }
 
 impl std::error::Error for ApiError {}
+
+/// `ApiError` paired with the HTTP status code from the response.
+#[cfg(feature = "_api")]
+#[derive(Debug, Clone)]
+pub struct ApiErrorResponse {
+    /// HTTP status code
+    pub status_code: reqwest::StatusCode,
+    /// Parsed error from response
+    pub api_error: ApiError,
+}
+
+#[cfg(feature = "_api")]
+impl std::fmt::Display for ApiErrorResponse {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} {}", self.status_code, self.api_error)
+    }
+}
+
+#[cfg(feature = "_api")]
+impl std::error::Error for ApiErrorResponse {}
 
 /// Wrapper to deserialize the error object nested in "error" JSON key
 #[derive(Debug, Deserialize, Serialize)]
