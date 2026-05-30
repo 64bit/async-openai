@@ -180,7 +180,7 @@ secrecy = { version = "0.10", features = ["serde"], optional = true }
 serde_urlencoded = { version = "0.7", optional = true }
 url = { version = "2.5", optional = true }
 tower = { version = "0.5", features = ["limit", "retry", "timeout", "util"], optional = true }
-eventsource-stream = { version = "0.2", optional = true }
+eventsource-stream = { package = "eventsource-stream2", version = "0.3", optional = true }
 ## For Webhook signature verification
 hmac = { version = "0.12", optional = true, default-features = false}
 sha2 = { version = "0.10", optional = true, default-features = false }
