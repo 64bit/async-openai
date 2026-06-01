@@ -1,6 +1,7 @@
 use async_openai::types::chat::{
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
     ChatCompletionStreamOptions, CreateChatCompletionRequest, CreateChatCompletionRequestArgs,
+    FunctionCallStream,
 };
 
 #[test]
@@ -59,4 +60,40 @@ fn stream_options_none_fields_not_serialized() {
     // Test roundtrip deserialization
     let deserialized: ChatCompletionStreamOptions = serde_json::from_str(&serialized).unwrap();
     assert_eq!(stream_options, deserialized);
+}
+
+#[test]
+fn function_call_stream_none_fields_not_serialized() {
+    // When name or arguments is None, it should not appear in the serialized JSON.
+    // Streaming consumers that read function.arguments with a string default
+    // (e.g. `dict.get('arguments', '')`) crash on explicit JSON null because the
+    // key is present-but-null rather than absent.
+    let fcs = FunctionCallStream {
+        name: Some("get_weather".to_string()),
+        arguments: None,
+    };
+
+    let serialized = serde_json::to_string(&fcs).unwrap();
+
+    // Verify name is present
+    assert!(serialized.contains("name"));
+    // Verify arguments is NOT present (not even as null)
+    assert!(
+        !serialized.contains("arguments"),
+        "arguments should not be serialized when None, but got: {}",
+        serialized
+    );
+
+    // Test when both are None
+    let fcs_empty = FunctionCallStream {
+        name: None,
+        arguments: None,
+    };
+
+    let serialized_empty = serde_json::to_string(&fcs_empty).unwrap();
+    assert_eq!(serialized_empty, "{}");
+
+    // Test roundtrip deserialization
+    let deserialized: FunctionCallStream = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(fcs, deserialized);
 }
