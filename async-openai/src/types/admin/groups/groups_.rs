@@ -1,8 +1,18 @@
 use crate::error::OpenAIError;
 use crate::types::admin::roles::Role;
-use crate::types::admin::users::User;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
+
+/// Represents an individual user returned when inspecting group membership.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct GroupUser {
+    /// The identifier, which can be referenced in API endpoints.
+    pub id: String,
+    /// The name of the user.
+    pub name: String,
+    /// The email address of the user.
+    pub email: Option<String>,
+}
 
 /// Summary information about a group returned in role assignment responses.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -30,6 +40,8 @@ pub struct GroupResponse {
     pub created_at: u64,
     /// Whether the group is managed through SCIM and controlled by your identity provider.
     pub is_scim_managed: bool,
+    /// The type of the group.
+    pub group_type: String,
 }
 
 /// Paginated list of organization groups.
@@ -167,7 +179,7 @@ pub struct UserListResource {
     /// The object type, which is always `list`.
     pub object: String,
     /// Users in the current page.
-    pub data: Vec<User>,
+    pub data: Vec<GroupUser>,
     /// Whether more users are available when paginating.
     pub has_more: bool,
     /// Cursor to fetch the next page of results, or `null` when no further users are available.

@@ -23,7 +23,7 @@ use crate::uploads::Uploads;
 #[cfg(feature = "video")]
 use crate::video::Videos;
 #[cfg(feature = "realtime")]
-use crate::Realtime;
+use crate::{Realtime, RealtimeTranslations};
 #[cfg(feature = "administration")]
 use crate::{
     admin::AdminAPIKeys, admin::AuditLogs, admin::Certificates, admin::GroupRoles,
@@ -157,6 +157,8 @@ impl_request_options_builder!(ProjectCertificates);
 impl_request_options_builder!(Roles);
 #[cfg(feature = "realtime")]
 impl_request_options_builder!(Realtime);
+#[cfg(feature = "realtime")]
+impl_request_options_builder!(RealtimeTranslations);
 #[cfg(feature = "responses")]
 impl_request_options_builder!(Responses);
 #[cfg(feature = "assistant")]

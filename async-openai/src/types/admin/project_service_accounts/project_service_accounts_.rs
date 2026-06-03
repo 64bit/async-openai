@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::admin::project_users::ProjectUserRole;
+use crate::types::admin::invites::ProjectMembership;
 
 /// Represents an individual service account in a project.
 #[derive(Debug, Serialize, Deserialize)]
@@ -12,7 +12,7 @@ pub struct ProjectServiceAccount {
     /// The name of the service account.
     pub name: String,
     /// `owner` or `member`.
-    pub role: ProjectUserRole,
+    pub role: ProjectMembership,
     /// The Unix timestamp (in seconds) of when the service account was created.
     pub created_at: u64,
 }
@@ -53,7 +53,7 @@ pub struct ProjectServiceAccountCreateResponse {
     /// The Unix timestamp (in seconds) of when the service account was created.
     pub created_at: u64,
     /// The API key associated with the created service account.
-    pub api_key: ProjectServiceAccountApiKey,
+    pub api_key: Option<ProjectServiceAccountApiKey>,
 }
 
 /// Represents the API key associated with a project service account.

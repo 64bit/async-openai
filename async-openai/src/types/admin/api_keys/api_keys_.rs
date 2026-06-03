@@ -10,12 +10,30 @@ pub struct AdminApiKey {
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,
     /// The name of the API key.
-    pub name: String,
+    pub name: Option<String>,
+    /// The redacted value of the API key.
+    pub redacted_value: String,
+    /// The Unix timestamp (in seconds) of when the API key was created.
+    pub created_at: u64,
+    /// The Unix timestamp (in seconds) of when the API key was last used.
+    pub last_used_at: Option<u64>,
+    /// The owner of the API key.
+    pub owner: AdminApiKeyOwner,
+}
+
+/// The newly created admin API key. The `value` field is only returned once, when the key is created.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct AdminApiKeyCreateResponse {
+    /// The object type, which is always `organization.admin_api_key`.
+    pub object: String,
+    /// The identifier, which can be referenced in API endpoints.
+    pub id: String,
+    /// The name of the API key.
+    pub name: Option<String>,
     /// The redacted value of the API key.
     pub redacted_value: String,
     /// The value of the API key. Only shown on create.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub value: Option<String>,
+    pub value: String,
     /// The Unix timestamp (in seconds) of when the API key was created.
     pub created_at: u64,
     /// The Unix timestamp (in seconds) of when the API key was last used.

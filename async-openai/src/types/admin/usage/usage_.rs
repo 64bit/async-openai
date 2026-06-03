@@ -237,11 +237,12 @@ pub struct CostsResult {
     pub amount: CostsAmount,
     /// When `group_by=line_item`, this field provides the line item of the grouped costs result.
     pub line_item: Option<String>,
+    /// When `group_by=line_item`, this field provides the quantity of the grouped costs result.
+    pub quantity: Option<f64>,
     /// When `group_by=project_id`, this field provides the project ID of the grouped costs result.
     pub project_id: Option<String>,
-    /// The organization ID.
-    #[serde(default)]
-    pub organization_id: Option<String>,
+    /// When `group_by=api_key_id`, this field provides the API Key ID of the grouped costs result.
+    pub api_key_id: Option<String>,
 }
 
 /// The monetary value in its associated currency.

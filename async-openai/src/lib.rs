@@ -342,7 +342,7 @@ pub use model::Models;
 #[cfg(feature = "moderation")]
 pub use moderation::Moderations;
 #[cfg(feature = "realtime")]
-pub use realtime::Realtime;
+pub use realtime::{Realtime, RealtimeTranslations};
 #[cfg(feature = "_api")]
 pub use request_options::RequestOptions;
 #[cfg(feature = "responses")]
