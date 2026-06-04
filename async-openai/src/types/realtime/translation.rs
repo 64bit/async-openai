@@ -20,11 +20,11 @@ pub struct RealtimeTranslationNoiseReduction {
 /// Configuration for translation input audio.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct RealtimeTranslationInputAudio {
+    // DONT add because it can be 'null': #[serde(skip_serializing_if = "Option::is_none")]
     /// Optional source-language transcription. Set to `null` to disable.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub transcription: Option<RealtimeTranslationInputTranscription>,
+    // DONT add because it can be 'null': #[serde(skip_serializing_if = "Option::is_none")]
     /// Optional input noise reduction. Set to `null` to disable.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub noise_reduction: Option<RealtimeTranslationNoiseReduction>,
 }
 
