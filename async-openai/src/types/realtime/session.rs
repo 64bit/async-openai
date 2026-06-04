@@ -249,7 +249,7 @@ pub struct AudioInput {
     /// the model will score a low probability of turn end and wait longer for the user to
     /// continue speaking. This can be useful for more natural conversations, but may have a
     /// higher latency.    
-    pub turn_detection: RealtimeTurnDetection,
+    pub turn_detection: Option<RealtimeTurnDetection>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -391,6 +391,10 @@ pub struct RealtimeReasoning {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeSession {
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub audio: Option<Audio>,
 
     /// Additional fields to include in server outputs.
@@ -494,6 +498,10 @@ pub struct TranscriptionAudio {
 /// openapi spec type: RealtimeTranscriptionSessionCreateRequestGA
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RealtimeTranscriptionSession {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<u64>,
     /// Configuration for input and output audio.
     pub audio: TranscriptionAudio,
 
