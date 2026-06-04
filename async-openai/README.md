@@ -109,10 +109,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 ```
 
 <div align="center">
-    <img width="400" height="1024" alt="Image" src="https://github.com/user-attachments/assets/f9c983c7-1aa6-4d40-aac6-fb07a63b0f7f" />
-    <img width="400" height="1024" alt="Image" src="https://github.com/user-attachments/assets/90599f6f-6f21-464b-b8c2-529f6558d9a2" />
+    <img width="400" alt="Image" src="https://github.com/user-attachments/assets/f9c983c7-1aa6-4d40-aac6-fb07a63b0f7f" />
+    <img width="400" alt="Image" src="https://github.com/user-attachments/assets/90599f6f-6f21-464b-b8c2-529f6558d9a2" />
   <br/>
-  <sub>Scaled up for README, actual size 256x256</sub>
 </div>
 
 ## OpenAI Compatible Providers
