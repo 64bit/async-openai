@@ -73,6 +73,8 @@ pub enum ImageResponseFormat {
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
 pub enum ImageModel {
+    #[serde(rename = "gpt-image-2")]
+    GptImage2,
     #[serde(rename = "gpt-image-1")]
     GptImage1,
     #[serde(rename = "gpt-image-1.5")]
