@@ -1,5 +1,5 @@
 use async_openai::{
-    types::images::{CreateImageRequestArgs, ImageResponseFormat, ImageSize},
+    types::images::{CreateImageRequestArgs, ImageModel, ImageSize},
     Client,
 };
 use std::error::Error;
@@ -11,9 +11,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let request = CreateImageRequestArgs::default()
         .prompt("Generate a logo for github repository async-openai")
+        .model(ImageModel::GptImage2)
         .n(2)
-        .response_format(ImageResponseFormat::B64Json)
-        .size(ImageSize::S256x256)
+        .size(ImageSize::Auto)
         .user("async-openai")
         .build()?;
 
