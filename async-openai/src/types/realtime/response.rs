@@ -211,6 +211,15 @@ pub struct RealtimeResponseCreateParams {
     /// Tools available to the model.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tools: Option<Vec<RealtimeTool>>,
+
+    /// Whether the model may call multiple tools in parallel. Only honored for reasoning-capable
+    /// Realtime models such as `gpt-realtime-2`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parallel_tool_calls: Option<bool>,
+
+    /// Configuration for reasoning-capable Realtime models such as `gpt-realtime-2`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reasoning: Option<crate::types::realtime::RealtimeReasoning>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

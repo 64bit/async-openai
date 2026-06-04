@@ -2,14 +2,6 @@ use crate::error::OpenAIError;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-/// `active` or `archived`
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum ProjectStatus {
-    Active,
-    Archived,
-}
-
 /// Represents an individual project.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Project {
@@ -18,13 +10,16 @@ pub struct Project {
     /// The object type, which is always `organization.project`
     pub object: String,
     /// The name of the project. This appears in reporting.
-    pub name: String,
+    pub name: Option<String>,
     /// The Unix timestamp (in seconds) of when the project was created.
     pub created_at: u64,
     /// The Unix timestamp (in seconds) of when the project was archived or `null`.
     pub archived_at: Option<u64>,
     /// `active` or `archived`
-    pub status: ProjectStatus,
+    pub status: Option<String>,
+    /// The external key associated with the project.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub external_key_id: Option<String>,
 }
 
 /// A list of Project objects.
@@ -47,18 +42,34 @@ pub struct ProjectListResponse {
 pub struct ProjectCreateRequest {
     /// The friendly name of the project, this name appears in reports.
     pub name: String,
+    /// Create the project with the specified data residency region. Your
+    /// organization must have access to Data residency functionality in
+    /// order to use. See [data residency controls](https://developers.openai.com/docs/guides/your-data#data-residency-controls)
+    /// to review the functionality and limitations of setting this field.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub geography: Option<String>,
+    /// External key ID to associate with the project.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub external_key_id: Option<String>,
 }
 
 /// The project update request payload.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder, Default)]
 #[builder(name = "ProjectUpdateRequestArgs")]
 #[builder(pattern = "mutable")]
-#[builder(setter(into, strip_option))]
+#[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ProjectUpdateRequest {
     /// The updated name of the project, this name appears in reports.
-    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// Geography for the project.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub geography: Option<String>,
+    /// External key ID to associate with the project.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub external_key_id: Option<String>,
 }
 
 /// Details about a group's membership in a project.
@@ -74,6 +85,8 @@ pub struct ProjectGroup {
     pub group_name: String,
     /// Unix timestamp (in seconds) when the group was granted project access.
     pub created_at: u64,
+    /// The type of the group.
+    pub group_type: String,
 }
 
 /// Paginated list of groups that have access to a project.

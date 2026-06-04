@@ -34,24 +34,31 @@ pub struct UsageTimeBucket {
 
 /// Discriminated union of all possible usage result types.
 #[derive(Debug, Clone, Deserialize)]
-#[serde(untagged)]
+#[serde(tag = "object")]
 pub enum UsageResult {
+    #[serde(rename = "organization.usage.audio_speeches.result")]
     AudioSpeeches(UsageAudioSpeechesResult),
+    #[serde(rename = "organization.usage.audio_transcriptions.result")]
     AudioTranscriptions(UsageAudioTranscriptionsResult),
+    #[serde(rename = "organization.usage.code_interpreter_sessions.result")]
     CodeInterpreterSessions(UsageCodeInterpreterSessionsResult),
+    #[serde(rename = "organization.usage.completions.result")]
     Completions(UsageCompletionsResult),
+    #[serde(rename = "organization.usage.embeddings.result")]
     Embeddings(UsageEmbeddingsResult),
+    #[serde(rename = "organization.usage.images.result")]
     Images(UsageImagesResult),
+    #[serde(rename = "organization.usage.moderations.result")]
     Moderations(UsageModerationsResult),
+    #[serde(rename = "organization.usage.vector_stores.result")]
     VectorStores(UsageVectorStoresResult),
+    #[serde(rename = "organization.costs.result")]
     Costs(CostsResult),
 }
 
 /// The aggregated audio speeches usage details of the specific time bucket.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UsageAudioSpeechesResult {
-    /// The object type, which is always `organization.usage.audio_speeches.result`.
-    pub object: String,
     /// The number of characters processed.
     pub characters: u64,
     /// The count of requests made to the model.
@@ -69,8 +76,6 @@ pub struct UsageAudioSpeechesResult {
 /// The aggregated audio transcriptions usage details of the specific time bucket.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UsageAudioTranscriptionsResult {
-    /// The object type, which is always `organization.usage.audio_transcriptions.result`.
-    pub object: String,
     /// The number of seconds processed.
     pub seconds: u64,
     /// The count of requests made to the model.
@@ -88,8 +93,6 @@ pub struct UsageAudioTranscriptionsResult {
 /// The aggregated code interpreter sessions usage details of the specific time bucket.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UsageCodeInterpreterSessionsResult {
-    /// The object type, which is always `organization.usage.code_interpreter_sessions.result`.
-    pub object: String,
     /// The number of code interpreter sessions.
     pub num_sessions: u64,
     /// When `group_by=project_id`, this field provides the project ID of the grouped usage result.
@@ -101,8 +104,6 @@ pub struct UsageCodeInterpreterSessionsResult {
 /// The aggregated completions usage details of the specific time bucket.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UsageCompletionsResult {
-    /// The object type, which is always `organization.usage.completions.result`.
-    pub object: String,
     /// The aggregated number of text input tokens used, including cached tokens. For customers subscribe to scale tier, this includes scale tier tokens.
     pub input_tokens: u64,
     /// The aggregated number of text output tokens used. For customers subscribe to scale tier, this includes scale tier tokens.
@@ -159,8 +160,6 @@ pub struct UsageCompletionsResult {
 /// The aggregated embeddings usage details of the specific time bucket.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UsageEmbeddingsResult {
-    /// The object type, which is always `organization.usage.embeddings.result`.
-    pub object: String,
     /// The aggregated number of input tokens used.
     pub input_tokens: u64,
     /// The count of requests made to the model.
@@ -178,8 +177,6 @@ pub struct UsageEmbeddingsResult {
 /// The aggregated images usage details of the specific time bucket.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UsageImagesResult {
-    /// The object type, which is always `organization.usage.images.result`.
-    pub object: String,
     /// The number of images processed.
     pub images: u64,
     /// The count of requests made to the model.
@@ -201,8 +198,6 @@ pub struct UsageImagesResult {
 /// The aggregated moderations usage details of the specific time bucket.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UsageModerationsResult {
-    /// The object type, which is always `organization.usage.moderations.result`.
-    pub object: String,
     /// The aggregated number of input tokens used.
     pub input_tokens: u64,
     /// The count of requests made to the model.
@@ -220,8 +215,6 @@ pub struct UsageModerationsResult {
 /// The aggregated vector stores usage details of the specific time bucket.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UsageVectorStoresResult {
-    /// The object type, which is always `organization.usage.vector_stores.result`.
-    pub object: String,
     /// The vector stores usage in bytes.
     pub usage_bytes: u64,
     /// When `group_by=project_id`, this field provides the project ID of the grouped usage result.
@@ -231,17 +224,16 @@ pub struct UsageVectorStoresResult {
 /// The aggregated costs details of the specific time bucket.
 #[derive(Debug, Clone, Deserialize)]
 pub struct CostsResult {
-    /// The object type, which is always `organization.costs.result`.
-    pub object: String,
     /// The monetary value in its associated currency.
     pub amount: CostsAmount,
     /// When `group_by=line_item`, this field provides the line item of the grouped costs result.
     pub line_item: Option<String>,
+    /// When `group_by=line_item`, this field provides the quantity of the grouped costs result.
+    pub quantity: Option<f64>,
     /// When `group_by=project_id`, this field provides the project ID of the grouped costs result.
     pub project_id: Option<String>,
-    /// The organization ID.
-    #[serde(default)]
-    pub organization_id: Option<String>,
+    /// When `group_by=api_key_id`, this field provides the API Key ID of the grouped costs result.
+    pub api_key_id: Option<String>,
 }
 
 /// The monetary value in its associated currency.

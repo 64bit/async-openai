@@ -22,6 +22,7 @@ impl Display for ImageSize {
                 Self::S1536x1024 => "1536x1024",
                 Self::S1024x1536 => "1024x1536",
                 Self::Auto => "auto",
+                Self::Other(other) => other,
             }
         )
     }
@@ -47,6 +48,7 @@ impl Display for ImageModel {
             f,
             "{}",
             match self {
+                Self::GptImage2 => "gpt-image-2",
                 Self::DallE2 => "dall-e-2",
                 Self::DallE3 => "dall-e-3",
                 Self::GptImage1 => "gpt-image-1",

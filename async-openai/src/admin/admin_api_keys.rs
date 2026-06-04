@@ -2,7 +2,8 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::admin::api_keys::{
-        AdminApiKey, AdminApiKeyDeleteResponse, ApiKeyList, CreateAdminApiKeyRequest,
+        AdminApiKey, AdminApiKeyCreateResponse, AdminApiKeyDeleteResponse, ApiKeyList,
+        CreateAdminApiKeyRequest,
     },
     Client, RequestOptions,
 };
@@ -35,7 +36,7 @@ impl<'c, C: Config> AdminAPIKeys<'c, C> {
     pub async fn create(
         &self,
         request: CreateAdminApiKeyRequest,
-    ) -> Result<AdminApiKey, OpenAIError> {
+    ) -> Result<AdminApiKeyCreateResponse, OpenAIError> {
         self.client
             .post(
                 "/organization/admin_api_keys",

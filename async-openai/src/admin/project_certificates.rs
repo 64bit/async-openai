@@ -1,7 +1,10 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::admin::certificates::{ListCertificatesResponse, ToggleCertificatesRequest},
+    types::admin::certificates::{
+        ListProjectCertificatesResponse, OrganizationProjectCertificateActivationResponse,
+        OrganizationProjectCertificateDeactivationResponse, ToggleCertificatesRequest,
+    },
     Client, RequestOptions,
 };
 
@@ -22,7 +25,7 @@ impl<'c, C: Config> ProjectCertificates<'c, C> {
     }
 
     /// List all certificates for this project.
-    pub async fn list(&self) -> Result<ListCertificatesResponse, OpenAIError> {
+    pub async fn list(&self) -> Result<ListProjectCertificatesResponse, OpenAIError> {
         self.client
             .get(
                 format!("/organization/projects/{}/certificates", self.project_id).as_str(),
@@ -36,7 +39,7 @@ impl<'c, C: Config> ProjectCertificates<'c, C> {
     pub async fn activate(
         &self,
         request: ToggleCertificatesRequest,
-    ) -> Result<ListCertificatesResponse, OpenAIError> {
+    ) -> Result<OrganizationProjectCertificateActivationResponse, OpenAIError> {
         self.client
             .post(
                 format!(
@@ -55,7 +58,7 @@ impl<'c, C: Config> ProjectCertificates<'c, C> {
     pub async fn deactivate(
         &self,
         request: ToggleCertificatesRequest,
-    ) -> Result<ListCertificatesResponse, OpenAIError> {
+    ) -> Result<OrganizationProjectCertificateDeactivationResponse, OpenAIError> {
         self.client
             .post(
                 format!(

@@ -11,6 +11,23 @@ pub enum InviteStatus {
     Pending,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ProjectMembership {
+    Owner,
+    #[default]
+    Member,
+}
+
+/// Project membership entry attached to invites.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct InviteProjectMembership {
+    /// Project's public ID
+    pub id: String,
+    /// Project membership role: `owner` or `member`
+    pub role: ProjectMembership,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder)]
 #[builder(name = "InviteRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -20,6 +37,11 @@ pub enum InviteStatus {
 pub struct InviteRequest {
     pub email: String,
     pub role: OrganizationRole,
+    /// An array of projects to which membership is granted at the same time the
+    /// org invite is accepted. If omitted, the user will be invited to the
+    /// default project for compatibility with legacy behavior.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub projects: Option<Vec<InviteProjectMembership>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -53,9 +75,11 @@ pub struct Invite {
     /// `accepted`, `expired`, or `pending`
     pub status: InviteStatus,
     /// The Unix timestamp (in seconds) of when the invite was sent.
-    pub invited_at: u64,
+    pub created_at: u64,
     /// The Unix timestamp (in seconds) of when the invite expires.
-    pub expires_at: u64,
+    pub expires_at: Option<u64>,
     /// The Unix timestamp (in seconds) of when the invite was accepted.
     pub accepted_at: Option<u64>,
+    /// The projects that were granted membership upon acceptance of the invite.
+    pub projects: Vec<InviteProjectMembership>,
 }

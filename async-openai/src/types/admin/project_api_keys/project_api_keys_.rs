@@ -1,7 +1,32 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::admin::project_service_accounts::ProjectServiceAccount;
-use crate::types::admin::project_users::ProjectUser;
+/// The user that owns a project API key.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ProjectApiKeyOwnerUser {
+    /// The identifier, which can be referenced in API endpoints.
+    pub id: String,
+    /// The email address of the user.
+    pub email: String,
+    /// The name of the user.
+    pub name: String,
+    /// The Unix timestamp (in seconds) of when the user was created.
+    pub created_at: u64,
+    /// The user's project role.
+    pub role: String,
+}
+
+/// The service account that owns a project API key.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ProjectApiKeyOwnerServiceAccount {
+    /// The identifier, which can be referenced in API endpoints.
+    pub id: String,
+    /// The name of the service account.
+    pub name: String,
+    /// The Unix timestamp (in seconds) of when the service account was created.
+    pub created_at: u64,
+    /// The service account's project role.
+    pub role: String,
+}
 
 /// Represents an individual API key in a project.
 #[derive(Debug, Serialize, Deserialize)]
@@ -14,6 +39,8 @@ pub struct ProjectApiKey {
     pub name: String,
     /// The Unix timestamp (in seconds) of when the API key was created.
     pub created_at: u64,
+    /// The Unix timestamp (in seconds) of when the API key was last used.
+    pub last_used_at: Option<u64>,
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,
     /// The owner of the API key.
@@ -21,7 +48,7 @@ pub struct ProjectApiKey {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum ProjectApiKeyOwnerType {
     User,
     ServiceAccount,
@@ -33,9 +60,11 @@ pub struct ProjectApiKeyOwner {
     /// The type of owner, which is either `user` or `service_account`.
     pub r#type: ProjectApiKeyOwnerType,
     /// The user owner of the API key, if applicable.
-    pub user: Option<ProjectUser>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub user: Option<ProjectApiKeyOwnerUser>,
     /// The service account owner of the API key, if applicable.
-    pub service_account: Option<ProjectServiceAccount>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_account: Option<ProjectApiKeyOwnerServiceAccount>,
 }
 
 /// Represents the response object for listing project API keys.

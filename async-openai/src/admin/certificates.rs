@@ -3,6 +3,7 @@ use crate::{
     error::OpenAIError,
     types::admin::certificates::{
         Certificate, DeleteCertificateResponse, ListCertificatesResponse, ModifyCertificateRequest,
+        OrganizationCertificateActivationResponse, OrganizationCertificateDeactivationResponse,
         ToggleCertificatesRequest, UploadCertificateRequest,
     },
     Client, RequestOptions,
@@ -49,7 +50,7 @@ impl<'c, C: Config> Certificates<'c, C> {
     pub async fn activate_organization(
         &self,
         request: ToggleCertificatesRequest,
-    ) -> Result<ListCertificatesResponse, OpenAIError> {
+    ) -> Result<OrganizationCertificateActivationResponse, OpenAIError> {
         self.client
             .post(
                 "/organization/certificates/activate",
@@ -64,7 +65,7 @@ impl<'c, C: Config> Certificates<'c, C> {
     pub async fn deactivate_organization(
         &self,
         request: ToggleCertificatesRequest,
-    ) -> Result<ListCertificatesResponse, OpenAIError> {
+    ) -> Result<OrganizationCertificateDeactivationResponse, OpenAIError> {
         self.client
             .post(
                 "/organization/certificates/deactivate",

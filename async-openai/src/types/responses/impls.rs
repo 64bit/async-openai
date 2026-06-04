@@ -18,18 +18,18 @@ use crate::types::responses::{
     FunctionShellCallOutput, FunctionShellCallOutputContent, FunctionShellCallOutputContentParam,
     FunctionShellCallOutputExitOutcome, FunctionShellCallOutputExitOutcomeParam,
     FunctionShellCallOutputItemParam, FunctionShellCallOutputOutcome,
-    FunctionShellCallOutputOutcomeParam, FunctionTool, FunctionToolCall,
+    FunctionShellCallOutputOutcomeParam, FunctionShellCallStatus, FunctionTool, FunctionToolCall,
     FunctionToolCallOutputResource, ImageGenTool, ImageGenToolCall, InputContent, InputFileContent,
     InputImageContent, InputItem, InputMessage, InputParam, InputTextContent, Item, ItemReference,
-    ItemReferenceType, LocalEnvironmentParam, LocalShellCallStatus, LocalShellToolCall,
-    LocalShellToolCallOutput, MCPApprovalRequest, MCPApprovalResponse, MCPListTools, MCPToolCall,
-    MessageItem, MessageType, NamespaceToolParam, OutputItem, OutputMessage, OutputMessageContent,
-    OutputStatus, OutputTextContent, Prompt, Reasoning, ReasoningEffort, ReasoningItem,
-    ReasoningSummary, RefusalContent, ResponseFormatJsonSchema, ResponsePromptVariables,
-    ResponseStreamOptions, ResponseTextParam, Role, TextResponseFormatConfiguration, Tool,
-    ToolChoiceCustom, ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions, ToolChoiceParam,
-    ToolChoiceTypes, ToolSearchCall, ToolSearchCallItemParam, ToolSearchOutput,
-    ToolSearchOutputItemParam, ToolSearchToolParam, WebSearchTool, WebSearchToolCall,
+    ItemReferenceType, LocalEnvironmentParam, LocalShellToolCall, LocalShellToolCallOutput,
+    MCPApprovalRequest, MCPApprovalResponse, MCPListTools, MCPToolCall, MessageItem, MessageType,
+    NamespaceToolParam, OutputItem, OutputMessage, OutputMessageContent, OutputStatus,
+    OutputTextContent, Prompt, Reasoning, ReasoningEffort, ReasoningItem, ReasoningSummary,
+    RefusalContent, ResponseFormatJsonSchema, ResponsePromptVariables, ResponseStreamOptions,
+    ResponseTextParam, Role, TextResponseFormatConfiguration, Tool, ToolChoiceCustom,
+    ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes,
+    ToolSearchCall, ToolSearchCallItemParam, ToolSearchOutput, ToolSearchOutputItemParam,
+    ToolSearchToolParam, WebSearchTool, WebSearchToolCall,
 };
 
 impl<S: Into<String>> From<S> for EasyInputMessage {
@@ -773,12 +773,12 @@ impl From<FunctionCallStatus> for OutputStatus {
     }
 }
 
-impl From<LocalShellCallStatus> for FunctionShellCallItemStatus {
-    fn from(status: LocalShellCallStatus) -> Self {
+impl From<FunctionShellCallStatus> for FunctionShellCallItemStatus {
+    fn from(status: FunctionShellCallStatus) -> Self {
         match status {
-            LocalShellCallStatus::InProgress => FunctionShellCallItemStatus::InProgress,
-            LocalShellCallStatus::Completed => FunctionShellCallItemStatus::Completed,
-            LocalShellCallStatus::Incomplete => FunctionShellCallItemStatus::Incomplete,
+            FunctionShellCallStatus::InProgress => FunctionShellCallItemStatus::InProgress,
+            FunctionShellCallStatus::Completed => FunctionShellCallItemStatus::Completed,
+            FunctionShellCallStatus::Incomplete => FunctionShellCallItemStatus::Incomplete,
         }
     }
 }

@@ -436,9 +436,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         if let Some(line_item) = &cost.line_item {
                             println!("      Line Item: {}", line_item);
                         }
-                        if let Some(org_id) = &cost.organization_id {
-                            println!("      Organization ID: {}", org_id);
-                        }
                     }
                 }
             }

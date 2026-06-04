@@ -199,7 +199,7 @@ pub struct AuditLog {
     /// The project that the action was scoped to. Absent for actions not scoped to projects.
     pub project: Option<AuditLogProject>,
     /// The actor who performed the audit logged action.
-    pub actor: AuditLogActor,
+    pub actor: Option<AuditLogActor>,
     /// The details for events with the type `api_key.created`.
     #[serde(rename = "api_key.created")]
     pub api_key_created: Option<AuditLogApiKeyCreated>,

@@ -5,6 +5,18 @@ use crate::types::{
     responses::{Prompt, ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions},
 };
 
+/// Controls how long the model waits before emitting transcription text.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum AudioTranscriptionDelay {
+    Minimal,
+    Low,
+    Medium,
+    High,
+    #[serde(rename = "xhigh")]
+    XHigh,
+}
+
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct AudioTranscription {
     /// The language of the input audio. Supplying the input language in
@@ -12,7 +24,8 @@ pub struct AudioTranscription {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub language: Option<String>,
     /// The model to use for transcription. Current options are `whisper-1`,
-    /// `gpt-4o-mini-transcribe`, `gpt-4o-transcribe`, and `gpt-4o-transcribe-diarize`.
+    /// `gpt-4o-mini-transcribe`, `gpt-4o-mini-transcribe-2025-12-15`, `gpt-4o-transcribe`,
+    /// `gpt-4o-transcribe-diarize`, and `gpt-realtime-whisper`.
     /// Use `gpt-4o-transcribe-diarize` when you need diarization with speaker labels.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
@@ -20,6 +33,26 @@ pub struct AudioTranscription {
     /// For `whisper-1`, the [prompt is a list of keywords](https://platform.openai.com/docs/guides/speech-to-text#prompting). For `gpt-4o-transcribe` models
     /// (excluding gpt-4o-transcribe-diarize), the prompt is a free text string, for example
     /// "expect words related to technology".
+    /// Prompt is not supported with `gpt-realtime-whisper` in GA Realtime sessions.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt: Option<String>,
+    /// Controls how long the model waits before emitting transcription text.
+    /// Higher values can improve transcription accuracy at the cost of latency.
+    /// Only supported with `gpt-realtime-whisper` in GA Realtime sessions.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub delay: Option<AudioTranscriptionDelay>,
+}
+
+/// Configuration of the transcription model returned by the server.
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+pub struct AudioTranscriptionResponse {
+    /// The language of the input audio.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language: Option<String>,
+    /// The model used for transcription.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    /// The prompt configured for input audio transcription, when present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt: Option<String>,
 }
@@ -216,7 +249,7 @@ pub struct AudioInput {
     /// the model will score a low probability of turn end and wait longer for the user to
     /// continue speaking. This can be useful for more natural conversations, but may have a
     /// higher latency.    
-    pub turn_detection: RealtimeTurnDetection,
+    pub turn_detection: Option<RealtimeTurnDetection>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -333,10 +366,34 @@ impl Default for RealtimeSessionConfiguration {
     }
 }
 
+/// Constrains effort on reasoning for reasoning-capable Realtime models such as `gpt-realtime-2`.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeReasoningEffort {
+    Minimal,
+    #[default]
+    Low,
+    Medium,
+    High,
+    #[serde(rename = "xhigh")]
+    XHigh,
+}
+
+/// Configuration for reasoning-capable Realtime models such as `gpt-realtime-2`.
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+pub struct RealtimeReasoning {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub effort: Option<RealtimeReasoningEffort>,
+}
+
 /// Realtime session object configuration.
 /// openapi spec type: RealtimeSessionCreateRequestGA
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeSession {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub audio: Option<Audio>,
 
@@ -412,6 +469,14 @@ pub struct RealtimeSession {
     /// token limit.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub truncation: Option<RealtimeTruncation>,
+
+    /// Whether the model may call multiple tools in parallel.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parallel_tool_calls: Option<bool>,
+
+    /// Configuration for reasoning-capable Realtime models such as `gpt-realtime-2`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reasoning: Option<RealtimeReasoning>,
 }
 
 /// Type of noise reduction. `near_field` is for close-talking microphones such as
@@ -433,6 +498,10 @@ pub struct TranscriptionAudio {
 /// openapi spec type: RealtimeTranscriptionSessionCreateRequestGA
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RealtimeTranscriptionSession {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<u64>,
     /// Configuration for input and output audio.
     pub audio: TranscriptionAudio,
 

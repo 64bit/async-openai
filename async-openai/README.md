@@ -13,9 +13,6 @@
     <img src="https://docs.rs/async-openai/badge.svg" />
     </a>
 </div>
-<div align="center">
-<sub>Logo created by this <a href="https://github.com/64bit/async-openai/tree/main/examples/image-generate-b64-json">repo itself</a></sub>
-</div>
 
 ## Overview
 
@@ -76,7 +73,7 @@ Other official environment variables supported are: `OPENAI_ADMIN_KEY`, `OPENAI_
 
 ```rust
 use async_openai::{
-    types::images::{CreateImageRequestArgs, ImageResponseFormat, ImageSize},
+    types::images::{CreateImageRequestArgs, ImageModel, ImageSize},
     Client,
 };
 use std::error::Error;
@@ -87,18 +84,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let request = CreateImageRequestArgs::default()
+        .model(ImageModel::GptImage2)
         .prompt("cats on sofa and carpet in living room")
         .n(2)
-        .response_format(ImageResponseFormat::Url)
-        .size(ImageSize::S256x256)
+        .size(ImageSize::Auto)
         .user("async-openai")
         .build()?;
 
     let response = client.images().generate(request).await?;
 
-    // Download and save images to ./data directory.
-    // Each url is downloaded and saved in dedicated Tokio task.
-    // Directory is created if it doesn't exist.
+    // Concurrently save each image in its own Tokio task.
+    // Create directory if it doesn't exist.
     let paths = response.save("./data").await?;
 
     paths
@@ -110,10 +106,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 ```
 
 <div align="center">
-  <img width="315" src="https://raw.githubusercontent.com/64bit/async-openai/assets/create-image/img-1.png" />
-  <img width="315" src="https://raw.githubusercontent.com/64bit/async-openai/assets/create-image/img-2.png" />
+    <img width="400" alt="Image" src="https://github.com/user-attachments/assets/f9c983c7-1aa6-4d40-aac6-fb07a63b0f7f" />
+    <img width="400" alt="Image" src="https://github.com/user-attachments/assets/90599f6f-6f21-464b-b8c2-529f6558d9a2" />
   <br/>
-  <sub>Scaled up for README, actual size 256x256</sub>
 </div>
 
 ## OpenAI Compatible Providers

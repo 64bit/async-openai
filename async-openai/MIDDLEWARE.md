@@ -50,7 +50,7 @@ let client = Client::with_config(OpenAIConfig::default())
 
 ## Use a Custom Service
 
-You can replace `ReqwestService` entirely. This is useful for logging, metrics, tests, mocks, alternate transports, or policy layers that want to inspect the generated request before sending it.
+You can replace `ReqwestService` entirely. This is useful for routing, logging, metrics, tests, mocks, etc.
 
 ```rust
 use async_openai::{Client, config::OpenAIConfig, error::OpenAIError};

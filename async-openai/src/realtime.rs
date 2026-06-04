@@ -2,6 +2,10 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::realtime::{
+        translation::{
+            RealtimeTranslationClientSecretCreateRequest,
+            RealtimeTranslationClientSecretCreateResponse,
+        },
         RealtimeCallAcceptRequest, RealtimeCallCreateRequest, RealtimeCallCreateResponse,
         RealtimeCallReferRequest, RealtimeCallRejectRequest, RealtimeCreateClientSecretRequest,
         RealtimeCreateClientSecretResponse,
@@ -22,6 +26,11 @@ impl<'c, C: Config> Realtime<'c, C> {
             client,
             request_options: RequestOptions::new(),
         }
+    }
+
+    /// call [RealtimeTranslations] group APIs
+    pub fn translations(&self) -> RealtimeTranslations<'_, C> {
+        RealtimeTranslations::new(self.client)
     }
 
     /// Create a new Realtime API call over WebRTC and receive the SDP answer needed
@@ -122,6 +131,47 @@ impl<'c, C: Config> Realtime<'c, C> {
     ) -> Result<RealtimeCreateClientSecretResponse, OpenAIError> {
         self.client
             .post("/realtime/client_secrets", request, &self.request_options)
+            .await
+    }
+}
+
+/// Realtime translations API. Translation sessions continuously translate input
+/// audio into the configured output language.
+pub struct RealtimeTranslations<'c, C: Config> {
+    client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
+}
+
+impl<'c, C: Config> RealtimeTranslations<'c, C> {
+    pub fn new(client: &'c Client<C>) -> Self {
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
+    }
+
+    /// Create a Realtime translation client secret with an associated translation session configuration.
+    ///
+    /// Client secrets are short-lived tokens that can be passed to a client
+    /// app, such as a web frontend or mobile client, which grants access to the
+    /// Realtime Translation API without leaking your main API key. You can configure a
+    /// custom TTL for each client secret.
+    ///
+    /// Returns the created client secret and the effective translation session
+    /// object.
+    ///
+    /// The client secret is a string that looks like `ek_1234`.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn create_client_secret(
+        &self,
+        request: RealtimeTranslationClientSecretCreateRequest,
+    ) -> Result<RealtimeTranslationClientSecretCreateResponse, OpenAIError> {
+        self.client
+            .post(
+                "/realtime/translations/client_secrets",
+                request,
+                &self.request_options,
+            )
             .await
     }
 }
