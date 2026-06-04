@@ -133,7 +133,6 @@ impl<'c, C: Config> Realtime<'c, C> {
             .post("/realtime/client_secrets", request, &self.request_options)
             .await
     }
-
 }
 
 /// Realtime translations API. Translation sessions continuously translate input
@@ -152,15 +151,15 @@ impl<'c, C: Config> RealtimeTranslations<'c, C> {
     }
 
     /// Create a Realtime translation client secret with an associated translation session configuration.
-    /// 
+    ///
     /// Client secrets are short-lived tokens that can be passed to a client
     /// app, such as a web frontend or mobile client, which grants access to the
-    /// Realtime Translation API without leaking your main API key. You can configure a 
+    /// Realtime Translation API without leaking your main API key. You can configure a
     /// custom TTL for each client secret.
-    /// 
+    ///
     /// Returns the created client secret and the effective translation session
     /// object.
-    /// 
+    ///
     /// The client secret is a string that looks like `ek_1234`.
     #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn create_client_secret(

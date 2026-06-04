@@ -44,7 +44,7 @@ pub struct ProjectCreateRequest {
     pub name: String,
     /// Create the project with the specified data residency region. Your
     /// organization must have access to Data residency functionality in
-    /// order to use. See [data residency controls](https://developers.openai.com/docs/guides/your-data#data-residency-controls) 
+    /// order to use. See [data residency controls](https://developers.openai.com/docs/guides/your-data#data-residency-controls)
     /// to review the functionality and limitations of setting this field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub geography: Option<String>,

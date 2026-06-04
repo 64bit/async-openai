@@ -22,7 +22,7 @@ impl Display for ImageSize {
                 Self::S1536x1024 => "1536x1024",
                 Self::S1024x1536 => "1024x1536",
                 Self::Auto => "auto",
-                Self::Other(other) => other
+                Self::Other(other) => other,
             }
         )
     }

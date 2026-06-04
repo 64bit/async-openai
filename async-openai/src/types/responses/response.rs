@@ -989,7 +989,7 @@ pub struct CreateResponse {
     pub tools: Option<Vec<Tool>>,
 
     /// An integer between 0 and 20 specifying the number of most likely tokens to return at each
-    /// token position, each with an associated log probability. In some cases, the number of returned 
+    /// token position, each with an associated log probability. In some cases, the number of returned
     /// tokens may be fewer than requested.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub top_logprobs: Option<u8>,
@@ -1603,7 +1603,7 @@ pub enum ImageGenToolSize {
     #[serde(rename = "1536x1024")]
     Size1536x1024,
     #[serde(untagged)]
-    Other(String)
+    Other(String),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -3339,7 +3339,7 @@ pub struct CompactResponseRequest {
 
     /// The service tier to use for this request.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub service_tier: Option<ServiceTierEnum>
+    pub service_tier: Option<ServiceTierEnum>,
 }
 
 /// The compacted response object.

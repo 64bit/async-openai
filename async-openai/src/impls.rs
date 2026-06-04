@@ -22,8 +22,6 @@ use crate::moderation::Moderations;
 use crate::uploads::Uploads;
 #[cfg(feature = "video")]
 use crate::video::Videos;
-#[cfg(feature = "realtime")]
-use crate::{Realtime, RealtimeTranslations};
 #[cfg(feature = "administration")]
 use crate::{
     admin::AdminAPIKeys, admin::AuditLogs, admin::Certificates, admin::GroupRoles,
@@ -54,6 +52,8 @@ use crate::{
     vectorstores::VectorStoreFileBatches, vectorstores::VectorStoreFiles,
     vectorstores::VectorStores,
 };
+#[cfg(feature = "realtime")]
+use crate::{Realtime, RealtimeTranslations};
 
 // request builder impls macro
 

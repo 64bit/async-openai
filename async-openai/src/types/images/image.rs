@@ -24,7 +24,7 @@ pub enum ImageSize {
     #[serde(rename = "1024x1536")]
     S1024x1536,
     #[serde(untagged)]
-    Other(String)
+    Other(String),
 }
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
