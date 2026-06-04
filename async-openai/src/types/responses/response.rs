@@ -3287,7 +3287,18 @@ pub struct CompactionBody {
     pub created_by: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ServiceTierEnum {
+    #[default]
+    Auto,
+    Default,
+    Flex,
+    Priority,
+}
+
 /// Request to compact a conversation.
+/// type in openapi spec: CompactResponseMethodPublicBody
 #[derive(Clone, Serialize, Default, Debug, Deserialize, Builder, PartialEq)]
 #[builder(name = "CompactResponseRequestArgs")]
 #[builder(pattern = "mutable")]
@@ -3325,6 +3336,10 @@ pub struct CompactResponseRequest {
     /// How long to retain a prompt cache entry created by this request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt_cache_retention: Option<PromptCacheRetention>,
+
+    /// The service tier to use for this request.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<ServiceTierEnum>
 }
 
 /// The compacted response object.
