@@ -1,11 +1,7 @@
 use crate::{
-    config::Config,
-    error::OpenAIError,
-    types::admin::certificates::{
-        Certificate, DeleteCertificateResponse, ListCertificatesResponse, ModifyCertificateRequest,
-        ToggleCertificatesRequest, UploadCertificateRequest,
-    },
-    Client, RequestOptions,
+    Client, RequestOptions, config::Config, error::OpenAIError, types::admin::certificates::{
+        Certificate, DeleteCertificateResponse, ListCertificatesResponse, ModifyCertificateRequest, OrganizationCertificateActivationResponse, OrganizationCertificateDeactivationResponse, ToggleCertificatesRequest, UploadCertificateRequest
+    }
 };
 
 /// Certificates enable Mutual TLS (mTLS) authentication for your organization.
@@ -49,7 +45,7 @@ impl<'c, C: Config> Certificates<'c, C> {
     pub async fn activate_organization(
         &self,
         request: ToggleCertificatesRequest,
-    ) -> Result<ListCertificatesResponse, OpenAIError> {
+    ) -> Result<OrganizationCertificateActivationResponse, OpenAIError> {
         self.client
             .post(
                 "/organization/certificates/activate",
@@ -64,7 +60,7 @@ impl<'c, C: Config> Certificates<'c, C> {
     pub async fn deactivate_organization(
         &self,
         request: ToggleCertificatesRequest,
-    ) -> Result<ListCertificatesResponse, OpenAIError> {
+    ) -> Result<OrganizationCertificateDeactivationResponse, OpenAIError> {
         self.client
             .post(
                 "/organization/certificates/deactivate",
