@@ -52,6 +52,7 @@ assistant = ["assistant-types", "_api", ]
 administration = ["administration-types", "_api"]
 completions = ["completion-types", "_api"]
 middleware = ["dep:tower", "_api"]
+rate-limit = ["dep:governor", "middleware"]
 
 # Type feature flags - these enable only the types
 response-types = ["dep:derive_builder"]
@@ -132,6 +133,7 @@ full = [
     "types",
     "byot",
     "middleware",
+    "rate-limit",
 ]
 
 # Internal feature to enable API dependencies
@@ -180,6 +182,7 @@ secrecy = { version = "0.10", features = ["serde"], optional = true }
 serde_urlencoded = { version = "0.7", optional = true }
 url = { version = "2.5", optional = true }
 tower = { version = "0.5", features = ["limit", "retry", "timeout", "util"], optional = true }
+governor = { version = "0.8", optional = true, default-features = false, features = ["std"] }
 eventsource-stream = { version = "0.2", optional = true }
 ## For Webhook signature verification
 hmac = { version = "0.12", optional = true, default-features = false}
@@ -197,6 +200,7 @@ tokio-tungstenite = { version = "0.28", optional = true, default-features = fals
 ## API WASM dependencies
 [target.wasm32-unknown-unknown.dependencies]
 getrandom = { version = "0.3", features = ["wasm_js"] }
+governor = { version = "0.8", optional = true, default-features = false, features = ["std"] }
 
 [dev-dependencies]
 http = "1"

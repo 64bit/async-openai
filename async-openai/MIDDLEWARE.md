@@ -91,6 +91,22 @@ Custom tower retry policies can call `middleware::retry::should_retry` to reuse 
 
 On native targets retries wait using `tokio::time::sleep`. On WASM retries are immediate.
 
+## Rate limit layer
+
+Enable the `rate-limit` feature to use `RateLimitLayer`.
+
+```rust
+use async_openai::middleware::{retry::OpenAIRetryLayer, ReqwestService};
+use async_openai::middleware::rate_limit::RateLimitLayer;
+
+let service = tower::ServiceBuilder::new()
+    .layer(OpenAIRetryLayer::default())
+    .layer(RateLimitLayer::per_minute(60))
+    .service(ReqwestService::new(reqwest::Client::new()));
+```
+
+`RateLimitLayer` should sit below `OpenAIRetryLayer` so retries are also throttled. On native targets, the layer provides local request-per-minute limiting and server-feedback backpressure from `x-ratelimit-remaining-requests` plus `x-ratelimit-reset-requests`. On WASM targets, it records local governor state but does not delay requests.
+
 ## Error Handling
 
 `OpenAIError::Boxed` is available only when the `middleware` feature is enabled.
@@ -103,5 +119,3 @@ Tower's `BoxError` converts into `OpenAIError::Boxed`, which is useful for gener
 ## Bring Your Own Types Interaction
 
 With the `byot` feature, generated `*_byot` methods keep the same minimal trait bounds with or without middleware. JSON request bodies are serialized before they enter the replayable middleware request factory.
-
-

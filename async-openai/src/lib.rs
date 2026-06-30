@@ -29,6 +29,7 @@
 //! ## Making requests
 //!
 //!```
+//!# #[cfg(feature = "responses")]
 //!# tokio_test::block_on(async {
 //! use async_openai::{Client, types::responses::{CreateResponseArgs}};
 //!
@@ -122,6 +123,7 @@
 //!
 //! For demonstration:
 //! ```
+//! # #[cfg(feature = "chat-completion")]
 //! # tokio_test::block_on(async {
 //! # use async_openai::Client;
 //! # use async_openai::traits::RequestOptionsBuilder;
