@@ -3,14 +3,16 @@
 use std::future::Future;
 use std::num::NonZeroU32;
 use std::pin::Pin;
-use std::sync::{
-    atomic::{AtomicU64, Ordering},
-    Arc,
-};
+use std::sync::Arc;
+#[cfg(not(target_family = "wasm"))]
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::task::{Context, Poll};
+#[cfg(not(target_family = "wasm"))]
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use governor::{clock::Clock, DefaultDirectRateLimiter, Quota, RateLimiter};
+#[cfg(not(target_family = "wasm"))]
+use governor::clock::Clock;
+use governor::{DefaultDirectRateLimiter, Quota, RateLimiter};
 use reqwest::Response;
 
 use crate::{error::OpenAIError, executor::HttpRequestFactory};
@@ -213,11 +215,17 @@ where
     }
 }
 
+#[cfg(not(target_family = "wasm"))]
 #[derive(Debug, Default)]
 struct ServerBackpressure {
     reset_at: AtomicU64,
 }
 
+#[cfg(target_family = "wasm")]
+#[derive(Debug, Default)]
+struct ServerBackpressure;
+
+#[cfg(not(target_family = "wasm"))]
 impl ServerBackpressure {
     fn reset_at_millis(&self) -> Option<u64> {
         match self.reset_at.load(Ordering::Relaxed) {
@@ -241,6 +249,7 @@ impl ServerBackpressure {
     }
 }
 
+#[cfg(not(target_family = "wasm"))]
 fn now_millis() -> u64 {
     duration_millis(
         SystemTime::now()
@@ -249,10 +258,12 @@ fn now_millis() -> u64 {
     )
 }
 
+#[cfg(not(target_family = "wasm"))]
 fn duration_millis(duration: Duration) -> u64 {
     u64::try_from(duration.as_millis()).unwrap_or(u64::MAX)
 }
 
+#[cfg(not(target_family = "wasm"))]
 fn parse_reset_duration(value: &str) -> Option<Duration> {
     let bytes = value.as_bytes();
     let mut index = 0;
@@ -300,6 +311,7 @@ fn parse_reset_duration(value: &str) -> Option<Duration> {
     saw_part.then_some(total)
 }
 
+#[cfg(not(target_family = "wasm"))]
 fn update_backpressure_from_headers(
     headers: &reqwest::header::HeaderMap,
     backpressure: &ServerBackpressure,
