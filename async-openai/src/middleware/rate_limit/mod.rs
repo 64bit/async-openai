@@ -3,9 +3,9 @@
 use std::future::Future;
 use std::num::NonZeroU32;
 use std::pin::Pin;
-use std::sync::Arc;
 #[cfg(not(target_family = "wasm"))]
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Arc;
 use std::task::{Context, Poll};
 #[cfg(not(target_family = "wasm"))]
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
