@@ -2,7 +2,7 @@
 
 use async_openai::types::responses::{
     EasyInputContent, ImageDetail, InputContent, InputItem, InputRole, Item, MessageItem,
-    MessageType, OutputItem, ResponseStreamEvent, ResponseTextParam, Role,
+    MessageType, OutputItem, OutputMessage, ResponseStreamEvent, ResponseTextParam, Role,
     TextResponseFormatConfiguration, WebSearchApproximateLocation,
     WebSearchApproximateLocationType, WebSearchToolCallStatus,
 };
@@ -149,6 +149,42 @@ fn response_text_param_without_format_defaults_to_text() {
 
     assert_eq!(param.format, TextResponseFormatConfiguration::Text);
     assert_eq!(param.verbosity, None);
+}
+
+#[test]
+fn output_message_without_id_deserializes() {
+    // OpenAI's Responses API sometimes omits `id` on output_text items
+    // in the input array. This should deserialize without error.
+    let msg: OutputMessage = serde_json::from_value(json!({
+        "role": "assistant",
+        "status": "completed",
+        "content": [
+            {"type": "output_text", "text": "hello", "annotations": []}
+        ]
+    }))
+    .expect("deserialize OutputMessage without id");
+
+    assert_eq!(msg.id, None);
+    assert_eq!(msg.content.len(), 1);
+
+    // Round-trip: should serialize without id
+    let serialized = serde_json::to_value(&msg).expect("serialize OutputMessage");
+    assert!(serialized.get("id").is_none(), "id should not be serialized when None");
+}
+
+#[test]
+fn output_message_with_id_still_works() {
+    let msg: OutputMessage = serde_json::from_value(json!({
+        "id": "msg_123",
+        "role": "assistant",
+        "status": "completed",
+        "content": [
+            {"type": "output_text", "text": "hello", "annotations": []}
+        ]
+    }))
+    .expect("deserialize OutputMessage with id");
+
+    assert_eq!(msg.id, Some("msg_123".to_string()));
 }
 
 #[test]

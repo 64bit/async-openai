@@ -1847,7 +1847,9 @@ pub struct OutputMessage {
     /// The content of the output message.
     pub content: Vec<OutputMessageContent>,
     /// The unique ID of the output message.
-    pub id: String,
+    /// Populated when returned via API; optional when constructing input items.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
     /// The role of the output message. Always `assistant`.
     pub role: AssistantRole,
     /// Labels this assistant message as intermediate commentary (`commentary`) or
