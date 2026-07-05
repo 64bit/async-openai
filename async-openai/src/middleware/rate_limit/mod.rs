@@ -3,25 +3,19 @@
 use std::future::Future;
 use std::num::NonZeroU32;
 use std::pin::Pin;
-#[cfg(not(target_family = "wasm"))]
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::task::{Context, Poll};
-#[cfg(not(target_family = "wasm"))]
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-#[cfg(not(target_family = "wasm"))]
 use governor::clock::Clock;
 use governor::{DefaultDirectRateLimiter, Quota, RateLimiter};
 use reqwest::Response;
 
 use crate::{error::OpenAIError, executor::HttpRequestFactory};
 
-#[cfg(not(target_family = "wasm"))]
 type RateLimitFuture =
     Pin<Box<dyn Future<Output = Result<Response, OpenAIError>> + Send + 'static>>;
-#[cfg(target_family = "wasm")]
-type RateLimitFuture = Pin<Box<dyn Future<Output = Result<Response, OpenAIError>> + 'static>>;
 
 /// Tower layer for client-side request rate limiting.
 #[derive(Clone, Debug)]
@@ -31,28 +25,31 @@ pub struct RateLimitLayer {
 }
 
 impl RateLimitLayer {
-    /// Create a layer that allows at most `rpm` requests per minute.
-    ///
-    /// # Panics
-    ///
-    /// Panics when `rpm` is zero.
+    /// Create a layer with the provided governor quota.
     #[must_use]
-    pub fn per_minute(rpm: u32) -> Self {
-        let rpm = NonZeroU32::new(rpm).expect("rpm must be greater than zero");
-        Self::new(Quota::per_minute(rpm))
-    }
-
-    #[cfg(test)]
-    fn per_second_for_tests(rps: u32) -> Self {
-        let rps = NonZeroU32::new(rps).expect("rps must be greater than zero");
-        Self::new(Quota::per_second(rps))
-    }
-
-    fn new(quota: Quota) -> Self {
+    pub fn new(quota: Quota) -> Self {
         Self {
             limiter: Arc::new(RateLimiter::direct(quota)),
             backpressure: Arc::new(ServerBackpressure::default()),
         }
+    }
+
+    /// Create a layer that allows at most `rps` requests per second.
+    #[must_use]
+    pub fn per_second(rps: NonZeroU32) -> Self {
+        Self::new(Quota::per_second(rps))
+    }
+
+    /// Create a layer that allows at most `rpm` requests per minute.
+    #[must_use]
+    pub fn per_minute(rpm: NonZeroU32) -> Self {
+        Self::new(Quota::per_minute(rpm))
+    }
+
+    /// Create a layer that allows at most `rph` requests per hour.
+    #[must_use]
+    pub fn per_hour(rph: NonZeroU32) -> Self {
+        Self::new(Quota::per_hour(rph))
     }
 }
 
@@ -64,9 +61,7 @@ impl<S> tower::Layer<S> for RateLimitLayer {
             inner,
             limiter: self.limiter.clone(),
             backpressure: self.backpressure.clone(),
-            #[cfg(not(target_family = "wasm"))]
             delay: None,
-            #[cfg(not(target_family = "wasm"))]
             delay_deadline_ms: 0,
         }
     }
@@ -77,9 +72,7 @@ pub struct RateLimitService<S> {
     inner: S,
     limiter: Arc<DefaultDirectRateLimiter>,
     backpressure: Arc<ServerBackpressure>,
-    #[cfg(not(target_family = "wasm"))]
     delay: Option<Pin<Box<tokio::time::Sleep>>>,
-    #[cfg(not(target_family = "wasm"))]
     delay_deadline_ms: u64,
 }
 
@@ -92,15 +85,12 @@ where
             inner: self.inner.clone(),
             limiter: self.limiter.clone(),
             backpressure: self.backpressure.clone(),
-            #[cfg(not(target_family = "wasm"))]
             delay: None,
-            #[cfg(not(target_family = "wasm"))]
             delay_deadline_ms: 0,
         }
     }
 }
 
-#[cfg(not(target_family = "wasm"))]
 impl<S> RateLimitService<S> {
     fn poll_delay_until(&mut self, cx: &mut Context<'_>, deadline_ms: u64) -> Poll<()> {
         if self.delay_deadline_ms != deadline_ms {
@@ -124,7 +114,6 @@ impl<S> RateLimitService<S> {
     }
 }
 
-#[cfg(not(target_family = "wasm"))]
 impl<S> tower::Service<HttpRequestFactory> for RateLimitService<S>
 where
     S: tower::Service<HttpRequestFactory, Response = Response, Error = OpenAIError>
@@ -186,46 +175,11 @@ where
     }
 }
 
-#[cfg(target_family = "wasm")]
-impl<S> tower::Service<HttpRequestFactory> for RateLimitService<S>
-where
-    S: tower::Service<HttpRequestFactory, Response = Response, Error = OpenAIError> + 'static,
-    S::Future: 'static,
-{
-    type Response = Response;
-    type Error = OpenAIError;
-    type Future = RateLimitFuture;
-
-    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        match self.inner.poll_ready(cx) {
-            Poll::Ready(Ok(())) => {}
-            other => return other,
-        }
-
-        if let Err(not_until) = self.limiter.check() {
-            tracing::debug!("rate limit governor exhausted until {not_until}");
-        }
-
-        Poll::Ready(Ok(()))
-    }
-
-    fn call(&mut self, request: HttpRequestFactory) -> Self::Future {
-        let future = self.inner.call(request);
-        Box::pin(async move { future.await })
-    }
-}
-
-#[cfg(not(target_family = "wasm"))]
 #[derive(Debug, Default)]
 struct ServerBackpressure {
     reset_at: AtomicU64,
 }
 
-#[cfg(target_family = "wasm")]
-#[derive(Debug, Default)]
-struct ServerBackpressure;
-
-#[cfg(not(target_family = "wasm"))]
 impl ServerBackpressure {
     fn reset_at_millis(&self) -> Option<u64> {
         match self.reset_at.load(Ordering::Relaxed) {
@@ -249,7 +203,6 @@ impl ServerBackpressure {
     }
 }
 
-#[cfg(not(target_family = "wasm"))]
 fn now_millis() -> u64 {
     duration_millis(
         SystemTime::now()
@@ -258,12 +211,10 @@ fn now_millis() -> u64 {
     )
 }
 
-#[cfg(not(target_family = "wasm"))]
 fn duration_millis(duration: Duration) -> u64 {
     u64::try_from(duration.as_millis()).unwrap_or(u64::MAX)
 }
 
-#[cfg(not(target_family = "wasm"))]
 fn parse_reset_duration(value: &str) -> Option<Duration> {
     let bytes = value.as_bytes();
     let mut index = 0;
@@ -311,7 +262,6 @@ fn parse_reset_duration(value: &str) -> Option<Duration> {
     saw_part.then_some(total)
 }
 
-#[cfg(not(target_family = "wasm"))]
 fn update_backpressure_from_headers(
     headers: &reqwest::header::HeaderMap,
     backpressure: &ServerBackpressure,
@@ -370,7 +320,7 @@ mod tests {
     #[tokio::test]
     async fn service_applies_backpressure_before_forwarding() {
         let calls = Arc::new(AtomicUsize::new(0));
-        let service = RateLimitLayer::per_minute(60).layer({
+        let service = RateLimitLayer::per_minute(NonZeroU32::new(60).unwrap()).layer({
             let calls = calls.clone();
             service_fn(move |_factory: HttpRequestFactory| {
                 let calls = calls.clone();
@@ -414,7 +364,7 @@ mod tests {
     #[tokio::test]
     async fn cloned_services_share_governor_bucket() {
         let calls = Arc::new(AtomicUsize::new(0));
-        let service = RateLimitLayer::per_second_for_tests(1).layer({
+        let service = RateLimitLayer::per_second(NonZeroU32::new(1).unwrap()).layer({
             let calls = calls.clone();
             service_fn(move |_factory: HttpRequestFactory| {
                 let calls = calls.clone();
@@ -494,10 +444,11 @@ mod tests {
         }
 
         let calls = Arc::new(AtomicUsize::new(0));
-        let mut service = RateLimitLayer::per_second_for_tests(1).layer(PendingOnceService {
-            pending_once: true,
-            calls: calls.clone(),
-        });
+        let mut service =
+            RateLimitLayer::per_second(NonZeroU32::new(1).unwrap()).layer(PendingOnceService {
+                pending_once: true,
+                calls: calls.clone(),
+            });
 
         let mut cx = Context::from_waker(noop_waker_ref());
         assert!(matches!(service.poll_ready(&mut cx), Poll::Pending));
@@ -520,7 +471,7 @@ mod tests {
         let calls = Arc::new(AtomicUsize::new(0));
         let service = ServiceBuilder::new()
             .layer(crate::retry::OpenAIRetryLayer::new(1))
-            .layer(RateLimitLayer::per_second_for_tests(1))
+            .layer(RateLimitLayer::per_second(NonZeroU32::new(1).unwrap()))
             .service({
                 let calls = calls.clone();
                 service_fn(move |_factory: HttpRequestFactory| {

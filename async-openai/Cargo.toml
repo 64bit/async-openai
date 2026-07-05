@@ -51,8 +51,7 @@ chat-completion = ["chat-completion-types", "_api"]
 assistant = ["assistant-types", "_api", ]
 administration = ["administration-types", "_api"]
 completions = ["completion-types", "_api"]
-middleware = ["dep:tower", "_api"]
-rate-limit = ["dep:governor", "middleware"]
+middleware = ["dep:tower", "dep:governor", "_api"]
 
 # Type feature flags - these enable only the types
 response-types = ["dep:derive_builder"]
@@ -133,7 +132,6 @@ full = [
     "types",
     "byot",
     "middleware",
-    "rate-limit",
 ]
 
 # Internal feature to enable API dependencies
@@ -182,7 +180,6 @@ secrecy = { version = "0.10", features = ["serde"], optional = true }
 serde_urlencoded = { version = "0.7", optional = true }
 url = { version = "2.5", optional = true }
 tower = { version = "0.5", features = ["limit", "retry", "timeout", "util"], optional = true }
-governor = { version = "0.8", optional = true, default-features = false, features = ["std"] }
 eventsource-stream = { version = "0.2", optional = true }
 ## For Webhook signature verification
 hmac = { version = "0.12", optional = true, default-features = false}
@@ -194,13 +191,13 @@ hex = { version = "0.4", optional = true, default-features = false }
 tokio = { version = "1", features = ["fs", "macros"], optional = true }
 tokio-stream = { version = "0.1", optional = true }
 tokio-util = { version = "0.7", features = ["codec", "io-util"], optional = true }
+governor = { version = "0.8", optional = true, default-features = false, features = ["std"] }
 ## For Realtime websocket
 tokio-tungstenite = { version = "0.28", optional = true, default-features = false }
 
 ## API WASM dependencies
 [target.wasm32-unknown-unknown.dependencies]
 getrandom = { version = "0.3", features = ["wasm_js"] }
-governor = { version = "0.8", optional = true, default-features = false, features = ["std"] }
 
 [dev-dependencies]
 http = "1"
@@ -230,6 +227,10 @@ required-features = ["chat-completion-types"]
 [[test]]
 name = "responses_input_item_serde"
 required-features = ["response-types"]
+
+[[test]]
+name = "rate_limit"
+required-features = ["middleware"]
 
 [[test]]
 name = "whisper"

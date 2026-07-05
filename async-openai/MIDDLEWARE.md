@@ -93,19 +93,20 @@ On native targets retries wait using `tokio::time::sleep`. On WASM retries are i
 
 ## Rate limit layer
 
-Enable the `rate-limit` feature to use `RateLimitLayer`.
+On native targets, enable the `middleware` feature to use `RateLimitLayer`.
 
 ```rust
 use async_openai::middleware::{retry::OpenAIRetryLayer, ReqwestService};
 use async_openai::middleware::rate_limit::RateLimitLayer;
+use std::num::NonZeroU32;
 
 let service = tower::ServiceBuilder::new()
     .layer(OpenAIRetryLayer::default())
-    .layer(RateLimitLayer::per_minute(60))
+    .layer(RateLimitLayer::per_minute(NonZeroU32::new(60).unwrap()))
     .service(ReqwestService::new(reqwest::Client::new()));
 ```
 
-`RateLimitLayer` should sit below `OpenAIRetryLayer` so retries are also throttled. On native targets, the layer provides local request-per-minute limiting and server-feedback backpressure from `x-ratelimit-remaining-requests` plus `x-ratelimit-reset-requests`. On WASM targets, it records local governor state but does not delay requests.
+`RateLimitLayer` should sit below `OpenAIRetryLayer` so retries are also throttled. The layer provides local request limiting and server-feedback backpressure from `x-ratelimit-remaining-requests` plus `x-ratelimit-reset-requests`. Use `RateLimitLayer::new(governor::Quota)` when you need quota intervals other than the provided convenience constructors.
 
 ## Error Handling
 
@@ -119,5 +120,4 @@ Tower's `BoxError` converts into `OpenAIError::Boxed`, which is useful for gener
 ## Bring Your Own Types Interaction
 
 With the `byot` feature, generated `*_byot` methods keep the same minimal trait bounds with or without middleware. JSON request bodies are serialized before they enter the replayable middleware request factory.
-
 

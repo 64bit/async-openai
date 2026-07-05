@@ -105,32 +105,32 @@
 //!
 //! ## Rate limit layer
 //!
-//! Enable the `rate-limit` feature to use [`rate_limit::RateLimitLayer`].
-//! Place it below [`retry::OpenAIRetryLayer`] so retry attempts also pass
-//! through the limiter:
+//! On native targets, the `middleware` feature includes
+//! [`rate_limit::RateLimitLayer`]. Place it below [`retry::OpenAIRetryLayer`]
+//! so retry attempts also pass through the limiter:
 //!
 //! ```no_run
-//! # #[cfg(feature = "rate-limit")]
+//! # #[cfg(not(target_family = "wasm"))]
 //! # fn main() {
 //! # use async_openai::{Client, config::OpenAIConfig};
 //! # use async_openai::middleware::{ReqwestService, retry::OpenAIRetryLayer};
 //! # use async_openai::middleware::rate_limit::RateLimitLayer;
+//! # use std::num::NonZeroU32;
 //! let service = tower::ServiceBuilder::new()
 //!     .layer(OpenAIRetryLayer::default())
-//!     .layer(RateLimitLayer::per_minute(60))
+//!     .layer(RateLimitLayer::per_minute(NonZeroU32::new(60).unwrap()))
 //!     .service(ReqwestService::new(reqwest::Client::new()));
 //!
 //! let client = Client::with_config(OpenAIConfig::default())
 //!     .with_http_service(service);
 //! # }
-//! # #[cfg(not(feature = "rate-limit"))]
+//! # #[cfg(target_family = "wasm")]
 //! # fn main() {}
 //! ```
 //!
-//! On native targets, the layer limits request RPM locally and applies
-//! server-feedback backpressure when `x-ratelimit-remaining-requests`
-//! reaches zero and `x-ratelimit-reset-requests` is parseable. On WASM
-//! targets, it records local governor state but does not delay requests.
+//! The layer limits requests locally and applies server-feedback backpressure
+//! when `x-ratelimit-remaining-requests` reaches zero and
+//! `x-ratelimit-reset-requests` is parseable.
 //!
 //! ## Error Handling
 //!
@@ -148,7 +148,7 @@
 //! before they enter the replayable middleware request factory.
 
 /// Request rate limiting middleware.
-#[cfg(feature = "rate-limit")]
+#[cfg(not(target_family = "wasm"))]
 pub mod rate_limit;
 
 /// Retry layers and policies for middleware.
