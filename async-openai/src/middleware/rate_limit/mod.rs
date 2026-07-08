@@ -1,4 +1,10 @@
 //! Client-side request rate limiting middleware.
+//!
+//! This layer combines two signals. A local governor quota limits requests
+//! before they are sent, and server response headers can add shared
+//! backpressure when OpenAI reports no remaining request quota. Both paths use
+//! monotonic deadlines measured from layer creation so local waits and
+//! server-directed waits use the same clock model.
 
 use std::future::Future;
 use std::num::NonZeroU32;
@@ -6,7 +12,7 @@ use std::pin::Pin;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::task::{Context, Poll};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant};
 
 use governor::clock::Clock;
 use governor::{DefaultDirectRateLimiter, Quota, RateLimiter};
@@ -20,8 +26,12 @@ type RateLimitFuture =
 /// Tower layer for client-side request rate limiting.
 #[derive(Clone, Debug)]
 pub struct RateLimitLayer {
+    /// Shared local token bucket used by all services cloned from this layer.
     limiter: Arc<DefaultDirectRateLimiter>,
+    /// Shared server-directed deadline derived from rate-limit response headers.
     backpressure: Arc<ServerBackpressure>,
+    /// Monotonic base used for all internal deadlines, matching governor's clock model.
+    base: Instant,
 }
 
 impl RateLimitLayer {
@@ -31,6 +41,7 @@ impl RateLimitLayer {
         Self {
             limiter: Arc::new(RateLimiter::direct(quota)),
             backpressure: Arc::new(ServerBackpressure::default()),
+            base: Instant::now(),
         }
     }
 
@@ -61,6 +72,7 @@ impl<S> tower::Layer<S> for RateLimitLayer {
             inner,
             limiter: self.limiter.clone(),
             backpressure: self.backpressure.clone(),
+            base: self.base,
             delay: None,
             delay_deadline_ms: 0,
         }
@@ -70,9 +82,15 @@ impl<S> tower::Layer<S> for RateLimitLayer {
 /// Tower service produced by [`RateLimitLayer`].
 pub struct RateLimitService<S> {
     inner: S,
+    /// Shared local token bucket, so cloned services apply one combined quota.
     limiter: Arc<DefaultDirectRateLimiter>,
+    /// Shared server backpressure, so one exhausted response pauses sibling clones.
     backpressure: Arc<ServerBackpressure>,
+    /// Monotonic base inherited from the layer for layer-relative deadlines.
+    base: Instant,
+    /// Active sleep for either local quota exhaustion or server backpressure.
     delay: Option<Pin<Box<tokio::time::Sleep>>>,
+    /// Layer-relative deadline, in milliseconds, for the active sleep.
     delay_deadline_ms: u64,
 }
 
@@ -85,6 +103,7 @@ where
             inner: self.inner.clone(),
             limiter: self.limiter.clone(),
             backpressure: self.backpressure.clone(),
+            base: self.base,
             delay: None,
             delay_deadline_ms: 0,
         }
@@ -92,9 +111,13 @@ where
 }
 
 impl<S> RateLimitService<S> {
+    fn now_millis(&self) -> u64 {
+        duration_millis(self.base.elapsed())
+    }
+
     fn poll_delay_until(&mut self, cx: &mut Context<'_>, deadline_ms: u64) -> Poll<()> {
         if self.delay_deadline_ms != deadline_ms {
-            let wait_ms = deadline_ms.saturating_sub(now_millis());
+            let wait_ms = deadline_ms.saturating_sub(self.now_millis());
             self.delay = Some(Box::pin(tokio::time::sleep(Duration::from_millis(wait_ms))));
             self.delay_deadline_ms = deadline_ms;
         }
@@ -128,7 +151,7 @@ where
     fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         loop {
             if let Some(reset_at) = self.backpressure.reset_at_millis() {
-                let now = now_millis();
+                let now = self.now_millis();
                 if now < reset_at {
                     if self.poll_delay_until(cx, reset_at).is_pending() {
                         return Poll::Pending;
@@ -137,7 +160,7 @@ where
                 }
 
                 if self.backpressure.clear_if_deadline(reset_at).is_ok() {
-                    tracing::info!("rate limit request backpressure cleared at {reset_at}ms");
+                    tracing::info!("{}", backpressure_cleared_message(reset_at));
                 } else {
                     continue;
                 }
@@ -152,8 +175,11 @@ where
                 Ok(()) => return Poll::Ready(Ok(())),
                 Err(not_until) => {
                     let wait = not_until.wait_time_from(self.limiter.clock().now());
-                    let deadline = now_millis().saturating_add(duration_millis(wait));
-                    tracing::debug!("rate limit governor exhausted until {deadline}ms");
+                    let wait_ms = duration_millis(wait);
+                    let deadline = self.now_millis().saturating_add(wait_ms);
+                    if self.delay_deadline_ms != deadline {
+                        tracing::warn!("{}", governor_exhausted_message(deadline, wait_ms));
+                    }
 
                     if self.poll_delay_until(cx, deadline).is_pending() {
                         return Poll::Pending;
@@ -165,11 +191,16 @@ where
 
     fn call(&mut self, request: HttpRequestFactory) -> Self::Future {
         let backpressure = self.backpressure.clone();
+        let base = self.base;
         let future = self.inner.call(request);
 
         Box::pin(async move {
             let response = future.await?;
-            update_backpressure_from_headers(response.headers(), &backpressure, now_millis());
+            update_backpressure_from_headers(
+                response.headers(),
+                &backpressure,
+                duration_millis(base.elapsed()),
+            );
             Ok(response)
         })
     }
@@ -177,6 +208,7 @@ where
 
 #[derive(Debug, Default)]
 struct ServerBackpressure {
+    /// Layer-relative deadline, in milliseconds, until requests may resume.
     reset_at: AtomicU64,
 }
 
@@ -201,14 +233,6 @@ impl ServerBackpressure {
         )?;
         Ok(())
     }
-}
-
-fn now_millis() -> u64 {
-    duration_millis(
-        SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or(Duration::ZERO),
-    )
 }
 
 fn duration_millis(duration: Duration) -> u64 {
@@ -268,7 +292,6 @@ fn update_backpressure_from_headers(
     now_ms: u64,
 ) {
     let Some(remaining_value) = headers.get(crate::retry::X_RATELIMIT_REMAINING_REQUESTS) else {
-        tracing::debug!("rate limit remaining requests header is missing");
         return;
     };
 
@@ -277,12 +300,10 @@ fn update_backpressure_from_headers(
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
     else {
-        tracing::debug!("rate limit remaining requests header is invalid");
         return;
     };
 
     if remaining != 0 {
-        tracing::debug!("rate limit remaining requests is not exhausted");
         return;
     }
 
@@ -291,14 +312,31 @@ fn update_backpressure_from_headers(
         .and_then(|value| value.to_str().ok())
         .and_then(parse_reset_duration)
     else {
-        tracing::debug!("rate limit reset requests header is missing or invalid");
         return;
     };
 
     let reset_ms = duration_millis(reset);
     let deadline = now_ms.saturating_add(reset_ms);
     backpressure.update_deadline(deadline);
-    tracing::warn!("rate limit request backpressure active until {deadline}ms");
+    tracing::warn!("{}", backpressure_active_message(deadline, reset_ms));
+}
+
+fn governor_exhausted_message(deadline_ms: u64, wait_ms: u64) -> String {
+    format!(
+        "rate limit governor exhausted until {deadline_ms} (monotonic ms since layer creation); delaying request for {wait_ms}ms"
+    )
+}
+
+fn backpressure_active_message(deadline_ms: u64, reset_ms: u64) -> String {
+    format!(
+        "rate limit request backpressure active until {deadline_ms} (monotonic ms since layer creation); delaying new requests for {reset_ms}ms"
+    )
+}
+
+fn backpressure_cleared_message(reset_at_ms: u64) -> String {
+    format!(
+        "rate limit request backpressure cleared at {reset_at_ms} (monotonic ms since layer creation)"
+    )
 }
 
 #[cfg(test)]
@@ -510,6 +548,39 @@ mod tests {
 
         assert!(started.elapsed() >= Duration::from_millis(900));
         assert_eq!(calls.load(Ordering::Relaxed), 2);
+    }
+
+    #[test]
+    fn log_messages_include_deadline_and_duration() {
+        assert_eq!(
+            governor_exhausted_message(123, 45),
+            "rate limit governor exhausted until 123 (monotonic ms since layer creation); delaying request for 45ms"
+        );
+        assert_eq!(
+            backpressure_active_message(456, 78),
+            "rate limit request backpressure active until 456 (monotonic ms since layer creation); delaying new requests for 78ms"
+        );
+        assert_eq!(
+            backpressure_cleared_message(456),
+            "rate limit request backpressure cleared at 456 (monotonic ms since layer creation)"
+        );
+    }
+
+    #[test]
+    fn services_use_layer_relative_monotonic_clock() {
+        let service = RateLimitLayer::per_second(NonZeroU32::new(1).unwrap()).layer(service_fn(
+            |_factory: HttpRequestFactory| async {
+                Ok::<reqwest::Response, OpenAIError>(
+                    HttpResponse::builder()
+                        .status(200)
+                        .body(reqwest::Body::from("{}"))
+                        .unwrap()
+                        .into(),
+                )
+            },
+        ));
+
+        assert!(service.now_millis() < 1_000);
     }
 
     #[test]
