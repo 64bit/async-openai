@@ -1,3 +1,5 @@
+use crate::error::OpenAIError;
+use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::types::admin::invites::ProjectMembership;
@@ -37,6 +39,22 @@ pub struct ProjectServiceAccountListResponse {
 pub struct ProjectServiceAccountCreateRequest {
     /// The name of the service account being created.
     pub name: String,
+}
+
+/// Parameters for updating a project service account.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[builder(
+    name = "UpdateProjectServiceAccountArgs",
+    pattern = "mutable",
+    setter(into, strip_option),
+    default,
+    build_fn(error = "OpenAIError")
+)]
+pub struct UpdateProjectServiceAccountBody {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub role: Option<ProjectMembership>,
 }
 
 /// Represents the response object for creating a project service account.

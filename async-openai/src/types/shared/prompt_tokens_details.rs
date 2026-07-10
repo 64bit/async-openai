@@ -7,4 +7,6 @@ pub struct PromptTokensDetails {
     pub audio_tokens: Option<u32>,
     /// Cached tokens present in the prompt.
     pub cached_tokens: Option<u32>,
+    /// Tokens written to the prompt cache.
+    pub cache_write_tokens: Option<u32>,
 }

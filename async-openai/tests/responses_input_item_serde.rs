@@ -1,9 +1,10 @@
 #![cfg(feature = "response-types")]
 
 use async_openai::types::responses::{
-    EasyInputContent, ImageDetail, InputContent, InputItem, InputRole, Item, MessageItem,
-    MessageType, OutputItem, ResponseStreamEvent, ResponseTextParam, Role,
-    TextResponseFormatConfiguration, WebSearchApproximateLocation,
+    EasyInputContent, ImageDetail, InputContent, InputItem, InputRole, InputTextContent, Item,
+    MessageItem, MessageType, OutputItem, ProgramToolCallCaller, ProgrammaticToolCallingParam,
+    PromptCacheBreakpointConfig, PromptCacheBreakpointMode, ResponseStreamEvent, ResponseTextParam,
+    Role, TextResponseFormatConfiguration, Tool, ToolCallCaller, WebSearchApproximateLocation,
     WebSearchApproximateLocationType, WebSearchToolCallStatus,
 };
 use serde_json::json;
@@ -174,4 +175,35 @@ fn input_item_strict_message_multimodal_without_detail_defaults() {
         }
         other => panic!("expected Item::Message(Input), got {other:?}"),
     }
+}
+
+#[test]
+fn programmatic_calling_and_prompt_cache_types_serialize_canonically() {
+    let tool = Tool::ProgrammaticToolCalling(ProgrammaticToolCallingParam {});
+    assert_eq!(
+        serde_json::to_value(tool).unwrap(),
+        json!({"type": "programmatic_tool_calling"})
+    );
+
+    let caller = ToolCallCaller::Program(ProgramToolCallCaller {
+        caller_id: "prog_123".into(),
+    });
+    assert_eq!(
+        serde_json::to_value(caller).unwrap(),
+        json!({"type": "program", "caller_id": "prog_123"})
+    );
+
+    let content = InputTextContent {
+        text: "cache this prefix".into(),
+        prompt_cache_breakpoint: Some(PromptCacheBreakpointConfig {
+            mode: PromptCacheBreakpointMode::Explicit,
+        }),
+    };
+    assert_eq!(
+        serde_json::to_value(content).unwrap(),
+        json!({
+            "text": "cache this prefix",
+            "prompt_cache_breakpoint": {"mode": "explicit"}
+        })
+    );
 }

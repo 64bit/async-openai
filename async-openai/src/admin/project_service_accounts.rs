@@ -4,7 +4,7 @@ use crate::{
     types::admin::project_service_accounts::{
         ProjectServiceAccount, ProjectServiceAccountCreateRequest,
         ProjectServiceAccountCreateResponse, ProjectServiceAccountDeleteResponse,
-        ProjectServiceAccountListResponse,
+        ProjectServiceAccountListResponse, UpdateProjectServiceAccountBody,
     },
     Client, RequestOptions,
 };
@@ -75,6 +75,26 @@ impl<'c, C: Config> ProjectServiceAccounts<'c, C> {
                     self.project_id
                 )
                 .as_str(),
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Updates a service account in the project.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn update(
+        &self,
+        service_account_id: &str,
+        request: UpdateProjectServiceAccountBody,
+    ) -> Result<ProjectServiceAccount, OpenAIError> {
+        self.client
+            .post(
+                format!(
+                    "/organization/projects/{}/service_accounts/{service_account_id}",
+                    self.project_id
+                )
+                .as_str(),
+                request,
                 &self.request_options,
             )
             .await

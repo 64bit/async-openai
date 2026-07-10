@@ -2,7 +2,8 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::admin::groups::{
-        CreateGroupUserBody, GroupUserAssignment, GroupUserDeletedResource, UserListResource,
+        CreateGroupUserBody, GroupMemberUser, GroupUserAssignment, GroupUserDeletedResource,
+        UserListResource,
     },
     Client, RequestOptions,
 };
@@ -44,6 +45,17 @@ impl<'c, C: Config> GroupUsers<'c, C> {
             .post(
                 format!("/organization/groups/{}/users", self.group_id).as_str(),
                 request,
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Retrieves a user in this group.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve(&self, user_id: &str) -> Result<GroupMemberUser, OpenAIError> {
+        self.client
+            .get(
+                format!("/organization/groups/{}/users/{user_id}", self.group_id).as_str(),
                 &self.request_options,
             )
             .await

@@ -5,6 +5,8 @@ pub struct InputTokenDetails {
     /// The number of tokens that were retrieved from the cache.
     /// [More on prompt caching](https://platform.openai.com/docs/guides/prompt-caching).
     pub cached_tokens: u32,
+    /// The number of tokens written to the prompt cache.
+    pub cache_write_tokens: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

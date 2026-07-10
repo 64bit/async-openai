@@ -27,6 +27,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         user_ids: None,
         api_key_ids: None,
         models: None,
+        vector_store_ids: None,
+        context_levels: None,
         batch: None,
         group_by: None,
         limit: Some(7),

@@ -1,4 +1,5 @@
 use crate::error::OpenAIError;
+use crate::types::admin::groups::GroupType;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
@@ -86,7 +87,7 @@ pub struct ProjectGroup {
     /// Unix timestamp (in seconds) when the group was granted project access.
     pub created_at: u64,
     /// The type of the group.
-    pub group_type: String,
+    pub group_type: GroupType,
 }
 
 /// Paginated list of groups that have access to a project.

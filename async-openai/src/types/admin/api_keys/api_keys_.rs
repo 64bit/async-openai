@@ -15,6 +15,8 @@ pub struct AdminApiKey {
     pub redacted_value: String,
     /// The Unix timestamp (in seconds) of when the API key was created.
     pub created_at: u64,
+    /// The Unix timestamp (in seconds) of when the API key expires.
+    pub expires_at: Option<u64>,
     /// The Unix timestamp (in seconds) of when the API key was last used.
     pub last_used_at: Option<u64>,
     /// The owner of the API key.

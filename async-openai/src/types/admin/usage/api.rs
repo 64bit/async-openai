@@ -30,6 +30,12 @@ pub struct UsageQueryParams {
     /// Return only usage for these models.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub models: Option<Vec<String>>,
+    /// Return only file-search usage for these vector stores.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vector_store_ids: Option<Vec<String>>,
+    /// Return only web-search usage for these context levels.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub context_levels: Option<Vec<String>>,
     /// If `true`, return batch jobs only. If `false`, return non-batch jobs only. By default, return both.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub batch: Option<bool>,
@@ -66,4 +72,6 @@ pub enum UsageGroupBy {
     Model,
     Batch,
     ServiceTier,
+    VectorStoreId,
+    ContextLevel,
 }

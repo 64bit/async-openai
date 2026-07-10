@@ -52,6 +52,10 @@ pub enum UsageResult {
     Moderations(UsageModerationsResult),
     #[serde(rename = "organization.usage.vector_stores.result")]
     VectorStores(UsageVectorStoresResult),
+    #[serde(rename = "organization.usage.file_searches.result")]
+    FileSearchCalls(UsageFileSearchCallsResult),
+    #[serde(rename = "organization.usage.web_searches.result")]
+    WebSearchCalls(UsageWebSearchCallsResult),
     #[serde(rename = "organization.costs.result")]
     Costs(CostsResult),
 }
@@ -219,6 +223,28 @@ pub struct UsageVectorStoresResult {
     pub usage_bytes: u64,
     /// When `group_by=project_id`, this field provides the project ID of the grouped usage result.
     pub project_id: Option<String>,
+}
+
+/// Aggregated file-search call usage for a time bucket.
+#[derive(Debug, Clone, Deserialize)]
+pub struct UsageFileSearchCallsResult {
+    pub num_requests: u64,
+    pub project_id: Option<String>,
+    pub user_id: Option<String>,
+    pub api_key_id: Option<String>,
+    pub vector_store_id: Option<String>,
+}
+
+/// Aggregated web-search call usage for a time bucket.
+#[derive(Debug, Clone, Deserialize)]
+pub struct UsageWebSearchCallsResult {
+    pub num_model_requests: u64,
+    pub num_requests: u64,
+    pub project_id: Option<String>,
+    pub user_id: Option<String>,
+    pub api_key_id: Option<String>,
+    pub model: Option<String>,
+    pub context_level: Option<String>,
 }
 
 /// The aggregated costs details of the specific time bucket.

@@ -305,11 +305,41 @@ pub struct WebhookResponseData {
     pub id: String,
 }
 
+/// Sent when a request associated with a safety identifier has been blocked.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct WebhookSafetyIdentifierBlocked {
+    /// The Unix timestamp (in seconds) of when the request was blocked.
+    pub created_at: u64,
+    /// The unique ID of the event.
+    pub id: String,
+    /// Event data payload.
+    pub data: WebhookSafetyIdentifierBlockedData,
+    /// The object of the event. Always `event` when present.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub object: Option<String>,
+}
+
+/// Data associated with a blocked safety identifier.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct WebhookSafetyIdentifierBlockedData {
+    pub safety_identifier: String,
+    pub safety_category: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+}
+
 // EventType and EventId implementations for response events
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type")]
 pub enum WebhookEvent {
+    #[serde(rename = "safety_identifier.blocked")]
+    SafetyIdentifierBlocked(WebhookSafetyIdentifierBlocked),
+
     #[serde(rename = "batch.cancelled")]
     BatchCancelled(WebhookBatchCancelled),
 
@@ -385,6 +415,7 @@ macro_rules! impl_event_id {
 // Use the macro to implement EventType for all webhook event structs
 #[cfg(feature = "_api")]
 impl_event_type! {
+    WebhookSafetyIdentifierBlocked => "safety_identifier.blocked",
     WebhookBatchCancelled => "batch.cancelled",
     WebhookBatchCompleted => "batch.completed",
     WebhookBatchExpired => "batch.expired",
@@ -405,6 +436,7 @@ impl_event_type! {
 // Use the macro to implement EventId for all webhook event structs
 #[cfg(feature = "_api")]
 impl_event_id! {
+    WebhookSafetyIdentifierBlocked,
     WebhookBatchCancelled,
     WebhookBatchCompleted,
     WebhookBatchExpired,
@@ -427,6 +459,7 @@ impl_event_id! {
 impl crate::traits::EventType for WebhookEvent {
     fn event_type(&self) -> &'static str {
         match self {
+            WebhookEvent::SafetyIdentifierBlocked(e) => e.event_type(),
             WebhookEvent::BatchCancelled(e) => e.event_type(),
             WebhookEvent::BatchCompleted(e) => e.event_type(),
             WebhookEvent::BatchExpired(e) => e.event_type(),
@@ -450,6 +483,7 @@ impl crate::traits::EventType for WebhookEvent {
 impl crate::traits::EventId for WebhookEvent {
     fn event_id(&self) -> &str {
         match self {
+            WebhookEvent::SafetyIdentifierBlocked(e) => e.event_id(),
             WebhookEvent::BatchCancelled(e) => e.event_id(),
             WebhookEvent::BatchCompleted(e) => e.event_id(),
             WebhookEvent::BatchExpired(e) => e.event_id(),
@@ -473,6 +507,7 @@ impl WebhookEvent {
     /// Get the timestamp when the event was created
     pub fn created_at(&self) -> u64 {
         match self {
+            WebhookEvent::SafetyIdentifierBlocked(w) => w.created_at,
             WebhookEvent::BatchCancelled(w) => w.created_at,
             WebhookEvent::BatchCompleted(w) => w.created_at,
             WebhookEvent::BatchExpired(w) => w.created_at,

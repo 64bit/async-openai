@@ -79,6 +79,18 @@ pub enum AuditLogEventType {
     TunnelUpdated,
     #[serde(rename = "tunnel.deleted")]
     TunnelDeleted,
+    #[serde(rename = "workload_identity_provider.created")]
+    WorkloadIdentityProviderCreated,
+    #[serde(rename = "workload_identity_provider.updated")]
+    WorkloadIdentityProviderUpdated,
+    #[serde(rename = "workload_identity_provider.deleted")]
+    WorkloadIdentityProviderDeleted,
+    #[serde(rename = "workload_identity_provider_mapping.created")]
+    WorkloadIdentityProviderMappingCreated,
+    #[serde(rename = "workload_identity_provider_mapping.updated")]
+    WorkloadIdentityProviderMappingUpdated,
+    #[serde(rename = "workload_identity_provider_mapping.deleted")]
+    WorkloadIdentityProviderMappingDeleted,
     #[serde(rename = "role.created")]
     RoleCreated,
     #[serde(rename = "role.updated")]
@@ -89,6 +101,10 @@ pub enum AuditLogEventType {
     RoleAssignmentCreated,
     #[serde(rename = "role.assignment.deleted")]
     RoleAssignmentDeleted,
+    #[serde(rename = "role.bound_to_resource")]
+    RoleBoundToResource,
+    #[serde(rename = "role.unbound_from_resource")]
+    RoleUnboundFromResource,
     #[serde(rename = "scim.enabled")]
     ScimEnabled,
     #[serde(rename = "scim.disabled")]
@@ -254,6 +270,98 @@ pub struct AuditLog {
     /// The details for events with the type `user.deleted`.
     #[serde(rename = "user.deleted")]
     pub user_deleted: Option<AuditLogUserDeleted>,
+    /// Details for a workload identity provider creation event.
+    #[serde(rename = "workload_identity_provider.created")]
+    pub workload_identity_provider_created: Option<AuditLogWorkloadIdentityProviderCreated>,
+    /// Details for a workload identity provider update event.
+    #[serde(rename = "workload_identity_provider.updated")]
+    pub workload_identity_provider_updated: Option<AuditLogWorkloadIdentityProviderUpdated>,
+    /// Details for a workload identity provider deletion event.
+    #[serde(rename = "workload_identity_provider.deleted")]
+    pub workload_identity_provider_deleted: Option<AuditLogWorkloadIdentityProviderDeleted>,
+    /// Details for a workload identity provider mapping creation event.
+    #[serde(rename = "workload_identity_provider_mapping.created")]
+    pub workload_identity_provider_mapping_created:
+        Option<AuditLogWorkloadIdentityProviderMappingCreated>,
+    /// Details for a workload identity provider mapping update event.
+    #[serde(rename = "workload_identity_provider_mapping.updated")]
+    pub workload_identity_provider_mapping_updated:
+        Option<AuditLogWorkloadIdentityProviderMappingUpdated>,
+    /// Details for a workload identity provider mapping deletion event.
+    #[serde(rename = "workload_identity_provider_mapping.deleted")]
+    pub workload_identity_provider_mapping_deleted:
+        Option<AuditLogWorkloadIdentityProviderMappingDeleted>,
+    /// Details for a role bound to a resource event.
+    #[serde(rename = "role.bound_to_resource")]
+    pub role_bound_to_resource: Option<AuditLogRoleResourceBinding>,
+    /// Details for a role unbound from a resource event.
+    #[serde(rename = "role.unbound_from_resource")]
+    pub role_unbound_from_resource: Option<AuditLogRoleResourceBinding>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogWorkloadIdentityProviderCreated {
+    pub id: Option<String>,
+    pub data: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogWorkloadIdentityProviderUpdated {
+    pub id: Option<String>,
+    pub changes_requested: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogWorkloadIdentityProviderDeleted {
+    pub id: Option<String>,
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogWorkloadIdentityProviderMappingCreated {
+    pub id: Option<String>,
+    pub identity_provider_id: Option<String>,
+    pub data: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogWorkloadIdentityProviderMappingUpdated {
+    pub id: Option<String>,
+    pub identity_provider_id: Option<String>,
+    pub changes_requested: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogWorkloadIdentityProviderMappingDeleted {
+    pub id: Option<String>,
+    pub identity_provider_id: Option<String>,
+    pub project_id: Option<String>,
+    pub service_account_id: Option<String>,
+}
+
+/// Connector role mutation path that produced a role resource binding event.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AuditLogRoleResourceBindingSource {
+    RoleToggle,
+    RoleConnectorUpdate,
+    RoleDelete,
+    WorkspacePermissions,
+    ConnectorPublish,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogRoleResourceBinding {
+    pub id: Option<String>,
+    pub role_id: Option<String>,
+    pub resource_id: Option<String>,
+    pub resource_type: Option<String>,
+    pub permissions: Option<Vec<String>>,
+    pub workspace_id: Option<String>,
+    pub connector_id: Option<String>,
+    pub connector_name: Option<String>,
+    pub enabled: Option<bool>,
+    pub source: Option<AuditLogRoleResourceBindingSource>,
 }
 
 /// The details for events with the type `api_key.created`.

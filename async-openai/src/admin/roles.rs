@@ -41,6 +41,17 @@ impl<'c, C: Config> Roles<'c, C> {
             .await
     }
 
+    /// Retrieves an organization role.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve(&self, role_id: &str) -> Result<Role, OpenAIError> {
+        self.client
+            .get(
+                format!("/organization/roles/{role_id}").as_str(),
+                &self.request_options,
+            )
+            .await
+    }
+
     /// Updates an existing organization role.
     #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn update(
