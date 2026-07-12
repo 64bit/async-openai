@@ -228,6 +228,14 @@ name = "responses_input_item_serde"
 required-features = ["response-types"]
 
 [[test]]
+name = "responses_output_to_input"
+required-features = ["response-types"]
+
+[[test]]
+name = "responses_output_message_id"
+required-features = ["responses"]
+
+[[test]]
 name = "whisper"
 required-features = ["audio"]
 
