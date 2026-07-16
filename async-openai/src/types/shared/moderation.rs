@@ -78,6 +78,7 @@ pub struct ModerationErrorBody {
 }
 
 /// A successful moderation result or moderation error.
+#[cfg(feature = "response-types")]
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(untagged)]
 pub enum ModerationOutcome {
@@ -86,6 +87,7 @@ pub enum ModerationOutcome {
 }
 
 /// Moderation results for the input and output of a Responses API request.
+#[cfg(feature = "response-types")]
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Moderation {
     pub input: ModerationOutcome,
@@ -93,6 +95,7 @@ pub struct Moderation {
 }
 
 /// Successful Chat Completions moderation result object type.
+#[cfg(feature = "chat-completion-types")]
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum ChatCompletionModerationResultsType {
@@ -100,6 +103,7 @@ pub enum ChatCompletionModerationResultsType {
 }
 
 /// Successful moderation results for Chat Completions input or output.
+#[cfg(feature = "chat-completion-types")]
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ChatCompletionModerationResults {
     #[serde(rename = "type")]
@@ -109,9 +113,11 @@ pub struct ChatCompletionModerationResults {
 }
 
 /// An error produced while moderating a Chat Completions request.
+#[cfg(feature = "chat-completion-types")]
 pub type ChatCompletionModerationError = ModerationErrorBody;
 
 /// Successful Chat Completions moderation results or a moderation error.
+#[cfg(feature = "chat-completion-types")]
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(untagged)]
 pub enum ChatCompletionModerationOutcome {
@@ -120,6 +126,7 @@ pub enum ChatCompletionModerationOutcome {
 }
 
 /// Moderation results for the input and output of a Chat Completions request.
+#[cfg(feature = "chat-completion-types")]
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ChatCompletionModeration {
     pub input: ChatCompletionModerationOutcome,

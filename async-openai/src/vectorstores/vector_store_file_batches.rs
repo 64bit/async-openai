@@ -33,7 +33,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
     ) -> Result<VectorStoreFileBatchObject, OpenAIError> {
         self.client
             .post(
-                &format!("/vector_stores/{}/file_batches", &self.vector_store_id),
+                &format!("/vector_stores/{}/file_batches", self.vector_store_id),
                 request,
                 &self.request_options,
             )
@@ -50,7 +50,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
             .get(
                 &format!(
                     "/vector_stores/{}/file_batches/{batch_id}",
-                    &self.vector_store_id
+                    self.vector_store_id
                 ),
                 &self.request_options,
             )
@@ -64,7 +64,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
             .post(
                 &format!(
                     "/vector_stores/{}/file_batches/{batch_id}/cancel",
-                    &self.vector_store_id
+                    self.vector_store_id
                 ),
                 serde_json::json!({}),
                 &self.request_options,
@@ -82,7 +82,7 @@ impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
             .get(
                 &format!(
                     "/vector_stores/{}/file_batches/{batch_id}/files",
-                    &self.vector_store_id
+                    self.vector_store_id
                 ),
                 &self.request_options,
             )

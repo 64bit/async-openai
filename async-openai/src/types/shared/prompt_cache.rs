@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Whether prompt-cache breakpoints are created implicitly or explicitly.
+#[cfg(feature = "response-types")]
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum PromptCacheMode {
@@ -9,6 +10,7 @@ pub enum PromptCacheMode {
 }
 
 /// Minimum lifetime for a prompt-cache breakpoint.
+#[cfg(feature = "response-types")]
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 pub enum PromptCacheTtl {
     #[serde(rename = "30m")]
@@ -16,6 +18,7 @@ pub enum PromptCacheTtl {
 }
 
 /// Options for prompt caching on a request.
+#[cfg(feature = "response-types")]
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct PromptCacheOptionsParam {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -25,6 +28,7 @@ pub struct PromptCacheOptionsParam {
 }
 
 /// Prompt-caching options applied to a response.
+#[cfg(feature = "response-types")]
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct PromptCacheOptions {
     pub ttl: PromptCacheTtl,
@@ -44,7 +48,10 @@ pub enum PromptCacheBreakpointMode {
     Explicit,
 }
 
+#[cfg(feature = "response-types")]
 pub type PromptCacheBreakpointConfig = PromptCacheBreakpoint;
 pub type PromptCacheBreakpointParam = PromptCacheBreakpoint;
+#[cfg(feature = "response-types")]
 pub type PromptCacheModeEnum = PromptCacheMode;
+#[cfg(feature = "response-types")]
 pub type PromptCacheTTLEnum = PromptCacheTtl;

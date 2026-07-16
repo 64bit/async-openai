@@ -35,7 +35,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
     ) -> Result<VectorStoreFileObject, OpenAIError> {
         self.client
             .post(
-                &format!("/vector_stores/{}/files", &self.vector_store_id),
+                &format!("/vector_stores/{}/files", self.vector_store_id),
                 request,
                 &self.request_options,
             )
@@ -47,7 +47,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
     pub async fn retrieve(&self, file_id: &str) -> Result<VectorStoreFileObject, OpenAIError> {
         self.client
             .get(
-                &format!("/vector_stores/{}/files/{file_id}", &self.vector_store_id),
+                &format!("/vector_stores/{}/files/{file_id}", self.vector_store_id),
                 &self.request_options,
             )
             .await
@@ -61,7 +61,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
     ) -> Result<DeleteVectorStoreFileResponse, OpenAIError> {
         self.client
             .delete(
-                &format!("/vector_stores/{}/files/{file_id}", &self.vector_store_id),
+                &format!("/vector_stores/{}/files/{file_id}", self.vector_store_id),
                 &self.request_options,
             )
             .await
@@ -72,7 +72,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
     pub async fn list(&self) -> Result<ListVectorStoreFilesResponse, OpenAIError> {
         self.client
             .get(
-                &format!("/vector_stores/{}/files", &self.vector_store_id),
+                &format!("/vector_stores/{}/files", self.vector_store_id),
                 &self.request_options,
             )
             .await
@@ -87,7 +87,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
     ) -> Result<VectorStoreFileObject, OpenAIError> {
         self.client
             .post(
-                &format!("/vector_stores/{}/files/{file_id}", &self.vector_store_id),
+                &format!("/vector_stores/{}/files/{file_id}", self.vector_store_id),
                 request,
                 &self.request_options,
             )
@@ -104,7 +104,7 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
             .get(
                 &format!(
                     "/vector_stores/{}/files/{file_id}/content",
-                    &self.vector_store_id
+                    self.vector_store_id
                 ),
                 &self.request_options,
             )
