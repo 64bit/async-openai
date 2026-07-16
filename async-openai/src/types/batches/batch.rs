@@ -37,6 +37,9 @@ pub struct BatchRequest {
     pub output_expires_after: Option<BatchFileExpirationAfter>,
 }
 
+/// Request parameters for creating a batch.
+pub type CreateBatchRequest = BatchRequest;
+
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, Default)]
 pub enum BatchEndpoint {
     #[default]

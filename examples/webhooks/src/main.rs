@@ -243,13 +243,6 @@ fn process_webhook_event(event: WebhookEvent) {
     info!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
     match event {
-        WebhookEvent::SafetyIdentifierBlocked(webhook) => {
-            info!("🛡️ Safety Identifier Blocked");
-            info!("   Safety identifier: {}", webhook.data.safety_identifier);
-            info!("   Safety category: {}", webhook.data.safety_category);
-            info!("   Event created at: {}", webhook.created_at);
-        }
-
         // Batch events
         WebhookEvent::BatchCancelled(webhook) => {
             info!("📦 Batch Cancelled");

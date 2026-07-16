@@ -4,6 +4,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::types::admin::invites::ProjectMembership;
 
+/// A project service account's current project role.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum ProjectServiceAccountRole {
+    Owner,
+    Member,
+    None,
+}
+
 /// Represents an individual service account in a project.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProjectServiceAccount {
@@ -13,8 +22,8 @@ pub struct ProjectServiceAccount {
     pub id: String,
     /// The name of the service account.
     pub name: String,
-    /// `owner` or `member`.
-    pub role: ProjectMembership,
+    /// `owner`, `member`, or `none`.
+    pub role: ProjectServiceAccountRole,
     /// The Unix timestamp (in seconds) of when the service account was created.
     pub created_at: u64,
 }
@@ -39,6 +48,9 @@ pub struct ProjectServiceAccountListResponse {
 pub struct ProjectServiceAccountCreateRequest {
     /// The name of the service account being created.
     pub name: String,
+    /// Create the service account without default roles or an API key.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub create_service_account_only: Option<bool>,
 }
 
 /// Parameters for updating a project service account.
@@ -66,7 +78,8 @@ pub struct ProjectServiceAccountCreateResponse {
     pub id: String,
     /// The name of the created service account.
     pub name: String,
-    /// Service accounts can only have one role of type `member`.
+    /// Service accounts created with default project membership have role `member`.
+    /// Accounts created with `create_service_account_only` have role `none`.
     pub role: String,
     /// The Unix timestamp (in seconds) of when the service account was created.
     pub created_at: u64,
@@ -87,6 +100,24 @@ pub struct ProjectServiceAccountApiKey {
     pub created_at: u64,
     /// The ID of the API key.
     pub id: String,
+}
+
+/// Parameters for creating another API key for a project service account.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
+#[builder(
+    name = "ProjectServiceAccountApiKeyCreateRequestArgs",
+    pattern = "mutable",
+    setter(into, strip_option),
+    default,
+    build_fn(error = "OpenAIError")
+)]
+pub struct ProjectServiceAccountApiKeyCreateRequest {
+    /// API key name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// API key scopes.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scopes: Option<Vec<String>>,
 }
 
 /// Represents the response object for deleting a project service account.

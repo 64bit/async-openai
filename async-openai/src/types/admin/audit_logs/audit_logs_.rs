@@ -121,6 +121,174 @@ pub enum AuditLogEventType {
     UserUpdated,
     #[serde(rename = "user.deleted")]
     UserDeleted,
+    #[serde(rename = "tenant.metadata.updated")]
+    TenantMetadataUpdated,
+    #[serde(rename = "tenant.microsoft_entra_mapping.upserted")]
+    TenantMicrosoftEntraMappingUpserted,
+    #[serde(rename = "tenant.microsoft_entra_mapping.deleted")]
+    TenantMicrosoftEntraMappingDeleted,
+    #[serde(rename = "tenant.workload_identity.provider.created")]
+    TenantWorkloadIdentityProviderCreated,
+    #[serde(rename = "tenant.workload_identity.provider.updated")]
+    TenantWorkloadIdentityProviderUpdated,
+    #[serde(rename = "tenant.workload_identity.provider.archived")]
+    TenantWorkloadIdentityProviderArchived,
+    #[serde(rename = "tenant.workload_identity.mapping.created")]
+    TenantWorkloadIdentityMappingCreated,
+    #[serde(rename = "tenant.workload_identity.mapping.updated")]
+    TenantWorkloadIdentityMappingUpdated,
+    #[serde(rename = "tenant.workload_identity.mapping.archived")]
+    TenantWorkloadIdentityMappingArchived,
+    #[serde(rename = "tenant.workload_identity.binding.created")]
+    TenantWorkloadIdentityBindingCreated,
+    #[serde(rename = "tenant.workload_identity.principal.provisioned")]
+    TenantWorkloadIdentityPrincipalProvisioned,
+    #[serde(rename = "tenant.admin_api_key.created")]
+    TenantAdminApiKeyCreated,
+    #[serde(rename = "tenant.admin_api_key.updated")]
+    TenantAdminApiKeyUpdated,
+    #[serde(rename = "tenant.admin_api_key.deleted")]
+    TenantAdminApiKeyDeleted,
+    #[serde(rename = "tenant.project_api_key.created")]
+    TenantProjectApiKeyCreated,
+    #[serde(rename = "tenant.chatgpt_access_token.revoked")]
+    TenantChatgptAccessTokenRevoked,
+    #[serde(rename = "tenant.migration.completed")]
+    TenantMigrationCompleted,
+    #[serde(rename = "tenant.sso.migrated")]
+    TenantSsoMigrated,
+    #[serde(rename = "tenant.domains.migrated")]
+    TenantDomainsMigrated,
+    #[serde(rename = "tenant.sso_connection.created")]
+    TenantSsoConnectionCreated,
+    #[serde(rename = "tenant.sso_connection.updated")]
+    TenantSsoConnectionUpdated,
+    #[serde(rename = "tenant.sso_connection.deleted")]
+    TenantSsoConnectionDeleted,
+    #[serde(rename = "tenant.sso_connection.setup.started")]
+    TenantSsoConnectionSetupStarted,
+    #[serde(rename = "tenant.policy.created")]
+    TenantPolicyCreated,
+    #[serde(rename = "tenant.policy.updated")]
+    TenantPolicyUpdated,
+    #[serde(rename = "tenant.policy.deleted")]
+    TenantPolicyDeleted,
+    #[serde(rename = "tenant.policy.attached")]
+    TenantPolicyAttached,
+    #[serde(rename = "tenant.policy.detached")]
+    TenantPolicyDetached,
+    #[serde(rename = "tenant.principal_authentication_policy.resolved")]
+    TenantPrincipalAuthenticationPolicyResolved,
+    #[serde(rename = "tenant.scim.setup.started")]
+    TenantScimSetupStarted,
+    #[serde(rename = "tenant.scim.deletion.requested")]
+    TenantScimDeletionRequested,
+    #[serde(rename = "tenant.scim.directory.created")]
+    TenantScimDirectoryCreated,
+    #[serde(rename = "tenant.product_access_policy.updated")]
+    TenantProductAccessPolicyUpdated,
+    #[serde(rename = "tenant.resource_share_grant.created")]
+    TenantResourceShareGrantCreated,
+    #[serde(rename = "tenant.resource_share_grant.updated")]
+    TenantResourceShareGrantUpdated,
+    #[serde(rename = "tenant.resource_share_grant.accepted")]
+    TenantResourceShareGrantAccepted,
+    #[serde(rename = "tenant.resource_share_grant.declined")]
+    TenantResourceShareGrantDeclined,
+    #[serde(rename = "tenant.resource_share_grant.revoked")]
+    TenantResourceShareGrantRevoked,
+    #[serde(rename = "tenant.resource_share_grant.deleted")]
+    TenantResourceShareGrantDeleted,
+    #[serde(rename = "tenant.service_account.updated")]
+    TenantServiceAccountUpdated,
+    #[serde(rename = "tenant.service_account.deleted")]
+    TenantServiceAccountDeleted,
+    #[serde(rename = "tenant.service_account.token.revoked")]
+    TenantServiceAccountTokenRevoked,
+    #[serde(rename = "tenant.billing.overage_limit.updated")]
+    TenantBillingOverageLimitUpdated,
+    #[serde(rename = "tenant.billing.alerts.updated")]
+    TenantBillingAlertsUpdated,
+    #[serde(rename = "tenant.billing.info.updated")]
+    TenantBillingInfoUpdated,
+    #[serde(rename = "tenant.usage_limit.workspace.updated")]
+    TenantUsageLimitWorkspaceUpdated,
+    #[serde(rename = "tenant.usage_limit.group.updated")]
+    TenantUsageLimitGroupUpdated,
+    #[serde(rename = "tenant.usage_limit.user.updated")]
+    TenantUsageLimitUserUpdated,
+    #[serde(rename = "tenant.usage_limit.increase_request.updated")]
+    TenantUsageLimitIncreaseRequestUpdated,
+    #[serde(rename = "tenant.usage_limit.increase_request.resolved")]
+    TenantUsageLimitIncreaseRequestResolved,
+    #[serde(rename = "tenant.group.created")]
+    TenantGroupCreated,
+    #[serde(rename = "tenant.group.updated")]
+    TenantGroupUpdated,
+    #[serde(rename = "tenant.group.deleted")]
+    TenantGroupDeleted,
+    #[serde(rename = "tenant.group.member.added")]
+    TenantGroupMemberAdded,
+    #[serde(rename = "tenant.group.member.removed")]
+    TenantGroupMemberRemoved,
+    #[serde(rename = "tenant.migration_rollout.status.updated")]
+    TenantMigrationRolloutStatusUpdated,
+    #[serde(rename = "tenant.migration_rollout.tier.updated")]
+    TenantMigrationRolloutTierUpdated,
+    #[serde(rename = "tenant.role.metadata.updated")]
+    TenantRoleMetadataUpdated,
+    #[serde(rename = "tenant.custom_role.created")]
+    TenantCustomRoleCreated,
+    #[serde(rename = "tenant.custom_role.updated")]
+    TenantCustomRoleUpdated,
+    #[serde(rename = "tenant.custom_role.deleted")]
+    TenantCustomRoleDeleted,
+    #[serde(rename = "tenant.role_assignment.created")]
+    TenantRoleAssignmentCreated,
+    #[serde(rename = "tenant.role_assignment.deleted")]
+    TenantRoleAssignmentDeleted,
+    #[serde(rename = "tenant.resource_role_assignment.created")]
+    TenantResourceRoleAssignmentCreated,
+    #[serde(rename = "tenant.resource_role_assignment.deleted")]
+    TenantResourceRoleAssignmentDeleted,
+    #[serde(rename = "tenant.resource_access.updated")]
+    TenantResourceAccessUpdated,
+    #[serde(rename = "tenant.resource_access.deleted")]
+    TenantResourceAccessDeleted,
+    #[serde(rename = "tenant.session_policy.created")]
+    TenantSessionPolicyCreated,
+    #[serde(rename = "tenant.session_policy.updated")]
+    TenantSessionPolicyUpdated,
+    #[serde(rename = "tenant.session_policy.deleted")]
+    TenantSessionPolicyDeleted,
+    #[serde(rename = "tenant.session_revocation.started")]
+    TenantSessionRevocationStarted,
+    #[serde(rename = "tenant.third_party_app_policy.updated")]
+    TenantThirdPartyAppPolicyUpdated,
+    #[serde(rename = "tenant.user.added")]
+    TenantUserAdded,
+    #[serde(rename = "tenant.user.updated")]
+    TenantUserUpdated,
+    #[serde(rename = "tenant.user.removed")]
+    TenantUserRemoved,
+    #[serde(rename = "tenant.user.looked_up")]
+    TenantUserLookedUp,
+    #[serde(rename = "tenant.user.invited")]
+    TenantUserInvited,
+    #[serde(rename = "tenant.membership.revoked")]
+    TenantMembershipRevoked,
+    #[serde(rename = "tenant.api_organization_invite.upserted")]
+    TenantApiOrganizationInviteUpserted,
+    #[serde(rename = "tenant.api_organization_invite.deleted")]
+    TenantApiOrganizationInviteDeleted,
+    #[serde(rename = "tenant.chatgpt_workspace_invite.upserted")]
+    TenantChatgptWorkspaceInviteUpserted,
+    #[serde(rename = "tenant.membership.accepted")]
+    TenantMembershipAccepted,
+    #[serde(rename = "tenant.membership.declined")]
+    TenantMembershipDeclined,
+    #[serde(rename = "tenant.workspace_invite_email_settings.updated")]
+    TenantWorkspaceInviteEmailSettingsUpdated,
 }
 
 /// Represents a list of audit logs.

@@ -108,17 +108,20 @@ pub struct UsageCodeInterpreterSessionsResult {
 /// The aggregated completions usage details of the specific time bucket.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UsageCompletionsResult {
-    /// The aggregated number of text input tokens used, including cached tokens. For customers subscribe to scale tier, this includes scale tier tokens.
+    /// The aggregated number of input tokens used, including cached and cache-write tokens. This includes text, audio, and image tokens. For customers subscribed to Scale Tier, this includes Scale Tier tokens.
     pub input_tokens: u64,
-    /// The aggregated number of text output tokens used. For customers subscribe to scale tier, this includes scale tier tokens.
+    /// The aggregated number of output tokens used across text, audio, and image outputs. For customers subscribed to Scale Tier, this includes Scale Tier tokens.
     pub output_tokens: u64,
-    /// The aggregated number of text input tokens that has been cached from previous requests. For customers subscribe to scale tier, this includes scale tier tokens.
+    /// The aggregated number of cached input tokens used across text, audio, and image inputs. For customers subscribed to Scale Tier, this includes Scale Tier tokens.
     #[serde(default)]
     pub input_cached_tokens: Option<u64>,
-    /// The aggregated number of uncached input tokens.
+    /// The aggregated number of input tokens written to the cache.
+    #[serde(default)]
+    pub input_cache_write_tokens: Option<u64>,
+    /// The aggregated number of uncached input tokens used across text, audio, and image inputs, excluding cache-write tokens.
     #[serde(default)]
     pub input_uncached_tokens: Option<u64>,
-    /// The aggregated number of text input tokens used.
+    /// The aggregated number of uncached text input tokens used, excluding cache-write tokens.
     #[serde(default)]
     pub input_text_tokens: Option<u64>,
     /// The aggregated number of text output tokens used.
@@ -127,7 +130,7 @@ pub struct UsageCompletionsResult {
     /// The aggregated number of cached text input tokens.
     #[serde(default)]
     pub input_cached_text_tokens: Option<u64>,
-    /// The aggregated number of audio input tokens used, including cached tokens.
+    /// The aggregated number of uncached audio input tokens used.
     #[serde(default)]
     pub input_audio_tokens: Option<u64>,
     /// The aggregated number of cached audio input tokens.
@@ -136,7 +139,7 @@ pub struct UsageCompletionsResult {
     /// The aggregated number of audio output tokens used.
     #[serde(default)]
     pub output_audio_tokens: Option<u64>,
-    /// The aggregated number of image input tokens used.
+    /// The aggregated number of uncached image input tokens used.
     #[serde(default)]
     pub input_image_tokens: Option<u64>,
     /// The aggregated number of cached image input tokens.

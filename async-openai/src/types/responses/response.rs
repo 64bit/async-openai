@@ -2139,8 +2139,8 @@ pub struct ReasoningItem {
     /// Reasoning text content.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<ReasoningItemContent>>,
-    /// The encrypted content of the reasoning item - populated when a response is generated with
-    /// `reasoning.encrypted_content` in the `include` parameter.
+    /// The encrypted content of the reasoning item. This is populated by default for reasoning
+    /// items returned by `POST /v1/responses` and WebSocket `response.create` requests.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub encrypted_content: Option<String>,
     /// The status of the item. One of `in_progress`, `completed`, or `incomplete`.
