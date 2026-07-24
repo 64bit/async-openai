@@ -1,13 +1,25 @@
 #![cfg(feature = "response-types")]
 
 use async_openai::types::responses::{
-    EasyInputContent, ImageDetail, InputContent, InputItem, InputRole, InputTextContent, Item,
-    MessageItem, MessageType, OutputItem, ProgramToolCallCaller, ProgrammaticToolCallingParam,
-    PromptCacheBreakpointConfig, PromptCacheBreakpointMode, ResponseStreamEvent, ResponseTextParam,
-    Role, TextResponseFormatConfiguration, Tool, ToolCallCaller, WebSearchApproximateLocation,
-    WebSearchApproximateLocationType, WebSearchToolCallStatus,
+    EasyInputContent, ImageDetail, InputContent, InputItem, InputRole, InputTextContent,
+    InputTokenDetails, Item, MessageItem, MessageType, OutputItem, ProgramToolCallCaller,
+    ProgrammaticToolCallingParam, PromptCacheBreakpointConfig, PromptCacheBreakpointMode,
+    ResponseStreamEvent, ResponseTextParam, Role, TextResponseFormatConfiguration, Tool,
+    ToolCallCaller, WebSearchApproximateLocation, WebSearchApproximateLocationType,
+    WebSearchToolCallStatus,
 };
 use serde_json::json;
+
+#[test]
+fn input_token_details_without_cache_write_tokens_deserializes() {
+    let details: InputTokenDetails = serde_json::from_value(json!({
+        "cached_tokens": 42
+    }))
+    .expect("deserialize input token details without cache_write_tokens");
+
+    assert_eq!(details.cached_tokens, 42);
+    assert_eq!(details.cache_write_tokens, None);
+}
 
 #[test]
 fn input_item_easy_message_without_type_defaults_and_serializes_canonically() {
