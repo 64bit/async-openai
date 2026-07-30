@@ -839,7 +839,15 @@ where
             .map(|r| r.map_err(std::io::Error::other));
         let mut event_stream = std::pin::pin!(eventsource_stream::EventStream::new(byte_stream));
 
-        while let Some(ev) = event_stream.next().await {
+        // Also observe the consumer dropping the stream: relying on
+        // `tx.send(..).is_err()` alone would keep this task - and the upstream
+        // response it holds - alive until the next event arrives, which never
+        // happens when upstream is open but idle.
+        while let Some(ev) = tokio::select! {
+            biased;
+            _ = tx.closed() => None,
+            ev = event_stream.next() => ev,
+        } {
             let event = match ev {
                 Ok(e) => e,
                 Err(e) => {
@@ -871,7 +879,7 @@ where
 #[cfg(all(test, feature = "middleware", not(target_family = "wasm")))]
 mod tests {
     use std::sync::{
-        atomic::{AtomicUsize, Ordering},
+        atomic::{AtomicBool, AtomicUsize, Ordering},
         Arc,
     };
 
@@ -1098,5 +1106,87 @@ mod tests {
         assert_eq!(value, json!({ "ok": true }));
         assert_eq!(request_count.load(Ordering::SeqCst), 2);
         assert_eq!(conversion_count.load(Ordering::SeqCst), 2);
+    }
+
+    #[tokio::test]
+    async fn dropping_stream_releases_idle_upstream_response() {
+        struct DropGuard(Arc<AtomicBool>);
+
+        impl Drop for DropGuard {
+            fn drop(&mut self) {
+                self.0.store(true, Ordering::SeqCst);
+            }
+        }
+
+        let upstream_dropped = Arc::new(AtomicBool::new(false));
+
+        let dropped = upstream_dropped.clone();
+        let service = ServiceBuilder::new()
+            .concurrency_limit(1)
+            .service(service_fn(move |factory: HttpRequestFactory| {
+                let guard = DropGuard(dropped.clone());
+                async move {
+                    factory.build().await?;
+
+                    // One event, then an upstream which stays open but never sends
+                    // again - no further events, no `[DONE]`, no error.
+                    let body = futures::stream::once(async {
+                        Ok::<_, std::io::Error>(bytes::Bytes::from_static(
+                            b"data: {\"ok\":true}\n\n",
+                        ))
+                    })
+                    .chain(futures::stream::unfold(
+                        guard,
+                        |guard| async move {
+                            futures::future::pending::<()>().await;
+                            Some((Ok(bytes::Bytes::new()), guard))
+                        },
+                    ));
+
+                    Ok::<reqwest::Response, OpenAIError>(
+                        HttpResponse::builder()
+                            .status(200)
+                            .header("content-type", "text/event-stream")
+                            .body(reqwest::Body::wrap_stream(body))
+                            .unwrap()
+                            .into(),
+                    )
+                }
+            }));
+
+        let client = Client::with_config(
+            OpenAIConfig::new()
+                .with_api_base("http://example.test")
+                .with_api_key("test-key"),
+        )
+        .with_http_service(service);
+
+        let mut stream = client
+            .post_stream::<_, serde_json::Value>(
+                "/responses",
+                json!({ "stream": true }),
+                &RequestOptions::new(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(stream.next().await.unwrap().unwrap(), json!({ "ok": true }));
+        assert!(!upstream_dropped.load(Ordering::SeqCst));
+
+        drop(stream);
+
+        // The reader task should observe the dropped consumer and release the
+        // response without waiting for another event from upstream.
+        for _ in 0..100 {
+            if upstream_dropped.load(Ordering::SeqCst) {
+                break;
+            }
+            tokio::task::yield_now().await;
+        }
+
+        assert!(
+            upstream_dropped.load(Ordering::SeqCst),
+            "reader task leaked the upstream response after the stream was dropped"
+        );
     }
 }
