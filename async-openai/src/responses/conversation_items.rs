@@ -32,7 +32,7 @@ impl<'c, C: Config> ConversationItems<'c, C> {
     ) -> Result<ConversationItemList, OpenAIError> {
         self.client
             .post(
-                &format!("/conversations/{}/items", &self.conversation_id),
+                &format!("/conversations/{}/items", self.conversation_id),
                 request,
                 &self.request_options,
             )
@@ -44,7 +44,7 @@ impl<'c, C: Config> ConversationItems<'c, C> {
     pub async fn list(&self) -> Result<ConversationItemList, OpenAIError> {
         self.client
             .get(
-                &format!("/conversations/{}/items", &self.conversation_id),
+                &format!("/conversations/{}/items", self.conversation_id),
                 &self.request_options,
             )
             .await
@@ -55,7 +55,7 @@ impl<'c, C: Config> ConversationItems<'c, C> {
     pub async fn retrieve(&self, item_id: &str) -> Result<ConversationItem, OpenAIError> {
         self.client
             .get(
-                &format!("/conversations/{}/items/{item_id}", &self.conversation_id),
+                &format!("/conversations/{}/items/{item_id}", self.conversation_id),
                 &self.request_options,
             )
             .await
@@ -66,7 +66,7 @@ impl<'c, C: Config> ConversationItems<'c, C> {
     pub async fn delete(&self, item_id: &str) -> Result<ConversationResource, OpenAIError> {
         self.client
             .delete(
-                &format!("/conversations/{}/items/{item_id}", &self.conversation_id),
+                &format!("/conversations/{}/items/{item_id}", self.conversation_id),
                 &self.request_options,
             )
             .await
