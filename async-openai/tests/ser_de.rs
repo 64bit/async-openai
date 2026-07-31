@@ -1,7 +1,7 @@
 use async_openai::types::chat::{
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
     ChatCompletionStreamOptions, CreateChatCompletionRequest, CreateChatCompletionRequestArgs,
-    FunctionCallStream,
+    FunctionCallStream, ServiceTier,
 };
 
 #[test]
@@ -26,6 +26,12 @@ fn chat_types_serde() {
     // deserialize the request
     let deserialized: CreateChatCompletionRequest = serde_json::from_str(&serialized).unwrap();
     assert_eq!(request, deserialized);
+}
+
+#[test]
+fn service_tier_accepts_groq_on_demand() {
+    let tier: ServiceTier = serde_json::from_str("\"on_demand\"").unwrap();
+    assert_eq!(serde_json::to_string(&tier).unwrap(), "\"on_demand\"");
 }
 
 #[test]
