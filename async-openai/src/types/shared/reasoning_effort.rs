@@ -10,4 +10,18 @@ pub enum ReasoningEffort {
     Medium,
     High,
     Xhigh,
+    Max,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ReasoningEffort;
+
+    #[test]
+    fn max_round_trips_through_json() {
+        let effort: ReasoningEffort = serde_json::from_str("\"max\"").unwrap();
+
+        assert_eq!(effort, ReasoningEffort::Max);
+        assert_eq!(serde_json::to_string(&effort).unwrap(), "\"max\"");
+    }
 }
