@@ -79,6 +79,18 @@ pub enum AuditLogEventType {
     TunnelUpdated,
     #[serde(rename = "tunnel.deleted")]
     TunnelDeleted,
+    #[serde(rename = "workload_identity_provider.created")]
+    WorkloadIdentityProviderCreated,
+    #[serde(rename = "workload_identity_provider.updated")]
+    WorkloadIdentityProviderUpdated,
+    #[serde(rename = "workload_identity_provider.deleted")]
+    WorkloadIdentityProviderDeleted,
+    #[serde(rename = "workload_identity_provider_mapping.created")]
+    WorkloadIdentityProviderMappingCreated,
+    #[serde(rename = "workload_identity_provider_mapping.updated")]
+    WorkloadIdentityProviderMappingUpdated,
+    #[serde(rename = "workload_identity_provider_mapping.deleted")]
+    WorkloadIdentityProviderMappingDeleted,
     #[serde(rename = "role.created")]
     RoleCreated,
     #[serde(rename = "role.updated")]
@@ -89,6 +101,10 @@ pub enum AuditLogEventType {
     RoleAssignmentCreated,
     #[serde(rename = "role.assignment.deleted")]
     RoleAssignmentDeleted,
+    #[serde(rename = "role.bound_to_resource")]
+    RoleBoundToResource,
+    #[serde(rename = "role.unbound_from_resource")]
+    RoleUnboundFromResource,
     #[serde(rename = "scim.enabled")]
     ScimEnabled,
     #[serde(rename = "scim.disabled")]
@@ -105,6 +121,174 @@ pub enum AuditLogEventType {
     UserUpdated,
     #[serde(rename = "user.deleted")]
     UserDeleted,
+    #[serde(rename = "tenant.metadata.updated")]
+    TenantMetadataUpdated,
+    #[serde(rename = "tenant.microsoft_entra_mapping.upserted")]
+    TenantMicrosoftEntraMappingUpserted,
+    #[serde(rename = "tenant.microsoft_entra_mapping.deleted")]
+    TenantMicrosoftEntraMappingDeleted,
+    #[serde(rename = "tenant.workload_identity.provider.created")]
+    TenantWorkloadIdentityProviderCreated,
+    #[serde(rename = "tenant.workload_identity.provider.updated")]
+    TenantWorkloadIdentityProviderUpdated,
+    #[serde(rename = "tenant.workload_identity.provider.archived")]
+    TenantWorkloadIdentityProviderArchived,
+    #[serde(rename = "tenant.workload_identity.mapping.created")]
+    TenantWorkloadIdentityMappingCreated,
+    #[serde(rename = "tenant.workload_identity.mapping.updated")]
+    TenantWorkloadIdentityMappingUpdated,
+    #[serde(rename = "tenant.workload_identity.mapping.archived")]
+    TenantWorkloadIdentityMappingArchived,
+    #[serde(rename = "tenant.workload_identity.binding.created")]
+    TenantWorkloadIdentityBindingCreated,
+    #[serde(rename = "tenant.workload_identity.principal.provisioned")]
+    TenantWorkloadIdentityPrincipalProvisioned,
+    #[serde(rename = "tenant.admin_api_key.created")]
+    TenantAdminApiKeyCreated,
+    #[serde(rename = "tenant.admin_api_key.updated")]
+    TenantAdminApiKeyUpdated,
+    #[serde(rename = "tenant.admin_api_key.deleted")]
+    TenantAdminApiKeyDeleted,
+    #[serde(rename = "tenant.project_api_key.created")]
+    TenantProjectApiKeyCreated,
+    #[serde(rename = "tenant.chatgpt_access_token.revoked")]
+    TenantChatgptAccessTokenRevoked,
+    #[serde(rename = "tenant.migration.completed")]
+    TenantMigrationCompleted,
+    #[serde(rename = "tenant.sso.migrated")]
+    TenantSsoMigrated,
+    #[serde(rename = "tenant.domains.migrated")]
+    TenantDomainsMigrated,
+    #[serde(rename = "tenant.sso_connection.created")]
+    TenantSsoConnectionCreated,
+    #[serde(rename = "tenant.sso_connection.updated")]
+    TenantSsoConnectionUpdated,
+    #[serde(rename = "tenant.sso_connection.deleted")]
+    TenantSsoConnectionDeleted,
+    #[serde(rename = "tenant.sso_connection.setup.started")]
+    TenantSsoConnectionSetupStarted,
+    #[serde(rename = "tenant.policy.created")]
+    TenantPolicyCreated,
+    #[serde(rename = "tenant.policy.updated")]
+    TenantPolicyUpdated,
+    #[serde(rename = "tenant.policy.deleted")]
+    TenantPolicyDeleted,
+    #[serde(rename = "tenant.policy.attached")]
+    TenantPolicyAttached,
+    #[serde(rename = "tenant.policy.detached")]
+    TenantPolicyDetached,
+    #[serde(rename = "tenant.principal_authentication_policy.resolved")]
+    TenantPrincipalAuthenticationPolicyResolved,
+    #[serde(rename = "tenant.scim.setup.started")]
+    TenantScimSetupStarted,
+    #[serde(rename = "tenant.scim.deletion.requested")]
+    TenantScimDeletionRequested,
+    #[serde(rename = "tenant.scim.directory.created")]
+    TenantScimDirectoryCreated,
+    #[serde(rename = "tenant.product_access_policy.updated")]
+    TenantProductAccessPolicyUpdated,
+    #[serde(rename = "tenant.resource_share_grant.created")]
+    TenantResourceShareGrantCreated,
+    #[serde(rename = "tenant.resource_share_grant.updated")]
+    TenantResourceShareGrantUpdated,
+    #[serde(rename = "tenant.resource_share_grant.accepted")]
+    TenantResourceShareGrantAccepted,
+    #[serde(rename = "tenant.resource_share_grant.declined")]
+    TenantResourceShareGrantDeclined,
+    #[serde(rename = "tenant.resource_share_grant.revoked")]
+    TenantResourceShareGrantRevoked,
+    #[serde(rename = "tenant.resource_share_grant.deleted")]
+    TenantResourceShareGrantDeleted,
+    #[serde(rename = "tenant.service_account.updated")]
+    TenantServiceAccountUpdated,
+    #[serde(rename = "tenant.service_account.deleted")]
+    TenantServiceAccountDeleted,
+    #[serde(rename = "tenant.service_account.token.revoked")]
+    TenantServiceAccountTokenRevoked,
+    #[serde(rename = "tenant.billing.overage_limit.updated")]
+    TenantBillingOverageLimitUpdated,
+    #[serde(rename = "tenant.billing.alerts.updated")]
+    TenantBillingAlertsUpdated,
+    #[serde(rename = "tenant.billing.info.updated")]
+    TenantBillingInfoUpdated,
+    #[serde(rename = "tenant.usage_limit.workspace.updated")]
+    TenantUsageLimitWorkspaceUpdated,
+    #[serde(rename = "tenant.usage_limit.group.updated")]
+    TenantUsageLimitGroupUpdated,
+    #[serde(rename = "tenant.usage_limit.user.updated")]
+    TenantUsageLimitUserUpdated,
+    #[serde(rename = "tenant.usage_limit.increase_request.updated")]
+    TenantUsageLimitIncreaseRequestUpdated,
+    #[serde(rename = "tenant.usage_limit.increase_request.resolved")]
+    TenantUsageLimitIncreaseRequestResolved,
+    #[serde(rename = "tenant.group.created")]
+    TenantGroupCreated,
+    #[serde(rename = "tenant.group.updated")]
+    TenantGroupUpdated,
+    #[serde(rename = "tenant.group.deleted")]
+    TenantGroupDeleted,
+    #[serde(rename = "tenant.group.member.added")]
+    TenantGroupMemberAdded,
+    #[serde(rename = "tenant.group.member.removed")]
+    TenantGroupMemberRemoved,
+    #[serde(rename = "tenant.migration_rollout.status.updated")]
+    TenantMigrationRolloutStatusUpdated,
+    #[serde(rename = "tenant.migration_rollout.tier.updated")]
+    TenantMigrationRolloutTierUpdated,
+    #[serde(rename = "tenant.role.metadata.updated")]
+    TenantRoleMetadataUpdated,
+    #[serde(rename = "tenant.custom_role.created")]
+    TenantCustomRoleCreated,
+    #[serde(rename = "tenant.custom_role.updated")]
+    TenantCustomRoleUpdated,
+    #[serde(rename = "tenant.custom_role.deleted")]
+    TenantCustomRoleDeleted,
+    #[serde(rename = "tenant.role_assignment.created")]
+    TenantRoleAssignmentCreated,
+    #[serde(rename = "tenant.role_assignment.deleted")]
+    TenantRoleAssignmentDeleted,
+    #[serde(rename = "tenant.resource_role_assignment.created")]
+    TenantResourceRoleAssignmentCreated,
+    #[serde(rename = "tenant.resource_role_assignment.deleted")]
+    TenantResourceRoleAssignmentDeleted,
+    #[serde(rename = "tenant.resource_access.updated")]
+    TenantResourceAccessUpdated,
+    #[serde(rename = "tenant.resource_access.deleted")]
+    TenantResourceAccessDeleted,
+    #[serde(rename = "tenant.session_policy.created")]
+    TenantSessionPolicyCreated,
+    #[serde(rename = "tenant.session_policy.updated")]
+    TenantSessionPolicyUpdated,
+    #[serde(rename = "tenant.session_policy.deleted")]
+    TenantSessionPolicyDeleted,
+    #[serde(rename = "tenant.session_revocation.started")]
+    TenantSessionRevocationStarted,
+    #[serde(rename = "tenant.third_party_app_policy.updated")]
+    TenantThirdPartyAppPolicyUpdated,
+    #[serde(rename = "tenant.user.added")]
+    TenantUserAdded,
+    #[serde(rename = "tenant.user.updated")]
+    TenantUserUpdated,
+    #[serde(rename = "tenant.user.removed")]
+    TenantUserRemoved,
+    #[serde(rename = "tenant.user.looked_up")]
+    TenantUserLookedUp,
+    #[serde(rename = "tenant.user.invited")]
+    TenantUserInvited,
+    #[serde(rename = "tenant.membership.revoked")]
+    TenantMembershipRevoked,
+    #[serde(rename = "tenant.api_organization_invite.upserted")]
+    TenantApiOrganizationInviteUpserted,
+    #[serde(rename = "tenant.api_organization_invite.deleted")]
+    TenantApiOrganizationInviteDeleted,
+    #[serde(rename = "tenant.chatgpt_workspace_invite.upserted")]
+    TenantChatgptWorkspaceInviteUpserted,
+    #[serde(rename = "tenant.membership.accepted")]
+    TenantMembershipAccepted,
+    #[serde(rename = "tenant.membership.declined")]
+    TenantMembershipDeclined,
+    #[serde(rename = "tenant.workspace_invite_email_settings.updated")]
+    TenantWorkspaceInviteEmailSettingsUpdated,
 }
 
 /// Represents a list of audit logs.
@@ -254,6 +438,98 @@ pub struct AuditLog {
     /// The details for events with the type `user.deleted`.
     #[serde(rename = "user.deleted")]
     pub user_deleted: Option<AuditLogUserDeleted>,
+    /// Details for a workload identity provider creation event.
+    #[serde(rename = "workload_identity_provider.created")]
+    pub workload_identity_provider_created: Option<AuditLogWorkloadIdentityProviderCreated>,
+    /// Details for a workload identity provider update event.
+    #[serde(rename = "workload_identity_provider.updated")]
+    pub workload_identity_provider_updated: Option<AuditLogWorkloadIdentityProviderUpdated>,
+    /// Details for a workload identity provider deletion event.
+    #[serde(rename = "workload_identity_provider.deleted")]
+    pub workload_identity_provider_deleted: Option<AuditLogWorkloadIdentityProviderDeleted>,
+    /// Details for a workload identity provider mapping creation event.
+    #[serde(rename = "workload_identity_provider_mapping.created")]
+    pub workload_identity_provider_mapping_created:
+        Option<AuditLogWorkloadIdentityProviderMappingCreated>,
+    /// Details for a workload identity provider mapping update event.
+    #[serde(rename = "workload_identity_provider_mapping.updated")]
+    pub workload_identity_provider_mapping_updated:
+        Option<AuditLogWorkloadIdentityProviderMappingUpdated>,
+    /// Details for a workload identity provider mapping deletion event.
+    #[serde(rename = "workload_identity_provider_mapping.deleted")]
+    pub workload_identity_provider_mapping_deleted:
+        Option<AuditLogWorkloadIdentityProviderMappingDeleted>,
+    /// Details for a role bound to a resource event.
+    #[serde(rename = "role.bound_to_resource")]
+    pub role_bound_to_resource: Option<AuditLogRoleResourceBinding>,
+    /// Details for a role unbound from a resource event.
+    #[serde(rename = "role.unbound_from_resource")]
+    pub role_unbound_from_resource: Option<AuditLogRoleResourceBinding>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogWorkloadIdentityProviderCreated {
+    pub id: Option<String>,
+    pub data: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogWorkloadIdentityProviderUpdated {
+    pub id: Option<String>,
+    pub changes_requested: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogWorkloadIdentityProviderDeleted {
+    pub id: Option<String>,
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogWorkloadIdentityProviderMappingCreated {
+    pub id: Option<String>,
+    pub identity_provider_id: Option<String>,
+    pub data: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogWorkloadIdentityProviderMappingUpdated {
+    pub id: Option<String>,
+    pub identity_provider_id: Option<String>,
+    pub changes_requested: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogWorkloadIdentityProviderMappingDeleted {
+    pub id: Option<String>,
+    pub identity_provider_id: Option<String>,
+    pub project_id: Option<String>,
+    pub service_account_id: Option<String>,
+}
+
+/// Connector role mutation path that produced a role resource binding event.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AuditLogRoleResourceBindingSource {
+    RoleToggle,
+    RoleConnectorUpdate,
+    RoleDelete,
+    WorkspacePermissions,
+    ConnectorPublish,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuditLogRoleResourceBinding {
+    pub id: Option<String>,
+    pub role_id: Option<String>,
+    pub resource_id: Option<String>,
+    pub resource_type: Option<String>,
+    pub permissions: Option<Vec<String>>,
+    pub workspace_id: Option<String>,
+    pub connector_id: Option<String>,
+    pub connector_name: Option<String>,
+    pub enabled: Option<bool>,
+    pub source: Option<AuditLogRoleResourceBindingSource>,
 }
 
 /// The details for events with the type `api_key.created`.

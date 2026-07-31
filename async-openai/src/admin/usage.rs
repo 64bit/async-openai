@@ -1,5 +1,8 @@
 use crate::{
-    config::Config, error::OpenAIError, types::admin::usage::UsageResponse, Client, RequestOptions,
+    config::Config,
+    error::OpenAIError,
+    types::admin::usage::{UsageQueryParams, UsageResponse},
+    Client, RequestOptions,
 };
 
 /// Manage organization usage data. Get usage details for various API endpoints including
@@ -18,7 +21,7 @@ impl<'c, C: Config> Usage<'c, C> {
     }
 
     /// Get audio speeches usage details for the organization.
-    #[crate::byot(R = serde::de::DeserializeOwned)]
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn audio_speeches(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
             .get("/organization/usage/audio_speeches", &self.request_options)
@@ -26,7 +29,7 @@ impl<'c, C: Config> Usage<'c, C> {
     }
 
     /// Get audio transcriptions usage details for the organization.
-    #[crate::byot(R = serde::de::DeserializeOwned)]
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
     pub async fn audio_transcriptions(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
             .get(
@@ -92,6 +95,32 @@ impl<'c, C: Config> Usage<'c, C> {
     pub async fn costs(&self) -> Result<UsageResponse, OpenAIError> {
         self.client
             .get("/organization/costs", &self.request_options)
+            .await
+    }
+
+    /// Get file-search call usage details for the organization.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn file_search_calls(
+        &self,
+        query: UsageQueryParams,
+    ) -> Result<UsageResponse, OpenAIError> {
+        let mut options = self.request_options.clone();
+        options.with_query(&query)?;
+        self.client
+            .get("/organization/usage/file_search_calls", &options)
+            .await
+    }
+
+    /// Get web-search call usage details for the organization.
+    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn web_search_calls(
+        &self,
+        query: UsageQueryParams,
+    ) -> Result<UsageResponse, OpenAIError> {
+        let mut options = self.request_options.clone();
+        options.with_query(&query)?;
+        self.client
+            .get("/organization/usage/web_search_calls", &options)
             .await
     }
 }

@@ -1,7 +1,8 @@
 use crate::types::mcp::MCPTool;
 use crate::types::responses::{
-    ApplyPatchCallOutputStatus, ApplyPatchCallOutputStatusParam, ApplyPatchCallStatus,
-    ApplyPatchCallStatusParam, ApplyPatchCreateFileOperation, ApplyPatchCreateFileOperationParam,
+    AdditionalToolsItemParam, AdditionalToolsRole, ApplyPatchCallOutputStatus,
+    ApplyPatchCallOutputStatusParam, ApplyPatchCallStatus, ApplyPatchCallStatusParam,
+    ApplyPatchCreateFileOperation, ApplyPatchCreateFileOperationParam,
     ApplyPatchDeleteFileOperation, ApplyPatchDeleteFileOperationParam, ApplyPatchOperation,
     ApplyPatchOperationParam, ApplyPatchToolCall, ApplyPatchToolCallItemParam,
     ApplyPatchToolCallOutput, ApplyPatchToolCallOutputItemParam, ApplyPatchUpdateFileOperation,
@@ -24,12 +25,14 @@ use crate::types::responses::{
     ItemReferenceType, LocalEnvironmentParam, LocalShellToolCall, LocalShellToolCallOutput,
     MCPApprovalRequest, MCPApprovalResponse, MCPListTools, MCPToolCall, MessageItem, MessageType,
     NamespaceToolParam, OutputItem, OutputMessage, OutputMessageContent, OutputStatus,
-    OutputTextContent, Prompt, Reasoning, ReasoningEffort, ReasoningItem, ReasoningSummary,
-    RefusalContent, ResponseFormatJsonSchema, ResponsePromptVariables, ResponseStreamOptions,
-    ResponseTextParam, Role, TextResponseFormatConfiguration, Tool, ToolChoiceCustom,
-    ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes,
-    ToolSearchCall, ToolSearchCallItemParam, ToolSearchOutput, ToolSearchOutputItemParam,
-    ToolSearchToolParam, WebSearchTool, WebSearchToolCall,
+    OutputTextContent, ProgramItemParam, ProgramItemType, ProgramOutputItemParam,
+    ProgramOutputItemStatus, ProgramOutputItemType, ProgramOutputStatus, Prompt, Reasoning,
+    ReasoningEffort, ReasoningItem, ReasoningSummary, RefusalContent, ResponseFormatJsonSchema,
+    ResponsePromptVariables, ResponseStreamOptions, ResponseTextParam, Role,
+    TextResponseFormatConfiguration, Tool, ToolChoiceCustom, ToolChoiceFunction, ToolChoiceMCP,
+    ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes, ToolSearchCall, ToolSearchCallItemParam,
+    ToolSearchOutput, ToolSearchOutputItemParam, ToolSearchToolParam, WebSearchTool,
+    WebSearchToolCall,
 };
 
 impl<S: Into<String>> From<S> for EasyInputMessage {
@@ -278,7 +281,9 @@ impl From<bool> for ResponseStreamOptions {
 impl From<ReasoningEffort> for Reasoning {
     fn from(effort: ReasoningEffort) -> Self {
         Reasoning {
+            context: None,
             effort: Some(effort),
+            mode: None,
             summary: None,
         }
     }
@@ -287,7 +292,9 @@ impl From<ReasoningEffort> for Reasoning {
 impl From<ReasoningSummary> for Reasoning {
     fn from(summary: ReasoningSummary) -> Self {
         Reasoning {
+            context: None,
             effort: None,
+            mode: None,
             summary: Some(summary),
         }
     }
@@ -309,7 +316,10 @@ impl<S: Into<String>> From<S> for Prompt {
 
 impl<S: Into<String>> From<S> for InputTextContent {
     fn from(text: S) -> Self {
-        InputTextContent { text: text.into() }
+        InputTextContent {
+            text: text.into(),
+            prompt_cache_breakpoint: None,
+        }
     }
 }
 
@@ -335,7 +345,10 @@ impl From<InputFileContent> for InputContent {
 
 impl<S: Into<String>> From<S> for InputContent {
     fn from(text: S) -> Self {
-        InputContent::InputText(InputTextContent { text: text.into() })
+        InputContent::InputText(InputTextContent {
+            text: text.into(),
+            prompt_cache_breakpoint: None,
+        })
     }
 }
 
@@ -915,6 +928,7 @@ impl From<FunctionToolCallOutputResource> for FunctionCallOutputItemParam {
             output: r.output,
             id: Some(r.id),
             status: Some(r.status.into()),
+            caller: r.caller,
         }
     }
 }
@@ -952,6 +966,7 @@ impl From<CustomToolCallOutputResource> for CustomToolCallOutput {
             call_id: r.call_id,
             output: r.output,
             id: Some(r.id),
+            caller: r.caller,
         }
     }
 }
@@ -964,6 +979,7 @@ impl From<FunctionShellCall> for FunctionShellCallItemParam {
             action: c.action.into(),
             status: Some(c.status.into()),
             environment: c.environment.map(Into::into),
+            caller: c.caller,
         }
     }
 }
@@ -975,6 +991,7 @@ impl From<FunctionShellCallOutput> for FunctionShellCallOutputItemParam {
             call_id: o.call_id,
             output: o.output.into_iter().map(Into::into).collect(),
             max_output_length: o.max_output_length,
+            caller: o.caller,
         }
     }
 }
@@ -986,6 +1003,7 @@ impl From<ApplyPatchToolCall> for ApplyPatchToolCallItemParam {
             call_id: c.call_id,
             status: c.status.into(),
             operation: c.operation.into(),
+            caller: c.caller,
         }
     }
 }
@@ -997,6 +1015,7 @@ impl From<ApplyPatchToolCallOutput> for ApplyPatchToolCallOutputItemParam {
             call_id: o.call_id,
             status: o.status.into(),
             output: o.output,
+            caller: o.caller,
         }
     }
 }
@@ -1065,6 +1084,28 @@ impl From<OutputItem> for Item {
             OutputItem::CustomToolCallOutput(o) => Item::CustomToolCallOutput(o.into()),
             OutputItem::ToolSearchCall(c) => Item::ToolSearchCall(c.into()),
             OutputItem::ToolSearchOutput(o) => Item::ToolSearchOutput(o.into()),
+            OutputItem::Program(p) => Item::Program(ProgramItemParam {
+                id: p.id,
+                type_: ProgramItemType::Program,
+                call_id: p.call_id,
+                code: p.code,
+                fingerprint: p.fingerprint,
+            }),
+            OutputItem::ProgramOutput(o) => Item::ProgramOutput(ProgramOutputItemParam {
+                id: o.id,
+                type_: ProgramOutputItemType::ProgramOutput,
+                call_id: o.call_id,
+                result: o.result,
+                status: match o.status {
+                    ProgramOutputStatus::Completed => ProgramOutputItemStatus::Completed,
+                    ProgramOutputStatus::Incomplete => ProgramOutputItemStatus::Incomplete,
+                },
+            }),
+            OutputItem::AdditionalTools(t) => Item::AdditionalTools(AdditionalToolsItemParam {
+                id: Some(t.id),
+                role: AdditionalToolsRole::Developer,
+                tools: t.tools,
+            }),
         }
     }
 }

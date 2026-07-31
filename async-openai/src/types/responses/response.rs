@@ -1,8 +1,9 @@
 use crate::error::OpenAIError;
 use crate::types::mcp::{MCPListToolsTool, MCPTool};
 use crate::types::responses::{
-    CustomGrammarFormatParam, Filter, ImageDetail, ReasoningEffort, ResponseFormatJsonSchema,
-    ResponseUsage, SummaryTextContent,
+    CustomGrammarFormatParam, Filter, ImageDetail, MessageRole, Moderation, ModerationParam,
+    PromptCacheBreakpointConfig, PromptCacheOptions, PromptCacheOptionsParam, ReasoningEffort,
+    ResponseFormatJsonSchema, ResponseUsage, SummaryTextContent,
 };
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
@@ -51,6 +52,37 @@ pub enum FunctionCallOutputStatusEnum {
     Completed,
     Incomplete,
 }
+
+/// Tool invocation contexts in which a callable tool may be used.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum CallableToolAllowedCaller {
+    Direct,
+    Programmatic,
+}
+
+/// The execution context that produced a tool call.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ToolCallCaller {
+    Direct,
+    Program(ProgramToolCallCaller),
+}
+
+/// Programmatic caller details for a tool call.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct ProgramToolCallCaller {
+    /// The call ID of the program item that produced this tool call.
+    pub caller_id: String,
+}
+
+/// Marker type for a directly invoked tool call.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
+pub struct DirectToolCallCaller {}
+
+pub type ToolCallCallerParam = ToolCallCaller;
+pub type ProgramToolCallCallerParam = ProgramToolCallCaller;
+pub type DirectToolCallCallerParam = DirectToolCallCaller;
 
 /// A tool that controls a virtual computer. Learn more about the
 /// [computer tool](https://platform.openai.com/docs/guides/tools-computer-use).
@@ -107,6 +139,12 @@ pub struct FunctionToolParam {
     /// Whether this function should be deferred and discovered via tool search.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defer_loading: Option<bool>,
+    /// Tool invocation contexts in which this function may be used.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allowed_callers: Option<Vec<CallableToolAllowedCaller>>,
+    /// JSON Schema for the JSON value encoded in string outputs from this function.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_schema: Option<serde_json::Value>,
 }
 
 /// Hosted or BYOT tool search configuration for deferred tools.
@@ -335,6 +373,89 @@ pub enum Item {
 
     /// A call to a custom tool created by the model.
     CustomToolCall(CustomToolCall),
+
+    /// Additional tool definitions supplied by a developer message.
+    AdditionalTools(AdditionalToolsItemParam),
+
+    /// JavaScript program for programmatic tool calling.
+    Program(ProgramItemParam),
+
+    /// Result of a programmatic tool-calling program item.
+    ProgramOutput(ProgramOutputItemParam),
+}
+
+/// The type of a programmatic tool-calling program item.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ProgramItemType {
+    Program,
+}
+
+/// JavaScript program supplied as an input item for programmatic tool calling.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct ProgramItemParam {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub type_: ProgramItemType,
+    pub call_id: String,
+    pub code: String,
+    pub fingerprint: String,
+}
+
+/// Terminal status of a program output input item.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ProgramOutputItemStatus {
+    Completed,
+    Incomplete,
+}
+
+/// The type of a program output input item.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ProgramOutputItemType {
+    ProgramOutput,
+}
+
+/// Result supplied for a programmatic tool-calling program item.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct ProgramOutputItemParam {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub type_: ProgramOutputItemType,
+    pub call_id: String,
+    pub result: String,
+    pub status: ProgramOutputItemStatus,
+}
+
+/// The type of a compaction trigger input item.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum CompactionTriggerType {
+    CompactionTrigger,
+}
+
+/// Compacts the current context. This must be the final input item.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+pub struct CompactionTriggerItemParam {
+    #[serde(rename = "type")]
+    pub type_: CompactionTriggerType,
+}
+
+/// Role for an additional-tools input item.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum AdditionalToolsRole {
+    Developer,
+}
+
+/// Additional tools made available by a developer input item.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct AdditionalToolsItemParam {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    pub role: AdditionalToolsRole,
+    pub tools: Vec<Tool>,
 }
 
 /// Input item that can be used in the context for generating a response.
@@ -352,6 +473,15 @@ pub enum Item {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(untagged)]
 pub enum InputItem {
+    /// JavaScript program for programmatic tool calling.
+    Program(ProgramItemParam),
+
+    /// Result of a programmatic tool-calling program item.
+    ProgramOutput(ProgramOutputItemParam),
+
+    /// Requests compaction of the current context.
+    CompactionTrigger(CompactionTriggerItemParam),
+
     /// A reference to an existing item by ID.
     /// Has a required `id` field and optional `type` (can be "item_reference" or null).
     /// Must be tried first as it's the most minimal structure.
@@ -430,6 +560,9 @@ pub struct FunctionCallOutputItemParam {
     /// Populated when items are returned via API.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<OutputStatus>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCallerParam>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -576,6 +709,9 @@ pub struct CustomToolCallOutput {
     /// The unique ID of the custom tool call output in the OpenAI platform.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCallerParam>,
 }
 
 /// A custom tool call output item returned by the API.
@@ -597,6 +733,9 @@ pub struct CustomToolCallOutputResource {
     /// The identifier of the actor that created the item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCallerParam>,
 }
 
 /// A simplified message input to the model (EasyInputMessage in the OpenAPI spec).
@@ -691,6 +830,9 @@ pub enum InputContent {
 pub struct InputTextContent {
     /// The text input to the model.
     pub text: String,
+    /// Marks the exact end of a reusable prompt prefix.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointConfig>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
@@ -713,6 +855,9 @@ pub struct InputImageContent {
     /// in a data URL.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub image_url: Option<String>,
+    /// Marks the exact end of a reusable prompt prefix.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointConfig>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
@@ -740,6 +885,9 @@ pub struct InputFileContent {
     /// behavior, or `high` to render the file at higher quality. Defaults to `low`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub detail: Option<FileInputDetail>,
+    /// Marks the exact end of a reusable prompt prefix.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointConfig>,
 }
 
 /// The conversation that this response belonged to. Input items and output items from this
@@ -884,6 +1032,10 @@ pub struct CreateResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
 
+    /// Configuration for running moderation on the request input and generated output.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub moderation: Option<ModerationParam>,
+
     /// Whether to allow the model to run tool calls in parallel.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parallel_tool_calls: Option<bool>,
@@ -903,6 +1055,10 @@ pub struct CreateResponse {
     /// the `user` field. [Learn more](https://platform.openai.com/docs/guides/prompt-caching).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt_cache_key: Option<String>,
+
+    /// Options controlling implicit and explicit prompt-cache breakpoints.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_options: Option<PromptCacheOptionsParam>,
 
     /// The retention policy for the prompt cache. Set to `24h` to enable extended prompt caching,
     /// which keeps cached prefixes active for longer, up to a maximum of 24 hours. [Learn
@@ -1071,6 +1227,9 @@ pub struct Billing {
 )]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct Reasoning {
+    /// Which previous reasoning context to retain.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub context: Option<ReasoningContext>,
     /// Constrains effort on reasoning for
     /// [reasoning models](https://platform.openai.com/docs/guides/reasoning).
     /// Currently supported values are `minimal`, `low`, `medium`, and `high`. Reducing
@@ -1080,6 +1239,9 @@ pub struct Reasoning {
     /// Note: The `gpt-5-pro` model defaults to (and only supports) `high` reasoning effort.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub effort: Option<ReasoningEffort>,
+    /// Model-specific reasoning mode, such as `standard` or `pro`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mode: Option<ReasoningModeEnum>,
     /// A summary of the reasoning performed by the model. This can be
     /// useful for debugging and understanding the model's reasoning process.
     /// One of `auto`, `concise`, or `detailed`.
@@ -1089,6 +1251,18 @@ pub struct Reasoning {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<ReasoningSummary>,
 }
+
+/// Which reasoning context to retain for a request.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ReasoningContext {
+    Auto,
+    CurrentTurn,
+    AllTurns,
+}
+
+/// Model-specific reasoning mode. Known values include `standard` and `pro`.
+pub type ReasoningModeEnum = String;
 
 /// o-series reasoning settings.
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
@@ -1120,9 +1294,13 @@ pub enum PromptCacheRetention {
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum FileInputDetail {
+    Auto,
     Low,
     High,
 }
+
+/// Detail level for a file input supplied in a request.
+pub type FileDetailEnum = FileInputDetail;
 
 /// Configuration for text response format.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -1214,7 +1392,21 @@ pub enum Tool {
     #[serde(rename = "web_search_preview_2025_03_11")]
     WebSearchPreview20250311(WebSearchTool),
     /// Allows the assistant to create, delete, or update files using unified diffs.
-    ApplyPatch,
+    ApplyPatch(ApplyPatchToolParam),
+    /// Enables programmatic tool calling.
+    ProgrammaticToolCalling(ProgrammaticToolCallingParam),
+}
+
+/// Enables programmatic tool calling.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
+pub struct ProgrammaticToolCallingParam {}
+
+/// Parameters for the apply-patch tool.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct ApplyPatchToolParam {
+    /// Tool invocation contexts in which apply-patch may be used.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allowed_callers: Option<Vec<CallableToolAllowedCaller>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
@@ -1228,6 +1420,9 @@ pub struct CustomToolParam {
     /// Whether this tool should be deferred and discovered via tool search.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defer_loading: Option<bool>,
+    /// Tool invocation contexts in which this custom tool may be used.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allowed_callers: Option<Vec<CallableToolAllowedCaller>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
@@ -1285,6 +1480,12 @@ pub struct FunctionTool {
     /// Whether this function is deferred and loaded via tool search.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defer_loading: Option<bool>,
+    /// Tool invocation contexts in which this function may be used.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allowed_callers: Option<Vec<CallableToolAllowedCaller>>,
+    /// JSON Schema for the JSON value encoded in string outputs from this function.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_schema: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -1460,6 +1661,9 @@ pub struct CodeInterpreterTool {
     /// specifies uploaded file IDs to make available to your code, along with an
     /// optional `memory_limit` setting.
     pub container: CodeInterpreterToolContainer,
+    /// Tool invocation contexts in which code interpreter may be used.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allowed_callers: Option<Vec<CallableToolAllowedCaller>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -1692,6 +1896,9 @@ pub enum ToolChoiceParam {
     /// Forces the model to call the function shell tool when a tool call is required.
     Shell,
 
+    /// Forces programmatic tool calling when a tool call is required.
+    ProgrammaticToolCalling(SpecificProgrammaticToolCallingParam),
+
     /// Indicates that the model should use a built-in tool to generate a response.
     /// [Learn more about built-in tools](https://platform.openai.com/docs/guides/tools).
     #[serde(untagged)]
@@ -1708,6 +1915,10 @@ pub enum ToolChoiceParam {
     #[serde(untagged)]
     Mode(ToolChoiceOptions),
 }
+
+/// Selects programmatic tool calling.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
+pub struct SpecificProgrammaticToolCallingParam {}
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -1793,38 +2004,45 @@ pub enum Annotation {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct FileCitationBody {
     /// The ID of the file.
-    file_id: String,
+    pub file_id: String,
     /// The filename of the file cited.
-    filename: String,
+    pub filename: String,
     /// The index of the file in the list of files.
-    index: u32,
+    pub index: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct UrlCitationBody {
     /// The index of the last character of the URL citation in the message.
-    end_index: u32,
+    pub end_index: u32,
     /// The index of the first character of the URL citation in the message.
-    start_index: u32,
+    pub start_index: u32,
     /// The title of the web resource.
-    title: String,
+    pub title: String,
     /// The URL of the web resource.
-    url: String,
+    pub url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ContainerFileCitationBody {
     /// The ID of the container file.
-    container_id: String,
+    pub container_id: String,
     /// The index of the last character of the container file citation in the message.
-    end_index: u32,
+    pub end_index: u32,
     /// The ID of the file.
-    file_id: String,
+    pub file_id: String,
     /// The filename of the container file cited.
-    filename: String,
+    pub filename: String,
     /// The index of the first character of the container file citation in the message.
-    start_index: u32,
+    pub start_index: u32,
 }
+
+/// File citation annotation supplied in a request content part.
+pub type FileCitationParam = FileCitationBody;
+/// URL citation annotation supplied in a request content part.
+pub type UrlCitationParam = UrlCitationBody;
+/// Container-file citation annotation supplied in a request content part.
+pub type ContainerFileCitationParam = ContainerFileCitationBody;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct FilePath {
@@ -1921,8 +2139,8 @@ pub struct ReasoningItem {
     /// Reasoning text content.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<ReasoningItemContent>>,
-    /// The encrypted content of the reasoning item - populated when a response is generated with
-    /// `reasoning.encrypted_content` in the `include` parameter.
+    /// The encrypted content of the reasoning item. This is populated by default for reasoning
+    /// items returned by `POST /v1/responses` and WebSocket `response.create` requests.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub encrypted_content: Option<String>,
     /// The status of the item. One of `in_progress`, `completed`, or `incomplete`.
@@ -2012,7 +2230,8 @@ pub struct WebSearchActionSearchSource {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebSearchActionSearch {
     /// The search query.
-    pub query: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub query: Option<String>,
     /// The sources used in the search.
     pub sources: Option<Vec<WebSearchActionSearchSource>>,
 }
@@ -2222,6 +2441,9 @@ pub struct FunctionToolCall {
     pub namespace: Option<String>,
     /// The name of the function to run.
     pub name: String,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCaller>,
     /// The unique ID of the function tool call.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
@@ -2250,6 +2472,9 @@ pub struct FunctionToolCallResource {
     /// The identifier of the actor that created the item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCaller>,
 }
 
 /// A function tool call output item returned by the API.
@@ -2266,6 +2491,9 @@ pub struct FunctionToolCallOutputResource {
     /// The identifier of the actor that created the item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCallerParam>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -2421,6 +2649,9 @@ pub struct FunctionShellCallItemParam {
     /// The environment to execute the shell commands in.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub environment: Option<FunctionShellCallItemEnvironment>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCallerParam>,
 }
 
 /// Indicates that the shell commands finished and returned an exit code.
@@ -2462,6 +2693,9 @@ pub struct FunctionShellCallOutputItemParam {
     /// The maximum number of UTF-8 characters captured for this shell call's combined output.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_output_length: Option<u64>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCallerParam>,
 }
 
 /// Status values reported for apply_patch tool calls.
@@ -2518,6 +2752,9 @@ pub struct ApplyPatchToolCallItemParam {
     pub status: ApplyPatchCallStatusParam,
     /// The specific create, delete, or update instruction for the apply_patch tool call.
     pub operation: ApplyPatchOperationParam,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCallerParam>,
 }
 
 /// Outcome values reported for apply_patch tool call outputs.
@@ -2541,6 +2778,9 @@ pub struct ApplyPatchToolCallOutputItemParam {
     /// Optional human-readable log text from the apply patch tool (e.g., patch results or errors).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub output: Option<String>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCallerParam>,
 }
 
 /// Shell exec action
@@ -2599,6 +2839,9 @@ pub struct FunctionShellCall {
     /// The ID of the entity that created this tool call.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCaller>,
 }
 
 /// The content of a shell tool call output that was emitted.
@@ -2648,6 +2891,9 @@ pub struct FunctionShellCallOutput {
     /// The identifier of the actor that created the item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCaller>,
 }
 
 /// Status values reported for apply_patch tool calls.
@@ -2706,6 +2952,9 @@ pub struct ApplyPatchToolCall {
     /// The ID of the entity that created this tool call.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCaller>,
 }
 
 /// Outcome values reported for apply_patch tool call outputs.
@@ -2730,6 +2979,9 @@ pub struct ApplyPatchToolCallOutput {
     /// The ID of the entity that created this tool call output.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCaller>,
 }
 
 /// Output of an MCP server tool invocation.
@@ -2864,6 +3116,10 @@ pub struct Response {
     /// and price points. Refer to the [model guide](https://platform.openai.com/docs/models) to browse and compare available models.
     pub model: String,
 
+    /// Moderation results for response input and output, when moderation was requested.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub moderation: Option<Moderation>,
+
     /// The object type of this resource - always set to `response`.
     pub object: String,
 
@@ -2900,6 +3156,10 @@ pub struct Response {
     /// the `user` field. [Learn more](https://platform.openai.com/docs/guides/prompt-caching).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt_cache_key: Option<String>,
+
+    /// Prompt-caching options applied to this response.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_options: Option<PromptCacheOptions>,
 
     /// The retention policy for the prompt cache. Set to `24h` to enable extended prompt caching,
     /// which keeps cached prefixes active for longer, up to a maximum of 24 hours. [Learn
@@ -3014,6 +3274,40 @@ pub enum Status {
     Incomplete,
 }
 
+/// A JavaScript program emitted by programmatic tool calling.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct Program {
+    pub id: String,
+    pub call_id: String,
+    pub code: String,
+    pub fingerprint: String,
+}
+
+/// Terminal status of a program output item.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ProgramOutputStatus {
+    Completed,
+    Incomplete,
+}
+
+/// Output produced by a programmatic tool-calling program item.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct ProgramOutput {
+    pub id: String,
+    pub call_id: String,
+    pub result: String,
+    pub status: ProgramOutputStatus,
+}
+
+/// Additional tools made available at a particular conversation item.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct AdditionalTools {
+    pub id: String,
+    pub role: MessageRole,
+    pub tools: Vec<Tool>,
+}
+
 /// Output item
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type")]
@@ -3076,6 +3370,12 @@ pub enum OutputItem {
     ToolSearchCall(ToolSearchCall),
     /// A tool search output.
     ToolSearchOutput(ToolSearchOutput),
+    /// JavaScript program emitted for programmatic tool calling.
+    Program(Program),
+    /// Output produced by a program item.
+    ProgramOutput(ProgramOutput),
+    /// Additional tools supplied at this point in the conversation.
+    AdditionalTools(AdditionalTools),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -3092,6 +3392,9 @@ pub struct CustomToolCall {
     pub name: String,
     /// The unique ID of the custom tool call in the OpenAI platform.
     pub id: String,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCaller>,
 }
 
 /// A custom tool call item returned by the API.
@@ -3114,6 +3417,9 @@ pub struct CustomToolCallResource {
     /// The identifier of the actor that created the item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_by: Option<String>,
+    /// The execution context that produced this tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caller: Option<ToolCallCaller>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -3157,6 +3463,9 @@ pub enum ItemResourceItem {
     McpCall(MCPToolCall),
     CustomToolCall(CustomToolCallResource),
     CustomToolCallOutput(CustomToolCallOutputResource),
+    Program(Program),
+    ProgramOutput(ProgramOutput),
+    AdditionalTools(AdditionalTools),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -3216,6 +3525,10 @@ pub struct TokenCountsBody {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
 
+    /// Model personality. Known values include `friendly` and `pragmatic`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub personality: Option<PersonalityEnum>,
+
     /// Whether to allow the model to run tool calls in parallel.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parallel_tool_calls: Option<bool>,
@@ -3258,6 +3571,9 @@ pub struct TokenCountsBody {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub truncation: Option<Truncation>,
 }
+
+/// A model personality name. Known values include `friendly` and `pragmatic`.
+pub type PersonalityEnum = String;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct TokenCountsResource {
@@ -3332,6 +3648,10 @@ pub struct CompactResponseRequest {
     /// A key to use when reading from or writing to the prompt cache.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt_cache_key: Option<String>,
+
+    /// Options controlling implicit and explicit prompt-cache breakpoints.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_options: Option<PromptCacheOptionsParam>,
 
     /// How long to retain a prompt cache entry created by this request.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3498,6 +3818,9 @@ pub struct FunctionShellToolParam {
     /// The execution environment for the shell tool.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub environment: Option<FunctionShellEnvironment>,
+    /// Tool invocation contexts in which shell may be used.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allowed_callers: Option<Vec<CallableToolAllowedCaller>>,
 }
 
 /// Context management configuration.

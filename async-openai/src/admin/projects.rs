@@ -4,8 +4,9 @@ use crate::{
     types::admin::projects::{
         Project, ProjectCreateRequest, ProjectListResponse, ProjectUpdateRequest,
     },
-    Client, ProjectAPIKeys, ProjectCertificates, ProjectGroupRoles, ProjectGroups,
-    ProjectRateLimits, ProjectRoles, ProjectServiceAccounts, ProjectUserRoles, ProjectUsers,
+    Client, ProjectAPIKeys, ProjectCertificates, ProjectDataRetentionSettings, ProjectGroupRoles,
+    ProjectGroups, ProjectHostedToolPermissionsApi, ProjectModelPermissionsApi, ProjectRateLimits,
+    ProjectRoles, ProjectServiceAccounts, ProjectSpendAlerts, ProjectUserRoles, ProjectUsers,
     RequestOptions,
 };
 
@@ -67,6 +68,29 @@ impl<'c, C: Config> Projects<'c, C> {
     // call [ProjectGroupRoles] group APIs
     pub fn group_roles(&self, project_id: &str, group_id: &str) -> ProjectGroupRoles<'_, C> {
         ProjectGroupRoles::new(self.client, project_id, group_id)
+    }
+
+    /// Manage data-retention controls for a project.
+    pub fn data_retention(&self, project_id: &str) -> ProjectDataRetentionSettings<'_, C> {
+        ProjectDataRetentionSettings::new(self.client, project_id)
+    }
+
+    /// Manage hosted tool permissions for a project.
+    pub fn hosted_tool_permissions(
+        &self,
+        project_id: &str,
+    ) -> ProjectHostedToolPermissionsApi<'_, C> {
+        ProjectHostedToolPermissionsApi::new(self.client, project_id)
+    }
+
+    /// Manage model permissions for a project.
+    pub fn model_permissions(&self, project_id: &str) -> ProjectModelPermissionsApi<'_, C> {
+        ProjectModelPermissionsApi::new(self.client, project_id)
+    }
+
+    /// Manage spend alerts for a project.
+    pub fn spend_alerts(&self, project_id: &str) -> ProjectSpendAlerts<'_, C> {
+        ProjectSpendAlerts::new(self.client, project_id)
     }
 
     /// Returns a list of projects.
