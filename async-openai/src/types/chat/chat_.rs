@@ -203,14 +203,14 @@ pub struct FileObject {
     /// The base64 encoded file data, used when passing the file to the model
     /// as a string.
     #[serde(skip_serializing_if = "Option::is_none")]
-    file_data: Option<String>,
+    pub file_data: Option<String>,
     /// The ID of an uploaded file to use as input.
     #[serde(skip_serializing_if = "Option::is_none")]
-    file_id: Option<String>,
+    pub file_id: Option<String>,
     /// The name of the file, used when passing the file to the model as a
     /// string.
     #[serde(skip_serializing_if = "Option::is_none")]
-    filename: Option<String>,
+    pub filename: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
