@@ -2025,8 +2025,11 @@ pub struct WebSearchActionOpenPage {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct WebSearchActionFind {
-    /// The URL of the page searched for the pattern.
-    pub url: String,
+    /// The URL of the page searched for the pattern. Optional: the API omits it
+    /// for `find` / `find_in_page` actions that continue within a page already
+    /// opened by a prior `open_page` action. Mirrors the already-optional
+    /// `WebSearchActionOpenPage::url`.
+    pub url: Option<String>,
     /// The pattern or text to search for within the page.
     pub pattern: String,
 }
