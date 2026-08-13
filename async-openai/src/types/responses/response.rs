@@ -815,6 +815,10 @@ pub struct CreateResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conversation: Option<ConversationParam>,
 
+    /// Metadata supplied by a `Codex` client for the current request.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub client_metadata: Option<CodexClientMetadata>,
+
     /// Specify additional output data to include in the model response. Currently supported
     /// values are:
     ///
@@ -1011,6 +1015,40 @@ pub struct CreateResponse {
     ///   size for a model, the request will fail with a 400 error.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub truncation: Option<Truncation>,
+}
+
+/// Metadata supplied by a `Codex` client for the current request.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct CodexClientMetadata {
+    /// Identifier for the `Codex` installation that created the request.
+    #[serde(
+        rename = "x-codex-installation-id",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub installation_id: Option<String>,
+
+    /// Identifier for the Codex thread.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+
+    /// Identifier for the Codex session.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub session_id: Option<String>,
+
+    /// Identifier for the Codex window.
+    #[serde(rename = "x-codex-window-id", skip_serializing_if = "Option::is_none")]
+    pub window_id: Option<String>,
+
+    /// Identifier for the Codex turn.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub turn_id: Option<String>,
+
+    /// Turn metadata supplied by Codex.
+    #[serde(
+        rename = "x-codex-turn-metadata",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub turn_metadata: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

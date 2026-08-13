@@ -1,8 +1,8 @@
 #![cfg(feature = "response-types")]
 
 use async_openai::types::responses::{
-    EasyInputContent, ImageDetail, InputContent, InputItem, InputRole, Item, MessageItem,
-    MessageType, OutputItem, ResponseStreamEvent, ResponseTextParam, Role,
+    CreateResponse, EasyInputContent, ImageDetail, InputContent, InputItem, InputRole, Item,
+    MessageItem, MessageType, OutputItem, ResponseStreamEvent, ResponseTextParam, Role,
     TextResponseFormatConfiguration, WebSearchApproximateLocation,
     WebSearchApproximateLocationType, WebSearchToolCallStatus,
 };
@@ -174,4 +174,38 @@ fn input_item_strict_message_multimodal_without_detail_defaults() {
         }
         other => panic!("expected Item::Message(Input), got {other:?}"),
     }
+}
+
+#[test]
+fn codex_client_metadata_round_trips() {
+    let fixture = json!({
+        "model": "gpt-5.6-terra",
+        "input": "hello",
+        "client_metadata": {
+            "x-codex-installation-id": "installation",
+            "thread_id": "thread",
+            "session_id": "session",
+            "x-codex-window-id": "window",
+            "turn_id": "turn",
+            "x-codex-turn-metadata": "metadata"
+        }
+    });
+
+    let request: CreateResponse =
+        serde_json::from_value(fixture.clone()).expect("Codex metadata should deserialize");
+    let metadata = request
+        .client_metadata
+        .as_ref()
+        .expect("Codex metadata should be present");
+    assert_eq!(metadata.installation_id.as_deref(), Some("installation"));
+    assert_eq!(metadata.thread_id.as_deref(), Some("thread"));
+    assert_eq!(metadata.session_id.as_deref(), Some("session"));
+    assert_eq!(metadata.window_id.as_deref(), Some("window"));
+    assert_eq!(metadata.turn_id.as_deref(), Some("turn"));
+    assert_eq!(metadata.turn_metadata.as_deref(), Some("metadata"));
+
+    assert_eq!(
+        serde_json::to_value(request).expect("serialize Codex metadata"),
+        fixture
+    );
 }
