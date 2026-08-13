@@ -256,6 +256,12 @@ pub enum Item {
     ///     A message output from the model.
     Message(MessageItem),
 
+    /// Additional tool definitions supplied by `Codex` clients.
+    ///
+    /// Tool definitions and unrecognized fields are retained verbatim so a gateway can forward
+    /// the request without losing client metadata.
+    AdditionalTools(AdditionalTools),
+
     /// The results of a file search tool call. See the
     /// [file search guide](https://platform.openai.com/docs/guides/tools-file-search) for more information.
     FileSearchCall(FileSearchToolCall),
@@ -335,6 +341,18 @@ pub enum Item {
 
     /// A call to a custom tool created by the model.
     CustomToolCall(CustomToolCall),
+}
+
+/// Additional tool definitions supplied by `Codex` clients.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
+pub struct AdditionalTools {
+    /// The role that supplied the additional tools.
+    pub role: Role,
+    /// The additional tool definitions.
+    pub tools: Vec<serde_json::Value>,
+    /// Extension fields retained for lossless gateway forwarding.
+    #[serde(flatten)]
+    pub extra: std::collections::HashMap<String, serde_json::Value>,
 }
 
 /// Input item that can be used in the context for generating a response.

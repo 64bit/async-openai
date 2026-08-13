@@ -175,3 +175,30 @@ fn input_item_strict_message_multimodal_without_detail_defaults() {
         other => panic!("expected Item::Message(Input), got {other:?}"),
     }
 }
+
+#[test]
+fn codex_additional_tools_input_round_trips() {
+    let fixture = json!({
+        "type": "additional_tools",
+        "role": "developer",
+        "tools": [{"type": "function", "name": "shell"}],
+        "tool_search_mode": "enabled"
+    });
+
+    let input: InputItem =
+        serde_json::from_value(fixture.clone()).expect("Codex additional tools should deserialize");
+    let InputItem::Item(Item::AdditionalTools(additional_tools)) = &input else {
+        panic!("expected an additional tools input item");
+    };
+
+    assert_eq!(additional_tools.role, Role::Developer);
+    assert_eq!(additional_tools.tools.len(), 1);
+    assert_eq!(
+        additional_tools.extra.get("tool_search_mode"),
+        Some(&json!("enabled"))
+    );
+
+    let round_tripped =
+        serde_json::to_value(input).expect("Codex additional tools should serialize");
+    assert_eq!(round_tripped, fixture);
+}
