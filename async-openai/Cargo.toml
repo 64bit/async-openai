@@ -27,6 +27,9 @@ byot = ["dep:async-openai-macros"]
 
 # API feature flags - these enable both the API wrapper and types
 responses = ["response-types", "_api"]
+# Codex-specific Responses variants (additional_tools input item, request
+# client_metadata). Off by default; enable when serving or proxying OpenAI Codex.
+codex = ["response-types"]
 webhook = ["webhook-types", "dep:base64", "dep:thiserror", "dep:hmac", "dep:sha2", "dep:hex"]
 # start - Platform APIs
 audio = ["audio-types", "_api"]
