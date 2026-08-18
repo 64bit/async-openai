@@ -27,3 +27,10 @@ pub use crate::types::shared::ReasoningEffort;
 pub use crate::types::shared::ResponseFormat;
 pub use crate::types::shared::ResponseFormatJsonSchema;
 pub use crate::types::shared::ResponseUsage;
+pub use crate::types::shared::{
+    Moderation, ModerationConfigParam, ModerationErrorBody, ModerationErrorType,
+    ModerationInputType, ModerationMode, ModerationOutcome, ModerationParam, ModerationPolicyParam,
+    ModerationResultBody, ModerationResultType, PromptCacheBreakpointConfig,
+    PromptCacheBreakpointMode, PromptCacheBreakpointParam, PromptCacheMode, PromptCacheModeEnum,
+    PromptCacheOptions, PromptCacheOptionsParam, PromptCacheTTLEnum, PromptCacheTtl,
+};

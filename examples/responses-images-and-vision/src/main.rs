@@ -25,6 +25,7 @@ async fn analyze_image_url(client: &Client<OpenAIConfig>) -> Result<(), Box<dyn 
                     detail: ImageDetail::Auto,
                     image_url: Some(image_url.to_string()),
                     file_id: None,
+                    prompt_cache_breakpoint: None,
                 }),
             ],
             role: InputRole::User,

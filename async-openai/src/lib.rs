@@ -302,10 +302,11 @@ pub mod webhooks;
 // admin::* would be good - however its expanded here so that docs.rs shows the feature flags
 #[cfg(feature = "administration")]
 pub use admin::{
-    Admin, AdminAPIKeys, AuditLogs, Certificates, GroupRoles, GroupUsers, Groups, Invites,
-    ProjectAPIKeys, ProjectCertificates, ProjectGroupRoles, ProjectGroups, ProjectRateLimits,
-    ProjectRoles, ProjectServiceAccounts, ProjectUserRoles, ProjectUsers, Projects, Roles, Usage,
-    UserRoles, Users,
+    Admin, AdminAPIKeys, AuditLogs, Certificates, DataRetention, GroupRoles, GroupUsers, Groups,
+    Invites, ProjectAPIKeys, ProjectCertificates, ProjectDataRetentionSettings, ProjectGroupRoles,
+    ProjectGroups, ProjectHostedToolPermissionsApi, ProjectModelPermissionsApi, ProjectRateLimits,
+    ProjectRoles, ProjectServiceAccounts, ProjectSpendAlerts, ProjectUserRoles, ProjectUsers,
+    Projects, Roles, SpendAlerts, Usage, UserRoles, Users,
 };
 #[cfg(feature = "assistant")]
 #[deprecated(

@@ -1,12 +1,25 @@
 #![cfg(feature = "response-types")]
 
 use async_openai::types::responses::{
-    EasyInputContent, ImageDetail, InputContent, InputItem, InputRole, Item, MessageItem,
-    MessageType, OutputItem, ResponseStreamEvent, ResponseTextParam, Role,
-    TextResponseFormatConfiguration, WebSearchApproximateLocation,
-    WebSearchApproximateLocationType, WebSearchToolCallStatus,
+    EasyInputContent, ImageDetail, InputContent, InputItem, InputRole, InputTextContent,
+    InputTokenDetails, Item, MessageItem, MessageType, OutputItem, ProgramToolCallCaller,
+    ProgrammaticToolCallingParam, PromptCacheBreakpointConfig, PromptCacheBreakpointMode,
+    ResponseStreamEvent, ResponseTextParam, Role, TextResponseFormatConfiguration, Tool,
+    ToolCallCaller, WebSearchApproximateLocation, WebSearchApproximateLocationType,
+    WebSearchToolCallStatus,
 };
 use serde_json::json;
+
+#[test]
+fn input_token_details_without_cache_write_tokens_deserializes() {
+    let details: InputTokenDetails = serde_json::from_value(json!({
+        "cached_tokens": 42
+    }))
+    .expect("deserialize input token details without cache_write_tokens");
+
+    assert_eq!(details.cached_tokens, 42);
+    assert_eq!(details.cache_write_tokens, None);
+}
 
 #[test]
 fn input_item_easy_message_without_type_defaults_and_serializes_canonically() {
@@ -174,4 +187,35 @@ fn input_item_strict_message_multimodal_without_detail_defaults() {
         }
         other => panic!("expected Item::Message(Input), got {other:?}"),
     }
+}
+
+#[test]
+fn programmatic_calling_and_prompt_cache_types_serialize_canonically() {
+    let tool = Tool::ProgrammaticToolCalling(ProgrammaticToolCallingParam {});
+    assert_eq!(
+        serde_json::to_value(tool).unwrap(),
+        json!({"type": "programmatic_tool_calling"})
+    );
+
+    let caller = ToolCallCaller::Program(ProgramToolCallCaller {
+        caller_id: "prog_123".into(),
+    });
+    assert_eq!(
+        serde_json::to_value(caller).unwrap(),
+        json!({"type": "program", "caller_id": "prog_123"})
+    );
+
+    let content = InputTextContent {
+        text: "cache this prefix".into(),
+        prompt_cache_breakpoint: Some(PromptCacheBreakpointConfig {
+            mode: PromptCacheBreakpointMode::Explicit,
+        }),
+    };
+    assert_eq!(
+        serde_json::to_value(content).unwrap(),
+        json!({
+            "text": "cache this prefix",
+            "prompt_cache_breakpoint": {"mode": "explicit"}
+        })
+    );
 }

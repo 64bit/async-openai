@@ -1,11 +1,19 @@
 use crate::{
     config::Config,
     error::OpenAIError,
+    types::admin::groups::GroupType,
     types::admin::projects::{
         InviteProjectGroupBody, ProjectGroup, ProjectGroupDeletedResource, ProjectGroupListResource,
     },
     Client, RequestOptions,
 };
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct RetrieveProjectGroupQuery {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    group_type: Option<GroupType>,
+}
 
 /// Manage which groups have access to a project and the role they receive.
 pub struct ProjectGroups<'c, C: Config> {
@@ -42,6 +50,26 @@ impl<'c, C: Config> ProjectGroups<'c, C> {
                 format!("/organization/projects/{}/groups", self.project_id).as_str(),
                 request,
                 &self.request_options,
+            )
+            .await
+    }
+
+    /// Retrieves a project's group.
+    pub async fn retrieve(
+        &self,
+        group_id: &str,
+        group_type: Option<GroupType>,
+    ) -> Result<ProjectGroup, OpenAIError> {
+        let mut options = self.request_options.clone();
+        options.with_query(&RetrieveProjectGroupQuery { group_type })?;
+        self.client
+            .get(
+                format!(
+                    "/organization/projects/{}/groups/{group_id}",
+                    self.project_id
+                )
+                .as_str(),
+                &options,
             )
             .await
     }

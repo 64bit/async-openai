@@ -27,6 +27,10 @@ mod image_url;
 #[cfg(any(feature = "audio-types", feature = "realtime-types"))]
 mod log_prob_properties;
 #[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
+mod moderation;
+#[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
+mod prompt_cache;
+#[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
 mod prompt_tokens_details;
 #[cfg(any(
     feature = "chat-completion-types",
@@ -71,6 +75,10 @@ pub use image_input::*;
 pub use image_url::*;
 #[cfg(any(feature = "audio-types", feature = "realtime-types"))]
 pub use log_prob_properties::*;
+#[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
+pub use moderation::*;
+#[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
+pub use prompt_cache::*;
 #[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
 pub use prompt_tokens_details::*;
 #[cfg(any(

@@ -1,5 +1,13 @@
 use serde::{Deserialize, Serialize};
 
+/// Whether an API key's owner currently has effective access to the project.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum ProjectApiKeyOwnerProjectAccess {
+    Active,
+    Inactive,
+}
+
 /// The user that owns a project API key.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProjectApiKeyOwnerUser {
@@ -43,6 +51,8 @@ pub struct ProjectApiKey {
     pub last_used_at: Option<u64>,
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,
+    /// Whether the API key's owner currently has effective access to the project.
+    pub owner_project_access: ProjectApiKeyOwnerProjectAccess,
     /// The owner of the API key.
     pub owner: ProjectApiKeyOwner,
 }

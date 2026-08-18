@@ -2,6 +2,7 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
+use crate::types::responses::CallableToolAllowedCaller;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -72,6 +73,14 @@ pub struct MCPTool {
     /// Whether this MCP tool is deferred and discovered via tool search.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defer_loading: Option<bool>,
+
+    /// Tool invocation contexts in which this MCP server may be used.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allowed_callers: Option<Vec<CallableToolAllowedCaller>>,
+
+    /// Secure MCP Tunnel ID to use instead of a direct server URL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tunnel_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

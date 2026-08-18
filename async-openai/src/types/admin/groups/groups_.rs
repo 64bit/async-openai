@@ -3,6 +3,13 @@ use crate::types::admin::roles::Role;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum GroupType {
+    Group,
+    TenantGroup,
+}
+
 /// Represents an individual user returned when inspecting group membership.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct GroupUser {
@@ -41,7 +48,25 @@ pub struct GroupResponse {
     /// Whether the group is managed through SCIM and controlled by your identity provider.
     pub is_scim_managed: bool,
     /// The type of the group.
-    pub group_type: String,
+    pub group_type: GroupType,
+}
+
+/// Details about a user returned from an organization group membership lookup.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct GroupMemberUser {
+    pub id: String,
+    pub name: String,
+    pub email: Option<String>,
+    pub picture: Option<String>,
+    pub is_service_account: Option<bool>,
+    pub user_type: GroupMemberUserType,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum GroupMemberUserType {
+    User,
+    TenantUser,
 }
 
 /// Paginated list of organization groups.

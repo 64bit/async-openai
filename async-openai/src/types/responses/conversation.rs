@@ -10,8 +10,8 @@ use crate::{
         FunctionToolCallOutputResource, FunctionToolCallResource, ImageGenToolCall,
         InputFileContent, InputImageContent, InputItem, InputTextContent, LocalShellToolCall,
         LocalShellToolCallOutput, MCPApprovalRequest, MCPApprovalResponse, MCPListTools,
-        MCPToolCall, MessagePhase, OutputTextContent, ReasoningItem, ReasoningTextContent,
-        RefusalContent, ToolSearchCall, ToolSearchOutput, WebSearchToolCall,
+        MCPToolCall, MessagePhase, OutputTextContent, PromptCacheBreakpointConfig, ReasoningItem,
+        ReasoningTextContent, RefusalContent, ToolSearchCall, ToolSearchOutput, WebSearchToolCall,
     },
 };
 
@@ -136,6 +136,9 @@ pub struct ComputerScreenContent {
     pub image_url: Option<String>,
     ///  The identifier of an uploaded file that contains the screenshot.
     pub file_id: Option<String>,
+    /// Marks the exact end of a reusable prompt prefix.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointConfig>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

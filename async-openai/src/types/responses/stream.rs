@@ -332,6 +332,15 @@ pub struct ResponseReasoningSummaryPartDoneEvent {
     pub output_index: u32,
     pub summary_index: u32,
     pub part: SummaryPart,
+    /// Set to `incomplete` when generation was interrupted; omitted on normal completion.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<ResponseReasoningSummaryPartDoneStatus>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ResponseReasoningSummaryPartDoneStatus {
+    Incomplete,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

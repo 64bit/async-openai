@@ -60,6 +60,7 @@ fn reasoning_then_function_call_round_trip_for_input() {
         namespace: None,
         id: Some("fc_pair".into()),
         status: None,
+        caller: None,
     };
 
     let output = vec![
@@ -84,6 +85,7 @@ fn function_call_output_resource_drops_required_id_into_optional() {
         id: "fco_42".into(),
         status: FunctionCallOutputStatusEnum::Completed,
         created_by: Some("svc".into()),
+        caller: None,
     };
 
     let item: Item = OutputItem::FunctionCallOutput(resource).into();
@@ -108,6 +110,7 @@ fn apply_patch_call_status_folds_through() {
             diff: "@@ -1 +1 @@\n-old\n+new\n".into(),
         }),
         created_by: None,
+        caller: None,
     };
     let item: Item = OutputItem::ApplyPatchCall(call).into();
     let Item::ApplyPatchCall(p) = item else {
@@ -124,6 +127,7 @@ fn apply_patch_call_output_status_failed_folds_through() {
         status: ApplyPatchCallOutputStatus::Failed,
         output: Some("patch did not apply cleanly".into()),
         created_by: None,
+        caller: None,
     };
     let item: Item = OutputItem::ApplyPatchCallOutput(out).into();
     let Item::ApplyPatchCallOutput(p) = item else {

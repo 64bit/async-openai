@@ -16,7 +16,14 @@ pub use crate::types::shared::GrammarSyntax;
 pub use crate::types::shared::ImageDetail;
 pub use crate::types::shared::ImageUrl;
 pub use crate::types::shared::ImageUrlArgs;
+pub use crate::types::shared::PromptCacheBreakpointParam;
 pub use crate::types::shared::PromptTokensDetails;
 pub use crate::types::shared::ReasoningEffort;
 pub use crate::types::shared::ResponseFormat;
 pub use crate::types::shared::ResponseFormatJsonSchema;
+pub use crate::types::shared::{
+    ChatCompletionModeration, ChatCompletionModerationError, ChatCompletionModerationOutcome,
+    ChatCompletionModerationResults, ChatCompletionModerationResultsType, ModerationConfigParam,
+    ModerationErrorBody, ModerationErrorType, ModerationInputType, ModerationMode, ModerationParam,
+    ModerationPolicyParam, ModerationResultBody, ModerationResultType,
+};

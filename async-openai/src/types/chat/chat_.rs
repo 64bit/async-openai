@@ -7,8 +7,9 @@ use crate::{
     error::OpenAIError,
     types::{
         chat::{
-            CompletionTokensDetails, CustomGrammarFormatParam, FunctionCall, FunctionName,
-            FunctionObject, ImageUrl, PromptTokensDetails, ReasoningEffort, ResponseFormat,
+            ChatCompletionModeration, CompletionTokensDetails, CustomGrammarFormatParam,
+            FunctionCall, FunctionName, FunctionObject, ImageUrl, ModerationParam,
+            PromptCacheBreakpointParam, PromptTokensDetails, ReasoningEffort, ResponseFormat,
         },
         Metadata,
     },
@@ -153,6 +154,9 @@ pub struct ChatCompletionRequestSystemMessage {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestMessageContentPartText {
     pub text: String,
+    /// Marks the exact end of a reusable prompt prefix.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointParam>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
@@ -169,6 +173,9 @@ pub struct ChatCompletionRequestMessageContentPartRefusal {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestMessageContentPartImage {
     pub image_url: ImageUrl,
+    /// Marks the exact end of a reusable prompt prefix.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointParam>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
@@ -196,6 +203,9 @@ pub struct InputAudio {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestMessageContentPartAudio {
     pub input_audio: InputAudio,
+    /// Marks the exact end of a reusable prompt prefix.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointParam>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
@@ -216,6 +226,9 @@ pub struct FileObject {
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
 pub struct ChatCompletionRequestMessageContentPartFile {
     pub file: FileObject,
+    /// Marks the exact end of a reusable prompt prefix.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointParam>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -757,6 +770,10 @@ pub struct CreateChatCompletionRequest {
     /// to browse and compare available models.
     pub model: String,
 
+    /// Configuration for running moderation on the request input and generated output.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub moderation: Option<ModerationParam>,
+
     /// Output types that you would like the model to generate. Most models are capable of generating
     /// text, which is the default:
     ///
@@ -1086,6 +1103,9 @@ pub struct CreateChatCompletionResponse {
     pub created: u32,
     /// The model used for the chat completion.
     pub model: String,
+    /// Moderation results for the request input and generated output, if requested.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub moderation: Option<ChatCompletionModeration>,
     /// The service tier used for processing the request. This field is only included if the `service_tier` parameter is specified in the request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub service_tier: Option<ServiceTier>,
@@ -1185,6 +1205,9 @@ pub struct CreateChatCompletionStreamResponse {
     pub created: u32,
     /// The model to generate the completion.
     pub model: String,
+    /// Moderation results, present on moderation chunks when requested.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub moderation: Option<ChatCompletionModeration>,
     /// The service tier used for processing the request. This field is only included if the `service_tier` parameter is specified in the request.
     pub service_tier: Option<ServiceTier>,
     /// This fingerprint represents the backend configuration that the model runs with.

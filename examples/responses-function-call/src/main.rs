@@ -49,6 +49,8 @@ async fn run_non_streaming() -> Result<(), Box<dyn Error>> {
 
     let tools = vec![Tool::Function(FunctionTool {
         defer_loading: None,
+        allowed_callers: None,
+        output_schema: None,
         name: "get_weather".to_string(),
         description: Some("Retrieves current weather for the given location".to_string()),
         parameters: Some(serde_json::json!(
@@ -138,6 +140,7 @@ async fn run_non_streaming() -> Result<(), Box<dyn Error>> {
             output: FunctionCallOutput::Text(function_result),
             id: None,
             status: None,
+            caller: None,
         },
     )));
 
@@ -165,6 +168,8 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
 
     let tools = vec![Tool::Function(FunctionTool {
         defer_loading: None,
+        allowed_callers: None,
+        output_schema: None,
         name: "get_weather".to_string(),
         description: Some("Retrieves current weather for the given location".to_string()),
         parameters: Some(serde_json::json!(
@@ -265,6 +270,7 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
                                 call_id: call_id.clone(),
                                 id: Some(done.item_id.clone()),
                                 status: None,
+                                caller: None,
                             });
                         }
                     }
@@ -317,6 +323,7 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
             output: FunctionCallOutput::Text(function_result),
             id: None,
             status: None,
+            caller: None,
         },
     )));
 

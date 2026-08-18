@@ -2,9 +2,10 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::admin::project_service_accounts::{
-        ProjectServiceAccount, ProjectServiceAccountCreateRequest,
+        ProjectServiceAccount, ProjectServiceAccountApiKey,
+        ProjectServiceAccountApiKeyCreateRequest, ProjectServiceAccountCreateRequest,
         ProjectServiceAccountCreateResponse, ProjectServiceAccountDeleteResponse,
-        ProjectServiceAccountListResponse,
+        ProjectServiceAccountListResponse, UpdateProjectServiceAccountBody,
     },
     Client, RequestOptions,
 };
@@ -75,6 +76,46 @@ impl<'c, C: Config> ProjectServiceAccounts<'c, C> {
                     self.project_id
                 )
                 .as_str(),
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Updates a service account in the project.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn update(
+        &self,
+        service_account_id: &str,
+        request: UpdateProjectServiceAccountBody,
+    ) -> Result<ProjectServiceAccount, OpenAIError> {
+        self.client
+            .post(
+                format!(
+                    "/organization/projects/{}/service_accounts/{service_account_id}",
+                    self.project_id
+                )
+                .as_str(),
+                request,
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Creates an API key for a service account in the project.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn create_api_key(
+        &self,
+        service_account_id: &str,
+        request: ProjectServiceAccountApiKeyCreateRequest,
+    ) -> Result<ProjectServiceAccountApiKey, OpenAIError> {
+        self.client
+            .post(
+                format!(
+                    "/organization/projects/{}/service_accounts/{service_account_id}/api_keys",
+                    self.project_id
+                )
+                .as_str(),
+                request,
                 &self.request_options,
             )
             .await

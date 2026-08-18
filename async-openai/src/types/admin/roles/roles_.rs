@@ -115,6 +115,14 @@ pub struct AssignedRoleDetails {
     /// Arbitrary metadata stored on the role.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<serde_json::Value>,
+    /// Principals from which this role assignment is inherited.
+    pub assignment_sources: Option<Vec<AssignmentSource>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct AssignmentSource {
+    pub principal_id: String,
+    pub principal_type: String,
 }
 
 /// Paginated list of roles assigned to a principal.
