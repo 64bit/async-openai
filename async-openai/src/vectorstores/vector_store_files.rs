@@ -11,7 +11,7 @@ use crate::{
 
 /// Vector store files represent files inside a vector store.
 ///
-/// Related guide: [File Search](https://platform.openai.com/docs/assistants/tools/file-search)
+/// Related guide: [File Search](https://platform.openai.com/docs/guides/tools-file-search)
 pub struct VectorStoreFiles<'c, C: Config> {
     client: &'c Client<C>,
     pub vector_store_id: String,
