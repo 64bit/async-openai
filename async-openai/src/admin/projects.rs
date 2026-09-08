@@ -4,9 +4,10 @@ use crate::{
     types::admin::projects::{
         Project, ProjectCreateRequest, ProjectListResponse, ProjectUpdateRequest,
     },
-    Client, ProjectAPIKeys, ProjectCertificates, ProjectGroupRoles, ProjectGroups,
-    ProjectRateLimits, ProjectRoles, ProjectServiceAccounts, ProjectUserRoles, ProjectUsers,
-    RequestOptions,
+    Client, ProjectAPIKeys, ProjectCertificates, ProjectDataRetentions, ProjectGroupRoles,
+    ProjectGroups, ProjectHostedToolPermission, ProjectModelPermission, ProjectRateLimits,
+    ProjectRoles, ProjectServiceAccounts, ProjectSpendAlerts, ProjectSpendLimit, ProjectUserRoles,
+    ProjectUsers, RequestOptions,
 };
 
 /// Manage the projects within an organization includes creation, updating, and archiving or projects.
@@ -67,6 +68,31 @@ impl<'c, C: Config> Projects<'c, C> {
     // call [ProjectGroupRoles] group APIs
     pub fn group_roles(&self, project_id: &str, group_id: &str) -> ProjectGroupRoles<'_, C> {
         ProjectGroupRoles::new(self.client, project_id, group_id)
+    }
+
+    /// call [ProjectDataRetentions] group APIs
+    pub fn data_retention(&self, project_id: &str) -> ProjectDataRetentions<'_, C> {
+        ProjectDataRetentions::new(self.client, project_id)
+    }
+
+    /// call [ProjectSpendAlerts] group APIs
+    pub fn spend_alerts(&self, project_id: &str) -> ProjectSpendAlerts<'_, C> {
+        ProjectSpendAlerts::new(self.client, project_id)
+    }
+
+    /// call [ProjectSpendLimit] group APIs
+    pub fn spend_limit(&self, project_id: &str) -> ProjectSpendLimit<'_, C> {
+        ProjectSpendLimit::new(self.client, project_id)
+    }
+
+    /// call [ProjectHostedToolPermission] group APIs
+    pub fn hosted_tool_permissions(&self, project_id: &str) -> ProjectHostedToolPermission<'_, C> {
+        ProjectHostedToolPermission::new(self.client, project_id)
+    }
+
+    /// call [ProjectModelPermission] group APIs
+    pub fn model_permissions(&self, project_id: &str) -> ProjectModelPermission<'_, C> {
+        ProjectModelPermission::new(self.client, project_id)
     }
 
     /// Returns a list of projects.
