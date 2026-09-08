@@ -94,4 +94,26 @@ impl<'c, C: Config> Usage<'c, C> {
             .get("/organization/costs", &self.request_options)
             .await
     }
+
+    /// Get file search calls usage details for the organization.
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn file_search_calls(&self) -> Result<UsageResponse, OpenAIError> {
+        self.client
+            .get(
+                "/organization/usage/file_search_calls",
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Get web search calls usage details for the organization.
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn web_search_calls(&self) -> Result<UsageResponse, OpenAIError> {
+        self.client
+            .get(
+                "/organization/usage/web_search_calls",
+                &self.request_options,
+            )
+            .await
+    }
 }
