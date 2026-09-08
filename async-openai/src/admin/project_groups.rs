@@ -60,4 +60,18 @@ impl<'c, C: Config> ProjectGroups<'c, C> {
             )
             .await
     }
+
+    /// Retrieves a project's group.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve(&self, group_id: &str) -> Result<ProjectGroup, OpenAIError> {
+        self.client
+            .get(
+                &format!(
+                    "/organization/projects/{project_id}/groups/{group_id}",
+                    project_id = self.project_id
+                ),
+                &self.request_options,
+            )
+            .await
+    }
 }
