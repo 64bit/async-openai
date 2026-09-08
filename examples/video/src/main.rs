@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use async_openai::{
     config::OpenAIConfig,
     traits::RequestOptionsBuilder,
