@@ -76,4 +76,18 @@ impl<'c, C: Config> ProjectRoles<'c, C> {
             )
             .await
     }
+
+    /// Retrieves a project role.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve(&self, role_id: &str) -> Result<Role, OpenAIError> {
+        self.client
+            .get(
+                &format!(
+                    "/projects/{project_id}/roles/{role_id}",
+                    project_id = self.project_id
+                ),
+                &self.request_options,
+            )
+            .await
+    }
 }
