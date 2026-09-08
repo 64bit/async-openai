@@ -153,6 +153,10 @@ pub struct RealtimeServerEventConversationItemInputAudioTranscriptionCompleted {
     /// Usage statistics for the transcription, this is billed according to the ASR model's pricing rather than
     /// the realtime model's pricing.
     pub usage: TranscriptionUsage,
+    /// The languages detected in the audio. Returned by `gpt-transcribe`. An empty array indicates that no
+    /// language could be reliably detected.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub languages: Option<Vec<crate::types::realtime::TranscriptionLanguage>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
