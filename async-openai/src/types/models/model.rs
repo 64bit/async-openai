@@ -11,6 +11,9 @@ pub struct Model {
     pub created: u32,
     /// The organization that owns the model.
     pub owned_by: String,
+    /// The date when the model will shut down, or null if not announced.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub shutdown_date: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
