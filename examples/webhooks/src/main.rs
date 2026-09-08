@@ -243,6 +243,11 @@ fn process_webhook_event(event: WebhookEvent) {
     info!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
     match event {
+        WebhookEvent::WebhookLiveCallIncoming(e) => println!("Live call incoming: {e:?}"),
+        WebhookEvent::WebhookSafetyAlertCreated(e) => println!("Safety alert created: {e:?}"),
+        WebhookEvent::WebhookSafetyOrgAlertCreated(e) => {
+            println!("Organization safety alert created: {e:?}")
+        }
         // Batch events
         WebhookEvent::BatchCancelled(webhook) => {
             info!("📦 Batch Cancelled");
