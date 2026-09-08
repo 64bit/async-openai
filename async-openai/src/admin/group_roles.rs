@@ -2,7 +2,7 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::admin::groups::{GroupRoleAssignment, PublicAssignOrganizationGroupRoleBody},
-    types::admin::roles::{DeletedRoleAssignmentResource, RoleListResource},
+    types::admin::roles::{AssignedRoleDetails, DeletedRoleAssignmentResource, RoleListResource},
     Client, RequestOptions,
 };
 
@@ -57,6 +57,20 @@ impl<'c, C: Config> GroupRoles<'c, C> {
         self.client
             .delete(
                 format!("/organization/groups/{}/roles/{}", self.group_id, role_id).as_str(),
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Retrieves an organization role assigned to a group.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve(&self, role_id: &str) -> Result<AssignedRoleDetails, OpenAIError> {
+        self.client
+            .get(
+                &format!(
+                    "/organization/groups/{group_id}/roles/{role_id}",
+                    group_id = self.group_id
+                ),
                 &self.request_options,
             )
             .await
