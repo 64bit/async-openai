@@ -83,7 +83,10 @@ pub struct Batch {
     pub object: String,
     /// The OpenAI API endpoint used by the batch.
     pub endpoint: String,
-    /// Model ID used to process the batch, like `gpt-5-2025-08-07`. OpenAI offers a wide range of models with different capabilities, performance characteristics, and price points. Refer to the [model guide](https://platform.openai.com/docs/models) to browse and compare available models.
+    /// Model ID used to process the batch, like `gpt-6-astra`. OpenAI
+    /// offers a wide range of models with different capabilities, performance
+    /// characteristics, and price points. Refer to the [model
+    /// guide](https://platform.openai.com/docs/models) to browse and compare available models.
     pub model: Option<String>,
     pub errors: Option<BatchErrors>,
     /// The ID of the input file for the batch.
