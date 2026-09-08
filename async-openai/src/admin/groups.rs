@@ -74,4 +74,15 @@ impl<'c, C: Config> Groups<'c, C> {
             )
             .await
     }
+
+    /// Retrieves a group.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve(&self, group_id: &str) -> Result<GroupResponse, OpenAIError> {
+        self.client
+            .get(
+                &format!("/organization/groups/{group_id}"),
+                &self.request_options,
+            )
+            .await
+    }
 }
