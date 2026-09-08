@@ -1,8 +1,10 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::admin::roles::{DeletedRoleAssignmentResource, RoleListResource},
-    types::admin::users::{PublicAssignOrganizationUserRoleBody, UserRoleAssignment},
+    types::admin::{
+        roles::{AssignedRoleDetails, DeletedRoleAssignmentResource, RoleListResource},
+        users::{PublicAssignOrganizationUserRoleBody, UserRoleAssignment},
+    },
     Client, RequestOptions,
 };
 
@@ -57,6 +59,20 @@ impl<'c, C: Config> UserRoles<'c, C> {
         self.client
             .delete(
                 format!("/organization/users/{}/roles/{}", self.user_id, role_id).as_str(),
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Retrieves an organization role assigned to a user.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve(&self, role_id: &str) -> Result<AssignedRoleDetails, OpenAIError> {
+        self.client
+            .get(
+                &format!(
+                    "/organization/users/{user_id}/roles/{role_id}",
+                    user_id = self.user_id
+                ),
                 &self.request_options,
             )
             .await
