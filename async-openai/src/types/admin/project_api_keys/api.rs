@@ -16,4 +16,7 @@ pub struct ListProjectApiKeysQuery {
     /// A cursor for use in pagination. `after` is an object ID that defines your place in the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub after: Option<String>,
+    /// Filter by owner project access: active, inactive, or any.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub owner_project_access: Option<String>,
 }

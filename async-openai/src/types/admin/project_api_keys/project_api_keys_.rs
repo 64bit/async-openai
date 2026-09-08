@@ -45,6 +45,16 @@ pub struct ProjectApiKey {
     pub id: String,
     /// The owner of the API key.
     pub owner: ProjectApiKeyOwner,
+    /// Whether the API key's owner currently has effective access to the project.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub owner_project_access: Option<OwnerProjectAccess>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum OwnerProjectAccess {
+    Active,
+    Inactive,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
