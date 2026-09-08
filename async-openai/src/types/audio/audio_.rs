@@ -107,12 +107,15 @@ pub enum TimestampGranularity {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateTranscriptionRequest {
-    /// The audio file object (not file name) to transcribe, in one of these formats:
-    /// flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.
+    /// The audio file object (not file name) to transcribe, in one of these formats: flac, mp3, mp4, mpeg,
+    /// mpga, m4a, ogg, wav, or webm.
+    /// The request must include enough format metadata for the file to be identified. We recommend an
+    /// extension-bearing filename and an appropriate content type.
     pub file: AudioInput,
 
-    /// ID of the model to use. The options are `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`, `whisper-1`
-    /// (which is powered by our open source Whisper V2 model), and `gpt-4o-transcribe-diarize`.
+    /// ID of the model to use. The options are `gpt-transcribe`, `gpt-4o-transcribe`, `gpt-4o-mini-
+    /// transcribe`, `gpt-4o-mini-transcribe-2025-12-15`, `whisper-1` (which is powered by our open source
+    /// Whisper V2 model), and `gpt-4o-transcribe-diarize`.
     pub model: String,
 
     /// The language of the input audio. Supplying the input language in
@@ -176,6 +179,13 @@ pub struct CreateTranscriptionRequest {
     /// known speaker references matching `known_speaker_names[]`. Each sample must be between 2 and 10
     /// seconds, and can use any of the same input audio formats supported by `file`.
     pub known_speaker_references: Option<Vec<String>>,
+    /// Possible languages of the input audio, in
+    /// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format. Supported by `gpt-
+    /// transcribe`.
+    pub languages: Option<Vec<String>>,
+
+    /// Words or phrases to guide transcription of the input audio. Supported by `gpt-transcribe`.
+    pub keywords: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
@@ -233,6 +243,10 @@ pub struct CreateTranscriptionResponseJson {
 
     /// Token usage statistics for the request.
     pub usage: TranscriptionUsage,
+    /// The languages detected in the audio. Returned by `gpt-transcribe`. An empty array indicates that no
+    /// language could be reliably detected.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub languages: Option<Vec<crate::types::audio::TranscriptionLanguage>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -417,8 +431,9 @@ pub enum StreamFormat {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateTranslationRequest {
-    /// The audio file object (not file name) translate, in one of these
-    /// formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.
+    /// The audio file object (not file name) translate, in one of these formats: flac, mp3, mp4, mpeg,
+    /// mpga, m4a, ogg, wav, or webm. The request must include enough format metadata for the file to be
+    /// identified. We recommend an extension-bearing filename and an appropriate content type.
     pub file: AudioInput,
 
     /// ID of the model to use. Only `whisper-1` (which is powered by our open

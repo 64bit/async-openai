@@ -72,6 +72,10 @@ pub struct TranscriptionTextDoneEvent {
     pub logprobs: Option<Vec<LogProbProperties>>,
     /// Usage statistics for models billed by token usage.
     pub usage: TranscriptTextUsageTokens,
+    /// The languages detected in the audio. Returned by `gpt-transcribe`.
+    /// An empty array indicates that no language could be reliably detected.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub languages: Option<Vec<crate::types::audio::TranscriptionLanguage>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

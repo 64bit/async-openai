@@ -18,6 +18,13 @@ impl AsyncTryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
             .part("file", audio_part)
             .text("model", request.model);
 
+        for language in request.languages.unwrap_or_default() {
+            form = form.text("languages[]", language);
+        }
+        for keyword in request.keywords.unwrap_or_default() {
+            form = form.text("keywords[]", keyword);
+        }
+
         if let Some(language) = request.language {
             form = form.text("language", language);
         }
