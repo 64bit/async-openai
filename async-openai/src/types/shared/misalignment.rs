@@ -11,7 +11,6 @@ pub struct MisalignmentErrorDetailsResource {
     pub steer: Option<MisalignmentSteer>,
 }
 
-/// An optional classification; clients must accept additional values.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum MisalignmentErrorType {
