@@ -12,7 +12,7 @@ pub const OPENAI_ORGANIZATION_HEADER: &str = "OpenAI-Organization";
 /// Project header
 pub const OPENAI_PROJECT_HEADER: &str = "OpenAI-Project";
 
-/// Calls to the Assistants API require that you pass a Beta header
+/// Header for opting into OpenAI beta API capabilities.
 pub const OPENAI_BETA_HEADER: &str = "OpenAI-Beta";
 
 /// [crate::Client] relies on this for every API call on OpenAI
