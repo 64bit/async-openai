@@ -38,10 +38,12 @@ pub struct MCPTool {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub authorization: Option<String>,
 
-    /// Identifier for service connectors, like those available in ChatGPT. One of `server_url` or
-    /// `connector_id` must be provided. Learn more about service connectors [here](https://platform.openai.com/docs/guides/tools-remote-mcp#connectors).
+    /// Identifier for service connectors, like those available in ChatGPT. One of
+    /// `server_url`, `connector_id`, or `tunnel_id` must be provided. Learn more
+    /// about service connectors [here](https://platform.openai.com/docs/guides/tools-remote-mcp#connectors).
     ///
     /// Currently supported `connector_id` values are:
+    ///
     /// - Dropbox: `connector_dropbox`
     /// - Gmail: `connector_gmail`
     /// - Google Calendar: `connector_googlecalendar`
@@ -65,13 +67,21 @@ pub struct MCPTool {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub server_description: Option<String>,
 
-    /// The URL for the MCP server. One of `server_url` or `connector_id` must be provided.
+    /// The URL for the MCP server. One of `server_url`, `connector_id`, or
+    /// `tunnel_id` must be provided.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub server_url: Option<String>,
 
     /// Whether this MCP tool is deferred and discovered via tool search.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defer_loading: Option<bool>,
+    /// The Secure MCP Tunnel ID to use instead of a direct server URL. One of
+    /// `server_url`, `connector_id`, or `tunnel_id` must be provided.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tunnel_id: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allowed_callers: Option<Vec<crate::types::responses::CallableToolAllowedCaller>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
