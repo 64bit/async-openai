@@ -768,6 +768,7 @@ async fn test_byot_eval_run_output_items() {
 }
 
 #[tokio::test]
+#[allow(deprecated)] // Verify the BYOT methods while the deprecated Videos API remains available.
 async fn test_byot_videos() {
     let client = Client::new();
 

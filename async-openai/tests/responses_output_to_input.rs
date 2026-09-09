@@ -1,4 +1,4 @@
-//! Round-trip tests for `TryFrom<OutputItem> for Item` / `InputItem`.
+//! Replay conversion tests for `From<OutputItem> for InputItem`.
 //!
 //! Reasoning models emit `Reasoning` items in `response.output` that the
 //! Responses API requires you to echo back into the next request's `input`
@@ -19,7 +19,7 @@ use async_openai::types::responses::{
 use serde_json::json;
 
 #[test]
-fn reasoning_round_trips_to_item() {
+fn reasoning_round_trips_to_input_item() {
     // Synthesize a ReasoningItem the way the API would deliver one: an id
     // and an empty summary list (`encrypted_content` is the typical
     // payload, populated when `include: ["reasoning.encrypted_content"]`
@@ -33,9 +33,9 @@ fn reasoning_round_trips_to_item() {
     .expect("deserialize reasoning item");
 
     let output = OutputItem::Reasoning(reasoning.clone());
-    let as_item: Item = output.into::<InputItem>().into();
+    let as_item: InputItem = output.into();
     match as_item {
-        Item::Reasoning(r) => {
+        InputItem::Item(Item::Reasoning(r)) => {
             assert_eq!(r.id, reasoning.id);
             assert_eq!(r.encrypted_content.as_deref(), Some("opaque-bytes"));
         }
@@ -92,9 +92,9 @@ fn function_call_output_resource_drops_required_id_into_optional() {
         created_by: Some("svc".into()),
     };
 
-    let item: Item = OutputItem::FunctionCallOutput(resource).try_into().unwrap();
+    let item = InputItem::from(OutputItem::FunctionCallOutput(resource));
     match item {
-        Item::FunctionCallOutput(p) => {
+        InputItem::Item(Item::FunctionCallOutput(p)) => {
             assert_eq!(p.call_id.as_deref(), Some("call_42"));
             assert_eq!(p.id.as_deref(), Some("fco_42"));
             assert!(p.status.is_some());
@@ -116,8 +116,8 @@ fn apply_patch_call_status_folds_through() {
         }),
         created_by: None,
     };
-    let item: Item = OutputItem::ApplyPatchCall(call).try_into().unwrap();
-    let Item::ApplyPatchCall(p) = item else {
+    let item = InputItem::from(OutputItem::ApplyPatchCall(call));
+    let InputItem::Item(Item::ApplyPatchCall(p)) = item else {
         panic!("expected ApplyPatchCall");
     };
     assert_eq!(p.id.as_deref(), Some("apc_1"));
@@ -133,8 +133,8 @@ fn apply_patch_call_output_status_failed_folds_through() {
         output: Some("patch did not apply cleanly".into()),
         created_by: None,
     };
-    let item: Item = OutputItem::ApplyPatchCallOutput(out).try_into().unwrap();
-    let Item::ApplyPatchCallOutput(p) = item else {
+    let item = InputItem::from(OutputItem::ApplyPatchCallOutput(out));
+    let InputItem::Item(Item::ApplyPatchCallOutput(p)) = item else {
         panic!("expected ApplyPatchCallOutput");
     };
     assert_eq!(p.output.as_deref(), Some("patch did not apply cleanly"));
@@ -147,8 +147,8 @@ fn compaction_body_to_param() {
         encrypted_content: "encrypted-blob".into(),
         created_by: None,
     };
-    let item: Item = OutputItem::Compaction(body).try_into().unwrap();
-    let Item::Compaction(p) = item else {
+    let item = InputItem::from(OutputItem::Compaction(body));
+    let InputItem::Item(Item::Compaction(p)) = item else {
         panic!("expected Compaction");
     };
     assert_eq!(p.id.as_deref(), Some("cmp_1"));
