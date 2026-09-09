@@ -45,6 +45,10 @@ pub struct ProjectServiceAccountCreateRequest {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub create_service_account_only: Option<bool>,
+    /// Number of seconds until the initial API key expires. If omitted or null,
+    /// the key does not expire unless an organization or project policy requires it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_in_seconds: Option<u32>,
 }
 
 /// Represents the response object for creating a project service account.
@@ -76,6 +80,9 @@ pub struct ProjectServiceAccountApiKey {
     pub name: String,
     /// The Unix timestamp (in seconds) of when the API key was created.
     pub created_at: u64,
+    /// The Unix timestamp (in seconds) when the API key expires, or null if it does not expire.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<u64>,
     /// The ID of the API key.
     pub id: String,
 }

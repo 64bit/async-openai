@@ -39,6 +39,9 @@ pub struct ProjectApiKey {
     pub name: String,
     /// The Unix timestamp (in seconds) of when the API key was created.
     pub created_at: u64,
+    /// The Unix timestamp (in seconds) when the API key expires, or null if it does not expire.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<u64>,
     /// The Unix timestamp (in seconds) of when the API key was last used.
     pub last_used_at: Option<u64>,
     /// The identifier, which can be referenced in API endpoints.
