@@ -55,6 +55,8 @@ use crate::Chat;
 use crate::Completions;
 #[cfg(feature = "container")]
 use crate::Containers;
+#[cfg(feature = "content-provenance-checks")]
+use crate::ContentProvenanceChecks;
 #[cfg(feature = "responses")]
 use crate::Conversations;
 #[cfg(feature = "embedding")]
@@ -69,6 +71,8 @@ use crate::Models;
 use crate::Realtime;
 #[cfg(feature = "responses")]
 use crate::Responses;
+#[cfg(feature = "safety")]
+use crate::Safety;
 #[cfg(feature = "skill")]
 use crate::Skills;
 #[cfg(feature = "upload")]
@@ -315,13 +319,13 @@ impl<C: Config> Client<C> {
     /// To call [Safety] group related APIs.
     #[cfg(feature = "safety")]
     pub fn safety(&self) -> crate::Safety<'_, C> {
-        crate::Safety::new(self)
+        Safety::new(self)
     }
 
     /// To call [ContentProvenanceChecks] group related APIs
     #[cfg(feature = "content-provenance-checks")]
     pub fn content_provenance_checks(&self) -> crate::ContentProvenanceChecks<'_, C> {
-        crate::ContentProvenanceChecks::new(self)
+        ContentProvenanceChecks::new(self)
     }
 
     pub fn config(&self) -> &C {
