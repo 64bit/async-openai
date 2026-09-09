@@ -1,6 +1,7 @@
 use crate::{
-    config::Config, AdminAPIKeys, AuditLogs, Certificates, Client, Groups, Invites, Projects,
-    Roles, Usage, Users,
+    config::Config, AdminAPIKeys, AuditLogs, Certificates, Client, Groups, Invites,
+    OrganizationDataRetentions, OrganizationSpendAlerts, OrganizationSpendLimit, Projects, Roles,
+    Usage, Users,
 };
 
 /// Admin group for all administration APIs.
@@ -57,5 +58,20 @@ impl<'c, C: Config> Admin<'c, C> {
     /// To call [Usage] group related APIs using this client.
     pub fn usage(&self) -> Usage<'_, C> {
         Usage::new(self.client)
+    }
+
+    /// Access data retention endpoints.
+    pub fn data_retention(&self) -> OrganizationDataRetentions<'_, C> {
+        OrganizationDataRetentions::new(self.client)
+    }
+
+    /// Access spend alerts endpoints.
+    pub fn spend_alerts(&self) -> OrganizationSpendAlerts<'_, C> {
+        OrganizationSpendAlerts::new(self.client)
+    }
+
+    /// Access spend limit endpoints.
+    pub fn spend_limit(&self) -> OrganizationSpendLimit<'_, C> {
+        OrganizationSpendLimit::new(self.client)
     }
 }

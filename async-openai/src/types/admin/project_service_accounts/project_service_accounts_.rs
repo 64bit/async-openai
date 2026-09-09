@@ -1,6 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::admin::invites::ProjectMembership;
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ProjectServiceAccountRole {
+    Owner,
+    Member,
+    None,
+}
 
 /// Represents an individual service account in a project.
 #[derive(Debug, Serialize, Deserialize)]
@@ -11,8 +17,8 @@ pub struct ProjectServiceAccount {
     pub id: String,
     /// The name of the service account.
     pub name: String,
-    /// `owner` or `member`.
-    pub role: ProjectMembership,
+    /// `owner`, `member`, or `none`
+    pub role: ProjectServiceAccountRole,
     /// The Unix timestamp (in seconds) of when the service account was created.
     pub created_at: u64,
 }
@@ -37,6 +43,12 @@ pub struct ProjectServiceAccountListResponse {
 pub struct ProjectServiceAccountCreateRequest {
     /// The name of the service account being created.
     pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub create_service_account_only: Option<bool>,
+    /// Number of seconds until the initial API key expires. If omitted or null,
+    /// the key does not expire unless an organization or project policy requires it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_in_seconds: Option<u32>,
 }
 
 /// Represents the response object for creating a project service account.
@@ -48,7 +60,8 @@ pub struct ProjectServiceAccountCreateResponse {
     pub id: String,
     /// The name of the created service account.
     pub name: String,
-    /// Service accounts can only have one role of type `member`.
+    /// Service accounts created with default project membership have role `member`. Accounts created with
+    /// `create_service_account_only` have role `none`.
     pub role: String,
     /// The Unix timestamp (in seconds) of when the service account was created.
     pub created_at: u64,
@@ -67,6 +80,9 @@ pub struct ProjectServiceAccountApiKey {
     pub name: String,
     /// The Unix timestamp (in seconds) of when the API key was created.
     pub created_at: u64,
+    /// The Unix timestamp (in seconds) when the API key expires, or null if it does not expire.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<u64>,
     /// The ID of the API key.
     pub id: String,
 }
@@ -80,4 +96,54 @@ pub struct ProjectServiceAccountDeleteResponse {
     pub id: String,
     /// Indicates if the service account was successfully deleted.
     pub deleted: bool,
+}
+
+/// The service account API key create request payload.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct CreateProjectServiceAccountApiKeyBody {
+    /// API key name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// API key scopes.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scopes: Option<Vec<String>>,
+    /// Number of seconds until the API key expires.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_in_seconds: Option<u32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ServiceAccountApiKeyBody {
+    /// The object type, which is always `organization.project.service_account.api_key`
+    pub object: String,
+    /// The unredacted API key value.
+    pub value: String,
+    /// The name of the API key.
+    pub name: String,
+    /// The Unix timestamp (in seconds) when the API key was created.
+    pub created_at: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<u64>,
+    /// The identifier of the API key.
+    pub id: String,
+}
+
+/// Parameters for updating a project service account.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct UpdateProjectServiceAccountBody {
+    /// The updated service account name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// The updated service account role.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub role: Option<UpdateProjectServiceAccountBodyRole>,
+}
+
+/// The updated service account role.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum UpdateProjectServiceAccountBodyRole {
+    #[serde(rename = "member")]
+    Member,
+    #[serde(rename = "owner")]
+    Owner,
 }

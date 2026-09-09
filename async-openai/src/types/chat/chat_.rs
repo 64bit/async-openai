@@ -1,3 +1,4 @@
+use crate::types::chat::ModerationResultBody;
 use std::collections::HashMap;
 
 use derive_builder::Builder;
@@ -153,6 +154,8 @@ pub struct ChatCompletionRequestSystemMessage {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestMessageContentPartText {
     pub text: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointParam>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Builder, PartialEq)]
@@ -169,6 +172,8 @@ pub struct ChatCompletionRequestMessageContentPartRefusal {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestMessageContentPartImage {
     pub image_url: ImageUrl,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointParam>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
@@ -196,6 +201,8 @@ pub struct InputAudio {
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct ChatCompletionRequestMessageContentPartAudio {
     pub input_audio: InputAudio,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointParam>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
@@ -216,6 +223,8 @@ pub struct FileObject {
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
 pub struct ChatCompletionRequestMessageContentPartFile {
     pub file: FileObject,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointParam>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -655,6 +664,8 @@ pub enum ServiceTier {
     Flex,
     Scale,
     Priority,
+    #[serde(rename = "fast")]
+    Fast,
 }
 
 /// Constrains the verbosity of the model's response. Lower values will result in more concise responses, while higher values will result in more verbose responses. Currently supported values are `low`, `medium`, and `high`.
@@ -750,10 +761,9 @@ pub struct CreateChatCompletionRequest {
     /// [audio](https://platform.openai.com/docs/guides/audio).
     pub messages: Vec<ChatCompletionRequestMessage>, // min: 1
 
-    /// Model ID used to generate the response, like `gpt-4o` or `o3`. OpenAI
+    /// Model ID used to generate the response, like `gpt-6-astra` or `o3`. OpenAI
     /// offers a wide range of models with different capabilities, performance
-    /// characteristics, and price points. Refer to the
-    /// [model guide](https://platform.openai.com/docs/models)
+    /// characteristics, and price points. Refer to the [model guide](https://platform.openai.com/docs/models)
     /// to browse and compare available models.
     pub model: String,
 
@@ -993,6 +1003,12 @@ pub struct CreateChatCompletionRequest {
     ///  Developer-defined tags and values used for filtering completions in the [dashboard](https://platform.openai.com/chat-completions).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<Metadata>, // nullable: true
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_options: Option<crate::types::chat::PromptCacheOptionsParam>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub moderation: Option<crate::types::chat::ModerationParam>,
 }
 
 /// Options for streaming response. Only set this when you set `stream: true`.
@@ -1099,6 +1115,11 @@ pub struct CreateChatCompletionResponse {
     /// The object type, which is always `chat.completion`.
     pub object: String,
     pub usage: Option<CompletionUsage>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<crate::types::metadata::Metadata>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub moderation: Option<ChatCompletionModeration>,
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
@@ -1197,6 +1218,14 @@ pub struct CreateChatCompletionStreamResponse {
     /// An optional field that will only be present when you set `stream_options: {"include_usage": true}` in your request.
     /// When present, it contains a null value except for the last chunk which contains the token usage statistics for the entire request.
     pub usage: Option<CompletionUsage>,
+    /// An obfuscation string added to normalize the size of streamed chunks as a
+    /// mitigation to certain side-channel attacks. The field is included by
+    /// default and omitted when `stream_options.include_obfuscation` is `false`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub obfuscation: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub moderation: Option<ChatCompletionModeration>,
 }
 
 /// An object representing a list of Chat Completions.
@@ -1271,4 +1300,74 @@ pub struct ChatCompletionMessageList {
 pub struct UpdateChatCompletionRequest {
     /// Set of 16 key-value pairs that can be attached to an object.
     pub metadata: Metadata,
+}
+
+/// Moderation results or errors for the request input and generated output.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ChatCompletionModeration {
+    /// Moderation for the request input.
+    pub input: ChatCompletionModerationInput,
+    /// Moderation for the generated output.
+    pub output: ChatCompletionModerationOutput,
+}
+
+/// An error produced while attempting moderation.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ChatCompletionModerationError {
+    /// The error code.
+    pub code: String,
+    /// The error message.
+    pub message: String,
+}
+
+/// Moderation for the request input.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(tag = "type")]
+pub enum ChatCompletionModerationInput {
+    #[serde(rename = "moderation_results")]
+    Results(Box<ChatCompletionModerationResults>),
+    #[serde(rename = "error")]
+    Error(Box<ChatCompletionModerationError>),
+}
+
+/// Moderation for the generated output.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(tag = "type")]
+pub enum ChatCompletionModerationOutput {
+    #[serde(rename = "moderation_results")]
+    Results(Box<ChatCompletionModerationResults>),
+    #[serde(rename = "error")]
+    Error(Box<ChatCompletionModerationError>),
+}
+
+/// Successful moderation results for the request input or generated output.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ChatCompletionModerationResults {
+    /// The moderation model used to generate the results.
+    pub model: String,
+    /// A list of moderation results.
+    pub results: Vec<ModerationResultBodyItem>,
+}
+
+/// Tagged ModerationResultBody content used outside a union.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(tag = "type")]
+pub enum ModerationResultBodyItem {
+    #[serde(rename = "moderation_result")]
+    ModerationResult(ModerationResultBody),
+}
+
+/// Marks the exact end of a reusable prompt prefix. The breakpoint inherits its TTL from the request's
+/// `prompt_cache_options.ttl`; the boundary is not rounded to a token block.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct PromptCacheBreakpointParam {
+    /// The breakpoint mode. Always `explicit`.
+    pub mode: PromptCacheBreakpointParamMode,
+}
+
+/// The breakpoint mode. Always `explicit`.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum PromptCacheBreakpointParamMode {
+    #[serde(rename = "explicit")]
+    Explicit,
 }

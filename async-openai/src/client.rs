@@ -45,9 +45,6 @@ use crate::file::Files;
 use crate::image::Images;
 #[cfg(feature = "moderation")]
 use crate::moderation::Moderations;
-#[cfg(feature = "assistant")]
-#[allow(deprecated)]
-use crate::Assistants;
 #[cfg(feature = "audio")]
 use crate::Audio;
 #[cfg(feature = "batch")]
@@ -58,6 +55,8 @@ use crate::Chat;
 use crate::Completions;
 #[cfg(feature = "container")]
 use crate::Containers;
+#[cfg(feature = "content-provenance-checks")]
+use crate::ContentProvenanceChecks;
 #[cfg(feature = "responses")]
 use crate::Conversations;
 #[cfg(feature = "embedding")]
@@ -72,16 +71,16 @@ use crate::Models;
 use crate::Realtime;
 #[cfg(feature = "responses")]
 use crate::Responses;
+#[cfg(feature = "safety")]
+use crate::Safety;
 #[cfg(feature = "skill")]
 use crate::Skills;
-#[cfg(feature = "assistant")]
-#[allow(deprecated)]
-use crate::Threads;
 #[cfg(feature = "upload")]
 use crate::Uploads;
 #[cfg(feature = "vectorstore")]
 use crate::VectorStores;
 #[cfg(feature = "video")]
+#[allow(deprecated)]
 use crate::Videos;
 
 #[derive(Clone)]
@@ -251,28 +250,10 @@ impl<C: Config> Client<C> {
 
     /// To call [Videos] group related APIs using this client.
     #[cfg(feature = "video")]
+    #[deprecated(note = "The Videos API is deprecated.")]
+    #[allow(deprecated)]
     pub fn videos(&self) -> Videos<'_, C> {
         Videos::new(self)
-    }
-
-    /// To call [Assistants] group related APIs using this client.
-    #[cfg(feature = "assistant")]
-    #[deprecated(
-        note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
-    )]
-    #[allow(deprecated)]
-    pub fn assistants(&self) -> Assistants<'_, C> {
-        Assistants::new(self)
-    }
-
-    /// To call [Threads] group related APIs using this client.
-    #[cfg(feature = "assistant")]
-    #[deprecated(
-        note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
-    )]
-    #[allow(deprecated)]
-    pub fn threads(&self) -> Threads<'_, C> {
-        Threads::new(self)
     }
 
     /// To call [VectorStores] group related APIs using this client.
@@ -333,6 +314,18 @@ impl<C: Config> Client<C> {
     #[cfg(feature = "realtime")]
     pub fn realtime(&self) -> Realtime<'_, C> {
         Realtime::new(self)
+    }
+
+    /// To call [Safety] group related APIs.
+    #[cfg(feature = "safety")]
+    pub fn safety(&self) -> crate::Safety<'_, C> {
+        Safety::new(self)
+    }
+
+    /// To call [ContentProvenanceChecks] group related APIs
+    #[cfg(feature = "content-provenance-checks")]
+    pub fn content_provenance_checks(&self) -> crate::ContentProvenanceChecks<'_, C> {
+        ContentProvenanceChecks::new(self)
     }
 
     pub fn config(&self) -> &C {
@@ -747,6 +740,7 @@ async fn read_error_response(response: Response) -> OpenAIError {
         return OpenAIError::ApiError(ApiErrorResponse {
             status_code: status,
             api_error: ApiError {
+                misalignment: None,
                 message,
                 r#type: None,
                 param: None,

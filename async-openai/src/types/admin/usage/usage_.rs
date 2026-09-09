@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Response structure for organization usage endpoints.
 #[derive(Debug, Clone, Deserialize)]
@@ -54,6 +54,10 @@ pub enum UsageResult {
     VectorStores(UsageVectorStoresResult),
     #[serde(rename = "organization.costs.result")]
     Costs(CostsResult),
+    #[serde(rename = "organization.usage.file_searches.result")]
+    FileSearchCalls(UsageFileSearchCallsResult),
+    #[serde(rename = "organization.usage.web_searches.result")]
+    WebSearchCalls(UsageWebSearchCallsResult),
 }
 
 /// The aggregated audio speeches usage details of the specific time bucket.
@@ -104,11 +108,15 @@ pub struct UsageCodeInterpreterSessionsResult {
 /// The aggregated completions usage details of the specific time bucket.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UsageCompletionsResult {
-    /// The aggregated number of text input tokens used, including cached tokens. For customers subscribe to scale tier, this includes scale tier tokens.
+    /// The aggregated number of input tokens used, including cached and cache-write tokens. This includes
+    /// text, audio, and image tokens. For customers subscribed to Scale Tier, this includes Scale Tier
+    /// tokens.
     pub input_tokens: u64,
-    /// The aggregated number of text output tokens used. For customers subscribe to scale tier, this includes scale tier tokens.
+    /// The aggregated number of output tokens used across text, audio, and image outputs. For customers
+    /// subscribed to Scale Tier, this includes Scale Tier tokens.
     pub output_tokens: u64,
-    /// The aggregated number of text input tokens that has been cached from previous requests. For customers subscribe to scale tier, this includes scale tier tokens.
+    /// The aggregated number of cached input tokens used across text, audio, and image inputs. For
+    /// customers subscribed to Scale Tier, this includes Scale Tier tokens.
     #[serde(default)]
     pub input_cached_tokens: Option<u64>,
     /// The aggregated number of uncached input tokens.
@@ -123,7 +131,7 @@ pub struct UsageCompletionsResult {
     /// The aggregated number of cached text input tokens.
     #[serde(default)]
     pub input_cached_text_tokens: Option<u64>,
-    /// The aggregated number of audio input tokens used, including cached tokens.
+    /// The aggregated number of uncached audio input tokens used.
     #[serde(default)]
     pub input_audio_tokens: Option<u64>,
     /// The aggregated number of cached audio input tokens.
@@ -155,6 +163,9 @@ pub struct UsageCompletionsResult {
     pub batch: Option<bool>,
     /// When `group_by=service_tier`, this field provides the service tier of the grouped usage result.
     pub service_tier: Option<String>,
+    /// The aggregated number of input tokens written to the cache.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_cache_write_tokens: Option<i64>,
 }
 
 /// The aggregated embeddings usage details of the specific time bucket.
@@ -234,6 +245,10 @@ pub struct CostsResult {
     pub project_id: Option<String>,
     /// When `group_by=api_key_id`, this field provides the API Key ID of the grouped costs result.
     pub api_key_id: Option<String>,
+    /// The unit of the `quantity` value. If no single supported unit applies to the result, this field is
+    /// `null`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub quantity_unit: Option<String>,
 }
 
 /// The monetary value in its associated currency.
@@ -243,4 +258,38 @@ pub struct CostsAmount {
     pub value: f64,
     /// Lowercase ISO-4217 currency e.g. "usd"
     pub currency: String,
+}
+
+/// The aggregated file search calls usage details of the specific time bucket.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct UsageFileSearchCallsResult {
+    /// The count of file search calls.
+    pub num_requests: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub api_key_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vector_store_id: Option<String>,
+}
+
+/// The aggregated web search calls usage details of the specific time bucket.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct UsageWebSearchCallsResult {
+    /// The count of model requests.
+    pub num_model_requests: i64,
+    /// The count of web search calls.
+    pub num_requests: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub api_key_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub context_level: Option<String>,
 }

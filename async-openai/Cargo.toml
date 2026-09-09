@@ -30,6 +30,8 @@ responses = ["response-types", "_api"]
 webhook = ["webhook-types", "dep:base64", "dep:thiserror", "dep:hmac", "dep:sha2", "dep:hex"]
 # start - Platform APIs
 audio = ["audio-types", "_api"]
+safety = ["safety-types", "_api"]
+content-provenance-checks = ["content-provenance-checks-types", "_api"]
 video = ["video-types", "_api"]
 image = ["image-types", "_api"]
 embedding = ["embedding-types", "_api"]
@@ -48,7 +50,6 @@ container = ["container-types", "_api"]
 skill = ["skill-types", "_api"]
 realtime = ["realtime-types", "_api", "dep:tokio-tungstenite"]
 chat-completion = ["chat-completion-types", "_api"]
-assistant = ["assistant-types", "_api", ]
 administration = ["administration-types", "_api"]
 completions = ["completion-types", "_api"]
 middleware = ["dep:tower", "_api"]
@@ -57,6 +58,8 @@ middleware = ["dep:tower", "_api"]
 response-types = ["dep:derive_builder"]
 webhook-types = ["dep:derive_builder"]
 audio-types = ["dep:derive_builder", "dep:bytes"]
+safety-types = []
+content-provenance-checks-types = ["dep:bytes"]
 video-types = ["dep:derive_builder", "dep:bytes"]
 image-types = ["dep:derive_builder", "dep:bytes"]
 embedding-types = ["dep:derive_builder"]
@@ -74,12 +77,13 @@ container-types = ["dep:derive_builder", "dep:bytes"]
 skill-types = ["dep:derive_builder", "dep:bytes"]
 realtime-types = ["dep:derive_builder", "dep:bytes", "response-types"]
 chat-completion-types = ["dep:derive_builder", "dep:bytes"]
-assistant-types = ["dep:derive_builder"]
 administration-types = ["dep:derive_builder"]
 completion-types = ["dep:derive_builder", "chat-completion-types" ]
 
 # Enable all types
 types = [
+    "safety-types",
+    "content-provenance-checks-types",
     "response-types",
     "webhook-types",
     "audio-types",
@@ -100,13 +104,14 @@ types = [
     "skill-types",
     "realtime-types",
     "chat-completion-types",
-    "assistant-types",
     "administration-types",
     "completion-types",
 ]
 
 # Enable all features
 full = [
+    "safety",
+    "content-provenance-checks",
     "responses",
     "webhook",
     "audio",
@@ -126,7 +131,6 @@ full = [
     "skill",
     "realtime",
     "chat-completion",
-    "assistant",
     "administration",
     "completions",
     "types",

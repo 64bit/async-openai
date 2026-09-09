@@ -19,6 +19,8 @@ pub struct AdminApiKey {
     pub last_used_at: Option<u64>,
     /// The owner of the API key.
     pub owner: AdminApiKeyOwner,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<u64>,
 }
 
 /// The newly created admin API key. The `value` field is only returned once, when the key is created.
@@ -40,6 +42,8 @@ pub struct AdminApiKeyCreateResponse {
     pub last_used_at: Option<u64>,
     /// The owner of the API key.
     pub owner: AdminApiKeyOwner,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<u64>,
 }
 
 /// Represents the owner of an admin API key.
@@ -83,6 +87,9 @@ pub struct ApiKeyList {
 pub struct CreateAdminApiKeyRequest {
     /// The name of the API key being created.
     pub name: String,
+    /// Lifetime in seconds, between 1 and 31536000.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub expires_in_seconds: Option<u32>,
 }
 
 /// Represents the response object for deleting an admin API key.

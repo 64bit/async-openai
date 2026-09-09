@@ -2,9 +2,10 @@ use crate::{
     config::Config,
     error::OpenAIError,
     types::admin::project_service_accounts::{
-        ProjectServiceAccount, ProjectServiceAccountCreateRequest,
-        ProjectServiceAccountCreateResponse, ProjectServiceAccountDeleteResponse,
-        ProjectServiceAccountListResponse,
+        CreateProjectServiceAccountApiKeyBody, ProjectServiceAccount,
+        ProjectServiceAccountCreateRequest, ProjectServiceAccountCreateResponse,
+        ProjectServiceAccountDeleteResponse, ProjectServiceAccountListResponse,
+        ServiceAccountApiKeyBody, UpdateProjectServiceAccountBody,
     },
     Client, RequestOptions,
 };
@@ -96,5 +97,34 @@ impl<'c, C: Config> ProjectServiceAccounts<'c, C> {
                 &self.request_options,
             )
             .await
+    }
+
+    /// Updates a service account in the project.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn update(
+        &self,
+        service_account_id: &str,
+        request: UpdateProjectServiceAccountBody,
+    ) -> Result<ProjectServiceAccount, OpenAIError> {
+        self.client
+            .post(
+                &format!(
+                    "/organization/projects/{project_id}/service_accounts/{service_account_id}",
+                    project_id = self.project_id
+                ),
+                request,
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Creates an API key for a service account in the project.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn create_api_key(
+        &self,
+        service_account_id: &str,
+        request: CreateProjectServiceAccountApiKeyBody,
+    ) -> Result<ServiceAccountApiKeyBody, OpenAIError> {
+        self.client.post(&format!("/organization/projects/{project_id}/service_accounts/{service_account_id}/api_keys", project_id = self.project_id), request, &self.request_options).await
     }
 }

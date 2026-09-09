@@ -9,7 +9,7 @@ use crate::{
 
 /// Vector store file batches represent operations to add multiple files to a vector store.
 ///
-/// Related guide: [File Search](https://platform.openai.com/docs/assistants/tools/file-search)
+/// Related guide: [File Search](https://platform.openai.com/docs/guides/tools-file-search)
 pub struct VectorStoreFileBatches<'c, C: Config> {
     client: &'c Client<C>,
     pub vector_store_id: String,

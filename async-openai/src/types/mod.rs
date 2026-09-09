@@ -2,8 +2,6 @@
 //! These types are created from component schemas in the [OpenAPI spec](https://github.com/openai/openai-openapi)
 #[cfg(feature = "administration-types")]
 pub mod admin;
-#[cfg(feature = "assistant-types")]
-pub mod assistants;
 #[cfg(feature = "audio-types")]
 pub mod audio;
 #[cfg(feature = "batch-types")]
@@ -29,6 +27,7 @@ pub mod graders;
 #[cfg(feature = "image-types")]
 pub mod images;
 #[cfg(any(
+    feature = "content-provenance-checks-types",
     feature = "audio-types",
     feature = "file-types",
     feature = "upload-types",
@@ -65,18 +64,7 @@ pub mod moderations;
 pub mod realtime;
 #[cfg(feature = "response-types")]
 pub mod responses;
-#[cfg(any(
-    feature = "response-types",
-    feature = "video-types",
-    feature = "vectorstore-types",
-    feature = "chat-completion-types",
-    feature = "assistant-types",
-    feature = "batch-types",
-    feature = "audio-types",
-    feature = "realtime-types",
-    feature = "image-types"
-))]
-mod shared;
+pub(crate) mod shared;
 #[cfg(feature = "skill-types")]
 pub mod skills;
 #[cfg(feature = "_api")]
@@ -92,6 +80,7 @@ pub mod videos;
 pub mod webhooks;
 
 #[cfg(any(
+    feature = "content-provenance-checks-types",
     feature = "audio-types",
     feature = "file-types",
     feature = "upload-types",
@@ -147,3 +136,9 @@ impl From<derive_builder::UninitializedFieldError> for crate::error::OpenAIError
         crate::error::OpenAIError::InvalidArgument(value.to_string())
     }
 }
+
+#[cfg(feature = "safety-types")]
+pub mod safety;
+
+#[cfg(feature = "content-provenance-checks-types")]
+pub mod content_provenance_checks;

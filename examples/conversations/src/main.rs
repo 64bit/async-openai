@@ -116,6 +116,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("7. Deleting the conversation items...");
     for item in all_items.data {
         let item_id = match item {
+            ConversationItem::Program(v) => v.id,
+            ConversationItem::ProgramOutput(v) => v.id,
+            ConversationItem::AdditionalTools(v) => v.id,
+            ConversationItem::ConfigurationUpdate(v) => v.id,
             ConversationItem::Message(message) => message.id,
             ConversationItem::FunctionCall(function_tool_call) => function_tool_call.id,
             ConversationItem::FunctionCallOutput(function_tool_call_output) => {

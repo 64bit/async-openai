@@ -37,9 +37,9 @@ pub struct InviteProjectMembership {
 pub struct InviteRequest {
     pub email: String,
     pub role: OrganizationRole,
-    /// An array of projects to which membership is granted at the same time the
-    /// org invite is accepted. If omitted, the user will be invited to the
-    /// default project for compatibility with legacy behavior.
+    /// An array of projects to which membership is granted at the same time the org invite is accepted. If
+    /// omitted, the user will be invited to the default project for compatibility with legacy behavior. If
+    /// empty list is passed, the user will not be invited to any projects, including the default one.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub projects: Option<Vec<InviteProjectMembership>>,
 }

@@ -22,6 +22,7 @@ async fn analyze_image_url(client: &Client<OpenAIConfig>) -> Result<(), Box<dyn 
             content: vec![
                 "what is in this image? Along with count of objects in the image?".into(),
                 InputContent::InputImage(InputImageContent {
+                    prompt_cache_breakpoint: None,
                     detail: ImageDetail::Auto,
                     image_url: Some(image_url.to_string()),
                     file_id: None,

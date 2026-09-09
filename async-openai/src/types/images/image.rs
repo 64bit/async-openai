@@ -75,12 +75,24 @@ pub enum ImageResponseFormat {
 pub enum ImageModel {
     #[serde(rename = "gpt-image-2")]
     GptImage2,
+    #[serde(rename = "gpt-image-2-2026-04-21")]
+    GptImage2_2026_04_21,
+    #[serde(rename = "gpt-image-2.5-sunburst")]
+    GptImage2_5Sunburst,
+    #[serde(rename = "gpt-image-2.5-sunburst-2026-09-08")]
+    GptImage2_5Sunburst2026_09_08,
+    #[serde(rename = "gpt-image-2.5-flare")]
+    GptImage2_5Flare,
+    #[serde(rename = "gpt-image-2.5-flare-2026-09-08")]
+    GptImage2_5Flare2026_09_08,
     #[serde(rename = "gpt-image-1")]
     GptImage1,
     #[serde(rename = "gpt-image-1.5")]
     GptImage1dot5,
     #[serde(rename = "gpt-image-1-mini")]
     GptImage1Mini,
+    #[serde(rename = "chatgpt-image-latest")]
+    ChatGptImageLatest,
     #[default]
     #[serde(rename = "dall-e-2")]
     DallE2,
@@ -98,6 +110,8 @@ pub enum ImageQuality {
     High,
     Medium,
     Low,
+    XHigh,
+    Max,
     #[default]
     Auto,
 }
@@ -147,9 +161,9 @@ pub struct CreateImageRequest {
     /// the GPT image models, 1000 characters for `dall-e-2` and 4000 characters for `dall-e-3`.
     pub prompt: String,
 
-    /// The model to use for image generation. One of `dall-e-2`, `dall-e-3`, or the GPT image model
-    /// (`gpt-image-1`, `gpt-image-1-mini`, `gpt-image-1.5`). Defaults
-    /// to `dall-e-2` unless a parameter specific to the GPT image models is used.
+    /// The model to use for image generation. Supported models include `dall-e-2`,
+    /// `dall-e-3`, and the GPT image model family. Defaults to `dall-e-2` unless
+    /// a parameter specific to the GPT image models is used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<ImageModel>,
 
@@ -160,7 +174,7 @@ pub struct CreateImageRequest {
     /// The quality of the image that will be generated.
     ///
     /// - `auto` (default value) will automatically select the best quality for the given model.
-    /// - `high`, `medium` and `low` are supported for the GPT image models.
+    /// - `max`, `xhigh`, `high`, `medium`, and `low` are supported for compatible GPT image models.
     /// - `hd` and `standard` are supported for `dall-e-3`.
     /// - `standard` is the only option for `dall-e-2`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -216,12 +230,14 @@ pub struct CreateImageRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub moderation: Option<ImageModeration>,
 
-    /// Allows to set transparency for the background of the generated image(s).
-    /// This parameter is only supported for the GPT image models. Must be one of
-    /// `transparent`, `opaque` or `auto` (default value). When `auto` is used, the
-    /// model will automatically determine the best background for the image.
-    /// If `transparent`, the output format needs to support transparency, so it
-    /// should be set to either `png` (default value) or `webp`.
+    /// Set the background of the generated image(s). This parameter is only
+    /// supported for the GPT image models. Must be one of `transparent`, `opaque`,
+    /// or `auto` (default value). When `auto` is used, the model will automatically
+    /// determine the best background for the image.
+    ///
+    /// Transparent backgrounds are available for supported GPT Image models. For
+    /// `gpt-image-2` and `gpt-image-2-2026-04-21`, this support is in preview. When
+    /// using `transparent`, set the output format to `png` or `webp`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub background: Option<ImageBackground>,
 
@@ -299,9 +315,9 @@ pub struct ImagesResponse {
     pub background: Option<ImageResponseBackground>,
     /// The output format of the image generation. Either `png`, `webp`, or `jpeg`.
     pub output_format: Option<ImageOutputFormat>,
-    /// The size of the generated image. Either `1024x1024`, `1536x1024`, `1024x1536`.
+    /// The size of the generated image as a `WIDTHxHEIGHT` string.
     pub size: Option<ImageSize>,
-    /// The quality of the image generated. Either `low`, `medium`, or `high`.
+    /// The quality of the image generated. One of `low`, `medium`, `high`, `xhigh`, or `max`.
     pub quality: Option<ImageQuality>,
     /// For the GPT image models only, the token usage information for the image generation.
     pub usage: Option<ImageGenUsage>,
@@ -330,9 +346,9 @@ pub enum ImageEditInput {
 pub struct CreateImageEditRequest {
     /// The image(s) to edit. Must be a supported image file or an array of images.
     ///
-    /// For the GPT image models (the GPT image models, `gpt-image-1-mini`, and `gpt-image-1.5`), each image
-    /// should be a `png`, `webp`, or `jpg` file less
-    /// than 50MB. You can provide up to 16 images.
+    /// For the GPT image models, each image should be a `png`, `webp`, or `jpg`
+    /// file less than 50MB. You can provide up to 16 images.
+    /// `chatgpt-image-latest` follows the same input constraints as GPT image models.
     ///
     /// For `dall-e-2`, you can only provide one image, and it should be a square
     /// `png` file less than 4MB.
@@ -347,17 +363,18 @@ pub struct CreateImageEditRequest {
     /// first image. Must be a valid PNG file, less than 4MB, and have the same dimensions as `image`.
     pub mask: Option<ImageInput>,
 
-    /// Allows to set transparency for the background of the generated image(s).
-    /// This parameter is only supported for the GPT image models. Must be one of
-    /// `transparent`, `opaque` or `auto` (default value). When `auto` is used, the
-    /// model will automatically determine the best background for the image.
+    /// Set the background of the generated image(s). This parameter is only
+    /// supported for the GPT image models. Must be one of `transparent`, `opaque`,
+    /// or `auto` (default value). When `auto` is used, the model will automatically
+    /// determine the best background for the image.
     ///
-    /// If `transparent`, the output format needs to support transparency, so it
-    /// should be set to either `png` (default value) or `webp`.
+    /// Transparent backgrounds are available for supported GPT Image models. For
+    /// `gpt-image-2` and `gpt-image-2-2026-04-21`, this support is in preview. When
+    /// using `transparent`, set the output format to `png` or `webp`.
     pub background: Option<ImageBackground>,
 
-    /// The model to use for image generation. Only `dall-e-2` and the GPT image models are supported.
-    /// Defaults to `dall-e-2` unless a parameter specific to the GPT image models is used.
+    /// The model to use for image generation. Supports `dall-e-2`, the GPT image
+    /// model family, and `chatgpt-image-latest`. Defaults to `gpt-image-1.5`.
     pub model: Option<ImageModel>,
 
     /// The number of images to generate. Must be between 1 and 10.
@@ -414,8 +431,8 @@ pub struct CreateImageEditRequest {
     /// are generated if the full image is generated more quickly.
     pub partial_images: Option<u8>,
 
-    /// The quality of the image that will be generated. `high`, `medium` and `low` are only supported for
-    /// the GPT image models. `dall-e-2` only supports `standard` quality. Defaults to `auto`.
+    /// The quality of the image that will be generated. GPT image models support
+    /// quality levels through `max`; `dall-e-2` supports `standard`. Defaults to `auto`.
     pub quality: Option<ImageQuality>,
 }
 

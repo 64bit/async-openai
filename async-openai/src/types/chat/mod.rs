@@ -20,3 +20,8 @@ pub use crate::types::shared::PromptTokensDetails;
 pub use crate::types::shared::ReasoningEffort;
 pub use crate::types::shared::ResponseFormat;
 pub use crate::types::shared::ResponseFormatJsonSchema;
+pub use crate::types::shared::{
+    ModerationConfigParam, ModerationInputType, ModerationMode, ModerationParam,
+    ModerationPolicyParam, ModerationResultBody, PromptCacheModeEnum, PromptCacheOptionsParam,
+    PromptCacheTTLEnum,
+};

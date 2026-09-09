@@ -20,6 +20,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Create query parameters
     let query = UsageQueryParams {
+        line_items: None,
+        vector_store_ids: None,
+        context_levels: None,
         start_time,
         end_time: Some(now),
         bucket_width: None,

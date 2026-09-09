@@ -1,9 +1,11 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::admin::groups::PublicAssignOrganizationGroupRoleBody,
-    types::admin::roles::{DeletedRoleAssignmentResource, RoleListResource},
-    types::admin::users::UserRoleAssignment,
+    types::admin::{
+        groups::PublicAssignOrganizationGroupRoleBody,
+        roles::{AssignedRoleDetails, DeletedRoleAssignmentResource, RoleListResource},
+        users::UserRoleAssignment,
+    },
     Client, RequestOptions,
 };
 
@@ -64,6 +66,21 @@ impl<'c, C: Config> ProjectUserRoles<'c, C> {
                     self.project_id, self.user_id, role_id
                 )
                 .as_str(),
+                &self.request_options,
+            )
+            .await
+    }
+
+    /// Retrieves a project role assigned to a user.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn retrieve(&self, role_id: &str) -> Result<AssignedRoleDetails, OpenAIError> {
+        self.client
+            .get(
+                &format!(
+                    "/projects/{project_id}/users/{user_id}/roles/{role_id}",
+                    project_id = self.project_id,
+                    user_id = self.user_id
+                ),
                 &self.request_options,
             )
             .await

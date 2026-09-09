@@ -23,10 +23,10 @@ pub struct AudioTranscription {
     /// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) (e.g. `en`) format will improve accuracy and latency.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub language: Option<String>,
-    /// The model to use for transcription. Current options are `whisper-1`,
-    /// `gpt-4o-mini-transcribe`, `gpt-4o-mini-transcribe-2025-12-15`, `gpt-4o-transcribe`,
-    /// `gpt-4o-transcribe-diarize`, and `gpt-realtime-whisper`.
-    /// Use `gpt-4o-transcribe-diarize` when you need diarization with speaker labels.
+    /// The model to use for transcription. Current options are `whisper-1`, `gpt-transcribe`, `gpt-live-
+    /// transcribe`, `gpt-4o-mini-transcribe`, `gpt-4o-mini-transcribe-2025-12-15`, `gpt-4o-transcribe`,
+    /// `gpt-4o-transcribe-diarize`, and `gpt-realtime-whisper`. Use `gpt-4o-transcribe-diarize` when you
+    /// need diarization with speaker labels.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
     /// An optional text to guide the model's style or continue a previous audio segment.
@@ -41,6 +41,16 @@ pub struct AudioTranscription {
     /// Only supported with `gpt-realtime-whisper` in GA Realtime sessions.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delay: Option<AudioTranscriptionDelay>,
+    /// Possible languages of the input audio, in
+    /// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format. Supported by `gpt-
+    /// transcribe` and `gpt-live-transcribe`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub languages: Option<Vec<String>>,
+
+    /// Words or phrases to guide transcription of the input audio. Supported by `gpt-transcribe` and `gpt-
+    /// live-transcribe`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub keywords: Option<Vec<String>>,
 }
 
 /// Configuration of the transcription model returned by the server.
@@ -49,12 +59,18 @@ pub struct AudioTranscriptionResponse {
     /// The language of the input audio.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub language: Option<String>,
-    /// The model used for transcription.
+    /// The model used for transcription. Current options are `whisper-1`, `gpt-transcribe`, `gpt-live-
+    /// transcribe`, `gpt-4o-mini-transcribe`, `gpt-4o-mini-transcribe-2025-12-15`, `gpt-4o-transcribe`,
+    /// `gpt-4o-transcribe-diarize`, and `gpt-realtime-whisper`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
     /// The prompt configured for input audio transcription, when present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt: Option<String>,
+    /// The possible input audio languages configured for transcription, in
+    /// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub languages: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -351,7 +367,7 @@ pub enum Session {
     RealtimeSession(Box<RealtimeSession>),
     /// The type of session to create. Always `transcription` for transcription sessions.
     #[serde(rename = "transcription")]
-    RealtimeTranscriptionSession(RealtimeTranscriptionSession),
+    RealtimeTranscriptionSession(Box<RealtimeTranscriptionSession>),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

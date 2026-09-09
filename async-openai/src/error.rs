@@ -2,6 +2,10 @@
 
 use serde::{Deserialize, Serialize};
 
+pub use crate::types::shared::{
+    MisalignmentErrorDetailsResource, MisalignmentErrorType, MisalignmentSteer,
+};
+
 #[cfg(feature = "_api")]
 #[derive(Debug, thiserror::Error)]
 pub enum OpenAIError {
@@ -81,6 +85,8 @@ pub struct ApiError {
     pub r#type: Option<String>,
     pub param: Option<String>,
     pub code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub misalignment: Option<Box<MisalignmentErrorDetailsResource>>,
 }
 
 impl std::fmt::Display for ApiError {

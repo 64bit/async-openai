@@ -115,6 +115,9 @@ pub struct AssignedRoleDetails {
     /// Arbitrary metadata stored on the role.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<serde_json::Value>,
+    /// Principals from which the role assignment is inherited, when available.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub assignment_sources: Option<Vec<AssignedRoleDetailsAssignmentSourcesItem>>,
 }
 
 /// Paginated list of roles assigned to a principal.
@@ -137,4 +140,10 @@ pub struct DeletedRoleAssignmentResource {
     pub object: String,
     /// Whether the assignment was removed.
     pub deleted: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AssignedRoleDetailsAssignmentSourcesItem {
+    pub principal_id: String,
+    pub principal_type: String,
 }

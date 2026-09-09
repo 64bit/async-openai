@@ -49,11 +49,17 @@ impl Display for ImageModel {
             "{}",
             match self {
                 Self::GptImage2 => "gpt-image-2",
+                Self::GptImage2_2026_04_21 => "gpt-image-2-2026-04-21",
+                Self::GptImage2_5Sunburst => "gpt-image-2.5-sunburst",
+                Self::GptImage2_5Sunburst2026_09_08 => "gpt-image-2.5-sunburst-2026-09-08",
+                Self::GptImage2_5Flare => "gpt-image-2.5-flare",
+                Self::GptImage2_5Flare2026_09_08 => "gpt-image-2.5-flare-2026-09-08",
                 Self::DallE2 => "dall-e-2",
                 Self::DallE3 => "dall-e-3",
                 Self::GptImage1 => "gpt-image-1",
                 Self::GptImage1dot5 => "gpt-image-1.5",
                 Self::GptImage1Mini => "gpt-image-1-mini",
+                Self::ChatGptImageLatest => "chatgpt-image-latest",
                 Self::Other(other) => other,
             }
         )
@@ -110,6 +116,8 @@ impl Display for ImageQuality {
                 Self::Low => "low",
                 Self::Medium => "medium",
                 Self::High => "high",
+                Self::XHigh => "xhigh",
+                Self::Max => "max",
                 Self::Auto => "auto",
                 Self::Standard => "standard",
                 Self::HD => "hd",

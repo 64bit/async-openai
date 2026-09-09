@@ -37,4 +37,7 @@ pub struct ListAuditLogsQuery {
     /// A cursor for use in pagination. `before` is an object ID that defines your place in the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub before: Option<String>,
+    /// When true, return only tenant-level audit logs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tenant_only: Option<bool>,
 }

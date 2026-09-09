@@ -32,7 +32,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
 
     if let Some(response_id) = response_id {
-        writeln!(lock, "\nRetrieving {} with streaming...\n", &response_id).unwrap();
+        writeln!(lock, "\nRetrieving {} with streaming...\n", response_id).unwrap();
         let mut retrieve_stream = client.responses().retrieve_stream(&response_id).await?;
         while let Some(result) = retrieve_stream.next().await {
             if let Ok(ResponseStreamEvent::ResponseOutputTextDelta(delta)) = result {

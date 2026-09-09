@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -12,6 +14,7 @@ use bytes::Bytes;
 
 /// Video generation with Sora
 /// Related guide: [Video generation](https://platform.openai.com/docs/guides/video-generation)
+#[deprecated(note = "The Videos API is deprecated.")]
 pub struct Videos<'c, C: Config> {
     client: &'c Client<C>,
     pub(crate) request_options: RequestOptions,

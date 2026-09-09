@@ -224,8 +224,6 @@ pub(crate) use async_openai_macros::byot_passthrough as byot;
 
 #[cfg(feature = "administration")]
 mod admin;
-#[cfg(feature = "assistant")]
-mod assistants;
 #[cfg(feature = "audio")]
 mod audio;
 #[cfg(feature = "batch")]
@@ -283,6 +281,7 @@ pub mod types;
 #[cfg(feature = "upload")]
 mod uploads;
 #[cfg(any(
+    feature = "content-provenance-checks",
     feature = "audio",
     feature = "file",
     feature = "upload",
@@ -303,16 +302,12 @@ pub mod webhooks;
 #[cfg(feature = "administration")]
 pub use admin::{
     Admin, AdminAPIKeys, AuditLogs, Certificates, GroupRoles, GroupUsers, Groups, Invites,
-    ProjectAPIKeys, ProjectCertificates, ProjectGroupRoles, ProjectGroups, ProjectRateLimits,
-    ProjectRoles, ProjectServiceAccounts, ProjectUserRoles, ProjectUsers, Projects, Roles, Usage,
-    UserRoles, Users,
+    OrganizationDataRetentions, OrganizationSpendAlerts, OrganizationSpendLimit, ProjectAPIKeys,
+    ProjectCertificates, ProjectDataRetentions, ProjectGroupRoles, ProjectGroups,
+    ProjectHostedToolPermission, ProjectModelPermission, ProjectRateLimits, ProjectRoles,
+    ProjectServiceAccounts, ProjectSpendAlerts, ProjectSpendLimit, ProjectUserRoles, ProjectUsers,
+    Projects, Roles, Usage, UserRoles, Users,
 };
-#[cfg(feature = "assistant")]
-#[deprecated(
-    note = "Assistants API is deprecated and will be removed in August 2026. Use the Responses API."
-)]
-#[allow(deprecated)]
-pub use assistants::{Assistants, Messages, Runs, Steps, Threads};
 #[cfg(feature = "audio")]
 pub use audio::{Audio, Speech, Transcriptions, Translations};
 #[cfg(feature = "batch")]
@@ -354,4 +349,15 @@ pub use uploads::Uploads;
 #[cfg(feature = "vectorstore")]
 pub use vectorstores::{VectorStoreFileBatches, VectorStoreFiles, VectorStores};
 #[cfg(feature = "video")]
+#[allow(deprecated)]
 pub use video::Videos;
+
+#[cfg(feature = "safety")]
+mod safety;
+#[cfg(feature = "safety")]
+pub use safety::*;
+
+#[cfg(feature = "content-provenance-checks")]
+mod content_provenance_checks;
+#[cfg(feature = "content-provenance-checks")]
+pub use content_provenance_checks::ContentProvenanceChecks;

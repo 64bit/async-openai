@@ -42,6 +42,15 @@ pub struct UsageQueryParams {
     /// A cursor for use in pagination. Corresponding to the `next_page` field from the previous response.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<String>,
+    /// Return only costs for these line items.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub line_items: Option<Vec<String>>,
+    /// Return file-search usage for these vector stores.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vector_store_ids: Option<Vec<String>>,
+    /// Return web-search usage for these context levels: low, medium, or high.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub context_levels: Option<Vec<String>>,
 }
 
 /// Width of each time bucket in response.
@@ -66,4 +75,6 @@ pub enum UsageGroupBy {
     Model,
     Batch,
     ServiceTier,
+    VectorStoreId,
+    ContextLevel,
 }

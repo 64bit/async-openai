@@ -185,3 +185,32 @@ pub struct UserListResource {
     /// Cursor to fetch the next page of results, or `null` when no further users are available.
     pub next: Option<String>,
 }
+
+/// Details about a user returned from an organization group membership lookup.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct GroupMemberUser {
+    /// Identifier for the user.
+    pub id: String,
+    /// Display name of the user.
+    pub name: String,
+    /// Email address of the user, or `null` for users without an email.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email: Option<String>,
+    /// URL of the user's profile picture, if available.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub picture: Option<String>,
+    /// Whether the user is a service account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_service_account: Option<bool>,
+    /// The type of user.
+    pub user_type: GroupMemberUserUserType,
+}
+
+/// The type of user.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum GroupMemberUserUserType {
+    #[serde(rename = "user")]
+    User,
+    #[serde(rename = "tenant_user")]
+    TenantUser,
+}

@@ -229,13 +229,19 @@ impl From<ChatCompletionRequestMessageContentPartAudio>
 
 impl From<&str> for ChatCompletionRequestMessageContentPartText {
     fn from(value: &str) -> Self {
-        ChatCompletionRequestMessageContentPartText { text: value.into() }
+        ChatCompletionRequestMessageContentPartText {
+            prompt_cache_breakpoint: None,
+            text: value.into(),
+        }
     }
 }
 
 impl From<String> for ChatCompletionRequestMessageContentPartText {
     fn from(value: String) -> Self {
-        ChatCompletionRequestMessageContentPartText { text: value }
+        ChatCompletionRequestMessageContentPartText {
+            prompt_cache_breakpoint: None,
+            text: value,
+        }
     }
 }
 
@@ -397,6 +403,9 @@ impl From<ChatCompletionMessageCustomToolCall> for ChatCompletionMessageToolCall
 
 impl From<ImageUrl> for ChatCompletionRequestMessageContentPartImage {
     fn from(value: ImageUrl) -> Self {
-        ChatCompletionRequestMessageContentPartImage { image_url: value }
+        ChatCompletionRequestMessageContentPartImage {
+            prompt_cache_breakpoint: None,
+            image_url: value,
+        }
     }
 }
