@@ -4,7 +4,7 @@ use async_openai::types::responses::{
     EasyInputContent, ImageDetail, InputContent, InputItem, InputRole, Item, MessageItem,
     MessageType, OutputItem, ResponseStreamEvent, ResponseTextParam, Role,
     TextResponseFormatConfiguration, WebSearchApproximateLocation,
-    WebSearchApproximateLocationType, WebSearchToolCallStatus,
+    WebSearchApproximateLocationType, WebSearchCallStatus,
 };
 use serde_json::json;
 
@@ -83,7 +83,7 @@ fn response_output_item_added_web_search_call_without_action_deserializes() {
         ResponseStreamEvent::ResponseOutputItemAdded(event) => match event.item {
             OutputItem::WebSearchCall(call) => {
                 assert_eq!(call.id, "ws_123");
-                assert_eq!(call.status, WebSearchToolCallStatus::InProgress);
+                assert_eq!(call.status, WebSearchCallStatus::InProgress);
                 assert_eq!(call.action, None);
             }
             other => panic!("expected WebSearchCall, got {other:?}"),

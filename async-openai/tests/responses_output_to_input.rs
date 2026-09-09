@@ -1,4 +1,4 @@
-//! Round-trip tests for `From<OutputItem> for Item` / `InputItem`.
+//! Round-trip tests for `TryFrom<OutputItem> for Item` / `InputItem`.
 //!
 //! Reasoning models emit `Reasoning` items in `response.output` that the
 //! Responses API requires you to echo back into the next request's `input`
@@ -13,7 +13,8 @@ use async_openai::types::responses::{
     ApplyPatchCallOutputStatus, ApplyPatchCallStatus, ApplyPatchOperation, ApplyPatchToolCall,
     ApplyPatchToolCallOutput, ApplyPatchUpdateFileOperation, CompactionBody, FunctionCallOutput,
     FunctionCallOutputStatusEnum, FunctionToolCall, FunctionToolCallOutputResource, InputItem,
-    Item, OutputItem, ReasoningItem,
+    Item, OutputItem, Program, ProgramOutput, ProgramOutputItemStatus, ProgramOutputStatus,
+    ReasoningItem,
 };
 use serde_json::json;
 
@@ -32,7 +33,7 @@ fn reasoning_round_trips_to_item() {
     .expect("deserialize reasoning item");
 
     let output = OutputItem::Reasoning(reasoning.clone());
-    let as_item: Item = output.into();
+    let as_item: Item = output.into::<InputItem>().into();
     match as_item {
         Item::Reasoning(r) => {
             assert_eq!(r.id, reasoning.id);
@@ -54,6 +55,8 @@ fn reasoning_then_function_call_round_trip_for_input() {
     }))
     .unwrap();
     let function_call = FunctionToolCall {
+        r#async: None,
+        caller: None,
         arguments: r#"{"location":"Paris","units":"celsius"}"#.into(),
         call_id: "call_pair".into(),
         name: "get_weather".into(),
@@ -79,17 +82,20 @@ fn function_call_output_resource_drops_required_id_into_optional() {
     // the input-side `*ItemParam` has both as Option. Conversion should
     // wrap them in Some so an echoed-back item carries the same identity.
     let resource = FunctionToolCallOutputResource {
-        call_id: "call_42".into(),
+        caller: None,
+        name: None,
+        namespace: None,
+        call_id: Some("call_42".into()),
         output: FunctionCallOutput::Text("ok".into()),
         id: "fco_42".into(),
         status: FunctionCallOutputStatusEnum::Completed,
         created_by: Some("svc".into()),
     };
 
-    let item: Item = OutputItem::FunctionCallOutput(resource).into();
+    let item: Item = OutputItem::FunctionCallOutput(resource).try_into().unwrap();
     match item {
         Item::FunctionCallOutput(p) => {
-            assert_eq!(p.call_id, "call_42");
+            assert_eq!(p.call_id.as_deref(), Some("call_42"));
             assert_eq!(p.id.as_deref(), Some("fco_42"));
             assert!(p.status.is_some());
         }
@@ -100,6 +106,7 @@ fn function_call_output_resource_drops_required_id_into_optional() {
 #[test]
 fn apply_patch_call_status_folds_through() {
     let call = ApplyPatchToolCall {
+        caller: None,
         id: "apc_1".into(),
         call_id: "call_apc".into(),
         status: ApplyPatchCallStatus::Completed,
@@ -109,7 +116,7 @@ fn apply_patch_call_status_folds_through() {
         }),
         created_by: None,
     };
-    let item: Item = OutputItem::ApplyPatchCall(call).into();
+    let item: Item = OutputItem::ApplyPatchCall(call).try_into().unwrap();
     let Item::ApplyPatchCall(p) = item else {
         panic!("expected ApplyPatchCall");
     };
@@ -119,13 +126,14 @@ fn apply_patch_call_status_folds_through() {
 #[test]
 fn apply_patch_call_output_status_failed_folds_through() {
     let out = ApplyPatchToolCallOutput {
+        caller: None,
         id: "apco_1".into(),
         call_id: "call_apco".into(),
         status: ApplyPatchCallOutputStatus::Failed,
         output: Some("patch did not apply cleanly".into()),
         created_by: None,
     };
-    let item: Item = OutputItem::ApplyPatchCallOutput(out).into();
+    let item: Item = OutputItem::ApplyPatchCallOutput(out).try_into().unwrap();
     let Item::ApplyPatchCallOutput(p) = item else {
         panic!("expected ApplyPatchCallOutput");
     };
@@ -139,10 +147,48 @@ fn compaction_body_to_param() {
         encrypted_content: "encrypted-blob".into(),
         created_by: None,
     };
-    let item: Item = OutputItem::Compaction(body).into();
+    let item: Item = OutputItem::Compaction(body).try_into().unwrap();
     let Item::Compaction(p) = item else {
         panic!("expected Compaction");
     };
     assert_eq!(p.id.as_deref(), Some("cmp_1"));
     assert_eq!(p.encrypted_content, "encrypted-blob");
+}
+
+#[test]
+fn program_replay_preserves_metadata_in_input_item() {
+    let program = Program {
+        id: "program1".into(),
+        call_id: "call1".into(),
+        code: "1 + 1".into(),
+        fingerprint: "opaque-replay-data".into(),
+    };
+
+    let InputItem::Program(input) = InputItem::from(OutputItem::Program(program.clone())) else {
+        panic!("expected a program input item");
+    };
+    assert_eq!(input.id, program.id);
+    assert_eq!(input.call_id, program.call_id);
+    assert_eq!(input.code, program.code);
+    assert_eq!(input.fingerprint, program.fingerprint);
+}
+
+#[test]
+fn program_output_replay_preserves_result_and_status() {
+    let output = ProgramOutput {
+        id: "output1".into(),
+        call_id: "call1".into(),
+        result: "partial result".into(),
+        status: ProgramOutputStatus::Incomplete,
+    };
+
+    let InputItem::ProgramOutput(input) =
+        InputItem::from(OutputItem::ProgramOutput(output.clone()))
+    else {
+        panic!("expected a program output input item");
+    };
+    assert_eq!(input.id, output.id);
+    assert_eq!(input.call_id, output.call_id);
+    assert_eq!(input.result, output.result);
+    assert_eq!(input.status, ProgramOutputItemStatus::Incomplete);
 }
