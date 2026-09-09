@@ -46,8 +46,8 @@ pub struct ProjectCreateRequest {
     /// The friendly name of the project, this name appears in reports.
     pub name: String,
     /// Create the project with the specified data residency region. Your organization must have access to
-    /// Data residency functionality in order to use. See [data residency controls](https://platform.openai.com/docs/guides/your-
-    /// data#data-residency-controls) to review the functionality and limitations of setting this field.
+    /// Data residency functionality in order to use. See [data residency controls](https://platform.openai.com/docs/guides/your-data#data-residency-controls)
+    /// to review the functionality and limitations of setting this field.
     /// Deprecated: use `residency` instead. Do not provide both `geography` and `residency`.
     #[serde(skip_serializing_if = "Option::is_none")]
     #[deprecated(note = "Use residency instead.")]

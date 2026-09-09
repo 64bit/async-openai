@@ -1,15 +1,9 @@
-mod api;
-mod projects_;
+mod organization_spend_alerts_;
 
-pub use api::*;
-pub use projects_::*;
+pub use organization_spend_alerts_::*;
 
 pub use crate::types::shared::{
     CreateSpendAlertBody, CreateSpendAlertBodyCurrency, CreateSpendAlertBodyInterval,
     ListSpendAlertsQuery, ListSpendAlertsQueryArgs, SpendAlertNotificationChannel,
     SpendAlertNotificationChannelType, SpendAlertOrder,
-};
-
-pub use crate::types::shared::{
-    SpendLimitCurrency, SpendLimitEnforcement, SpendLimitEnforcementStatus, SpendLimitInterval,
 };
