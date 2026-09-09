@@ -335,7 +335,7 @@ mod test {
     }
 
     async fn dynamic_dispatch_compiles(client: &Client<Box<dyn Config>>) {
-        let _ = client.chat().create(CreateChatCompletionRequest {
+        drop(client.chat().create(CreateChatCompletionRequest {
             model: "gpt-4o".to_string(),
             messages: vec![ChatCompletionRequestMessage::User(
                 ChatCompletionRequestUserMessage {
@@ -344,7 +344,7 @@ mod test {
                 },
             )],
             ..Default::default()
-        });
+        }));
     }
 
     #[tokio::test]
@@ -355,10 +355,14 @@ mod test {
         let azure_client = Client::with_config(Box::new(azure_config.clone()) as Box<dyn Config>);
         let oai_client = Client::with_config(Box::new(openai_config.clone()) as Box<dyn Config>);
 
-        let _ = dynamic_dispatch_compiles(&azure_client).await;
-        let _ = dynamic_dispatch_compiles(&oai_client).await;
+        dynamic_dispatch_compiles(&azure_client).await;
+        dynamic_dispatch_compiles(&oai_client).await;
 
-        let _ = tokio::spawn(async move { dynamic_dispatch_compiles(&azure_client).await });
-        let _ = tokio::spawn(async move { dynamic_dispatch_compiles(&oai_client).await });
+        tokio::spawn(async move { dynamic_dispatch_compiles(&azure_client).await })
+            .await
+            .unwrap();
+        tokio::spawn(async move { dynamic_dispatch_compiles(&oai_client).await })
+            .await
+            .unwrap();
     }
 }

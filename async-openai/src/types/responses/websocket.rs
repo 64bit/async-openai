@@ -34,7 +34,7 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "type")]
 pub enum ResponsesClientEvent {
     #[serde(rename = "response.create")]
-    Create(ResponsesClientEventResponseCreate),
+    Create(Box<ResponsesClientEventResponseCreate>),
     #[serde(rename = "response.steer")]
     Steer(ResponseSteerEvent),
 }

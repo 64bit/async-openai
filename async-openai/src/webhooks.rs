@@ -205,7 +205,7 @@ mod tests {
         let webhook_id = "webhook_test";
         let secret = BASE64.encode(b"test_secret");
 
-        let result = Webhooks::verify_signature(body, &signature, &timestamp, webhook_id, &secret);
+        let result = Webhooks::verify_signature(body, signature, &timestamp, webhook_id, &secret);
         assert!(result.is_err());
         // Could be InvalidSignature or InvalidTimestampFormat
     }
