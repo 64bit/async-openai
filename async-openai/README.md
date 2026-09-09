@@ -34,7 +34,7 @@
 
 | What | APIs | Crate Feature Flags |
 |---|---|---|
-| **Responses API** | Responses, Conversations, Streaming events | `responses` |
+| **Responses API** | Responses, Conversations, Streaming events, Websocket Events | `responses` |
 | **Webhooks** | Webhook Events | `webhook` |
 | **Platform APIs** | Audio, Audio Streaming, Videos, Images, Image Streaming, Embeddings, Evals, Fine-tuning, Graders, Batch, Files, Uploads, Models, Moderations, Safety Alerts, Content Provenance Checks | `audio`, `video`, `image`, `embedding`, `evals`, `finetuning`, `grader`, `batch`, `file`, `upload`, `model`, `moderation`, `safety`, `content-provenance-checks` |
 | **Vector stores** | Vector stores, Vector store files, Vector store file batches | `vectorstore` |
@@ -43,7 +43,7 @@
 | **Skills** | Skills | `skill` |
 | **Realtime** | Realtime Calls, Client secrets, Client events, Server events | `realtime` |
 | **Chat Completions** | Chat Completions, Streaming | `chat-completion` |
-| **Administration** | Admin API Keys, Invites, Users, Groups, Roles, Role assignments, Projects, Project users, Project groups, Project service accounts, Project API keys, Project rate limits, Audit logs, Usage, Certificates | `administration` |
+| **Administration** | Admin API Keys, Audit Logs, Certificates, Data Retention, Groups, Invites, Projects, Roles, Spend Alerts, Spend Limits, Usage, Users; And their nested APIs | `administration` |
 | **Legacy** | Completions | `completions` |
 
 </details>
