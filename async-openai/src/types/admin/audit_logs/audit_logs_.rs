@@ -105,6 +105,198 @@ pub enum AuditLogEventType {
     UserUpdated,
     #[serde(rename = "user.deleted")]
     UserDeleted,
+    #[serde(rename = "workload_identity_provider.created")]
+    WorkloadIdentityProviderCreated,
+    #[serde(rename = "workload_identity_provider.updated")]
+    WorkloadIdentityProviderUpdated,
+    #[serde(rename = "workload_identity_provider.deleted")]
+    WorkloadIdentityProviderDeleted,
+    #[serde(rename = "workload_identity_provider_mapping.created")]
+    WorkloadIdentityProviderMappingCreated,
+    #[serde(rename = "workload_identity_provider_mapping.updated")]
+    WorkloadIdentityProviderMappingUpdated,
+    #[serde(rename = "workload_identity_provider_mapping.deleted")]
+    WorkloadIdentityProviderMappingDeleted,
+    #[serde(rename = "role.bound_to_resource")]
+    RoleBoundToResource,
+    #[serde(rename = "role.unbound_from_resource")]
+    RoleUnboundFromResource,
+    #[serde(rename = "tenant.metadata.updated")]
+    TenantMetadataUpdated,
+    #[serde(rename = "tenant.microsoft_entra_mapping.upserted")]
+    TenantMicrosoftEntraMappingUpserted,
+    #[serde(rename = "tenant.microsoft_entra_mapping.deleted")]
+    TenantMicrosoftEntraMappingDeleted,
+    #[serde(rename = "tenant.workload_identity.provider.created")]
+    TenantWorkloadIdentityProviderCreated,
+    #[serde(rename = "tenant.workload_identity.provider.updated")]
+    TenantWorkloadIdentityProviderUpdated,
+    #[serde(rename = "tenant.workload_identity.provider.archived")]
+    TenantWorkloadIdentityProviderArchived,
+    #[serde(rename = "tenant.workload_identity.mapping.created")]
+    TenantWorkloadIdentityMappingCreated,
+    #[serde(rename = "tenant.workload_identity.mapping.updated")]
+    TenantWorkloadIdentityMappingUpdated,
+    #[serde(rename = "tenant.workload_identity.mapping.archived")]
+    TenantWorkloadIdentityMappingArchived,
+    #[serde(rename = "tenant.workload_identity.binding.created")]
+    TenantWorkloadIdentityBindingCreated,
+    #[serde(rename = "tenant.workload_identity.principal.provisioned")]
+    TenantWorkloadIdentityPrincipalProvisioned,
+    #[serde(rename = "tenant.workload_identity.access_token.issued")]
+    TenantWorkloadIdentityAccessTokenIssued,
+    #[serde(rename = "tenant.admin_api_key.created")]
+    TenantAdminApiKeyCreated,
+    #[serde(rename = "tenant.admin_api_key.updated")]
+    TenantAdminApiKeyUpdated,
+    #[serde(rename = "tenant.admin_api_key.deleted")]
+    TenantAdminApiKeyDeleted,
+    #[serde(rename = "tenant.project_api_key.created")]
+    TenantProjectApiKeyCreated,
+    #[serde(rename = "tenant.trusted_access.business_verification.started")]
+    TenantTrustedAccessBusinessVerificationStarted,
+    #[serde(rename = "tenant.trusted_access.application.submitted")]
+    TenantTrustedAccessApplicationSubmitted,
+    #[serde(rename = "tenant.chatgpt_access_token.revoked")]
+    TenantChatgptAccessTokenRevoked,
+    #[serde(rename = "tenant.migration.completed")]
+    TenantMigrationCompleted,
+    #[serde(rename = "tenant.sso.migrated")]
+    TenantSsoMigrated,
+    #[serde(rename = "tenant.domains.migrated")]
+    TenantDomainsMigrated,
+    #[serde(rename = "tenant.sso_connection.created")]
+    TenantSsoConnectionCreated,
+    #[serde(rename = "tenant.sso_connection.updated")]
+    TenantSsoConnectionUpdated,
+    #[serde(rename = "tenant.sso_connection.deleted")]
+    TenantSsoConnectionDeleted,
+    #[serde(rename = "tenant.sso_connection.setup.started")]
+    TenantSsoConnectionSetupStarted,
+    #[serde(rename = "tenant.policy.created")]
+    TenantPolicyCreated,
+    #[serde(rename = "tenant.policy.updated")]
+    TenantPolicyUpdated,
+    #[serde(rename = "tenant.policy.deleted")]
+    TenantPolicyDeleted,
+    #[serde(rename = "tenant.policy.attached")]
+    TenantPolicyAttached,
+    #[serde(rename = "tenant.policy.detached")]
+    TenantPolicyDetached,
+    #[serde(rename = "tenant.principal_authentication_policy.resolved")]
+    TenantPrincipalAuthenticationPolicyResolved,
+    #[serde(rename = "tenant.scim.setup.started")]
+    TenantScimSetupStarted,
+    #[serde(rename = "tenant.scim.deletion.requested")]
+    TenantScimDeletionRequested,
+    #[serde(rename = "tenant.scim.directory.created")]
+    TenantScimDirectoryCreated,
+    #[serde(rename = "tenant.product_access_policy.updated")]
+    TenantProductAccessPolicyUpdated,
+    #[serde(rename = "tenant.resource_share_grant.created")]
+    TenantResourceShareGrantCreated,
+    #[serde(rename = "tenant.resource_share_grant.updated")]
+    TenantResourceShareGrantUpdated,
+    #[serde(rename = "tenant.resource_share_grant.accepted")]
+    TenantResourceShareGrantAccepted,
+    #[serde(rename = "tenant.resource_share_grant.declined")]
+    TenantResourceShareGrantDeclined,
+    #[serde(rename = "tenant.resource_share_grant.revoked")]
+    TenantResourceShareGrantRevoked,
+    #[serde(rename = "tenant.resource_share_grant.deleted")]
+    TenantResourceShareGrantDeleted,
+    #[serde(rename = "tenant.service_account.updated")]
+    TenantServiceAccountUpdated,
+    #[serde(rename = "tenant.service_account.deleted")]
+    TenantServiceAccountDeleted,
+    #[serde(rename = "tenant.service_account.token.revoked")]
+    TenantServiceAccountTokenRevoked,
+    #[serde(rename = "tenant.billing.overage_limit.updated")]
+    TenantBillingOverageLimitUpdated,
+    #[serde(rename = "tenant.billing.alerts.updated")]
+    TenantBillingAlertsUpdated,
+    #[serde(rename = "tenant.billing.info.updated")]
+    TenantBillingInfoUpdated,
+    #[serde(rename = "tenant.usage_limit.workspace.updated")]
+    TenantUsageLimitWorkspaceUpdated,
+    #[serde(rename = "tenant.usage_limit.group.updated")]
+    TenantUsageLimitGroupUpdated,
+    #[serde(rename = "tenant.usage_limit.user.updated")]
+    TenantUsageLimitUserUpdated,
+    #[serde(rename = "tenant.usage_limit.increase_request.updated")]
+    TenantUsageLimitIncreaseRequestUpdated,
+    #[serde(rename = "tenant.usage_limit.increase_request.resolved")]
+    TenantUsageLimitIncreaseRequestResolved,
+    #[serde(rename = "tenant.group.created")]
+    TenantGroupCreated,
+    #[serde(rename = "tenant.group.updated")]
+    TenantGroupUpdated,
+    #[serde(rename = "tenant.group.deleted")]
+    TenantGroupDeleted,
+    #[serde(rename = "tenant.group.member.added")]
+    TenantGroupMemberAdded,
+    #[serde(rename = "tenant.group.member.removed")]
+    TenantGroupMemberRemoved,
+    #[serde(rename = "tenant.migration_rollout.status.updated")]
+    TenantMigrationRolloutStatusUpdated,
+    #[serde(rename = "tenant.migration_rollout.tier.updated")]
+    TenantMigrationRolloutTierUpdated,
+    #[serde(rename = "tenant.role.metadata.updated")]
+    TenantRoleMetadataUpdated,
+    #[serde(rename = "tenant.custom_role.created")]
+    TenantCustomRoleCreated,
+    #[serde(rename = "tenant.custom_role.updated")]
+    TenantCustomRoleUpdated,
+    #[serde(rename = "tenant.custom_role.deleted")]
+    TenantCustomRoleDeleted,
+    #[serde(rename = "tenant.role_assignment.created")]
+    TenantRoleAssignmentCreated,
+    #[serde(rename = "tenant.role_assignment.deleted")]
+    TenantRoleAssignmentDeleted,
+    #[serde(rename = "tenant.resource_role_assignment.created")]
+    TenantResourceRoleAssignmentCreated,
+    #[serde(rename = "tenant.resource_role_assignment.deleted")]
+    TenantResourceRoleAssignmentDeleted,
+    #[serde(rename = "tenant.resource_access.updated")]
+    TenantResourceAccessUpdated,
+    #[serde(rename = "tenant.resource_access.deleted")]
+    TenantResourceAccessDeleted,
+    #[serde(rename = "tenant.ads_account.onboarding.redemption")]
+    TenantAdsAccountOnboardingRedemption,
+    #[serde(rename = "tenant.session_policy.created")]
+    TenantSessionPolicyCreated,
+    #[serde(rename = "tenant.session_policy.updated")]
+    TenantSessionPolicyUpdated,
+    #[serde(rename = "tenant.session_policy.deleted")]
+    TenantSessionPolicyDeleted,
+    #[serde(rename = "tenant.session_revocation.started")]
+    TenantSessionRevocationStarted,
+    #[serde(rename = "tenant.third_party_app_policy.updated")]
+    TenantThirdPartyAppPolicyUpdated,
+    #[serde(rename = "tenant.user.added")]
+    TenantUserAdded,
+    #[serde(rename = "tenant.user.updated")]
+    TenantUserUpdated,
+    #[serde(rename = "tenant.user.removed")]
+    TenantUserRemoved,
+    #[serde(rename = "tenant.user.looked_up")]
+    TenantUserLookedUp,
+    #[serde(rename = "tenant.user.invited")]
+    TenantUserInvited,
+    #[serde(rename = "tenant.membership.revoked")]
+    TenantMembershipRevoked,
+    #[serde(rename = "tenant.api_organization_invite.upserted")]
+    TenantApiOrganizationInviteUpserted,
+    #[serde(rename = "tenant.api_organization_invite.deleted")]
+    TenantApiOrganizationInviteDeleted,
+    #[serde(rename = "tenant.chatgpt_workspace_invite.upserted")]
+    TenantChatgptWorkspaceInviteUpserted,
+    #[serde(rename = "tenant.membership.accepted")]
+    TenantMembershipAccepted,
+    #[serde(rename = "tenant.membership.declined")]
+    TenantMembershipDeclined,
+    #[serde(rename = "tenant.workspace_invite_email_settings.updated")]
+    TenantWorkspaceInviteEmailSettingsUpdated,
 }
 
 /// Represents a list of audit logs.
@@ -254,6 +446,48 @@ pub struct AuditLog {
     /// The details for events with the type `user.deleted`.
     #[serde(rename = "user.deleted")]
     pub user_deleted: Option<AuditLogUserDeleted>,
+    /// The details for events with this `type`.
+    #[serde(rename = "role.bound_to_resource")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub role_bound_to_resource: Option<AuditLogRoleBoundToResource>,
+
+    /// The details for events with this `type`.
+    #[serde(rename = "role.unbound_from_resource")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub role_unbound_from_resource: Option<AuditLogRoleUnboundFromResource>,
+
+    /// The details for events with this `type`.
+    #[serde(rename = "workload_identity_provider.created")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workload_identity_provider_created: Option<AuditLogWorkloadIdentityProviderCreated>,
+
+    /// The details for events with this `type`.
+    #[serde(rename = "workload_identity_provider.updated")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workload_identity_provider_updated: Option<AuditLogWorkloadIdentityProviderUpdated>,
+
+    /// The details for events with this `type`.
+    #[serde(rename = "workload_identity_provider.deleted")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workload_identity_provider_deleted: Option<AuditLogWorkloadIdentityProviderDeleted>,
+
+    /// The details for events with this `type`.
+    #[serde(rename = "workload_identity_provider_mapping.created")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workload_identity_provider_mapping_created:
+        Option<AuditLogWorkloadIdentityProviderMappingCreated>,
+
+    /// The details for events with this `type`.
+    #[serde(rename = "workload_identity_provider_mapping.updated")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workload_identity_provider_mapping_updated:
+        Option<AuditLogWorkloadIdentityProviderMappingUpdated>,
+
+    /// The details for events with this `type`.
+    #[serde(rename = "workload_identity_provider_mapping.deleted")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workload_identity_provider_mapping_deleted:
+        Option<AuditLogWorkloadIdentityProviderMappingDeleted>,
 }
 
 /// The details for events with the type `api_key.created`.
@@ -493,4 +727,186 @@ pub struct AuditLogUserUpdatedChangesRequested {
 pub struct AuditLogUserDeleted {
     /// The user ID.
     pub id: String,
+}
+
+/// The details for events with this `type`.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AuditLogRoleBoundToResource {
+    /// The ID of the resource the role was bound to. ChatGPT workspace connector resources use
+    /// `<workspace_id>__<connector_id>`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// The ID of the role that was bound to the resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub role_id: Option<String>,
+    /// The ID of the resource the role was bound to.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resource_id: Option<String>,
+    /// The type of resource the role was bound to.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resource_type: Option<String>,
+    /// The permissions granted to the role for the resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub permissions: Option<Vec<String>>,
+    /// The workspace ID for a ChatGPT workspace connector resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workspace_id: Option<String>,
+    /// The connector ID for a ChatGPT workspace connector resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connector_id: Option<String>,
+    /// The connector display name for a ChatGPT workspace connector resource, or the connector ID when the
+    /// display name could not be resolved.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connector_name: Option<String>,
+    /// Whether the connector is enabled for the role.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+    /// The connector role mutation path that produced the event.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source: Option<AuditLogRoleBoundToResourceSource>,
+}
+
+/// The connector role mutation path that produced the event.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum AuditLogRoleBoundToResourceSource {
+    #[serde(rename = "role_toggle")]
+    RoleToggle,
+    #[serde(rename = "role_connector_update")]
+    RoleConnectorUpdate,
+    #[serde(rename = "role_delete")]
+    RoleDelete,
+    #[serde(rename = "workspace_permissions")]
+    WorkspacePermissions,
+    #[serde(rename = "connector_publish")]
+    ConnectorPublish,
+}
+
+/// The details for events with this `type`.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AuditLogRoleUnboundFromResource {
+    /// The ID of the resource the role was unbound from. ChatGPT workspace connector resources use
+    /// `<workspace_id>__<connector_id>`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// The ID of the role that was unbound from the resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub role_id: Option<String>,
+    /// The ID of the resource the role was unbound from.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resource_id: Option<String>,
+    /// The type of resource the role was unbound from.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resource_type: Option<String>,
+    /// The permissions remaining for the role after the change.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub permissions: Option<Vec<String>>,
+    /// The workspace ID for a ChatGPT workspace connector resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workspace_id: Option<String>,
+    /// The connector ID for a ChatGPT workspace connector resource.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connector_id: Option<String>,
+    /// The connector display name for a ChatGPT workspace connector resource, or the connector ID when the
+    /// display name could not be resolved.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connector_name: Option<String>,
+    /// Whether the connector is enabled for the role.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+    /// The connector role mutation path that produced the event.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source: Option<AuditLogRoleUnboundFromResourceSource>,
+}
+
+/// The connector role mutation path that produced the event.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum AuditLogRoleUnboundFromResourceSource {
+    #[serde(rename = "role_toggle")]
+    RoleToggle,
+    #[serde(rename = "role_connector_update")]
+    RoleConnectorUpdate,
+    #[serde(rename = "role_delete")]
+    RoleDelete,
+    #[serde(rename = "workspace_permissions")]
+    WorkspacePermissions,
+    #[serde(rename = "connector_publish")]
+    ConnectorPublish,
+}
+
+/// The details for events with this `type`.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AuditLogWorkloadIdentityProviderCreated {
+    /// The workload identity provider ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// The payload used to create the workload identity provider.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<std::collections::HashMap<String, serde_json::Value>>,
+}
+
+/// The details for events with this `type`.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AuditLogWorkloadIdentityProviderDeleted {
+    /// The workload identity provider ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// The workload identity provider name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+}
+
+/// The details for events with this `type`.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AuditLogWorkloadIdentityProviderMappingCreated {
+    /// The workload identity provider mapping ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// The workload identity provider ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub identity_provider_id: Option<String>,
+    /// The payload used to create the workload identity provider mapping.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<std::collections::HashMap<String, serde_json::Value>>,
+}
+
+/// The details for events with this `type`.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AuditLogWorkloadIdentityProviderMappingDeleted {
+    /// The workload identity provider mapping ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// The workload identity provider ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub identity_provider_id: Option<String>,
+    /// The project ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<String>,
+    /// The mapped service account ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub service_account_id: Option<String>,
+}
+
+/// The details for events with this `type`.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AuditLogWorkloadIdentityProviderMappingUpdated {
+    /// The workload identity provider mapping ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// The workload identity provider ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub identity_provider_id: Option<String>,
+    /// The payload used to update the workload identity provider mapping.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub changes_requested: Option<std::collections::HashMap<String, serde_json::Value>>,
+}
+
+/// The details for events with this `type`.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AuditLogWorkloadIdentityProviderUpdated {
+    /// The workload identity provider ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// The payload used to update the workload identity provider.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub changes_requested: Option<std::collections::HashMap<String, serde_json::Value>>,
 }
