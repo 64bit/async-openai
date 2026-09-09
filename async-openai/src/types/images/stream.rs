@@ -11,7 +11,7 @@ pub struct ImageGenPartialImageEvent {
     pub b64_json: String,
     /// The Unix timestamp when the event was created.
     pub created_at: u64,
-    /// The size of the requested image.
+    /// The image dimensions as a `WIDTHxHEIGHT` string, for example `1536x864`.
     pub size: ImageSize,
     /// The quality setting for the requested image.
     pub quality: ImageQuality,
@@ -30,7 +30,7 @@ pub struct ImageGenCompletedEvent {
     pub b64_json: String,
     /// The Unix timestamp when the event was created.
     pub created_at: u64,
-    /// The size of the generated image.
+    /// The image dimensions as a `WIDTHxHEIGHT` string, for example `1536x864`.
     pub size: ImageSize,
     /// The quality setting for the generated image.
     pub quality: ImageQuality,
@@ -60,7 +60,7 @@ pub struct ImageEditPartialImageEvent {
     pub b64_json: String,
     /// The Unix timestamp when the event was created.
     pub created_at: u64,
-    /// The size of the requested edited image.
+    /// The image dimensions as a `WIDTHxHEIGHT` string, for example `1536x864`.
     pub size: ImageSize,
     /// The quality setting for the requested edited image.
     pub quality: ImageQuality,
@@ -79,7 +79,7 @@ pub struct ImageEditCompletedEvent {
     pub b64_json: String,
     /// The Unix timestamp when the event was created.
     pub created_at: u64,
-    /// The size of the edited image.
+    /// The image dimensions as a `WIDTHxHEIGHT` string, for example `1536x864`.
     pub size: ImageSize,
     /// The quality setting for the edited image.
     pub quality: ImageQuality,
