@@ -216,7 +216,9 @@ pub struct WebhookRealtimeCallData {
     /// The unique ID of this call.
     pub call_id: String,
 
-    /// Headers from the SIP Invite.
+    /// Headers from the SIP INVITE, excluding SIP authorization headers.
+    /// Retained names, values, repeated entries, and order are preserved.
+    /// Treat these values as untrusted call metadata.
     pub sip_headers: Vec<SipHeader>,
 }
 
@@ -327,7 +329,9 @@ pub struct WebhookLiveCallIncomingData {
     /// The `live_...` ID of the pending SIP session. Forward this value
     /// unchanged when accepting or rejecting the call through the Live API.
     pub session_id: String,
-    /// Headers from the SIP Invite.
+    /// Headers from the SIP INVITE, excluding SIP authorization headers.
+    /// Retained names, values, repeated entries, and order are preserved.
+    /// Treat these values as untrusted call metadata.
     pub sip_headers: Vec<WebhookLiveCallIncomingDataSipHeadersItem>,
 }
 
