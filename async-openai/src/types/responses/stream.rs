@@ -9,6 +9,18 @@ use crate::types::responses::{
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type")]
 pub enum ResponseStreamEvent {
+    /// Emitted when there is a partial audio response.
+    #[serde(rename = "response.audio.delta")]
+    ResponseAudioDelta(ResponseAudioDeltaEvent),
+    /// Emitted when the audio response is complete.
+    #[serde(rename = "response.audio.done")]
+    ResponseAudioDone(ResponseAudioDoneEvent),
+    /// Emitted when there is a partial transcript of audio.
+    #[serde(rename = "response.audio.transcript.delta")]
+    ResponseAudioTranscriptDelta(ResponseAudioTranscriptDeltaEvent),
+    /// Emitted when the full audio transcript is completed.
+    #[serde(rename = "response.audio.transcript.done")]
+    ResponseAudioTranscriptDone(ResponseAudioTranscriptDoneEvent),
     /// An event that is emitted when a response is created.
     #[serde(rename = "response.created")]
     ResponseCreated(ResponseCreatedEvent),
@@ -166,6 +178,44 @@ pub enum ResponseStreamEvent {
     ResponseShellCallOutputContentDelta(ResponseShellCallOutputContentDeltaStreamingEvent),
     #[serde(rename = "response.shell_call_output_content.done")]
     ResponseShellCallOutputContentDone(ResponseShellCallOutputContentDoneStreamingEvent),
+}
+
+/// Emitted when there is a partial audio response.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ResponseAudioDeltaEvent {
+    /// A sequence number for this chunk of the stream response.
+    pub sequence_number: u64,
+    /// A chunk of Base64 encoded response audio bytes.
+    pub delta: String,
+}
+
+/// Emitted when the audio response is complete.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ResponseAudioDoneEvent {
+    /// The sequence number of the delta.
+    pub sequence_number: u64,
+    /// The ID of the response associated with this event.
+    pub response_id: String,
+}
+
+/// Emitted when there is a partial transcript of audio.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ResponseAudioTranscriptDeltaEvent {
+    /// The partial transcript of the audio response.
+    pub delta: String,
+    /// The sequence number of this event.
+    pub sequence_number: u64,
+    /// The ID of the response associated with this event.
+    pub response_id: String,
+}
+
+/// Emitted when the full audio transcript is completed.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ResponseAudioTranscriptDoneEvent {
+    /// The sequence number of this event.
+    pub sequence_number: u64,
+    /// The ID of the response associated with this event.
+    pub response_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -675,6 +725,10 @@ macro_rules! impl_event_type {
 // Apply macro for each event struct type in this file.
 #[cfg(feature = "_api")]
 impl_event_type! {
+    ResponseAudioDeltaEvent => "response.audio.delta",
+    ResponseAudioDoneEvent => "response.audio.done",
+    ResponseAudioTranscriptDeltaEvent => "response.audio.transcript.delta",
+    ResponseAudioTranscriptDoneEvent => "response.audio.transcript.done",
     ResponseShellCallCommandAddedStreamingEvent => "response.shell_call_command.added",
     ResponseShellCallCommandDeltaStreamingEvent => "response.shell_call_command.delta",
     ResponseShellCallCommandDoneStreamingEvent => "response.shell_call_command.done",
@@ -735,6 +789,10 @@ impl_event_type! {
 impl crate::traits::EventType for ResponseStreamEvent {
     fn event_type(&self) -> &'static str {
         match self {
+            Self::ResponseAudioDelta(event) => event.event_type(),
+            Self::ResponseAudioDone(event) => event.event_type(),
+            Self::ResponseAudioTranscriptDelta(event) => event.event_type(),
+            Self::ResponseAudioTranscriptDone(event) => event.event_type(),
             Self::ResponseShellCallCommandAdded(event) => event.event_type(),
             Self::ResponseShellCallCommandDelta(event) => event.event_type(),
             Self::ResponseShellCallCommandDone(event) => event.event_type(),
