@@ -21,6 +21,7 @@ use crate::moderation::Moderations;
 #[cfg(feature = "upload")]
 use crate::uploads::Uploads;
 #[cfg(feature = "video")]
+#[allow(deprecated)]
 use crate::video::Videos;
 #[cfg(feature = "administration")]
 use crate::{
@@ -30,12 +31,6 @@ use crate::{
     admin::ProjectRateLimits, admin::ProjectRoles, admin::ProjectServiceAccounts,
     admin::ProjectUserRoles, admin::ProjectUsers, admin::Projects, admin::Roles, admin::Usage,
     admin::UserRoles, admin::Users,
-};
-#[cfg(feature = "assistant")]
-#[allow(deprecated)]
-use crate::{
-    assistants::Assistants, assistants::Messages, assistants::Runs, assistants::Steps,
-    assistants::Threads,
 };
 #[cfg(feature = "audio")]
 use crate::{audio::Audio, audio::Speech, audio::Transcriptions, audio::Translations};
@@ -77,8 +72,6 @@ macro_rules! impl_request_options_builder {
 
 #[cfg(feature = "administration")]
 impl_request_options_builder!(AdminAPIKeys);
-#[cfg(feature = "assistant")]
-impl_request_options_builder!(Assistants);
 #[cfg(feature = "audio")]
 impl_request_options_builder!(Audio);
 #[cfg(feature = "administration")]
@@ -127,8 +120,6 @@ impl_request_options_builder!(Groups);
 impl_request_options_builder!(Images);
 #[cfg(feature = "administration")]
 impl_request_options_builder!(Invites);
-#[cfg(feature = "assistant")]
-impl_request_options_builder!(Messages);
 #[cfg(feature = "model")]
 impl_request_options_builder!(Models);
 #[cfg(feature = "moderation")]
@@ -161,18 +152,12 @@ impl_request_options_builder!(Realtime);
 impl_request_options_builder!(RealtimeTranslations);
 #[cfg(feature = "responses")]
 impl_request_options_builder!(Responses);
-#[cfg(feature = "assistant")]
-impl_request_options_builder!(Runs);
 #[cfg(feature = "skill")]
 impl_request_options_builder!(SkillVersions);
 #[cfg(feature = "skill")]
 impl_request_options_builder!(Skills);
 #[cfg(feature = "audio")]
 impl_request_options_builder!(Speech);
-#[cfg(feature = "assistant")]
-impl_request_options_builder!(Steps);
-#[cfg(feature = "assistant")]
-impl_request_options_builder!(Threads);
 #[cfg(feature = "audio")]
 impl_request_options_builder!(Transcriptions);
 #[cfg(feature = "audio")]
@@ -193,3 +178,53 @@ impl_request_options_builder!(VectorStoreFiles);
 impl_request_options_builder!(VectorStores);
 #[cfg(feature = "video")]
 impl_request_options_builder!(Videos);
+
+#[cfg(feature = "administration")]
+use crate::OrganizationDataRetentions;
+#[cfg(feature = "administration")]
+impl_request_options_builder!(OrganizationDataRetentions);
+
+#[cfg(feature = "administration")]
+use crate::OrganizationSpendAlerts;
+#[cfg(feature = "administration")]
+impl_request_options_builder!(OrganizationSpendAlerts);
+
+#[cfg(feature = "administration")]
+use crate::OrganizationSpendLimit;
+#[cfg(feature = "administration")]
+impl_request_options_builder!(OrganizationSpendLimit);
+
+#[cfg(feature = "administration")]
+use crate::ProjectDataRetentions;
+#[cfg(feature = "administration")]
+impl_request_options_builder!(ProjectDataRetentions);
+
+#[cfg(feature = "administration")]
+use crate::ProjectSpendAlerts;
+#[cfg(feature = "administration")]
+impl_request_options_builder!(ProjectSpendAlerts);
+
+#[cfg(feature = "administration")]
+use crate::ProjectSpendLimit;
+#[cfg(feature = "administration")]
+impl_request_options_builder!(ProjectSpendLimit);
+
+#[cfg(feature = "administration")]
+use crate::ProjectHostedToolPermission;
+#[cfg(feature = "administration")]
+impl_request_options_builder!(ProjectHostedToolPermission);
+
+#[cfg(feature = "administration")]
+use crate::ProjectModelPermission;
+#[cfg(feature = "administration")]
+impl_request_options_builder!(ProjectModelPermission);
+
+#[cfg(feature = "safety")]
+use crate::SafetyAlerts;
+#[cfg(feature = "safety")]
+impl_request_options_builder!(SafetyAlerts);
+
+#[cfg(feature = "content-provenance-checks")]
+use crate::ContentProvenanceChecks;
+#[cfg(feature = "content-provenance-checks")]
+impl_request_options_builder!(ContentProvenanceChecks);
