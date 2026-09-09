@@ -48,6 +48,9 @@ async fn run_non_streaming() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let tools = vec![Tool::Function(FunctionTool {
+        allowed_callers: None,
+        r#async: None,
+        output_schema: None,
         defer_loading: None,
         name: "get_weather".to_string(),
         description: Some("Retrieves current weather for the given location".to_string()),
@@ -134,7 +137,10 @@ async fn run_non_streaming() -> Result<(), Box<dyn Error>> {
     // Add the function call output back to the conversation
     input_items.push(InputItem::Item(Item::FunctionCallOutput(
         FunctionCallOutputItemParam {
-            call_id: function_call_request.call_id.clone(),
+            caller: None,
+            name: None,
+            namespace: None,
+            call_id: Some(function_call_request.call_id.clone()),
             output: FunctionCallOutput::Text(function_result),
             id: None,
             status: None,
@@ -164,6 +170,9 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let tools = vec![Tool::Function(FunctionTool {
+        allowed_callers: None,
+        r#async: None,
+        output_schema: None,
         defer_loading: None,
         name: "get_weather".to_string(),
         description: Some("Retrieves current weather for the given location".to_string()),
@@ -259,6 +268,8 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
 
                             // Create the function call request
                             function_call_request = Some(FunctionToolCall {
+                                r#async: None,
+                                caller: None,
                                 namespace: None,
                                 name: name.clone(),
                                 arguments,
@@ -313,7 +324,10 @@ async fn run_streaming() -> Result<(), Box<dyn Error>> {
     // Add the function call output back to the conversation
     input_items.push(InputItem::Item(Item::FunctionCallOutput(
         FunctionCallOutputItemParam {
-            call_id: function_call_request.call_id.clone(),
+            caller: None,
+            name: None,
+            namespace: None,
+            call_id: Some(function_call_request.call_id.clone()),
             output: FunctionCallOutput::Text(function_result),
             id: None,
             status: None,

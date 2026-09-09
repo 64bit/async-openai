@@ -40,6 +40,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let tools = vec![Tool::Function(FunctionTool {
+        allowed_callers: None,
+        r#async: None,
+        output_schema: None,
         defer_loading: None,
         name: "get_weather".to_string(),
         description: Some("Retrieves current weather for the given location".to_string()),
@@ -108,7 +111,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // And then the function call's result.
     input_items.push(InputItem::Item(Item::FunctionCallOutput(
         FunctionCallOutputItemParam {
-            call_id: function_call.call_id.clone(),
+            call_id: Some(function_call.call_id.clone()),
+            caller: None,
+            name: None,
+            namespace: None,
             output: FunctionCallOutput::Text(function_result),
             id: None,
             status: None,

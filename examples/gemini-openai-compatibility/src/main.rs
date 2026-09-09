@@ -174,6 +174,7 @@ async fn image_understanding() -> Result<(), Box<dyn Error>> {
                 content: async_openai::types::chat::ChatCompletionRequestUserMessageContent::Array(
                     vec![ChatCompletionRequestUserMessageContentPart::ImageUrl(
                         async_openai::types::chat::ChatCompletionRequestMessageContentPartImage {
+                            prompt_cache_breakpoint: None,
                             image_url: ("data:image/jpg;base64,".to_string() + &image_base64)
                                 .into(),
                         },
@@ -245,6 +246,7 @@ async fn audio_understanding() -> Result<(), Box<dyn Error>> {
                 content: async_openai::types::chat::ChatCompletionRequestUserMessageContent::Array(
                     vec![ChatCompletionRequestUserMessageContentPart::InputAudio(
                         async_openai::types::chat::ChatCompletionRequestMessageContentPartAudio {
+                            prompt_cache_breakpoint: None,
                             input_audio: InputAudio {
                                 data: audio_base64,
                                 format: async_openai::types::chat::InputAudioFormat::Mp3,
