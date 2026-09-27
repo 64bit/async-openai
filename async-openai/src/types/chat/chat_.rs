@@ -1144,9 +1144,12 @@ pub struct FunctionCallStream {
 pub struct ChatCompletionMessageToolCallChunk {
     pub index: u32,
     /// The ID of the tool call.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// The type of the tool. Currently, only `function` is supported.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub r#type: Option<FunctionType>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub function: Option<FunctionCallStream>,
 }
 
