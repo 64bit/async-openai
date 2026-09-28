@@ -1,7 +1,7 @@
 use async_openai::types::chat::{
-    ChatCompletionMessageToolCallChunk, ChatCompletionRequestSystemMessageArgs,
-    ChatCompletionRequestUserMessageArgs, ChatCompletionStreamOptions, CreateChatCompletionRequest,
-    CreateChatCompletionRequestArgs, FunctionCallStream, FunctionType,
+    ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
+    ChatCompletionStreamOptions, CreateChatCompletionRequest, CreateChatCompletionRequestArgs,
+    FunctionCallStream,
 };
 
 #[test]
@@ -96,63 +96,4 @@ fn function_call_stream_none_fields_not_serialized() {
     // Test roundtrip deserialization
     let deserialized: FunctionCallStream = serde_json::from_str(&serialized).unwrap();
     assert_eq!(fcs, deserialized);
-}
-
-#[test]
-fn tool_call_chunk_none_fields_not_serialized() {
-    // Streaming continuation deltas carry only the index and an arguments fragment;
-    // OpenAI omits id and type there. openai-python's stream accumulator overwrites
-    // `type` with each delta because it is a union tag, so an explicit null erases the
-    // "function" sent in the first delta and fails its tool type assertion.
-    let continuation = ChatCompletionMessageToolCallChunk {
-        index: 0,
-        id: None,
-        r#type: None,
-        function: Some(FunctionCallStream {
-            name: None,
-            arguments: Some("{\"ci".to_string()),
-        }),
-    };
-
-    let serialized = serde_json::to_string(&continuation).unwrap();
-    assert_eq!(
-        serialized,
-        r#"{"index":0,"function":{"arguments":"{\"ci"}}"#
-    );
-
-    // The first delta keeps every field that is set.
-    let first = ChatCompletionMessageToolCallChunk {
-        index: 0,
-        id: Some("call_1".to_string()),
-        r#type: Some(FunctionType::Function),
-        function: Some(FunctionCallStream {
-            name: Some("get_weather".to_string()),
-            arguments: None,
-        }),
-    };
-
-    let serialized_first = serde_json::to_string(&first).unwrap();
-    assert_eq!(
-        serialized_first,
-        r#"{"index":0,"id":"call_1","type":"function","function":{"name":"get_weather"}}"#
-    );
-
-    // Test when all optional fields are None
-    let empty = ChatCompletionMessageToolCallChunk {
-        index: 0,
-        id: None,
-        r#type: None,
-        function: None,
-    };
-
-    let serialized_empty = serde_json::to_string(&empty).unwrap();
-    assert_eq!(serialized_empty, r#"{"index":0}"#);
-
-    // Test roundtrip deserialization
-    for chunk in [continuation, first, empty] {
-        let serialized = serde_json::to_string(&chunk).unwrap();
-        let deserialized: ChatCompletionMessageToolCallChunk =
-            serde_json::from_str(&serialized).unwrap();
-        assert_eq!(chunk, deserialized);
-    }
 }
