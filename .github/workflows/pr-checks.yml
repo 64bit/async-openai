@@ -81,6 +81,9 @@ jobs:
             administration-types,
             completion-types,
             types,
+            protocol-schema,
+            "protocol-schema,chat-completion-types",
+            "protocol-schema,completion-types",
             full,
           ]
 
@@ -120,6 +123,17 @@ jobs:
         env:
           RUSTFLAGS: "-D warnings"
         run: cargo build --no-default-features --features ${{ matrix.feature }},middleware --verbose
+
+  protocol-schema:
+    name: Protocol schema regressions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - run: cargo test -p async-openai --no-default-features --features protocol-schema,chat-completion-types,completion-types --test protocol_schema
 
   tls-features:
     name: TLS Feature - ${{ matrix.feature }}

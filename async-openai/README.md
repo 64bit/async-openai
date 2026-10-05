@@ -16,31 +16,6 @@
 
 ## Overview
 
-### Optional protocol schemas
-
-Enable `protocol-schema` together with `chat-completion-types` and/or
-`completion-types` to implement utoipa 5's `ToSchema` for those request,
-response, stream, and reachable nested types. This feature is off by default;
-it does not enable the HTTP client or change Serde behavior. Other API families
-do not yet have schema implementations.
-
-```rust,ignore
-#[derive(utoipa::OpenApi)]
-#[openapi(components(schemas(
-    async_openai::types::chat::CreateChatCompletionRequest,
-    async_openai::types::chat::CreateChatCompletionResponse,
-    async_openai::types::chat::CreateChatCompletionStreamResponse
-)))]
-struct Contract;
-// use utoipa::OpenApi;
-// let json = Contract::openapi().to_pretty_json()?;
-```
-
-Component names are prefixed with `async_openai` to avoid collisions with
-downstream wrapper types. Schemas describe these Rust types, not all server
-validation rules in the OpenAI API; constraints appearing only in API prose
-are not added as Rust deserialization restrictions.
-
 `async-openai` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi).
   - Requests are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
   - Ergonomic builder pattern for all request objects.
@@ -72,6 +47,31 @@ are not added as Rust deserialization restrictions.
 | **Legacy** | Completions | `completions` |
 
 </details>
+
+## Optional protocol schemas
+
+Enable `protocol-schema` together with `chat-completion-types` and/or
+`completion-types` to implement utoipa 5's `ToSchema` for those request,
+response, stream, and reachable nested types. This feature is off by default;
+it does not enable the HTTP client or change Serde behavior. Other API families
+do not yet have schema implementations.
+
+```rust,ignore
+#[derive(utoipa::OpenApi)]
+#[openapi(components(schemas(
+    async_openai::types::chat::CreateChatCompletionRequest,
+    async_openai::types::chat::CreateChatCompletionResponse,
+    async_openai::types::chat::CreateChatCompletionStreamResponse
+)))]
+struct Contract;
+// use utoipa::OpenApi;
+// let json = Contract::openapi().to_pretty_json()?;
+```
+
+Component names are prefixed with `async_openai` to avoid collisions with
+downstream wrapper types. Schemas describe these Rust types, not all server
+validation rules in the OpenAI API; constraints appearing only in API prose
+are not added as Rust deserialization restrictions.
 
 ## Usage
 
