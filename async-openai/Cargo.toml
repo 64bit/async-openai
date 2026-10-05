@@ -13,6 +13,8 @@ homepage = "https://github.com/64bit/async-openai"
 repository = "https://github.com/64bit/async-openai"
 
 [features]
+# Schema metadata for chat/completion types; does not enable the HTTP client.
+protocol-schema = ["dep:utoipa"]
 default = ["rustls"]
 # Enable rustls for TLS support (uses rustls-platform-verifier for roots in reqwest 0.13)
 rustls = ["dep:reqwest", "reqwest/rustls"]
@@ -160,6 +162,7 @@ _api = [
 
 
 [dependencies]
+utoipa = { version = "5.5.0", optional = true }
 # Core dependencies - always needed for types
 serde = { version = "1", features = ["derive", "rc"] }
 serde_json = "1"
@@ -203,9 +206,14 @@ tokio-tungstenite = { version = "0.28", optional = true, default-features = fals
 getrandom = { version = "0.3", features = ["wasm_js"] }
 
 [dev-dependencies]
+jsonschema = { version = "0.29", default-features = false }
 http = "1"
 tokio-test = "0.4"
 serde_json = "1"
+
+[[test]]
+name = "protocol_schema"
+required-features = ["protocol-schema", "chat-completion-types", "completion-types"]
 
 [[test]]
 name = "bring_your_own_type"

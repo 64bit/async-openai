@@ -1,4 +1,6 @@
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::shared::PromptCacheModeEnum))]
 pub enum PromptCacheModeEnum {
     #[serde(rename = "implicit")]
     Implicit,
@@ -14,6 +16,8 @@ pub enum PromptCacheModeEnum {
 /// defaults to `30m`, which is currently the only supported value. See the [prompt caching
 /// guide](/docs/guides/prompt-caching) for current details.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::shared::PromptCacheOptionsParam))]
 pub struct PromptCacheOptionsParam {
     /// The minimum lifetime applied to every implicit and explicit cache breakpoint written by the request.
     /// Defaults to `30m`, which is currently the only supported value. The backend may retain cache entries
@@ -30,6 +34,8 @@ pub struct PromptCacheOptionsParam {
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::shared::PromptCacheTTLEnum))]
 pub enum PromptCacheTTLEnum {
     #[serde(rename = "30m")]
     Value30m,

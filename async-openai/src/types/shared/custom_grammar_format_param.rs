@@ -5,6 +5,8 @@ use crate::error::OpenAIError;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
+#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::shared::GrammarSyntax))]
 pub enum GrammarSyntax {
     Lark,
     #[default]
@@ -13,6 +15,8 @@ pub enum GrammarSyntax {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default, Builder)]
 #[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::shared::CustomGrammarFormatParam))]
 pub struct CustomGrammarFormatParam {
     /// The grammar definition.
     pub definition: String,

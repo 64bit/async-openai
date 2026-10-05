@@ -1,6 +1,8 @@
 mod api;
 mod chat_;
 mod impls;
+#[cfg(feature = "protocol-schema")]
+mod schema;
 
 pub use api::*;
 pub use chat_::*;
