@@ -44,10 +44,37 @@ impl From<&str> for DecisionInput {
 }
 
 /// A supported item in decision evidence.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum DecisionInputItem {
     Message(DecisionInputMessage),
+}
+
+impl<'de> Deserialize<'de> for DecisionInputItem {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[derive(Deserialize, Default)]
+        #[serde(rename_all = "snake_case")]
+        enum DecisionInputItemType {
+            #[default]
+            Message,
+        }
+
+        #[derive(Deserialize)]
+        struct DecisionInputItemWire {
+            #[serde(rename = "type", default)]
+            r#type: DecisionInputItemType,
+            #[serde(flatten)]
+            message: DecisionInputMessage,
+        }
+
+        let item = DecisionInputItemWire::deserialize(deserializer)?;
+        match item.r#type {
+            DecisionInputItemType::Message => Ok(Self::Message(item.message)),
+        }
+    }
 }
 
 /// A user message containing text or inline images.
@@ -164,12 +191,14 @@ pub enum AnswerResource {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PredicateAnswer {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     pub probability: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ChoiceAnswer {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     pub choice: ChoiceValue,
     pub probabilities: Vec<ChoiceProbability>,
@@ -184,6 +213,7 @@ pub struct ChoiceProbability {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ScoreAnswer {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     pub score: f64,
     pub probabilities: Vec<ScoreProbability>,
@@ -199,27 +229,32 @@ pub struct ScoreProbability {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct RefusalAnswer {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct DecisionUsage {
-    pub input_tokens: i64,
+    pub input_tokens: u32,
+    #[serde(default)]
     pub input_tokens_details: DecisionInputTokenDetails,
-    pub output_tokens: i64,
+    pub output_tokens: u32,
+    #[serde(default)]
     pub output_tokens_details: DecisionOutputTokenDetails,
-    pub total_tokens: i64,
+    pub total_tokens: u32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(default)]
 pub struct DecisionInputTokenDetails {
-    pub cached_tokens: i64,
-    pub cache_write_tokens: i64,
+    pub cached_tokens: u32,
+    pub cache_write_tokens: u32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(default)]
 pub struct DecisionOutputTokenDetails {
-    pub reasoning_tokens: i64,
+    pub reasoning_tokens: u32,
 }
 
 #[cfg(test)]
@@ -243,5 +278,24 @@ mod tests {
                 .count(),
             1
         );
+    }
+
+    #[test]
+    fn decision_input_message_accepts_missing_or_explicit_type() {
+        let without_type = serde_json::json!({
+            "role": "user",
+            "content": [{"type": "input_text", "text": "I hate you"}]
+        });
+        let with_type = serde_json::json!({
+            "type": "message",
+            "role": "user",
+            "content": [{"type": "input_text", "text": "I hate you"}]
+        });
+
+        let implicit: DecisionInputItem = serde_json::from_value(without_type).unwrap();
+        let explicit: DecisionInputItem = serde_json::from_value(with_type.clone()).unwrap();
+
+        assert_eq!(implicit, explicit);
+        assert_eq!(serde_json::to_value(implicit).unwrap(), with_type);
     }
 }
