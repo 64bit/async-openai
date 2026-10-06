@@ -224,6 +224,8 @@ pub(crate) use async_openai_macros::byot_passthrough as byot;
 
 #[cfg(feature = "administration")]
 mod admin;
+#[cfg(feature = "agents")]
+mod agents;
 #[cfg(feature = "audio")]
 mod audio;
 #[cfg(feature = "batch")]
@@ -240,6 +242,8 @@ mod completion;
 pub mod config;
 #[cfg(feature = "container")]
 mod containers;
+#[cfg(feature = "decisions")]
+mod decisions;
 #[cfg(feature = "image")]
 mod download;
 #[cfg(feature = "embedding")]
@@ -257,6 +261,8 @@ mod fine_tuning;
 mod image;
 #[cfg(feature = "_api")]
 mod impls;
+#[cfg(feature = "live")]
+mod live;
 #[cfg(feature = "middleware")]
 pub mod middleware;
 #[cfg(feature = "model")]
@@ -291,6 +297,8 @@ mod uploads;
     feature = "skill"
 ))]
 mod util;
+#[cfg(feature = "vault")]
+mod vaults;
 #[cfg(feature = "vectorstore")]
 mod vectorstores;
 #[cfg(feature = "video")]
@@ -301,13 +309,15 @@ pub mod webhooks;
 // admin::* would be good - however its expanded here so that docs.rs shows the feature flags
 #[cfg(feature = "administration")]
 pub use admin::{
-    Admin, AdminAPIKeys, AuditLogs, Certificates, GroupRoles, GroupUsers, Groups, Invites,
-    OrganizationDataRetentions, OrganizationSpendAlerts, OrganizationSpendLimit, ProjectAPIKeys,
-    ProjectCertificates, ProjectDataRetentions, ProjectGroupRoles, ProjectGroups,
+    Admin, AdminAPIKeys, AuditLogs, Certificates, ExternalStorage, GroupRoles, GroupUsers, Groups,
+    Invites, OrganizationDataRetentions, OrganizationSpendAlerts, OrganizationSpendLimit,
+    ProjectAPIKeys, ProjectCertificates, ProjectDataRetentions, ProjectGroupRoles, ProjectGroups,
     ProjectHostedToolPermission, ProjectModelPermission, ProjectRateLimits, ProjectRoles,
     ProjectServiceAccounts, ProjectSpendAlerts, ProjectSpendLimit, ProjectUserRoles, ProjectUsers,
     Projects, Roles, Usage, UserRoles, Users,
 };
+#[cfg(feature = "agents")]
+pub use agents::{AgentEnvironmentTemplates, AgentEnvironments, AgentSessions, Agents};
 #[cfg(feature = "audio")]
 pub use audio::{Audio, Speech, Transcriptions, Translations};
 #[cfg(feature = "batch")]
@@ -322,6 +332,8 @@ pub use client::Client;
 pub use completion::Completions;
 #[cfg(feature = "container")]
 pub use containers::{ContainerFiles, Containers};
+#[cfg(feature = "decisions")]
+pub use decisions::Decisions;
 #[cfg(feature = "embedding")]
 pub use embedding::Embeddings;
 #[cfg(feature = "evals")]
@@ -332,6 +344,8 @@ pub use file::Files;
 pub use fine_tuning::FineTuning;
 #[cfg(feature = "image")]
 pub use image::Images;
+#[cfg(feature = "live")]
+pub use live::Live;
 #[cfg(feature = "model")]
 pub use model::Models;
 #[cfg(feature = "moderation")]
@@ -346,6 +360,8 @@ pub use responses::{ConversationItems, Conversations, Responses};
 pub use skills::{SkillVersions, Skills};
 #[cfg(feature = "upload")]
 pub use uploads::Uploads;
+#[cfg(feature = "vault")]
+pub use vaults::{VaultCredentials, Vaults};
 #[cfg(feature = "vectorstore")]
 pub use vectorstores::{VectorStoreFileBatches, VectorStoreFiles, VectorStores};
 #[cfg(feature = "video")]

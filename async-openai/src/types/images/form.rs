@@ -9,7 +9,9 @@ impl AsyncTryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateImageEditRequest) -> Result<Self, Self::Error> {
-        let mut form = reqwest::multipart::Form::new().text("prompt", request.prompt);
+        let mut form = reqwest::multipart::Form::new()
+            .text("prompt", request.prompt)
+            .text("model", request.model.to_string());
 
         match request.image {
             ImageEditInput::Image(image) => {
@@ -31,10 +33,6 @@ impl AsyncTryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
 
         if let Some(background) = request.background {
             form = form.text("background", background.to_string())
-        }
-
-        if let Some(model) = request.model {
-            form = form.text("model", model.to_string())
         }
 
         if let Some(n) = request.n {

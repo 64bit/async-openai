@@ -290,6 +290,8 @@ pub enum FineTuningJobStatus {
     Succeeded,
     Failed,
     Cancelled,
+    Pausing,
+    Paused,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
@@ -317,7 +319,7 @@ pub struct FineTuningJob {
 
     /// The hyperparameters used for the fine-tuning job. This value will only be returned when running
     /// `supervised` jobs.
-    pub hyperparameters: Hyperparameters,
+    pub hyperparameters: Option<Hyperparameters>,
 
     ///  The base model that is being fine-tuned.
     pub model: String,
@@ -348,7 +350,7 @@ pub struct FineTuningJob {
     pub integrations: Option<Vec<FineTuningIntegration>>, // maxItems: 5
 
     /// The seed used for the fine-tuning job.
-    pub seed: u32,
+    pub seed: Option<u32>,
 
     /// The Unix timestamp (in seconds) for when the fine-tuning job is estimated to finish. The value will be null if the fine-tuning job is not running.
     pub estimated_finish: Option<u32>,

@@ -27,6 +27,10 @@ pub enum AuditLogEventType {
     ExternalKeyRegistered,
     #[serde(rename = "external_key.removed")]
     ExternalKeyRemoved,
+    #[serde(rename = "external_storage.registered")]
+    ExternalStorageRegistered,
+    #[serde(rename = "external_storage.removed")]
+    ExternalStorageRemoved,
     #[serde(rename = "group.created")]
     GroupCreated,
     #[serde(rename = "group.updated")]
@@ -392,6 +396,14 @@ pub struct AuditLog {
     pub project: Option<AuditLogProject>,
     /// The actor who performed the audit logged action.
     pub actor: Option<AuditLogActor>,
+    /// Details for an external storage registration event.
+    #[serde(rename = "external_storage.registered")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub external_storage_registered: Option<AuditLogExternalStorageRegistered>,
+    /// Details for an external storage removal event.
+    #[serde(rename = "external_storage.removed")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub external_storage_removed: Option<AuditLogExternalStorageRemoved>,
     /// The details for events with the type `api_key.created`.
     #[serde(rename = "api_key.created")]
     pub api_key_created: Option<AuditLogApiKeyCreated>,
@@ -909,4 +921,21 @@ pub struct AuditLogWorkloadIdentityProviderUpdated {
     /// The payload used to update the workload identity provider.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub changes_requested: Option<std::collections::HashMap<String, serde_json::Value>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AuditLogExternalStorageRegistered {
+    pub id: Option<String>,
+    pub data: Option<AuditLogExternalStorageRegisteredData>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AuditLogExternalStorageRegisteredData {
+    pub geography: Option<String>,
+    pub provider: Option<crate::types::admin::external_storage::ExternalStorageProviderResponse>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AuditLogExternalStorageRemoved {
+    pub id: Option<String>,
 }

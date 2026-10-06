@@ -27,6 +27,7 @@ byot = ["dep:async-openai-macros"]
 
 # API feature flags - these enable both the API wrapper and types
 responses = ["response-types", "_api"]
+agents = ["agent-types", "_api"]
 webhook = ["webhook-types", "dep:base64", "dep:thiserror", "dep:hmac", "dep:sha2", "dep:hex"]
 # start - Platform APIs
 audio = ["audio-types", "_api"]
@@ -43,12 +44,15 @@ file = ["file-types", "_api"]
 upload = ["upload-types", "_api"]
 model = ["model-types", "_api"]
 moderation = ["moderation-types", "_api"]
+decisions = ["decision-types", "_api"]
 # end - Platform APIs
 vectorstore = ["vectorstore-types", "_api"]
+vault = ["vault-types", "_api"]
 chatkit = ["chatkit-types", "_api"]
 container = ["container-types", "_api"]
 skill = ["skill-types", "_api"]
 realtime = ["realtime-types", "_api", "dep:tokio-tungstenite"]
+live = ["live-types", "_api"]
 chat-completion = ["chat-completion-types", "_api"]
 administration = ["administration-types", "_api"]
 completions = ["completion-types", "_api"]
@@ -56,6 +60,7 @@ middleware = ["dep:tower", "_api"]
 
 # Type feature flags - these enable only the types
 response-types = ["dep:derive_builder"]
+agent-types = []
 webhook-types = ["dep:derive_builder"]
 audio-types = ["dep:derive_builder", "dep:bytes"]
 safety-types = []
@@ -71,11 +76,14 @@ file-types = ["dep:derive_builder", "dep:bytes"]
 upload-types = ["dep:derive_builder", "dep:bytes", "file-types"]
 model-types = ["dep:derive_builder"]
 moderation-types = ["dep:derive_builder"]
+decision-types = ["dep:derive_builder"]
 vectorstore-types = ["dep:derive_builder"]
+vault-types = ["dep:derive_builder"]
 chatkit-types = ["dep:derive_builder"]
 container-types = ["dep:derive_builder", "dep:bytes"]
 skill-types = ["dep:derive_builder", "dep:bytes"]
 realtime-types = ["dep:derive_builder", "dep:bytes", "response-types"]
+live-types = []
 chat-completion-types = ["dep:derive_builder", "dep:bytes"]
 administration-types = ["dep:derive_builder"]
 completion-types = ["dep:derive_builder", "chat-completion-types" ]
@@ -85,6 +93,7 @@ types = [
     "safety-types",
     "content-provenance-checks-types",
     "response-types",
+    "agent-types",
     "webhook-types",
     "audio-types",
     "video-types",
@@ -98,11 +107,14 @@ types = [
     "upload-types",
     "model-types",
     "moderation-types",
+    "decision-types",
     "vectorstore-types",
+    "vault-types",
     "chatkit-types",
     "container-types",
     "skill-types",
     "realtime-types",
+    "live-types",
     "chat-completion-types",
     "administration-types",
     "completion-types",
@@ -113,6 +125,7 @@ full = [
     "safety",
     "content-provenance-checks",
     "responses",
+    "agents",
     "webhook",
     "audio",
     "video",
@@ -125,11 +138,14 @@ full = [
     "upload",
     "model",
     "moderation",
+    "decisions",
     "vectorstore",
+    "vault",
     "chatkit",
     "container",
     "skill",
     "realtime",
+    "live",
     "chat-completion",
     "administration",
     "completions",

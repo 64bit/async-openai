@@ -14,7 +14,11 @@ mod function_call;
 mod function_name;
 #[cfg(feature = "chat-completion-types")]
 mod function_object;
-#[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
+#[cfg(any(
+    feature = "chat-completion-types",
+    feature = "response-types",
+    feature = "decision-types"
+))]
 mod image_detail;
 #[cfg(any(feature = "image-types", feature = "video-types"))]
 mod image_input;
@@ -51,7 +55,11 @@ pub use function_call::*;
 pub use function_name::*;
 #[cfg(feature = "chat-completion-types")]
 pub use function_object::*;
-#[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
+#[cfg(any(
+    feature = "chat-completion-types",
+    feature = "response-types",
+    feature = "decision-types"
+))]
 pub use image_detail::*;
 #[cfg(any(feature = "image-types", feature = "video-types"))]
 pub use image_input::*;

@@ -136,7 +136,8 @@ pub enum Graders {
 pub struct GraderMulti {
     /// The name of the grader.
     pub name: String,
-    pub graders: Graders,
+    /// Named graders whose outputs may be referenced by `calculate_output`.
+    pub graders: std::collections::HashMap<String, Graders>,
     /// A formula to calculate the output based on grader results.
     pub calculate_output: String,
 }

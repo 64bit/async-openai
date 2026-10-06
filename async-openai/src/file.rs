@@ -108,7 +108,7 @@ mod tests {
 
         let openai_file = client.files().create(request).await.unwrap();
 
-        assert_eq!(openai_file.bytes, 135);
+        assert_eq!(openai_file.bytes, Some(135));
         assert_eq!(openai_file.filename, "test.jsonl");
         //assert_eq!(openai_file.purpose, "fine-tune");
 
