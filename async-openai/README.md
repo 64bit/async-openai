@@ -48,31 +48,6 @@
 
 </details>
 
-## Optional protocol schemas
-
-Enable `protocol-schema` together with `chat-completion-types` and/or
-`completion-types` to implement utoipa 5's `ToSchema` for those request,
-response, stream, and reachable nested types. This feature is off by default;
-it does not enable the HTTP client or change Serde behavior. Other API families
-do not yet have schema implementations.
-
-```rust,ignore
-#[derive(utoipa::OpenApi)]
-#[openapi(components(schemas(
-    async_openai::types::chat::CreateChatCompletionRequest,
-    async_openai::types::chat::CreateChatCompletionResponse,
-    async_openai::types::chat::CreateChatCompletionStreamResponse
-)))]
-struct Contract;
-// use utoipa::OpenApi;
-// let json = Contract::openapi().to_pretty_json()?;
-```
-
-Component names are prefixed with `async_openai` to avoid collisions with
-downstream wrapper types. Schemas describe these Rust types, not all server
-validation rules in the OpenAI API; constraints appearing only in API prose
-are not added as Rust deserialization restrictions.
-
 ## Usage
 
 The library reads [API key](https://platform.openai.com/account/api-keys) from the environment variable `OPENAI_API_KEY`.
@@ -263,6 +238,13 @@ Support for webhook includes event types, signature verification, and building w
 ## Middleware
 
 Middleware is supported via Tower ecosystem, which can be enabled with `middleware` feature. See [middleware](https://github.com/64bit/async-openai/blob/main/async-openai/MIDDLEWARE.md) for more detail.
+
+## OpenAPI
+
+The `openapi` feature provides [utoipa](https://docs.rs/utoipa/5/utoipa/) schemas
+for Chat Completions and Completions types. Enable the corresponding type features
+(`chat-completion-types` and/or `completion-types`). Other API families are not yet
+covered. See the [OpenAPI example](https://docs.rs/async-openai/latest/async_openai/#openapi).
 
 ## Contributing
 

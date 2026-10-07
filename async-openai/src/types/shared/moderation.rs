@@ -1,14 +1,14 @@
 /// The moderation policy for the response input.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
-#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
-#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::shared::ModerationConfigParam))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::ModerationConfigParam))]
 pub struct ModerationConfigParam {
     pub mode: ModerationMode,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
-#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
-#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::shared::ModerationInputType))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::ModerationInputType))]
 pub enum ModerationInputType {
     #[serde(rename = "text")]
     Text,
@@ -17,8 +17,8 @@ pub enum ModerationInputType {
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
-#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
-#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::shared::ModerationMode))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::ModerationMode))]
 pub enum ModerationMode {
     #[serde(rename = "score")]
     Score,
@@ -28,8 +28,8 @@ pub enum ModerationMode {
 
 /// Configuration for running moderation on the input and output of this response.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
-#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
-#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::shared::ModerationParam))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::ModerationParam))]
 pub struct ModerationParam {
     /// The moderation model to use for moderated completions, e.g. 'omni-moderation-latest'.
     pub model: String,
@@ -39,8 +39,8 @@ pub struct ModerationParam {
 
 /// The policy to apply to moderated response input and output.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
-#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
-#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::shared::ModerationPolicyParam))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::ModerationPolicyParam))]
 pub struct ModerationPolicyParam {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub input: Option<ModerationConfigParam>,
@@ -50,8 +50,8 @@ pub struct ModerationPolicyParam {
 
 /// A moderation result produced for the response input or output.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
-#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
-#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::shared::ModerationResultBody))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::ModerationResultBody))]
 pub struct ModerationResultBody {
     /// The moderation model that produced this result.
     pub model: String,

@@ -6,8 +6,8 @@
 /// characters.
 #[derive(Debug, serde::Serialize, serde::Deserialize, Clone, PartialEq, Default)]
 #[serde(transparent)]
-#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
-#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::Metadata))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::Metadata))]
 pub struct Metadata(serde_json::Value);
 
 impl From<serde_json::Value> for Metadata {

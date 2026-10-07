@@ -60,8 +60,59 @@ fn complete_component_graph_has_no_dangling_references() {
     let doc = document();
     visit(&doc, &doc);
     for name in doc["components"]["schemas"].as_object().unwrap().keys() {
-        assert!(name.starts_with("async_openai."), "{name}");
+        let type_name = name.strip_prefix("async_openai.").expect(name);
+        assert!(!type_name.contains('.'), "internal module in {name}");
     }
+}
+
+#[test]
+fn component_names_are_flat_for_derived_and_manual_schemas() {
+    assert_eq!(
+        CreateChatCompletionRequest::name(),
+        "async_openai.CreateChatCompletionRequest"
+    );
+    assert_eq!(
+        CreateCompletionRequest::name(),
+        "async_openai.CreateCompletionRequest"
+    );
+    assert_eq!(ImageDetail::name(), "async_openai.ImageDetail");
+    assert_eq!(Prompt::name(), "async_openai.Prompt");
+    assert_eq!(
+        ChatCompletionToolChoiceOption::name(),
+        "async_openai.ChatCompletionToolChoiceOption"
+    );
+}
+
+#[test]
+fn upstream_components_coexist_with_same_named_downstream_types() {
+    #[derive(ToSchema)]
+    #[allow(dead_code)]
+    struct CreateChatCompletionRequest {
+        downstream_only: bool,
+    }
+
+    #[derive(OpenApi)]
+    #[openapi(components(schemas(
+        CreateChatCompletionRequest,
+        async_openai::types::chat::CreateChatCompletionRequest
+    )))]
+    struct Combined;
+
+    let doc = serde_json::to_value(Combined::openapi()).unwrap();
+    let schemas = &doc["components"]["schemas"];
+    assert!(schemas["CreateChatCompletionRequest"]["properties"]
+        .get("downstream_only")
+        .is_some());
+    assert!(
+        schemas["async_openai.CreateChatCompletionRequest"]["properties"]
+            .get("messages")
+            .is_some()
+    );
+    assert!(
+        schemas["async_openai.CreateChatCompletionRequest"]["properties"]
+            .get("downstream_only")
+            .is_none()
+    );
 }
 
 #[test]

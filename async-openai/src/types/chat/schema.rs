@@ -4,34 +4,14 @@
 //! `serde(untagged)` must not introduce a wrapper named after the Rust variant.
 
 use super::*;
-use std::borrow::Cow;
-use utoipa::openapi::{schema::AnyOfBuilder, schema::ObjectBuilder, RefOr, Schema, Type};
-use utoipa::{PartialSchema, ToSchema};
-
-macro_rules! schema {
-    ($ty:ty, $body:expr, [$($dependency:ty),* $(,)?]) => {
-        impl PartialSchema for $ty {
-            fn schema() -> RefOr<Schema> {
-                $body.into()
-            }
-        }
-        impl ToSchema for $ty {
-            fn name() -> Cow<'static, str> {
-                concat!("async_openai.chat.", stringify!($ty)).into()
-            }
-            fn schemas(schemas: &mut Vec<(String, RefOr<Schema>)>) {
-                $(<$dependency as ToSchema>::schemas(schemas);)*
-                // Some implementations only contain inline primitive schemas.
-                let _ = schemas;
-            }
-        }
-    };
-}
+use crate::types::shared::schema::schema;
+use utoipa::openapi::{schema::AnyOfBuilder, schema::ObjectBuilder, Type};
 
 // Empty arrays match several branches, so Serde's untagged union needs anyOf,
 // not oneOf. Do not add constraints from API prose that Serde does not enforce.
 schema!(
     Prompt,
+    "async_openai.Prompt",
     AnyOfBuilder::new()
         .item(String::schema())
         .item(Vec::<String>::schema())
@@ -42,6 +22,7 @@ schema!(
 
 schema!(
     ChatCompletionFunctionCall,
+    "async_openai.ChatCompletionFunctionCall",
     AnyOfBuilder::new()
         .item(
             ObjectBuilder::new()
@@ -54,7 +35,12 @@ schema!(
 
 // The fallback accepts any string, including the named voices. Enumerating the
 // names alongside a string branch in oneOf would incorrectly reject them.
-schema!(ChatCompletionAudioVoice, String::schema(), []);
+schema!(
+    ChatCompletionAudioVoice,
+    "async_openai.ChatCompletionAudioVoice",
+    String::schema(),
+    []
+);
 
 // Only the object alternatives carry the "type" discriminator.
 #[derive(utoipa::ToSchema)]
@@ -68,6 +54,7 @@ enum TaggedToolChoice {
 
 schema!(
     ChatCompletionToolChoiceOption,
+    "async_openai.ChatCompletionToolChoiceOption",
     AnyOfBuilder::new()
         .item(TaggedToolChoice::schema())
         .item(ToolChoiceOptions::schema()),

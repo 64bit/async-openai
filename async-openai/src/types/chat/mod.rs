@@ -1,7 +1,7 @@
 mod api;
 mod chat_;
 mod impls;
-#[cfg(feature = "protocol-schema")]
+#[cfg(feature = "openapi")]
 mod schema;
 
 pub use api::*;

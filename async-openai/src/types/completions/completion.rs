@@ -15,8 +15,8 @@ use crate::types::chat::{
 #[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
-#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
-#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::completions::CreateCompletionRequest))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::CreateCompletionRequest))]
 pub struct CreateCompletionRequest {
     /// ID of the model to use. You can use the [List models](https://platform.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://platform.openai.com/docs/models/overview) for descriptions of them.
     pub model: String,
@@ -119,8 +119,8 @@ pub struct CreateCompletionRequest {
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
-#[cfg_attr(feature = "protocol-schema", derive(utoipa::ToSchema))]
-#[cfg_attr(feature = "protocol-schema", schema(as = async_openai::completions::CreateCompletionResponse))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::CreateCompletionResponse))]
 pub struct CreateCompletionResponse {
     /// A unique identifier for the completion.
     pub id: String,

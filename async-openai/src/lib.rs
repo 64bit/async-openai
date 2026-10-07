@@ -204,6 +204,49 @@
 //! ## Examples
 //! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //!
+//! ## OpenAPI
+//!
+//! Enable `openapi` together with `chat-completion-types` and/or `completion-types`
+//! to use utoipa 5's `ToSchema` with those request, response, streaming chat, and
+//! nested types. Other API families are not yet covered.
+//!
+//! For example, compose an upstream request with your own fields:
+//!
+//! ```
+//! # #[cfg(all(feature = "openapi", feature = "chat-completion-types"))]
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! use async_openai::types::chat::CreateChatCompletionRequest;
+//! use serde::{Deserialize, Serialize};
+//! use utoipa::{OpenApi, ToSchema};
+//!
+//! #[derive(Serialize, Deserialize, ToSchema)]
+//! struct ExtendedChatRequest {
+//!     #[serde(flatten)]
+//!     request: CreateChatCompletionRequest,
+//!     application_tag: Option<String>,
+//! }
+//!
+//! #[derive(OpenApi)]
+//! #[openapi(components(schemas(ExtendedChatRequest)))]
+//! struct ApiDoc;
+//!
+//! let json = ApiDoc::openapi().to_pretty_json()?;
+//! # assert!(json.contains("async_openai.CreateChatCompletionRequest"));
+//! # Ok(())
+//! # }
+//! # #[cfg(not(all(feature = "openapi", feature = "chat-completion-types")))]
+//! # fn main() {}
+//! ```
+//!
+//! OpenAPI component names use a flat `async_openai.` prefix, for example
+//! `async_openai.ImageDetail`, to distinguish them from downstream types. These
+//! names are document identifiers, not Rust module paths; imports remain under
+//! `async_openai::types::chat` or `async_openai::types::completions`. Shared types
+//! keep one component name regardless of which public module re-exports them.
+//!
+//! The schemas describe the crate's wire types, not every OpenAI server validation
+//! rule. Schema generation does not change Serde behavior or enable the HTTP client.
+//!
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(all(feature = "_api", feature = "byot"))]
