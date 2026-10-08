@@ -244,8 +244,19 @@
 //! `async_openai::types::chat` or `async_openai::types::completions`. Shared types
 //! keep one component name regardless of which public module re-exports them.
 //!
-//! The schemas describe the crate's wire types, not every OpenAI server validation
-//! rule. Schema generation does not change Serde behavior or enable the HTTP client.
+//! Request schemas include documented OpenAI numeric ranges for sampling parameters,
+//! counts, and logit biases. These are schema constraints only: they do not add
+//! validation to Serde, builders, or HTTP requests. The schemas do not express every
+//! server rule, including model-dependent limits and relationships between fields.
+//!
+//! Downstream servers can use [`utoipa::Modify`](https://docs.rs/utoipa/5/utoipa/trait.Modify.html)
+//! or edit the generated document to replace or remove constraints. For example,
+//! changing the `n` property's `maximum` from 128 to 255 widens its documented range;
+//! clearing `minimum` and `maximum` removes the explicit bounds. This does not
+//! widen the Rust field's `u8` range. Edits to a shared component affect all its
+//! references; clone and rename it for endpoint-specific changes. Adding an
+//! `allOf` constraint can narrow an inherited range, but cannot widen it.
+//! Schema generation does not enable the HTTP client.
 //!
 #![cfg_attr(docsrs, feature(doc_cfg))]
 

@@ -935,12 +935,14 @@ pub struct CreateChatCompletionRequest {
     /// their existing frequency in the text so far, decreasing the model's
     /// likelihood to repeat the same line verbatim.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = -2, maximum = 2))]
     pub frequency_penalty: Option<f32>, // min: -2.0, max: 2.0, default: 0
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on
     /// whether they appear in the text so far, increasing the model's likelihood
     /// to talk about new topics.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = -2, maximum = 2))]
     pub presence_penalty: Option<f32>, // min: -2.0, max: 2.0, default 0
 
     /// This tool searches the web for relevant results to use in a response.
@@ -953,6 +955,7 @@ pub struct CreateChatCompletionRequest {
     /// In some cases, the number of returned tokens may be fewer than requested.
     /// `logprobs` must be set to `true` if this parameter is used.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = 0, maximum = 20))]
     pub top_logprobs: Option<u8>,
 
     /// An object specifying the format that the model must output.
@@ -1002,6 +1005,7 @@ pub struct CreateChatCompletionRequest {
     /// The exact effect will vary per model, but values between -1 and 1 should decrease or increase likelihood of selection;
     /// values like -100 or 100 should result in a ban or exclusive selection of the relevant token.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(schema_with = crate::types::shared::schema::logit_bias))]
     pub logit_bias: Option<HashMap<String, i8>>, // default: null
 
     /// Whether to return log probabilities of the output tokens or not. If true,
@@ -1021,6 +1025,7 @@ pub struct CreateChatCompletionRequest {
     /// charged based on the number of generated tokens across all of the choices. Keep `n` as `1` to
     /// minimize costs.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = 1, maximum = 128))]
     pub n: Option<u8>, // min:1, max: 128, default: 1
 
     /// Configuration for a [Predicted Output](https://platform.openai.com/docs/guides/predicted-outputs),
@@ -1059,6 +1064,7 @@ pub struct CreateChatCompletionRequest {
     ///
     /// We generally recommend altering this or `top_p` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = 0, maximum = 2))]
     pub temperature: Option<f32>, // min: 0, max: 2, default: 1,
 
     /// An alternative to sampling with temperature, called nucleus sampling,
@@ -1067,6 +1073,7 @@ pub struct CreateChatCompletionRequest {
     ///
     ///  We generally recommend altering this or `temperature` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = 0, maximum = 1))]
     pub top_p: Option<f32>, // min: 0, max: 1, default: 1
 
     /// A list of tools the model may call. You can provide either

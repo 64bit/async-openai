@@ -26,6 +26,29 @@ macro_rules! schema {
 
 pub(crate) use schema;
 
+/// OpenAI's numeric limits apply to each bias, not to the map itself.
+/// This schema metadata does not change the public Rust types or Serde behavior.
+pub(crate) fn logit_bias() -> utoipa::openapi::schema::Object {
+    use utoipa::openapi::schema::{ObjectBuilder, SchemaType, Type};
+
+    ObjectBuilder::new()
+        .schema_type(SchemaType::from_iter([Type::Object, Type::Null]))
+        // schema_with replaces the whole property, including its description.
+        .description(Some(
+            "Map token IDs to integer bias values from -100 to 100. The bias is added \
+             to the logits before sampling. Values near zero slightly change token \
+             likelihood; -100 and 100 should result in a ban or exclusive selection.",
+        ))
+        .property_names(Some(ObjectBuilder::new().schema_type(Type::String)))
+        .additional_properties(Some(
+            ObjectBuilder::new()
+                .schema_type(Type::Integer)
+                .minimum(Some(-100))
+                .maximum(Some(100)),
+        ))
+        .build()
+}
+
 #[cfg(test)]
 mod tests {
     struct Example;

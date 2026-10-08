@@ -200,3 +200,190 @@ fn response_and_stream_schemas_accept_serialized_payloads() {
         "choices":[{"index":0,"text":"hi","finish_reason":"stop","logprobs":null}]
     })]);
 }
+
+#[test]
+fn documented_numeric_limits_are_schema_only() {
+    let common = [
+        ("n", 1, 128, true),
+        ("temperature", 0, 2, false),
+        ("top_p", 0, 1, false),
+        ("frequency_penalty", -2, 2, false),
+        ("presence_penalty", -2, 2, false),
+    ];
+    for chat in [true, false] {
+        let (name, base, extra) = if chat {
+            (
+                CreateChatCompletionRequest::name(),
+                json!({"model":"test","messages":[]}),
+                vec![("top_logprobs", 0, 20, true)],
+            )
+        } else {
+            (
+                CreateCompletionRequest::name(),
+                json!({"model":"test","prompt":"hi"}),
+                vec![("logprobs", 0, 5, true), ("best_of", 0, 20, true)],
+            )
+        };
+        let mut doc = document();
+        doc["$ref"] = json!(format!("#/components/schemas/{name}"));
+        let schema = jsonschema::validator_for(&doc).unwrap();
+        assert!(
+            schema.is_valid(&base),
+            "optional fields must remain optional"
+        );
+        for (field, min, max, integer) in common.into_iter().chain(extra) {
+            let property = &doc["components"]["schemas"][name.as_ref()]["properties"][field];
+            assert_eq!(property["minimum"].as_f64(), Some(f64::from(min)));
+            assert_eq!(property["maximum"].as_f64(), Some(f64::from(max)));
+            for (number, expected) in [(min, true), (max, true), (min - 1, false), (max + 1, false)]
+            {
+                let mut value = base.clone();
+                value[field] = if integer {
+                    json!(number)
+                } else {
+                    json!(f64::from(number))
+                };
+                assert_eq!(
+                    schema.is_valid(&value),
+                    expected,
+                    "{name}.{field}: {number}"
+                );
+            }
+            let mut null = base.clone();
+            null[field] = Value::Null;
+            assert!(schema.is_valid(&null), "{name}.{field} remains nullable");
+        }
+    }
+    // Documenting server limits does not introduce client-side range validation.
+    assert!(serde_json::from_value::<CreateChatCompletionRequest>(
+        json!({"model":"test","messages":[],"n":200,"top_logprobs":21,"temperature":3})
+    )
+    .is_ok());
+    assert!(serde_json::from_value::<CreateCompletionRequest>(
+        json!({"model":"test","prompt":"hi","n":200,"logprobs":6,"best_of":21})
+    )
+    .is_ok());
+}
+
+#[test]
+fn logit_bias_limits_apply_to_values_and_preserve_optional_nullable_maps() {
+    for chat in [true, false] {
+        let (name, base) = if chat {
+            (
+                CreateChatCompletionRequest::name(),
+                json!({"model":"test","messages":[]}),
+            )
+        } else {
+            (
+                CreateCompletionRequest::name(),
+                json!({"model":"test","prompt":"hi"}),
+            )
+        };
+        let mut doc = document();
+        doc["$ref"] = json!(format!("#/components/schemas/{name}"));
+        let bias = &doc["components"]["schemas"][name.as_ref()]["properties"]["logit_bias"];
+        assert!(bias["description"]
+            .as_str()
+            .unwrap()
+            .contains("-100 to 100"));
+        assert_eq!(bias["propertyNames"]["type"], "string");
+        let schema = jsonschema::validator_for(&doc).unwrap();
+        assert!(schema.is_valid(&base));
+        for bias in [Value::Null, json!({}), json!({"1":-100,"2":100,"3":0})] {
+            let mut value = base.clone();
+            value["logit_bias"] = bias;
+            assert!(schema.is_valid(&value), "{name}: {value}");
+        }
+        for bias in [
+            json!({"1":-101}),
+            json!({"1":101}),
+            json!({"1":"100"}),
+            json!({"1":0.5}),
+        ] {
+            let mut value = base.clone();
+            value["logit_bias"] = bias;
+            assert!(!schema.is_valid(&value), "{name}: {value}");
+        }
+    }
+    assert!(serde_json::from_value::<CreateChatCompletionRequest>(
+        json!({"model":"test","messages":[],"logit_bias":{"1":101}})
+    )
+    .is_ok());
+    // Legacy completion biases remain arbitrary JSON values in the Rust type.
+    assert!(serde_json::from_value::<CreateCompletionRequest>(
+        json!({"model":"test","prompt":"hi","logit_bias":{"1":"unchanged"}})
+    )
+    .is_ok());
+}
+
+#[test]
+fn downstream_can_overwrite_and_remove_bounds_through_a_flattened_reference() {
+    use utoipa::openapi::{schema::AdditionalProperties, RefOr, Schema};
+    use utoipa::Modify;
+
+    #[derive(Serialize, ToSchema)]
+    struct DownstreamRequest {
+        #[serde(flatten)]
+        inner: CreateChatCompletionRequest,
+    }
+
+    struct Widen;
+    impl Modify for Widen {
+        fn modify(&self, api: &mut utoipa::openapi::OpenApi) {
+            let RefOr::T(Schema::Object(request)) = api
+                .components
+                .as_mut()
+                .unwrap()
+                .schemas
+                .get_mut("async_openai.CreateChatCompletionRequest")
+                .unwrap()
+            else {
+                panic!("expected request object")
+            };
+            let RefOr::T(Schema::Object(n)) = request.properties.get_mut("n").unwrap() else {
+                panic!("expected n schema")
+            };
+            n.maximum = Some(255.into());
+            let RefOr::T(Schema::Object(bias)) = request.properties.get_mut("logit_bias").unwrap()
+            else {
+                panic!("expected bias map")
+            };
+            let AdditionalProperties::RefOr(RefOr::T(Schema::Object(value))) =
+                bias.additional_properties.as_deref_mut().unwrap()
+            else {
+                panic!("expected bias value schema")
+            };
+            value.minimum = Some((-128).into());
+            value.maximum = Some(127.into());
+        }
+    }
+
+    #[derive(OpenApi)]
+    #[openapi(components(schemas(DownstreamRequest)), modifiers(&Widen))]
+    struct DownstreamApi;
+
+    let mut doc = serde_json::to_value(DownstreamApi::openapi()).unwrap();
+    doc["$ref"] = json!("#/components/schemas/DownstreamRequest");
+    let wider = json!({"model":"test","messages":[],"n":200,"logit_bias":{"1":127}});
+    assert!(!validator::<CreateChatCompletionRequest>().is_valid(&wider));
+    assert!(jsonschema::validator_for(&doc).unwrap().is_valid(&wider));
+
+    // Raw OpenAPI document edits can remove the constraints altogether.
+    let properties =
+        &mut doc["components"]["schemas"]["async_openai.CreateChatCompletionRequest"]["properties"];
+    for field in ["n", "logit_bias"] {
+        let property = if field == "logit_bias" {
+            &mut properties[field]["additionalProperties"]
+        } else {
+            &mut properties[field]
+        };
+        let object = property.as_object_mut().unwrap();
+        object.remove("minimum");
+        object.remove("maximum");
+    }
+    assert!(jsonschema::validator_for(&doc)
+        .unwrap()
+        .is_valid(&json!({"model":"test","messages":[],"n":0,"logit_bias":{"1":-101}})));
+    // Overrides affect only this exported document, not upstream Rust/schema behavior.
+    assert!(!validator::<CreateChatCompletionRequest>().is_valid(&wider));
+}
