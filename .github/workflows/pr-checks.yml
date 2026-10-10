@@ -81,6 +81,9 @@ jobs:
             administration-types,
             completion-types,
             types,
+            openapi,
+            "openapi,chat-completion-types",
+            "openapi,completion-types",
             full,
           ]
 
@@ -120,6 +123,17 @@ jobs:
         env:
           RUSTFLAGS: "-D warnings"
         run: cargo build --no-default-features --features ${{ matrix.feature }},middleware --verbose
+
+  openapi:
+    name: OpenAPI schema regressions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - run: cargo test -p async-openai --no-default-features --features openapi,chat-completion-types,completion-types --lib --test openapi
 
   tls-features:
     name: TLS Feature - ${{ matrix.feature }}

@@ -9,6 +9,8 @@ use crate::error::OpenAIError;
 #[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::FunctionObject))]
 pub struct FunctionObject {
     /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
     pub name: String,

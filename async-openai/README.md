@@ -239,6 +239,13 @@ Support for webhook includes event types, signature verification, and building w
 
 Middleware is supported via Tower ecosystem, which can be enabled with `middleware` feature. See [middleware](https://github.com/64bit/async-openai/blob/main/async-openai/MIDDLEWARE.md) for more detail.
 
+## OpenAPI
+
+The `openapi` feature provides [utoipa](https://docs.rs/utoipa/5/utoipa/) schemas
+for Chat Completions and Completions types. Enable the corresponding type features
+(`chat-completion-types` and/or `completion-types`). Other API families are not yet
+covered. See the [OpenAPI example](https://docs.rs/async-openai/latest/async_openai/#openapi).
+
 ## Contributing
 
 🎉 Thank you for taking the time to contribute and improve the project. I'd be happy to have you!

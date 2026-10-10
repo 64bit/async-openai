@@ -10,6 +10,8 @@ use crate::types::shared::ImageDetail;
 #[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::ImageUrl))]
 pub struct ImageUrl {
     /// Either a URL of the image or the base64 encoded image data.
     pub url: String,

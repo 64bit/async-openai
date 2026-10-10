@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 
 /// Breakdown of tokens used in a completion.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::PromptTokensDetails))]
 pub struct PromptTokensDetails {
     /// Audio input tokens present in the prompt.
     pub audio_tokens: Option<u32>,

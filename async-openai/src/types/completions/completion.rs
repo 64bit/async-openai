@@ -15,6 +15,8 @@ use crate::types::chat::{
 #[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::CreateCompletionRequest))]
 pub struct CreateCompletionRequest {
     /// ID of the model to use. You can use the [List models](https://platform.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://platform.openai.com/docs/models/overview) for descriptions of them.
     pub model: String,
@@ -40,12 +42,14 @@ pub struct CreateCompletionRequest {
     ///
     /// We generally recommend altering this or `top_p` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = 0, maximum = 2))]
     pub temperature: Option<f32>, // min: 0, max: 2, default: 1,
 
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
     ///
     ///  We generally recommend altering this or `temperature` but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = 0, maximum = 1))]
     pub top_p: Option<f32>, // min: 0, max: 1, default: 1
 
     /// How many completions to generate for each prompt.
@@ -53,6 +57,7 @@ pub struct CreateCompletionRequest {
     /// **Note:** Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for `max_tokens` and `stop`.
     ///
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = 1, maximum = 128))]
     pub n: Option<u8>, // min:1 max: 128, default: 1
 
     /// Whether to stream back partial progress. If set, tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format)
@@ -67,6 +72,7 @@ pub struct CreateCompletionRequest {
     ///
     /// The maximum value for `logprobs` is 5.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = 0, maximum = 5))]
     pub logprobs: Option<u8>, // min:0 , max: 5, default: null, nullable: true
 
     /// Echo back the prompt in addition to the completion
@@ -81,12 +87,14 @@ pub struct CreateCompletionRequest {
     ///
     /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/guides/text-generation/parameter-details)
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = -2, maximum = 2))]
     pub presence_penalty: Option<f32>, // min: -2.0, max: 2.0, default 0
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
     ///
     /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/guides/text-generation/parameter-details)
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = -2, maximum = 2))]
     pub frequency_penalty: Option<f32>, // min: -2.0, max: 2.0, default: 0
 
     /// Generates `best_of` completions server-side and returns the "best" (the one with the highest log probability per token). Results cannot be streamed.
@@ -95,6 +103,7 @@ pub struct CreateCompletionRequest {
     ///
     /// **Note:** Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for `max_tokens` and `stop`.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(minimum = 0, maximum = 20))]
     pub best_of: Option<u8>, //min: 0, max: 20, default: 1
 
     /// Modify the likelihood of specified tokens appearing in the completion.
@@ -103,6 +112,7 @@ pub struct CreateCompletionRequest {
     ///
     /// As an example, you can pass `{"50256": -100}` to prevent the <|endoftext|> token from being generated.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(schema_with = crate::types::shared::schema::logit_bias))]
     pub logit_bias: Option<HashMap<String, serde_json::Value>>, // default: null
 
     /// A unique identifier representing your end-user, which will help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/usage-policies/end-user-ids).
@@ -117,6 +127,8 @@ pub struct CreateCompletionRequest {
 }
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::CreateCompletionResponse))]
 pub struct CreateCompletionResponse {
     /// A unique identifier for the completion.
     pub id: String,

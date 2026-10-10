@@ -2,6 +2,9 @@
 //! and not exported directly, instead they are re-exported
 //! by the modules that use them.
 
+#[cfg(all(feature = "openapi", feature = "chat-completion-types"))]
+pub(crate) mod schema;
+
 #[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
 mod completion_tokens_details;
 #[cfg(any(feature = "chat-completion-types", feature = "response-types"))]

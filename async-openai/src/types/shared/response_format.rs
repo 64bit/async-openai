@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::ResponseFormat))]
 pub enum ResponseFormat {
     /// The type of response format being defined: `text`
     Text,
@@ -14,6 +16,8 @@ pub enum ResponseFormat {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::ResponseFormatJsonSchema))]
 pub struct ResponseFormatJsonSchema {
     /// A description of what the response format is for, used by the model to determine how to respond in the format.
     #[serde(skip_serializing_if = "Option::is_none")]
