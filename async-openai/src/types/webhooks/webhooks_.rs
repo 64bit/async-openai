@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use serde::{Deserialize, Serialize};
 
 /// Sent when a batch API request has been cancelled.
@@ -311,6 +313,7 @@ pub struct WebhookResponseData {
 /// same pending session can also emit `realtime.call.incoming`; the first
 /// successful Realtime or Live accept endpoint selects the runtime surface.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[deprecated(note = "The live.call.incoming webhook is deprecated; use live.transport.incoming")]
 pub struct WebhookLiveCallIncoming {
     /// The Unix timestamp (in seconds) of when the event was created.
     pub created_at: u64,
@@ -387,11 +390,64 @@ pub struct WebhookSafetyOrgAlertCreatedData {
     pub id: String,
 }
 
+/// Sent when an incoming SIP session is available for Live acceptance.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct WebhookLiveTransportIncoming {
+    pub id: String,
+    pub object: String,
+    pub created_at: u64,
+    pub data: WebhookLiveTransportIncomingData,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct WebhookLiveTransportIncomingData {
+    pub session_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sip_media_security: Option<String>,
+    pub sip_headers: Vec<WebhookLiveCallIncomingDataSipHeadersItem>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct WebhookSafetyCaseData {
+    /// The safety case ID to pass to `GET /v1/safety/cases/{id}`.
+    pub id: String,
+}
+
+macro_rules! webhook_event_struct {
+    ($name:ident, $data:ty) => {
+        #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+        pub struct $name {
+            pub id: String,
+            pub object: String,
+            pub created_at: u64,
+            pub data: $data,
+        }
+    };
+}
+
+webhook_event_struct!(WebhookSafetyWarningIssued, WebhookSafetyCaseData);
+webhook_event_struct!(WebhookSafetyDeactivationIssued, WebhookSafetyCaseData);
+webhook_event_struct!(WebhookAgentSessionCreated, serde_json::Value);
+webhook_event_struct!(WebhookAgentSessionInProgress, serde_json::Value);
+webhook_event_struct!(WebhookAgentSessionIdle, serde_json::Value);
+webhook_event_struct!(WebhookAgentSessionFailed, serde_json::Value);
+webhook_event_struct!(WebhookAgentSessionActionRequired, serde_json::Value);
+
 // EventType and EventId implementations for response events
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type")]
 pub enum WebhookEvent {
+    #[serde(rename = "agent.session.created")]
+    AgentSessionCreated(WebhookAgentSessionCreated),
+    #[serde(rename = "agent.session.in_progress")]
+    AgentSessionInProgress(WebhookAgentSessionInProgress),
+    #[serde(rename = "agent.session.idle")]
+    AgentSessionIdle(WebhookAgentSessionIdle),
+    #[serde(rename = "agent.session.failed")]
+    AgentSessionFailed(WebhookAgentSessionFailed),
+    #[serde(rename = "agent.session.action_required")]
+    AgentSessionActionRequired(WebhookAgentSessionActionRequired),
     #[serde(rename = "batch.cancelled")]
     BatchCancelled(WebhookBatchCancelled),
 
@@ -438,7 +494,17 @@ pub enum WebhookEvent {
     ResponseIncomplete(WebhookResponseIncomplete),
 
     #[serde(rename = "live.call.incoming")]
+    #[deprecated(note = "Use live.transport.incoming")]
     WebhookLiveCallIncoming(WebhookLiveCallIncoming),
+
+    #[serde(rename = "live.transport.incoming")]
+    LiveTransportIncoming(WebhookLiveTransportIncoming),
+
+    #[serde(rename = "safety.warning_issued")]
+    SafetyWarningIssued(WebhookSafetyWarningIssued),
+
+    #[serde(rename = "safety.deactivation_issued")]
+    SafetyDeactivationIssued(WebhookSafetyDeactivationIssued),
 
     #[serde(rename = "safety.alert.created")]
     WebhookSafetyAlertCreated(WebhookSafetyAlertCreated),
@@ -476,7 +542,15 @@ macro_rules! impl_event_id {
 // Use the macro to implement EventType for all webhook event structs
 #[cfg(feature = "_api")]
 impl_event_type! {
+    WebhookAgentSessionCreated => "agent.session.created",
+    WebhookAgentSessionInProgress => "agent.session.in_progress",
+    WebhookAgentSessionIdle => "agent.session.idle",
+    WebhookAgentSessionFailed => "agent.session.failed",
+    WebhookAgentSessionActionRequired => "agent.session.action_required",
     WebhookLiveCallIncoming => "live.call.incoming",
+    WebhookLiveTransportIncoming => "live.transport.incoming",
+    WebhookSafetyWarningIssued => "safety.warning_issued",
+    WebhookSafetyDeactivationIssued => "safety.deactivation_issued",
     WebhookSafetyAlertCreated => "safety.alert.created",
     WebhookSafetyOrgAlertCreated => "safety.org_alert.created",
     WebhookBatchCancelled => "batch.cancelled",
@@ -499,7 +573,15 @@ impl_event_type! {
 // Use the macro to implement EventId for all webhook event structs
 #[cfg(feature = "_api")]
 impl_event_id! {
+    WebhookAgentSessionCreated,
+    WebhookAgentSessionInProgress,
+    WebhookAgentSessionIdle,
+    WebhookAgentSessionFailed,
+    WebhookAgentSessionActionRequired,
     WebhookLiveCallIncoming,
+    WebhookLiveTransportIncoming,
+    WebhookSafetyWarningIssued,
+    WebhookSafetyDeactivationIssued,
     WebhookSafetyAlertCreated,
     WebhookSafetyOrgAlertCreated,
     WebhookBatchCancelled,
@@ -524,7 +606,15 @@ impl_event_id! {
 impl crate::traits::EventType for WebhookEvent {
     fn event_type(&self) -> &'static str {
         match self {
+            Self::AgentSessionCreated(e) => e.event_type(),
+            Self::AgentSessionInProgress(e) => e.event_type(),
+            Self::AgentSessionIdle(e) => e.event_type(),
+            Self::AgentSessionFailed(e) => e.event_type(),
+            Self::AgentSessionActionRequired(e) => e.event_type(),
             Self::WebhookLiveCallIncoming(e) => e.event_type(),
+            Self::LiveTransportIncoming(e) => e.event_type(),
+            Self::SafetyWarningIssued(e) => e.event_type(),
+            Self::SafetyDeactivationIssued(e) => e.event_type(),
             Self::WebhookSafetyAlertCreated(e) => e.event_type(),
             Self::WebhookSafetyOrgAlertCreated(e) => e.event_type(),
             Self::BatchCancelled(e) => e.event_type(),
@@ -550,7 +640,15 @@ impl crate::traits::EventType for WebhookEvent {
 impl crate::traits::EventId for WebhookEvent {
     fn event_id(&self) -> &str {
         match self {
+            Self::AgentSessionCreated(e) => e.event_id(),
+            Self::AgentSessionInProgress(e) => e.event_id(),
+            Self::AgentSessionIdle(e) => e.event_id(),
+            Self::AgentSessionFailed(e) => e.event_id(),
+            Self::AgentSessionActionRequired(e) => e.event_id(),
             Self::WebhookLiveCallIncoming(e) => e.event_id(),
+            Self::LiveTransportIncoming(e) => e.event_id(),
+            Self::SafetyWarningIssued(e) => e.event_id(),
+            Self::SafetyDeactivationIssued(e) => e.event_id(),
             Self::WebhookSafetyAlertCreated(e) => e.event_id(),
             Self::WebhookSafetyOrgAlertCreated(e) => e.event_id(),
             Self::BatchCancelled(e) => e.event_id(),
@@ -576,7 +674,15 @@ impl WebhookEvent {
     /// Get the timestamp when the event was created
     pub fn created_at(&self) -> u64 {
         match self {
+            Self::AgentSessionCreated(e) => e.created_at,
+            Self::AgentSessionInProgress(e) => e.created_at,
+            Self::AgentSessionIdle(e) => e.created_at,
+            Self::AgentSessionFailed(e) => e.created_at,
+            Self::AgentSessionActionRequired(e) => e.created_at,
             Self::WebhookLiveCallIncoming(e) => e.created_at,
+            Self::LiveTransportIncoming(e) => e.created_at,
+            Self::SafetyWarningIssued(e) => e.created_at,
+            Self::SafetyDeactivationIssued(e) => e.created_at,
             Self::WebhookSafetyAlertCreated(e) => e.created_at,
             Self::WebhookSafetyOrgAlertCreated(e) => e.created_at,
             Self::BatchCancelled(w) => w.created_at,

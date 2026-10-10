@@ -131,13 +131,28 @@ impl AsyncTryFrom<CreateVoiceRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateVoiceRequest) -> Result<Self, Self::Error> {
-        let audio_sample_part = create_file_part(request.audio_sample.source).await?;
-
-        let form = reqwest::multipart::Form::new()
-            .part("audio_sample", audio_sample_part)
-            .text("name", request.name)
-            .text("consent", request.consent);
-
-        Ok(form)
+        match request {
+            CreateVoiceRequest::AudioSample(request) => {
+                let audio_sample_part = create_file_part(request.audio_sample.source).await?;
+                Ok(reqwest::multipart::Form::new()
+                    .text("type", "audio_sample")
+                    .part("audio_sample", audio_sample_part)
+                    .text("name", request.name)
+                    .text("consent", request.consent))
+            }
+            CreateVoiceRequest::Prompt(request) => {
+                let mut form = reqwest::multipart::Form::new()
+                    .text("type", "prompt")
+                    .text("name", request.name)
+                    .text("prompt", request.prompt);
+                if let Some(script_hint) = request.script_hint {
+                    form = form.text("script_hint", script_hint);
+                }
+                if let Some(model) = request.model {
+                    form = form.text("model", model);
+                }
+                Ok(form)
+            }
+        }
     }
 }

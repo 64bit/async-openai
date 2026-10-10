@@ -161,11 +161,8 @@ pub struct CreateImageRequest {
     /// the GPT image models, 1000 characters for `dall-e-2` and 4000 characters for `dall-e-3`.
     pub prompt: String,
 
-    /// The model to use for image generation. Supported models include `dall-e-2`,
-    /// `dall-e-3`, and the GPT image model family. Defaults to `dall-e-2` unless
-    /// a parameter specific to the GPT image models is used.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub model: Option<ImageModel>,
+    /// The model to use for image generation.
+    pub model: ImageModel,
 
     /// The number of images to generate. Must be between 1 and 10. For `dall-e-3`, only `n=1` is supported.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -374,8 +371,8 @@ pub struct CreateImageEditRequest {
     pub background: Option<ImageBackground>,
 
     /// The model to use for image generation. Supports `dall-e-2`, the GPT image
-    /// model family, and `chatgpt-image-latest`. Defaults to `gpt-image-1.5`.
-    pub model: Option<ImageModel>,
+    /// model family, and `chatgpt-image-latest`.
+    pub model: ImageModel,
 
     /// The number of images to generate. Must be between 1 and 10.
     pub n: Option<u8>, // min:1 max:10 default:1
