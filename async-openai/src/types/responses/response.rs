@@ -268,6 +268,13 @@ pub enum Item {
     ///     A message output from the model.
     Message(MessageItem),
 
+    /// Additional tool definitions supplied by `Codex` clients.
+    ///
+    /// Tool definitions and unrecognized fields are retained verbatim so a gateway can forward
+    /// the request without losing client metadata.
+    #[cfg(feature = "codex")]
+    AdditionalTools(AdditionalTools),
+
     /// The results of a file search tool call. See the
     /// [file search guide](https://platform.openai.com/docs/guides/tools-file-search) for more information.
     FileSearchCall(FileSearchToolCall),
@@ -354,6 +361,19 @@ pub enum Item {
 
     /// A call to a custom tool created by the model.
     CustomToolCall(CustomToolCall),
+}
+
+/// Additional tool definitions supplied by `Codex` clients.
+#[cfg(feature = "codex")]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct AdditionalTools {
+    /// The role that supplied the additional tools.
+    pub role: Role,
+    /// The additional tool definitions.
+    pub tools: Vec<serde_json::Value>,
+    /// Extension fields retained for lossless gateway forwarding.
+    #[serde(flatten)]
+    pub extra: std::collections::HashMap<String, serde_json::Value>,
 }
 
 /// Input item that can be used in the context for generating a response.
@@ -877,6 +897,11 @@ pub struct CreateResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conversation: Option<ConversationParam>,
 
+    /// Metadata supplied by a `Codex` client for the current request.
+    #[cfg(feature = "codex")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub client_metadata: Option<CodexClientMetadata>,
+
     /// Specify additional output data to include in the model response. Currently supported
     /// values are:
     ///
@@ -1085,6 +1110,41 @@ pub struct CreateResponse {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub moderation: Option<ModerationParam>,
+}
+
+/// Metadata supplied by a `Codex` client for the current request.
+#[cfg(feature = "codex")]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct CodexClientMetadata {
+    /// Identifier for the `Codex` installation that created the request.
+    #[serde(
+        rename = "x-codex-installation-id",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub installation_id: Option<String>,
+
+    /// Identifier for the Codex thread.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub thread_id: Option<String>,
+
+    /// Identifier for the Codex session.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub session_id: Option<String>,
+
+    /// Identifier for the Codex window.
+    #[serde(rename = "x-codex-window-id", skip_serializing_if = "Option::is_none")]
+    pub window_id: Option<String>,
+
+    /// Identifier for the Codex turn.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub turn_id: Option<String>,
+
+    /// Turn metadata supplied by Codex.
+    #[serde(
+        rename = "x-codex-turn-metadata",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub turn_metadata: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
