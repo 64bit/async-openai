@@ -172,7 +172,7 @@ Use `path()`, `.query()`, `.header()`, `.headers()` on the API group. Path overr
 
 For demonstration:
 ```rust
-client.
+client
   .chat()
   // override default path
   .path("/v1/messages")
