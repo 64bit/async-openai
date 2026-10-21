@@ -35,15 +35,19 @@
 | What | APIs | Crate Feature Flags |
 |---|---|---|
 | **Responses API** | Responses, Conversations, Streaming events, Websocket Events | `responses` |
+| **Agents API** | Agents, environments, sessions, turns, artifacts, and traces | `agents` |
+| **Decisions API** | Typed classifications and scores | `decisions` |
 | **Webhooks** | Webhook Events | `webhook` |
-| **Platform APIs** | Audio, Audio Streaming, Videos, Images, Image Streaming, Embeddings, Evals, Fine-tuning, Graders, Batch, Files, Uploads, Models, Moderations, Safety Alerts, Content Provenance Checks | `audio`, `video`, `image`, `embedding`, `evals`, `finetuning`, `grader`, `batch`, `file`, `upload`, `model`, `moderation`, `safety`, `content-provenance-checks` |
+| **Platform APIs** | Audio, Audio Streaming, Videos, Images, Image Streaming, Embeddings, Evals, Fine-tuning, Graders, Batch, Files, Uploads, Models, Moderations, Safety Alerts and Cases, Content Provenance Checks | `audio`, `video`, `image`, `embedding`, `evals`, `finetuning`, `grader`, `batch`, `file`, `upload`, `model`, `moderation`, `safety`, `content-provenance-checks` |
 | **Vector stores** | Vector stores, Vector store files, Vector store file batches | `vectorstore` |
+| **Vaults** | Credential vaults and credentials | `vault` |
 | **ChatKit** <sub>(Beta)</sub> | ChatKit | `chatkit` |
 | **Containers** | Containers, Container Files | `container` |
 | **Skills** | Skills | `skill` |
 | **Realtime** | Realtime Calls, Client secrets, Client events, Server events | `realtime` |
+| **Live** | WebRTC and SIP sessions | `live` |
 | **Chat Completions** | Chat Completions, Streaming | `chat-completion` |
-| **Administration** | Admin API Keys, Audit Logs, Certificates, Data Retention, Groups, Invites, Projects, Roles, Spend Alerts, Spend Limits, Usage, Users; And their nested APIs | `administration` |
+| **Administration** | Admin API Keys, Audit Logs, Certificates, Data Retention, External Storage, Groups, Invites, Projects, Roles, Spend Alerts, Spend Limits, Usage, Users; And their nested APIs | `administration` |
 | **Legacy** | Completions | `completions` |
 
 </details>

@@ -11,8 +11,8 @@ use crate::{
         ImageGenToolCall, InputFileContent, InputImageContent, InputItem, InputTextContent,
         LocalShellToolCall, LocalShellToolCallOutput, MCPApprovalRequest, MCPApprovalResponse,
         MCPListTools, MCPToolCall, MessagePhase, OutputTextContent, Program, ProgramOutput,
-        ReasoningItem, ReasoningTextContent, RefusalContent, ResponseConfigurationUpdate,
-        ToolSearchCall, ToolSearchOutput, WebSearchToolCall,
+        PromptCacheBreakpointConfig, ReasoningItem, ReasoningTextContent, RefusalContent,
+        ResponseConfigurationUpdate, ToolSearchCall, ToolSearchOutput, WebSearchToolCall,
     },
 };
 
@@ -133,6 +133,9 @@ pub struct SummaryTextContent {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ComputerScreenContent {
+    /// Marks the exact end of a reusable prompt prefix.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_breakpoint: Option<PromptCacheBreakpointConfig>,
     /// The URL of the screenshot image.
     pub image_url: Option<String>,
     ///  The identifier of an uploaded file that contains the screenshot.

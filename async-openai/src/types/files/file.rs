@@ -103,8 +103,8 @@ pub struct OpenAIFile {
     pub id: String,
     /// The object type, which is always "file".
     pub object: String,
-    /// The size of the file in bytes.
-    pub bytes: u32,
+    /// The size of the file in bytes. This may be unavailable while an upload is completing.
+    pub bytes: Option<u64>,
     /// The Unix timestamp (in seconds) for when the file was created.
     pub created_at: u64,
     /// The Unix timestamp (in seconds) for when the file will expire.

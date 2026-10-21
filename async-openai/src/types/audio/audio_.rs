@@ -44,6 +44,20 @@ pub struct AudioInput {
     pub source: InputSource,
 }
 
+// Binary audio inputs are encoded as multipart form parts, not JSON values. This
+// implementation exists so internally tagged multipart request enums can retain
+// their wire discriminator; attempting to serialize the file itself is an error.
+impl Serialize for AudioInput {
+    fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        Err(serde::ser::Error::custom(
+            "audio input must be encoded as multipart/form-data",
+        ))
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum AudioResponseFormat {
@@ -554,20 +568,50 @@ pub struct VoiceResource {
     pub object: String,
     /// The voice identifier, which can be referenced in API endpoints.
     pub id: String,
+    /// How the voice was created. Prompt-created voices are supported only in Live.
+    pub r#type: VoiceCreationMethod,
     /// The name of the voice.
     pub name: String,
     /// The Unix timestamp (in seconds) for when the voice was created.
     pub created_at: u64,
 }
 
+/// How a custom voice was created.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum VoiceCreationMethod {
+    AudioSample,
+    Prompt,
+}
+
 /// Request to create a custom voice.
-#[derive(Clone, Default, Debug, Builder, PartialEq)]
-#[builder(name = "CreateVoiceRequestArgs")]
+#[derive(Clone, Debug, PartialEq, Serialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum CreateVoiceRequest {
+    AudioSample(CreateVoiceFromConsentRequest),
+    Prompt(CreateVoicePromptRequest),
+}
+
+impl From<CreateVoiceFromConsentRequest> for CreateVoiceRequest {
+    fn from(value: CreateVoiceFromConsentRequest) -> Self {
+        Self::AudioSample(value)
+    }
+}
+
+impl From<CreateVoicePromptRequest> for CreateVoiceRequest {
+    fn from(value: CreateVoicePromptRequest) -> Self {
+        Self::Prompt(value)
+    }
+}
+
+/// Creates a voice from a consent recording and an audio sample.
+#[derive(Clone, Default, Debug, Builder, PartialEq, Serialize)]
+#[builder(name = "CreateVoiceFromConsentRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
-pub struct CreateVoiceRequest {
+pub struct CreateVoiceFromConsentRequest {
     /// The name of the new voice.
     pub name: String,
     /// The sample audio recording file. Maximum size is 10 MiB.
@@ -576,4 +620,24 @@ pub struct CreateVoiceRequest {
     pub audio_sample: AudioInput,
     /// The consent recording ID (for example, `cons_1234`).
     pub consent: String,
+}
+
+/// Creates a synthetic voice from a text description.
+#[derive(Clone, Default, Debug, Builder, PartialEq, Serialize)]
+#[builder(name = "CreateVoicePromptRequestArgs")]
+#[builder(pattern = "mutable")]
+#[builder(setter(into, strip_option), default)]
+#[builder(derive(Debug))]
+#[builder(build_fn(error = "OpenAIError"))]
+pub struct CreateVoicePromptRequest {
+    /// The name of the new voice.
+    pub name: String,
+    /// A non-blank description of the desired voice.
+    pub prompt: String,
+    /// Optional text for the voice to speak during creation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub script_hint: Option<String>,
+    /// The voice creation model. Defaults to `auto`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
 }
