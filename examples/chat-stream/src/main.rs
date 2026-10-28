@@ -10,8 +10,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let request = CreateChatCompletionRequestArgs::default()
-        .model("gpt-3.5-turbo")
-        .max_tokens(512u32)
+        .model("gpt-5.6-terra")
+        .max_completion_tokens(512u32)
         .messages([ChatCompletionRequestUserMessageArgs::default()
             .content("Write a marketing blog praising and introducing Rust library async-openai")
             .build()?

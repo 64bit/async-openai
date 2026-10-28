@@ -14,8 +14,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let request = CreateChatCompletionRequestArgs::default()
-        .max_tokens(512u32)
-        .model("gpt-3.5-turbo")
+        .max_completion_tokens(512u32)
+        .model("gpt-5.6-terra")
         .store(true)
         .metadata(json!({
             "role": "manager",
