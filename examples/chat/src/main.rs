@@ -14,8 +14,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let request = CreateChatCompletionRequestArgs::default()
-        .max_tokens(512u32)
-        .model("gpt-3.5-turbo")
+        .max_completion_tokens(512u32)
+        .model("gpt-5.6-terra")
         .messages([
             // Can also use ChatCompletionRequest<Role>MessageArgs for builder pattern
             ChatCompletionRequestSystemMessage::from("You are a helpful assistant.").into(),
