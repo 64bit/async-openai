@@ -3,6 +3,7 @@
 pub mod api_keys;
 pub mod audit_logs;
 pub mod certificates;
+pub mod external_storage;
 pub mod groups;
 pub mod invites;
 pub mod organization_data_retention;

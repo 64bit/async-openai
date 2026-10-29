@@ -3,18 +3,19 @@ use super::stream::{
     ResponseAudioTranscriptDoneEvent, ResponseCodeInterpreterCallCodeDeltaEvent,
     ResponseCodeInterpreterCallCodeDoneEvent, ResponseCodeInterpreterCallCompletedEvent,
     ResponseCodeInterpreterCallInProgressEvent, ResponseCodeInterpreterCallInterpretingEvent,
-    ResponseCompletedEvent, ResponseContentPartAddedEvent, ResponseContentPartDoneEvent,
-    ResponseCreatedEvent, ResponseCustomToolCallInputDeltaEvent,
-    ResponseCustomToolCallInputDoneEvent, ResponseFailedEvent,
-    ResponseFileSearchCallCompletedEvent, ResponseFileSearchCallInProgressEvent,
-    ResponseFileSearchCallSearchingEvent, ResponseFunctionCallArgumentsDeltaEvent,
-    ResponseFunctionCallArgumentsDoneEvent, ResponseImageGenCallCompletedEvent,
-    ResponseImageGenCallGeneratingEvent, ResponseImageGenCallInProgressEvent,
-    ResponseImageGenCallPartialImageEvent, ResponseInProgressEvent, ResponseIncompleteEvent,
-    ResponseMCPCallArgumentsDeltaEvent, ResponseMCPCallArgumentsDoneEvent,
-    ResponseMCPCallCompletedEvent, ResponseMCPCallFailedEvent, ResponseMCPCallInProgressEvent,
-    ResponseMCPListToolsCompletedEvent, ResponseMCPListToolsFailedEvent,
-    ResponseMCPListToolsInProgressEvent, ResponseOutputItemAddedEvent, ResponseOutputItemDoneEvent,
+    ResponseCompactionCompactingStreamingEvent, ResponseCompletedEvent,
+    ResponseContentPartAddedEvent, ResponseContentPartDoneEvent, ResponseCreatedEvent,
+    ResponseCustomToolCallInputDeltaEvent, ResponseCustomToolCallInputDoneEvent,
+    ResponseFailedEvent, ResponseFileSearchCallCompletedEvent,
+    ResponseFileSearchCallInProgressEvent, ResponseFileSearchCallSearchingEvent,
+    ResponseFunctionCallArgumentsDeltaEvent, ResponseFunctionCallArgumentsDoneEvent,
+    ResponseImageGenCallCompletedEvent, ResponseImageGenCallGeneratingEvent,
+    ResponseImageGenCallInProgressEvent, ResponseImageGenCallPartialImageEvent,
+    ResponseInProgressEvent, ResponseIncompleteEvent, ResponseMCPCallArgumentsDeltaEvent,
+    ResponseMCPCallArgumentsDoneEvent, ResponseMCPCallCompletedEvent, ResponseMCPCallFailedEvent,
+    ResponseMCPCallInProgressEvent, ResponseMCPListToolsCompletedEvent,
+    ResponseMCPListToolsFailedEvent, ResponseMCPListToolsInProgressEvent,
+    ResponseOutputItemAddedEvent, ResponseOutputItemDoneEvent,
     ResponseOutputTextAnnotationAddedEvent, ResponseQueuedEvent,
     ResponseReasoningSummaryPartAddedEvent, ResponseReasoningSummaryPartDoneEvent,
     ResponseReasoningSummaryTextDeltaEvent, ResponseReasoningSummaryTextDoneEvent,
@@ -91,6 +92,9 @@ pub enum ResponsesServerEvent {
     /// Emitted when the code interpreter is actively interpreting the code snippet.
     #[serde(rename = "response.code_interpreter_call.interpreting")]
     ResponseCodeInterpreterCallInterpreting(ResponseCodeInterpreterCallWsInterpreting),
+    /// Emitted when new summary content is sampled for a compaction trigger.
+    #[serde(rename = "response.compaction.compacting")]
+    ResponseCompactionCompacting(ResponseCompactionCompactingWs),
     /// Emitted when the model response is complete.
     #[serde(rename = "response.completed")]
     ResponseCompleted(ResponseWsCompleted),
@@ -345,6 +349,14 @@ pub struct ResponseCodeInterpreterCallWsInterpreting {
     pub event: ResponseCodeInterpreterCallInterpretingEvent,
     /// The WebSocket lane that emitted this event. This field is present when the originating
     /// `response.create` event supplied a `stream_id`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stream_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ResponseCompactionCompactingWs {
+    #[serde(flatten)]
+    pub event: ResponseCompactionCompactingStreamingEvent,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stream_id: Option<String>,
 }

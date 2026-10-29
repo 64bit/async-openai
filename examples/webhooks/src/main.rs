@@ -233,6 +233,7 @@ async fn handle_webhook(
 }
 
 /// Process webhook events
+#[allow(deprecated)]
 fn process_webhook_event(event: WebhookEvent) {
     info!("");
     info!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -243,10 +244,24 @@ fn process_webhook_event(event: WebhookEvent) {
     info!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
     match event {
+        WebhookEvent::AgentSessionCreated(e) => println!("Agent session created: {e:?}"),
+        WebhookEvent::AgentSessionInProgress(e) => {
+            println!("Agent session in progress: {e:?}")
+        }
+        WebhookEvent::AgentSessionIdle(e) => println!("Agent session idle: {e:?}"),
+        WebhookEvent::AgentSessionFailed(e) => println!("Agent session failed: {e:?}"),
+        WebhookEvent::AgentSessionActionRequired(e) => {
+            println!("Agent session action required: {e:?}")
+        }
         WebhookEvent::WebhookLiveCallIncoming(e) => println!("Live call incoming: {e:?}"),
+        WebhookEvent::LiveTransportIncoming(e) => println!("Live transport incoming: {e:?}"),
         WebhookEvent::WebhookSafetyAlertCreated(e) => println!("Safety alert created: {e:?}"),
         WebhookEvent::WebhookSafetyOrgAlertCreated(e) => {
             println!("Organization safety alert created: {e:?}")
+        }
+        WebhookEvent::SafetyWarningIssued(e) => println!("Safety warning issued: {e:?}"),
+        WebhookEvent::SafetyDeactivationIssued(e) => {
+            println!("Safety deactivation issued: {e:?}")
         }
         // Batch events
         WebhookEvent::BatchCancelled(webhook) => {

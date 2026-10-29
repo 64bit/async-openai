@@ -14,6 +14,36 @@ impl<'c, C: Config> Safety<'c, C> {
     pub fn alerts(&self) -> SafetyAlerts<'_, C> {
         SafetyAlerts::new(self.client)
     }
+
+    /// Access safety cases.
+    pub fn cases(&self) -> SafetyCases<'_, C> {
+        SafetyCases::new(self.client)
+    }
+}
+
+/// Retrieve safety cases by ID.
+pub struct SafetyCases<'c, C: Config> {
+    client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
+}
+
+impl<'c, C: Config> SafetyCases<'c, C> {
+    pub fn new(client: &'c Client<C>) -> Self {
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
+    }
+
+    /// Get a safety case.
+    pub async fn retrieve(
+        &self,
+        id: &str,
+    ) -> Result<crate::types::safety::SafetyCaseResource, OpenAIError> {
+        self.client
+            .get(&format!("/safety/cases/{id}"), &self.request_options)
+            .await
+    }
 }
 
 /// Retrieve safety alerts for the authenticated project.

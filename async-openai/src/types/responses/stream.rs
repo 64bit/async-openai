@@ -21,6 +21,9 @@ pub enum ResponseStreamEvent {
     /// Emitted when the full audio transcript is completed.
     #[serde(rename = "response.audio.transcript.done")]
     ResponseAudioTranscriptDone(ResponseAudioTranscriptDoneEvent),
+    /// Emitted when new summary content is sampled for a compaction trigger.
+    #[serde(rename = "response.compaction.compacting")]
+    ResponseCompactionCompacting(ResponseCompactionCompactingStreamingEvent),
     /// An event that is emitted when a response is created.
     #[serde(rename = "response.created")]
     ResponseCreated(ResponseCreatedEvent),
@@ -704,6 +707,21 @@ pub struct ShellCallOutputDelta {
     pub stderr: Option<String>,
 }
 
+/// Emitted when new summary content is sampled for a compaction trigger.
+/// This event contains no summary content.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ResponseCompactionCompactingStreamingEvent {
+    /// The sequence number of the emitted event.
+    pub sequence_number: u64,
+    /// The index of the compaction output item.
+    pub output_index: u32,
+    /// The ID of the compaction output item.
+    pub item_id: String,
+}
+
+/// The non-transport-specific form of a compaction sampling event.
+pub type ResponseCompactionCompactingEvent = ResponseCompactionCompactingStreamingEvent;
+
 /// Stream of response events
 #[cfg(feature = "_api")]
 pub type ResponseStream = crate::types::stream::StreamResponse<ResponseStreamEvent>;
@@ -729,6 +747,7 @@ impl_event_type! {
     ResponseAudioDoneEvent => "response.audio.done",
     ResponseAudioTranscriptDeltaEvent => "response.audio.transcript.delta",
     ResponseAudioTranscriptDoneEvent => "response.audio.transcript.done",
+    ResponseCompactionCompactingStreamingEvent => "response.compaction.compacting",
     ResponseShellCallCommandAddedStreamingEvent => "response.shell_call_command.added",
     ResponseShellCallCommandDeltaStreamingEvent => "response.shell_call_command.delta",
     ResponseShellCallCommandDoneStreamingEvent => "response.shell_call_command.done",
@@ -793,6 +812,7 @@ impl crate::traits::EventType for ResponseStreamEvent {
             Self::ResponseAudioDone(event) => event.event_type(),
             Self::ResponseAudioTranscriptDelta(event) => event.event_type(),
             Self::ResponseAudioTranscriptDone(event) => event.event_type(),
+            Self::ResponseCompactionCompacting(event) => event.event_type(),
             Self::ResponseShellCallCommandAdded(event) => event.event_type(),
             Self::ResponseShellCallCommandDelta(event) => event.event_type(),
             Self::ResponseShellCallCommandDone(event) => event.event_type(),

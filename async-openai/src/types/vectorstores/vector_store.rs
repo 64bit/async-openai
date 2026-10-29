@@ -297,7 +297,7 @@ pub struct VectorStoreFileBatchCounts {
 pub struct VectorStoreFileBatchObject {
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,
-    /// The object type, which is always `vector_store.files_batch`.
+    /// The object type, which is always `vector_store.file_batch`.
     pub object: String,
     /// The Unix timestamp (in seconds) for when the vector store files batch was created.
     pub created_at: u64,

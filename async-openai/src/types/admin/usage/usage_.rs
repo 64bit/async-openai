@@ -115,6 +115,12 @@ pub struct UsageCompletionsResult {
     /// The aggregated number of output tokens used across text, audio, and image outputs. For customers
     /// subscribed to Scale Tier, this includes Scale Tier tokens.
     pub output_tokens: u64,
+    /// The aggregated number of input tokens written to the cache with a 12-hour retention period.
+    #[serde(default)]
+    pub input_cache_write_12h_tokens: Option<u64>,
+    /// Attribution source when grouped by `api_source`.
+    #[serde(default)]
+    pub api_source: Option<UsageApiSource>,
     /// The aggregated number of cached input tokens used across text, audio, and image inputs. For
     /// customers subscribed to Scale Tier, this includes Scale Tier tokens.
     #[serde(default)]
@@ -245,6 +251,10 @@ pub struct CostsResult {
     pub project_id: Option<String>,
     /// When `group_by=api_key_id`, this field provides the API Key ID of the grouped costs result.
     pub api_key_id: Option<String>,
+    /// When `group_by=user_id`, this field provides the user ID of the grouped costs result.
+    pub user_id: Option<String>,
+    /// Attribution source when grouped by `api_source`.
+    pub api_source: Option<UsageApiSource>,
     /// The unit of the `quantity` value. If no single supported unit applies to the result, this field is
     /// `null`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -292,4 +302,15 @@ pub struct UsageWebSearchCallsResult {
     pub model: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub context_level: Option<String>,
+    /// Attribution source when grouped by `api_source`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub api_source: Option<UsageApiSource>,
+}
+
+/// Published source attribution for grouped organization usage and costs.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum UsageApiSource {
+    AgentsApi,
+    Unlabeled,
 }

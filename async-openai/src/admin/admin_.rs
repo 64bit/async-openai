@@ -1,7 +1,7 @@
 use crate::{
-    config::Config, AdminAPIKeys, AuditLogs, Certificates, Client, Groups, Invites,
-    OrganizationDataRetentions, OrganizationSpendAlerts, OrganizationSpendLimit, Projects, Roles,
-    Usage, Users,
+    config::Config, AdminAPIKeys, AuditLogs, Certificates, Client, ExternalStorage, Groups,
+    Invites, OrganizationDataRetentions, OrganizationSpendAlerts, OrganizationSpendLimit, Projects,
+    Roles, Usage, Users,
 };
 
 /// Admin group for all administration APIs.
@@ -43,6 +43,11 @@ impl<'c, C: Config> Admin<'c, C> {
     /// To call [Certificates] group related APIs using this client.
     pub fn certificates(&self) -> Certificates<'_, C> {
         Certificates::new(self.client)
+    }
+
+    /// Manage organization external storage configurations.
+    pub fn external_storage(&self) -> ExternalStorage<'_, C> {
+        ExternalStorage::new(self.client)
     }
 
     /// To call [Roles] group related APIs using this client.

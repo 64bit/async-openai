@@ -9,6 +9,9 @@ pub struct MisalignmentErrorDetailsResource {
     /// An optional public continuation instruction.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub steer: Option<MisalignmentSteer>,
+    /// An opaque target for explicitly continuing this review, or `None` when unavailable.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub review_target: Option<String>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]

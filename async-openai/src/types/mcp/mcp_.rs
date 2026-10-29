@@ -42,6 +42,9 @@ pub struct MCPTool {
     /// `server_url`, `connector_id`, or `tunnel_id` must be provided. Learn more
     /// about service connectors [here](https://platform.openai.com/docs/guides/tools-remote-mcp#connectors).
     ///
+    /// This field is deprecated for models released after September 1, 2026. Use
+    /// `server_url` for a remote MCP server or `tunnel_id` for a Secure MCP Tunnel.
+    ///
     /// Currently supported `connector_id` values are:
     ///
     /// - Dropbox: `connector_dropbox`
@@ -53,6 +56,9 @@ pub struct MCPTool {
     /// - Outlook Email: `connector_outlookemail`
     /// - SharePoint: `connector_sharepoint`
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[deprecated(
+        note = "Deprecated for models released after September 1, 2026; use server_url or tunnel_id"
+    )]
     pub connector_id: Option<McpToolConnectorId>,
 
     /// Optional HTTP headers to send to the MCP server. Use for authentication or other purposes.
