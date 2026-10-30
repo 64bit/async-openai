@@ -60,7 +60,7 @@ pub struct CreateFileRequest {
     pub expires_after: Option<FileExpirationAfter>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct ListFilesResponse {
     pub object: String,
     pub data: Vec<OpenAIFile>,
@@ -69,7 +69,7 @@ pub struct ListFilesResponse {
     pub has_more: bool,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct DeleteFileResponse {
     pub id: String,
     pub object: String,

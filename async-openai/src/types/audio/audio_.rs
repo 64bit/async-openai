@@ -469,7 +469,7 @@ pub struct CreateTranslationResponseVerboseJson {
     pub segments: Option<Vec<TranscriptionSegment>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct CreateSpeechResponse {
     pub bytes: Bytes,
 }

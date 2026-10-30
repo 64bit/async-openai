@@ -82,7 +82,7 @@ pub struct Base64Embedding {
     pub embedding: Base64EmbeddingVector,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EmbeddingUsage {
     /// The number of tokens used by the prompt.
     pub prompt_tokens: u32,
@@ -90,7 +90,7 @@ pub struct EmbeddingUsage {
     pub total_tokens: u32,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct CreateEmbeddingResponse {
     pub object: String,
     /// The name of the model used to generate the embedding.
@@ -101,7 +101,7 @@ pub struct CreateEmbeddingResponse {
     pub usage: EmbeddingUsage,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct CreateBase64EmbeddingResponse {
     pub object: String,
     /// The name of the model used to generate the embedding.

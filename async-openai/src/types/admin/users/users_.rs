@@ -82,7 +82,7 @@ pub struct User {
 }
 
 /// A list of `User` objects.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct UserListResponse {
     pub object: String,
     pub data: Vec<User>,
@@ -113,7 +113,7 @@ pub struct UserRoleUpdateRequest {
 }
 
 /// Confirmation of the deleted user
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct UserDeleteResponse {
     pub object: String,
     pub id: String,

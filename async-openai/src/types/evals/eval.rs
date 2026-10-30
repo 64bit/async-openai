@@ -415,7 +415,7 @@ pub struct UpdateEvalRequest {
 }
 
 /// Response from deleting an eval.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct DeleteEvalResponse {
     /// The object type, which is always "eval.deleted".
     pub object: String,
@@ -813,7 +813,7 @@ impl Default for CreateEvalRunDataSource {
 }
 
 /// Response from deleting an eval run.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct DeleteEvalRunResponse {
     /// The object type, which is always "eval.run.deleted".
     pub object: String,

@@ -81,7 +81,7 @@ pub struct ProjectApiKeyOwner {
 }
 
 /// Represents the response object for listing project API keys.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectApiKeyListResponse {
     /// The object type, which is always `list`.
     pub object: String,
@@ -96,7 +96,7 @@ pub struct ProjectApiKeyListResponse {
 }
 
 /// Represents the response object for deleting a project API key.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectApiKeyDeleteResponse {
     /// The object type, which is always `organization.project.api_key.deleted`.
     pub object: String,

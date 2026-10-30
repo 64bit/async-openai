@@ -305,7 +305,7 @@ pub struct ImageGenUsage {
     pub input_tokens_details: ImageGenInputUsageDetails,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct ImagesResponse {
     /// The Unix timestamp (in seconds) of when the image was created.
     pub created: u32,

@@ -44,7 +44,7 @@ pub struct InviteRequest {
     pub projects: Option<Vec<InviteProjectMembership>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct InviteListResponse {
     pub object: String,
     pub data: Vec<Invite>,
@@ -53,7 +53,7 @@ pub struct InviteListResponse {
     pub has_more: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct InviteDeleteResponse {
     /// The object type, which is always `organization.invite.deleted`
     pub object: String,

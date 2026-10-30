@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Response structure for organization usage endpoints.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct UsageResponse {
     /// The object type, which is always `page`.
     pub object: String,

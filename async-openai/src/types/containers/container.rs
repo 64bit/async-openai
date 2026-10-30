@@ -94,7 +94,7 @@ pub struct ContainerListResource {
 }
 
 /// Response when deleting a container.
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct DeleteContainerResponse {
     pub id: String,
     pub object: String,
@@ -148,7 +148,7 @@ pub struct ContainerFileListResource {
 }
 
 /// Response when deleting a container file.
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct DeleteContainerFileResponse {
     pub id: String,
     pub object: String,

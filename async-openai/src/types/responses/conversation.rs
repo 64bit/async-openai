@@ -62,7 +62,7 @@ pub struct UpdateConversationRequest {
 }
 
 /// Represents a deleted conversation.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct DeleteConversationResponse {
     /// The unique ID of the deleted conversation.
     pub id: String,

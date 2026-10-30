@@ -47,7 +47,7 @@ pub struct RealtimeTranslationAudio {
 
 /// A Realtime translation session. Translation sessions continuously translate input
 /// audio into the configured output language.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationSession {
     /// Unique identifier for the session that looks like `sess_1234567890abcdef`.
     pub id: String,
@@ -114,7 +114,7 @@ pub struct RealtimeTranslationClientSecretCreateRequest {
 }
 
 /// Response from creating a translation session and client secret for the Realtime API.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationClientSecretCreateResponse {
     /// The generated client secret value.
     pub value: String,

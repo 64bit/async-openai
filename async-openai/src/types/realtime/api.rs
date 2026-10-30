@@ -13,7 +13,7 @@ pub struct RealtimeCallCreateRequest {
 }
 
 /// Response from creating a Realtime call.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct RealtimeCallCreateResponse {
     /// SDP answer produced by OpenAI for the peer connection.
     pub sdp: String,

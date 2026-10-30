@@ -39,7 +39,7 @@ pub struct OrganizationCertificate {
 }
 
 /// Response returned after activating one or more organization certificates.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct OrganizationCertificateActivationResponse {
     /// The organization certificate activation result type. Always `organization.certificate.activation`.
     pub object: String,
@@ -47,7 +47,7 @@ pub struct OrganizationCertificateActivationResponse {
 }
 
 /// Response returned after deactivating one or more organization certificates.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct OrganizationCertificateDeactivationResponse {
     /// The organization certificate deactivation result type. Always `organization.certificate.deactivation`.
     pub object: String,
@@ -72,7 +72,7 @@ pub struct OrganizationProjectCertificate {
 }
 
 /// Response returned after activating one or more project certificates.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct OrganizationProjectCertificateActivationResponse {
     /// The project certificate activation result type. Always `organization.project.certificate.activation`.
     pub object: String,
@@ -80,7 +80,7 @@ pub struct OrganizationProjectCertificateActivationResponse {
 }
 
 /// Response returned after deactivating one or more project certificates.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct OrganizationProjectCertificateDeactivationResponse {
     /// The project certificate deactivation result type. Always `organization.project.certificate.deactivation`.
     pub object: String,
@@ -88,7 +88,7 @@ pub struct OrganizationProjectCertificateDeactivationResponse {
 }
 
 /// Response for listing certificates attached to a project.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ListProjectCertificatesResponse {
     /// The object type, which is always `list`.
     pub object: String,
@@ -116,7 +116,7 @@ pub struct CertificateDetails {
 }
 
 /// Response for listing certificates.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ListCertificatesResponse {
     /// The object type, which is always `list`.
     pub object: String,
@@ -171,7 +171,7 @@ pub struct ToggleCertificatesRequest {
 }
 
 /// Response for deleting a certificate.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct DeleteCertificateResponse {
     /// The object type, which is always `certificate.deleted`.
     pub object: String,

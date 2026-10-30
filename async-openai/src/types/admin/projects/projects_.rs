@@ -26,7 +26,7 @@ pub struct Project {
 }
 
 /// A list of Project objects.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ProjectListResponse {
     pub object: String,
     pub data: Vec<Project>,
@@ -218,7 +218,7 @@ pub struct ProjectModelPermissions {
 }
 
 /// Confirmation payload returned after deleting project model permissions.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ProjectModelPermissionsDeleteResponse {
     /// The object type, which is always `project.model_permissions.deleted`.
     pub object: String,

@@ -154,7 +154,7 @@ pub struct ContentModerationResult {
 }
 
 /// Represents if a given text input is potentially harmful.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct CreateModerationResponse {
     /// The unique identifier for the moderation request.
     pub id: String,

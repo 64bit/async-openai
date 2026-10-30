@@ -19,7 +19,7 @@ pub struct ProjectUser {
     pub added_at: u64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ProjectUserListResponse {
     pub object: String,
     pub data: Vec<ProjectUser>,
@@ -58,7 +58,7 @@ pub struct ProjectUserUpdateRequest {
     pub role: Option<ProjectMembership>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ProjectUserDeleteResponse {
     pub object: String,
     pub id: String,

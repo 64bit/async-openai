@@ -167,7 +167,7 @@ pub struct BatchRequestCounts {
     pub failed: u32,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct ListBatchesResponse {
     pub data: Vec<Batch>,
     pub first_id: Option<String>,
@@ -195,7 +195,7 @@ pub struct BatchRequestInput {
     pub body: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct BatchRequestOutputResponse {
     /// The HTTP status code of the response
     pub status_code: u16,

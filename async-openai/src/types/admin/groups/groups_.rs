@@ -30,7 +30,7 @@ pub struct Group {
 }
 
 /// Details about an organization group.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct GroupResponse {
     /// Identifier for the group.
     pub id: String,

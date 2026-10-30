@@ -16,13 +16,13 @@ pub struct Model {
     pub shutdown_date: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct ListModelResponse {
     pub object: String,
     pub data: Vec<Model>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct DeleteModelResponse {
     pub id: String,
     pub object: String,

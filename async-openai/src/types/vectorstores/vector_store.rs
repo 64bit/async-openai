@@ -112,7 +112,7 @@ pub struct VectorStoreFileCounts {
     pub total: u32,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct ListVectorStoresResponse {
     pub object: String,
     pub data: Vec<VectorStoreObject>,
@@ -121,7 +121,7 @@ pub struct ListVectorStoresResponse {
     pub has_more: bool,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct DeleteVectorStoreResponse {
     pub id: String,
     pub object: String,
@@ -143,7 +143,7 @@ pub struct UpdateVectorStoreRequest {
     pub metadata: Option<Metadata>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct ListVectorStoreFilesResponse {
     pub object: String,
     pub data: Vec<VectorStoreFileObject>,
@@ -236,7 +236,7 @@ pub struct CreateVectorStoreFileRequest {
     pub attributes: Option<VectorStoreFileAttributes>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct DeleteVectorStoreFileResponse {
     pub id: String,
     pub object: String,
@@ -309,7 +309,7 @@ pub struct VectorStoreFileBatchObject {
 }
 
 /// Represents the parsed content of a vector store file.
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct VectorStoreFileContentResponse {
     /// The object type, which is always `vector_store.file_content.page`
     pub object: String,

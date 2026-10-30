@@ -358,20 +358,20 @@ pub struct FineTuningJob {
     pub metadata: Option<Metadata>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ListPaginatedFineTuningJobsResponse {
     pub data: Vec<FineTuningJob>,
     pub has_more: bool,
     pub object: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ListFineTuningJobEventsResponse {
     pub data: Vec<FineTuningJobEvent>,
     pub object: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ListFineTuningJobCheckpointsResponse {
     pub data: Vec<FineTuningJobCheckpoint>,
     pub object: String,
@@ -450,7 +450,7 @@ pub struct CreateFineTuningCheckpointPermissionRequest {
     pub project_ids: Vec<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ListFineTuningCheckpointPermissionResponse {
     pub data: Vec<FineTuningCheckpointPermission>,
     pub object: String,
@@ -472,7 +472,7 @@ pub struct FineTuningCheckpointPermission {
     pub object: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct DeleteFineTuningCheckpointPermissionResponse {
     pub object: String,
     pub id: String,

@@ -3336,7 +3336,7 @@ pub struct CustomToolCallResource {
     pub r#async: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct DeleteResponse {
     pub object: String,
     pub deleted: bool,

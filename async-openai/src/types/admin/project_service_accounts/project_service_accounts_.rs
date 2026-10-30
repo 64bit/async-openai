@@ -24,7 +24,7 @@ pub struct ProjectServiceAccount {
 }
 
 /// Represents the response object for listing project service accounts.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectServiceAccountListResponse {
     /// The object type, which is always `list`.
     pub object: String,
@@ -52,7 +52,7 @@ pub struct ProjectServiceAccountCreateRequest {
 }
 
 /// Represents the response object for creating a project service account.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectServiceAccountCreateResponse {
     /// The object type, which is always `organization.project.service_account`.
     pub object: String,
@@ -88,7 +88,7 @@ pub struct ProjectServiceAccountApiKey {
 }
 
 /// Represents the response object for deleting a project service account.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectServiceAccountDeleteResponse {
     /// The object type, which is always `organization.project.service_account.deleted`.
     pub object: String,

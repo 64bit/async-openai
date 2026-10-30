@@ -300,7 +300,7 @@ pub enum AuditLogEventType {
 }
 
 /// Represents a list of audit logs.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ListAuditLogsResponse {
     /// The object type, which is always `list`.
     pub object: String,

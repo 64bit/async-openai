@@ -24,7 +24,7 @@ pub struct AdminApiKey {
 }
 
 /// The newly created admin API key. The `value` field is only returned once, when the key is created.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AdminApiKeyCreateResponse {
     /// The object type, which is always `organization.admin_api_key`.
     pub object: String,
@@ -47,7 +47,7 @@ pub struct AdminApiKeyCreateResponse {
 }
 
 /// Represents the owner of an admin API key.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AdminApiKeyOwner {
     pub r#type: String,
 
@@ -93,7 +93,7 @@ pub struct CreateAdminApiKeyRequest {
 }
 
 /// Represents the response object for deleting an admin API key.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AdminApiKeyDeleteResponse {
     /// The object type, which is always `organization.admin_api_key.deleted`.
     pub object: String,
