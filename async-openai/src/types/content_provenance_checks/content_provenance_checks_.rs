@@ -43,7 +43,7 @@ pub enum ProvenanceDetectionResultApi {
     NotDetected,
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Default)]
 pub struct ProvenanceResource {
     /// The object type. Always `content_provenance_check` for this endpoint.
     pub object: String,

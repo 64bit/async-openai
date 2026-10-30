@@ -155,7 +155,7 @@ pub enum MaxOutputTokens {
     Num(u16),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeFunctionTool {
     /// The name of the function.
     pub name: String,
@@ -303,7 +303,7 @@ pub enum Tracing {
     Configuration(TracingConfiguration),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct TracingConfiguration {
     /// The group id to attach to this trace to enable filtering and grouping in the Traces Dashboard.
     pub group_id: String,
@@ -330,7 +330,7 @@ pub enum RealtimeTruncation {
     RetentionRatio(RetentionRatioTruncation),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RetentionRatioTruncation {
     /// Fraction of post-instruction conversation tokens to retain (0.0 - 1.0) when the conversation
     ///  exceeds the input token limit. Setting this to 0.8 means that messages will be dropped
@@ -347,7 +347,7 @@ pub struct RetentionRatioTruncation {
     pub token_limits: Option<TokenLimits>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct TokenLimits {
     /// Maximum tokens allowed in the conversation after instructions (which including tool
     /// definitions). For example, setting this to 5,000 would mean that truncation would occur

@@ -7,7 +7,7 @@ use crate::types::audio::{LogProbProperties, TranscriptTextUsageDuration, Transc
 use crate::types::InputSource;
 
 /// A custom voice reference, identified by its voice ID.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CustomVoiceRef {
     /// The custom voice ID, e.g. `voice_1234`.
     pub id: String,
@@ -275,7 +275,7 @@ pub struct CreateTranscriptionResponseDiarizedJson {
 
 /// Represents a verbose json transcription response returned by model, based on
 /// the provided input.
-#[derive(Debug, Deserialize, Clone, Serialize)]
+#[derive(Debug, Deserialize, Clone, Serialize, Default)]
 pub struct CreateTranscriptionResponseVerboseJson {
     /// The language of the input audio.
     pub language: String,
@@ -298,7 +298,7 @@ pub struct CreateTranscriptionResponseVerboseJson {
     pub usage: TranscriptTextUsageDuration,
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize)]
+#[derive(Debug, Deserialize, Clone, Serialize, Default)]
 pub struct TranscriptionWord {
     /// The text content of the word.
     pub word: String,
@@ -339,7 +339,7 @@ pub struct TranscriptionDiarizedSegment {
     pub speaker: String,
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize)]
+#[derive(Debug, Deserialize, Clone, Serialize, Default)]
 pub struct TranscriptionSegment {
     /// Unique identifier of the segment.
     pub id: u32,
@@ -451,12 +451,12 @@ pub struct CreateTranslationRequest {
     pub temperature: Option<f32>, // default: 0
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct CreateTranslationResponseJson {
     pub text: String,
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize)]
+#[derive(Debug, Deserialize, Clone, Serialize, Default)]
 pub struct CreateTranslationResponseVerboseJson {
     /// The language of the output translation (always `english`).
     pub language: String,
@@ -469,13 +469,13 @@ pub struct CreateTranslationResponseVerboseJson {
     pub segments: Option<Vec<TranscriptionSegment>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct CreateSpeechResponse {
     pub bytes: Bytes,
 }
 
 /// A consent recording used to authorize creation of a custom voice.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct VoiceConsentResource {
     /// The object type, which is always `audio.voice_consent`.
     pub object: String,
@@ -520,7 +520,7 @@ pub struct UpdateVoiceConsentRequest {
 }
 
 /// The voice consent deletion object.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct VoiceConsentDeletedResource {
     /// The consent recording identifier.
     pub id: String,
@@ -531,7 +531,7 @@ pub struct VoiceConsentDeletedResource {
 }
 
 /// The voice consent list object.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct VoiceConsentListResource {
     /// The object type, which is always `list`.
     pub object: String,
@@ -548,7 +548,7 @@ pub struct VoiceConsentListResource {
 }
 
 /// A custom voice that can be used for audio output.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct VoiceResource {
     /// The object type, which is always `audio.voice`.
     pub object: String,

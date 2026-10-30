@@ -26,7 +26,7 @@ pub enum OrganizationSpendAlertCurrency {
 }
 
 /// Confirmation payload returned after deleting an organization spend alert.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct OrganizationSpendAlertDeletedResource {
     /// The deleted spend alert ID.
     pub id: String,
@@ -44,7 +44,7 @@ pub enum OrganizationSpendAlertInterval {
 }
 
 /// Paginated list of organization spend alerts.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct OrganizationSpendAlertListResource {
     /// Always `list`.
     pub object: String,

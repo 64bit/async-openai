@@ -18,7 +18,7 @@ pub enum MemoryLimit {
     SixtyFourG,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct ContainerResource {
     /// Unique identifier for the container.
     pub id: String,
@@ -79,7 +79,7 @@ pub struct CreateContainerRequest {
 }
 
 /// Response when listing containers.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct ContainerListResource {
     /// The type of object returned, must be 'list'.
     pub object: String,
@@ -94,7 +94,7 @@ pub struct ContainerListResource {
 }
 
 /// Response when deleting a container.
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct DeleteContainerResponse {
     pub id: String,
     pub object: String,
@@ -104,7 +104,7 @@ pub struct DeleteContainerResponse {
 // Container File types
 
 /// The container file object represents a file in a container.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct ContainerFileResource {
     /// Unique identifier for the file.
     pub id: String,
@@ -133,7 +133,7 @@ pub struct CreateContainerFileRequest {
 }
 
 /// Response when listing container files.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct ContainerFileListResource {
     /// The type of object returned, must be 'list'.
     pub object: String,
@@ -148,7 +148,7 @@ pub struct ContainerFileListResource {
 }
 
 /// Response when deleting a container file.
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct DeleteContainerFileResponse {
     pub id: String,
     pub object: String,

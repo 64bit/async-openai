@@ -146,7 +146,7 @@ pub struct RemixVideoRequest {
     pub prompt: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct VideoResourceError {
     pub code: String,
     pub message: String,
@@ -193,7 +193,7 @@ pub struct VideoResource {
 }
 
 /// Character resource returned by character creation and retrieval.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct VideoCharacterResource {
     /// Identifier for the character.
     pub id: Option<String>,
@@ -212,14 +212,14 @@ pub enum VideoStatus {
     Failed,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct DeletedVideoResource {
     pub id: String,
     pub object: String,
     pub deleted: bool,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct VideoListResource {
     pub data: Vec<VideoResource>,
     pub object: String,

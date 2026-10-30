@@ -15,7 +15,7 @@ pub enum ResponseFormat {
     },
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ResponseFormatJsonSchema))]
 pub struct ResponseFormatJsonSchema {

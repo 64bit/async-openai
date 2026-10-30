@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct TokenUsageInputTokenDetails {
     /// Number of audio tokens billed for this request.
     pub audio_tokens: u32,
@@ -8,7 +8,7 @@ pub struct TokenUsageInputTokenDetails {
     pub text_tokens: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct TranscriptTextUsageTokens {
     /// Number of input tokens billed for this request.
     pub input_tokens: u32,
@@ -20,7 +20,7 @@ pub struct TranscriptTextUsageTokens {
     pub input_token_details: Option<TokenUsageInputTokenDetails>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct TranscriptTextUsageDuration {
     ///Duration of the input audio in seconds.
     pub seconds: f32,

@@ -16,13 +16,13 @@ pub enum ModerationInput {
     MultiModal(Vec<ModerationContentPart>),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModerationTextInput {
     /// A string of text to classify
     pub text: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModerationImageURLInput {
     /// Either a URL of the image or the base64 encoded image data.
     pub image_url: String,
@@ -59,7 +59,7 @@ pub struct CreateModerationRequest {
     pub model: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct Categories {
     /// Content that expresses, incites, or promotes hate based on race, gender,
     /// ethnicity, religion, nationality, sexual orientation, disability status, or
@@ -103,7 +103,7 @@ pub struct Categories {
 }
 
 /// A list of the categories along with their scores as predicted by model.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct CategoryScore {
     /// The score for the category 'hate'.
     pub hate: f32,
@@ -141,7 +141,7 @@ pub struct CategoryScore {
     pub violence_graphic: f32,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct ContentModerationResult {
     /// Whether any of the below categories are flagged.
     pub flagged: bool,
@@ -154,7 +154,7 @@ pub struct ContentModerationResult {
 }
 
 /// Represents if a given text input is potentially harmful.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct CreateModerationResponse {
     /// The unique identifier for the moderation request.
     pub id: String,
@@ -165,7 +165,7 @@ pub struct CreateModerationResponse {
 }
 
 /// A list of the categories along with the input type(s) that the score applies to.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CategoryAppliedInputTypes {
     /// The applied input type(s) for the category 'hate'.
     pub hate: Vec<ModInputType>,

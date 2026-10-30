@@ -79,7 +79,7 @@ pub enum StreamError {
 }
 
 /// OpenAI API returns error object on failure
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct ApiError {
     pub message: String,
     pub r#type: Option<String>,

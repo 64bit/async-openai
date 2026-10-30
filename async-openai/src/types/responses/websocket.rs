@@ -46,7 +46,7 @@ pub enum ResponsesClientEvent {
 /// - `stream` is implicit over WebSocket and should not be sent.
 /// - `background` is not supported over WebSocket.
 /// - `stream_id` is WebSocket-only and is not part of `POST /v1/responses`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponsesClientEventResponseCreate {
     /// The WebSocket lane for this response. Requests with the same
     /// `stream_id` are processed FIFO, and events for the response echo the
@@ -251,7 +251,7 @@ pub enum ResponsesServerEvent {
 }
 
 /// Emitted when there is a partial audio response.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseAudioWsDelta {
     #[serde(flatten)]
     pub event: ResponseAudioDeltaEvent,
@@ -262,7 +262,7 @@ pub struct ResponseAudioWsDelta {
 }
 
 /// Emitted when the audio response is complete.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseAudioWsDone {
     #[serde(flatten)]
     pub event: ResponseAudioDoneEvent,
@@ -273,7 +273,7 @@ pub struct ResponseAudioWsDone {
 }
 
 /// Emitted when there is a partial transcript of audio.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseAudioTranscriptWsDelta {
     #[serde(flatten)]
     pub event: ResponseAudioTranscriptDeltaEvent,
@@ -284,7 +284,7 @@ pub struct ResponseAudioTranscriptWsDelta {
 }
 
 /// Emitted when the full audio transcript is completed.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseAudioTranscriptWsDone {
     #[serde(flatten)]
     pub event: ResponseAudioTranscriptDoneEvent,
@@ -295,7 +295,7 @@ pub struct ResponseAudioTranscriptWsDone {
 }
 
 /// Emitted when a partial code snippet is streamed by the code interpreter.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseCodeInterpreterCallCodeWsDelta {
     #[serde(flatten)]
     pub event: ResponseCodeInterpreterCallCodeDeltaEvent,
@@ -306,7 +306,7 @@ pub struct ResponseCodeInterpreterCallCodeWsDelta {
 }
 
 /// Emitted when the code snippet is finalized by the code interpreter.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseCodeInterpreterCallCodeWsDone {
     #[serde(flatten)]
     pub event: ResponseCodeInterpreterCallCodeDoneEvent,
@@ -317,7 +317,7 @@ pub struct ResponseCodeInterpreterCallCodeWsDone {
 }
 
 /// Emitted when the code interpreter call is completed.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseCodeInterpreterCallWsCompleted {
     #[serde(flatten)]
     pub event: ResponseCodeInterpreterCallCompletedEvent,
@@ -328,7 +328,7 @@ pub struct ResponseCodeInterpreterCallWsCompleted {
 }
 
 /// Emitted when a code interpreter call is in progress.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseCodeInterpreterCallInWsProgress {
     #[serde(flatten)]
     pub event: ResponseCodeInterpreterCallInProgressEvent,
@@ -339,7 +339,7 @@ pub struct ResponseCodeInterpreterCallInWsProgress {
 }
 
 /// Emitted when the code interpreter is actively interpreting the code snippet.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseCodeInterpreterCallWsInterpreting {
     #[serde(flatten)]
     pub event: ResponseCodeInterpreterCallInterpretingEvent,
@@ -394,7 +394,7 @@ pub struct ResponseWsCreated {
 }
 
 /// Emitted when a file search call is completed (results found).
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseFileSearchCallWsCompleted {
     #[serde(flatten)]
     pub event: ResponseFileSearchCallCompletedEvent,
@@ -405,7 +405,7 @@ pub struct ResponseFileSearchCallWsCompleted {
 }
 
 /// Emitted when a file search call is initiated.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseFileSearchCallInWsProgress {
     #[serde(flatten)]
     pub event: ResponseFileSearchCallInProgressEvent,
@@ -416,7 +416,7 @@ pub struct ResponseFileSearchCallInWsProgress {
 }
 
 /// Emitted when a file search is currently searching.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseFileSearchCallWsSearching {
     #[serde(flatten)]
     pub event: ResponseFileSearchCallSearchingEvent,
@@ -427,7 +427,7 @@ pub struct ResponseFileSearchCallWsSearching {
 }
 
 /// Emitted when there is a partial function-call arguments delta.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseFunctionCallArgumentsWsDelta {
     #[serde(flatten)]
     pub event: ResponseFunctionCallArgumentsDeltaEvent,
@@ -438,7 +438,7 @@ pub struct ResponseFunctionCallArgumentsWsDelta {
 }
 
 /// Emitted when function-call arguments are finalized.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseFunctionCallArgumentsWsDone {
     #[serde(flatten)]
     pub event: ResponseFunctionCallArgumentsDoneEvent,
@@ -449,7 +449,7 @@ pub struct ResponseFunctionCallArgumentsWsDone {
 }
 
 /// A streaming event that indicated a shell command was added to a tool call.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseShellCallCommandWsAdded {
     #[serde(flatten)]
     pub event: ResponseShellCallCommandAddedStreamingEvent,
@@ -460,7 +460,7 @@ pub struct ResponseShellCallCommandWsAdded {
 }
 
 /// A streaming event that indicated a shell command was incrementally updated.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseShellCallCommandWsDelta {
     #[serde(flatten)]
     pub event: ResponseShellCallCommandDeltaStreamingEvent,
@@ -471,7 +471,7 @@ pub struct ResponseShellCallCommandWsDelta {
 }
 
 /// A streaming event that indicated a shell command was completed.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseShellCallCommandWsDone {
     #[serde(flatten)]
     pub event: ResponseShellCallCommandDoneStreamingEvent,
@@ -482,7 +482,7 @@ pub struct ResponseShellCallCommandWsDone {
 }
 
 /// A streaming event that indicated shell call output was incrementally added.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseShellCallOutputContentWsDelta {
     #[serde(flatten)]
     pub event: ResponseShellCallOutputContentDeltaStreamingEvent,
@@ -493,7 +493,7 @@ pub struct ResponseShellCallOutputContentWsDelta {
 }
 
 /// A streaming event that indicated shell call output was completed.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseShellCallOutputContentWsDone {
     #[serde(flatten)]
     pub event: ResponseShellCallOutputContentDoneStreamingEvent,
@@ -585,7 +585,7 @@ pub struct ResponseReasoningSummaryPartWsDone {
 }
 
 /// Emitted when a delta is added to a reasoning summary text.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseReasoningSummaryTextWsDelta {
     #[serde(flatten)]
     pub event: ResponseReasoningSummaryTextDeltaEvent,
@@ -596,7 +596,7 @@ pub struct ResponseReasoningSummaryTextWsDelta {
 }
 
 /// Emitted when a reasoning summary text is completed.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseReasoningSummaryTextWsDone {
     #[serde(flatten)]
     pub event: ResponseReasoningSummaryTextDoneEvent,
@@ -607,7 +607,7 @@ pub struct ResponseReasoningSummaryTextWsDone {
 }
 
 /// Emitted when a delta is added to a reasoning text.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseReasoningTextWsDelta {
     #[serde(flatten)]
     pub event: ResponseReasoningTextDeltaEvent,
@@ -618,7 +618,7 @@ pub struct ResponseReasoningTextWsDelta {
 }
 
 /// Emitted when a reasoning text is completed.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseReasoningTextWsDone {
     #[serde(flatten)]
     pub event: ResponseReasoningTextDoneEvent,
@@ -629,7 +629,7 @@ pub struct ResponseReasoningTextWsDone {
 }
 
 /// Emitted when there is a partial refusal text.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseRefusalWsDelta {
     #[serde(flatten)]
     pub event: ResponseRefusalDeltaEvent,
@@ -640,7 +640,7 @@ pub struct ResponseRefusalWsDelta {
 }
 
 /// Emitted when refusal text is finalized.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseRefusalWsDone {
     #[serde(flatten)]
     pub event: ResponseRefusalDoneEvent,
@@ -651,7 +651,7 @@ pub struct ResponseRefusalWsDone {
 }
 
 /// Emitted when there is an additional text delta.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseTextWsDelta {
     #[serde(flatten)]
     pub event: ResponseTextDeltaEvent,
@@ -662,7 +662,7 @@ pub struct ResponseTextWsDelta {
 }
 
 /// Emitted when text content is finalized.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseTextWsDone {
     #[serde(flatten)]
     pub event: ResponseTextDoneEvent,
@@ -673,7 +673,7 @@ pub struct ResponseTextWsDone {
 }
 
 /// Emitted when a web search call is completed.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseWebSearchCallWsCompleted {
     #[serde(flatten)]
     pub event: ResponseWebSearchCallCompletedEvent,
@@ -684,7 +684,7 @@ pub struct ResponseWebSearchCallWsCompleted {
 }
 
 /// Emitted when a web search call is initiated.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseWebSearchCallInWsProgress {
     #[serde(flatten)]
     pub event: ResponseWebSearchCallInProgressEvent,
@@ -695,7 +695,7 @@ pub struct ResponseWebSearchCallInWsProgress {
 }
 
 /// Emitted when a web search call is executing.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseWebSearchCallWsSearching {
     #[serde(flatten)]
     pub event: ResponseWebSearchCallSearchingEvent,
@@ -706,7 +706,7 @@ pub struct ResponseWebSearchCallWsSearching {
 }
 
 /// Emitted when an image generation tool call has completed and the final image is available.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseImageGenCallWsCompleted {
     #[serde(flatten)]
     pub event: ResponseImageGenCallCompletedEvent,
@@ -718,7 +718,7 @@ pub struct ResponseImageGenCallWsCompleted {
 
 /// Emitted when an image generation tool call is actively generating an image (intermediate
 /// state).
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseImageGenCallWsGenerating {
     #[serde(flatten)]
     pub event: ResponseImageGenCallGeneratingEvent,
@@ -729,7 +729,7 @@ pub struct ResponseImageGenCallWsGenerating {
 }
 
 /// Emitted when an image generation tool call is in progress.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseImageGenCallInWsProgress {
     #[serde(flatten)]
     pub event: ResponseImageGenCallInProgressEvent,
@@ -740,7 +740,7 @@ pub struct ResponseImageGenCallInWsProgress {
 }
 
 /// Emitted when a partial image is available during image generation streaming.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseImageGenCallPartialWsImage {
     #[serde(flatten)]
     pub event: ResponseImageGenCallPartialImageEvent,
@@ -751,7 +751,7 @@ pub struct ResponseImageGenCallPartialWsImage {
 }
 
 /// Emitted when there is a delta (partial update) to the arguments of an MCP tool call.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseMcpCallArgumentsWsDelta {
     #[serde(flatten)]
     pub event: ResponseMCPCallArgumentsDeltaEvent,
@@ -762,7 +762,7 @@ pub struct ResponseMcpCallArgumentsWsDelta {
 }
 
 /// Emitted when the arguments for an MCP tool call are finalized.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseMcpCallArgumentsWsDone {
     #[serde(flatten)]
     pub event: ResponseMCPCallArgumentsDoneEvent,
@@ -773,7 +773,7 @@ pub struct ResponseMcpCallArgumentsWsDone {
 }
 
 /// Emitted when an MCP tool call has completed successfully.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseMcpCallWsCompleted {
     #[serde(flatten)]
     pub event: ResponseMCPCallCompletedEvent,
@@ -784,7 +784,7 @@ pub struct ResponseMcpCallWsCompleted {
 }
 
 /// Emitted when an MCP tool call has failed.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseMcpCallWsFailed {
     #[serde(flatten)]
     pub event: ResponseMCPCallFailedEvent,
@@ -795,7 +795,7 @@ pub struct ResponseMcpCallWsFailed {
 }
 
 /// Emitted when an MCP tool call is in progress.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseMcpCallInWsProgress {
     #[serde(flatten)]
     pub event: ResponseMCPCallInProgressEvent,
@@ -806,7 +806,7 @@ pub struct ResponseMcpCallInWsProgress {
 }
 
 /// Emitted when the list of available MCP tools has been successfully retrieved.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseMcpListToolsWsCompleted {
     #[serde(flatten)]
     pub event: ResponseMCPListToolsCompletedEvent,
@@ -817,7 +817,7 @@ pub struct ResponseMcpListToolsWsCompleted {
 }
 
 /// Emitted when the attempt to list available MCP tools has failed.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseMcpListToolsWsFailed {
     #[serde(flatten)]
     pub event: ResponseMCPListToolsFailedEvent,
@@ -828,7 +828,7 @@ pub struct ResponseMcpListToolsWsFailed {
 }
 
 /// Emitted when the system is in the process of retrieving the list of available MCP tools.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseMcpListToolsInWsProgress {
     #[serde(flatten)]
     pub event: ResponseMCPListToolsInProgressEvent,
@@ -839,7 +839,7 @@ pub struct ResponseMcpListToolsInWsProgress {
 }
 
 /// Emitted when an annotation is added to output text content.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseOutputTextAnnotationWsAdded {
     #[serde(flatten)]
     pub event: ResponseOutputTextAnnotationAddedEvent,
@@ -861,7 +861,7 @@ pub struct ResponseWsQueued {
 }
 
 /// Event representing a delta (partial update) to the input of a custom tool call.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseCustomToolCallInputWsDelta {
     #[serde(flatten)]
     pub event: ResponseCustomToolCallInputDeltaEvent,
@@ -872,7 +872,7 @@ pub struct ResponseCustomToolCallInputWsDelta {
 }
 
 /// Event indicating that input for a custom tool call is complete.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseCustomToolCallInputWsDone {
     #[serde(flatten)]
     pub event: ResponseCustomToolCallInputDoneEvent,
@@ -883,7 +883,7 @@ pub struct ResponseCustomToolCallInputWsDone {
 }
 
 /// An error payload that was emitted for a streaming error event.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ErrorPayload {
     /// The error type that was emitted.
     pub r#type: String,
@@ -910,7 +910,7 @@ pub struct ErrorPayload {
 /// `response.completed`. Fill the pending event's `required_input` stubs with
 /// saved results and send one matching explicit `response.create` per parent.
 /// Do not resend accepted input while it is still queued.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseSteerAcceptedEvent {
     /// The sequence number for this event.
     pub sequence_number: u64,
@@ -923,7 +923,7 @@ pub struct ResponseSteerAcceptedEvent {
 }
 
 /// The accepted steering submission.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseSteerAcceptedEventSteer {
     /// The ID assigned to the steering submission.
     pub id: String,
@@ -1093,7 +1093,7 @@ pub struct ResponseSteerPendingEvent {
 }
 
 /// The steering submission that remains queued.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseSteerPendingEventSteer {
     /// The ID assigned to the steering submission.
     pub id: String,
@@ -1153,7 +1153,7 @@ pub enum ResponseSteerRequiredInput {
 }
 
 /// Supply `output` using the function tool call output input schema.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseSteerRequiredInputFunctionCallOutput {
     pub call_id: String,
     pub name: String,
@@ -1161,28 +1161,28 @@ pub struct ResponseSteerRequiredInputFunctionCallOutput {
 
 /// Supply `output` using the custom tool call output input schema. The
 /// original custom tool call supplies the tool's name.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseSteerRequiredInputCustomToolCallOutput {
     pub call_id: String,
 }
 
 /// Supply `output` using the computer tool call output input schema,
 /// including any required `acknowledged_safety_checks`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseSteerRequiredInputComputerCallOutput {
     pub call_id: String,
 }
 
 /// Supply `output` using the shell tool call output input schema. Each
 /// output entry includes `stdout`, `stderr`, and `outcome`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseSteerRequiredInputShellCallOutput {
     pub call_id: String,
 }
 
 /// Supply `status` and optional `output` using the apply patch tool call
 /// output input schema.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseSteerRequiredInputApplyPatchCallOutput {
     pub call_id: String,
 }
@@ -1204,13 +1204,13 @@ pub enum ResponseSteerRequiredInputToolSearchOutputExecution {
 /// Supply `approve` using the MCP approval response input schema. An
 /// optional `reason` can be supplied when denying the request. The original
 /// approval request identifies the tool and server.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseSteerRequiredInputMcpApprovalResponse {
     pub approval_request_id: String,
 }
 
 /// Emitted when an error occurs while processing a Responses WebSocket request.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponseWsError {
     /// The HTTP status code associated with a WebSocket protocol error.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1226,7 +1226,7 @@ pub struct ResponseWsError {
     pub stream_id: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ResponsesWebSocketStreamEvent {
     /// The WebSocket lane that emitted this event. This field is present
     /// when the originating `response.create` event supplied a

@@ -4,7 +4,7 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 /// Nested user details for [`User`].
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct UserNested {
     pub object: String,
     pub id: String,
@@ -17,7 +17,7 @@ pub struct UserNested {
 }
 
 /// A project entry inside [`UserProjects::data`].
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct UserProjectEntry {
     pub id: Option<String>,
     pub name: Option<String>,
@@ -25,14 +25,14 @@ pub struct UserProjectEntry {
 }
 
 /// Projects associated with the user, if included.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct UserProjects {
     pub object: String,
     pub data: Vec<UserProjectEntry>,
 }
 
 /// Represents an individual `user` within an organization.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct User {
     /// The object type, which is always `organization.user`
     pub object: String,
@@ -82,7 +82,7 @@ pub struct User {
 }
 
 /// A list of `User` objects.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct UserListResponse {
     pub object: String,
     pub data: Vec<User>,
@@ -113,7 +113,7 @@ pub struct UserRoleUpdateRequest {
 }
 
 /// Confirmation of the deleted user
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct UserDeleteResponse {
     pub object: String,
     pub id: String,
@@ -121,7 +121,7 @@ pub struct UserDeleteResponse {
 }
 
 /// Role assignment linking a user to a role.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct UserRoleAssignment {
     /// The object type, which is always `user.role`.
     pub object: String,
@@ -132,7 +132,7 @@ pub struct UserRoleAssignment {
 }
 
 /// Paginated list of role assignments for a user.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct UserRoleAssignmentListResource {
     /// The object type, which is always `list`.
     pub object: String,
@@ -145,7 +145,7 @@ pub struct UserRoleAssignmentListResource {
 }
 
 /// Request payload for assigning a role to a user.
-#[derive(Debug, Serialize, Deserialize, Builder, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Builder, Clone, PartialEq, Default)]
 #[builder(name = "AssignUserRoleRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option))]

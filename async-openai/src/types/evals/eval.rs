@@ -49,7 +49,7 @@ pub enum EvalDataSourceConfig {
 }
 
 /// Custom data source config.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalCustomDataSourceConfig {
     /// The type of data source. Always "custom".
     #[serde(rename = "type")]
@@ -59,7 +59,7 @@ pub struct EvalCustomDataSourceConfig {
 }
 
 /// Logs data source config.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalLogsDataSourceConfig {
     /// The type of data source. Always "logs".
     #[serde(rename = "type")]
@@ -72,7 +72,7 @@ pub struct EvalLogsDataSourceConfig {
 }
 
 /// Stored completions data source config (deprecated).
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalStoredCompletionsDataSourceConfig {
     /// The type of data source. Always "stored_completions".
     #[serde(rename = "type")]
@@ -101,7 +101,7 @@ pub enum EvalTestingCriterion {
 }
 
 /// Label model grader.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[serde(transparent)]
 pub struct EvalGraderLabelModel(pub GraderLabelModel);
 
@@ -148,14 +148,14 @@ pub enum TextSimilarityMetric {
 
 /// Python grader.
 /// also in openapi spec: GraderPython
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalGraderPython {
     #[serde(flatten)]
     pub grader: GraderPython,
     pub pass_threshold: Option<f64>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct SamplingParams {
     /// A seed value to initialize the randomness, during sampling.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -176,7 +176,7 @@ pub struct SamplingParams {
 
 /// Score model grader.
 /// also in openapi spec: GraderScoreModel
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalGraderScoreModel {
     #[serde(flatten)]
     pub grader: GraderScoreModel,
@@ -209,14 +209,14 @@ pub enum EvalItemRole {
 }
 
 /// Output text from the model.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalItemContentOutputText {
     /// The text output from the model.
     pub text: String,
 }
 
 /// Input image block used within EvalItem content arrays.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalItemInputImage {
     /// The URL of the image input.
     pub image_url: String,
@@ -255,7 +255,7 @@ pub enum EvalItemContentItem {
 }
 
 /// List of evals.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalList {
     /// The object type, which is always "list".
     pub object: String,
@@ -374,7 +374,7 @@ pub struct CreateEvalLabelModelGrader {
     pub passing_labels: Vec<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct SimpleInputMessage {
     /// The role of the message.
     pub role: String,
@@ -415,7 +415,7 @@ pub struct UpdateEvalRequest {
 }
 
 /// Response from deleting an eval.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct DeleteEvalResponse {
     /// The object type, which is always "eval.deleted".
     pub object: String,
@@ -477,7 +477,7 @@ pub enum EvalRunStatus {
 }
 
 /// Counters summarizing the outcomes of the evaluation run.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalRunResultCounts {
     /// Total number of executed output items.
     pub total: u32,
@@ -490,7 +490,7 @@ pub struct EvalRunResultCounts {
 }
 
 /// Usage statistics for each model during the evaluation run.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalRunModelUsage {
     /// The name of the model.
     pub model_name: String,
@@ -507,7 +507,7 @@ pub struct EvalRunModelUsage {
 }
 
 /// Results per testing criteria applied during the evaluation run.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalRunTestingCriteriaResult {
     /// A description of the testing criteria.
     pub testing_criteria: String,
@@ -547,21 +547,21 @@ pub enum EvalJsonlSource {
 }
 
 /// JSONL file content source.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalJsonlFileContentSource {
     /// The content of the jsonl file.
     pub content: Vec<EvalJsonlContentItem>,
 }
 
 /// JSONL file ID source.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalJsonlFileIdSource {
     /// The identifier of the file.
     pub id: String,
 }
 
 /// JSONL content item.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalJsonlContentItem {
     /// The item data.
     pub item: serde_json::Value,
@@ -586,14 +586,14 @@ pub struct CreateEvalCompletionsRunDataSource {
     pub source: EvalCompletionsSource,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct TemplateInputMessages {
     /// A list of chat messages forming the prompt or context. May include variable references to
     /// the `item` namespace, ie {{item.name}}.
     pub template: Vec<CreateEvalItem>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct ItemReference {
     /// A reference to a variable in the `item` namespace. Ie, "item.input_trajectory"
     pub item_reference: String,
@@ -679,7 +679,7 @@ pub enum EvalCompletionsSource {
 }
 
 /// Stored completions source.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalStoredCompletionsSource {
     /// Metadata filters for the stored completions.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -726,7 +726,7 @@ pub enum EvalResponsesRunSource {
 }
 
 /// A EvalResponsesSource object describing a run data source configuration.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalResponsesSource {
     /// Metadata filter for the responses. This is a query parameter used to select responses.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -761,7 +761,7 @@ pub struct EvalResponsesSource {
 }
 
 /// List of eval runs.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalRunList {
     /// The object type, which is always "list".
     pub object: String,
@@ -813,7 +813,7 @@ impl Default for CreateEvalRunDataSource {
 }
 
 /// Response from deleting an eval run.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct DeleteEvalRunResponse {
     /// The object type, which is always "eval.run.deleted".
     pub object: String,
@@ -826,7 +826,7 @@ pub struct DeleteEvalRunResponse {
 // EvalRunOutputItem types
 
 /// A schema representing an evaluation run output item.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalRunOutputItem {
     /// The object type, which is always "eval.run.output_item".
     pub object: String,
@@ -851,7 +851,7 @@ pub struct EvalRunOutputItem {
 }
 
 /// A single grader result for an evaluation run output item.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalRunOutputItemResult {
     /// The name of the grader.
     pub name: String,
@@ -864,14 +864,14 @@ pub struct EvalRunOutputItemResult {
     pub sample: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct SimpleOutputMessage {
     pub role: String,
     pub content: String,
 }
 
 /// A sample containing the input and output of the evaluation run.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalRunOutputItemSample {
     /// An array of input messages.
     pub input: Vec<SimpleInputMessage>,
@@ -896,7 +896,7 @@ pub struct EvalRunOutputItemSample {
 }
 
 /// Token usage details for the sample.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalRunOutputItemUsage {
     /// The total number of tokens used.
     pub total_tokens: i32,
@@ -909,7 +909,7 @@ pub struct EvalRunOutputItemUsage {
 }
 
 /// List of eval run output items.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalRunOutputItemList {
     /// The object type, which is always "list".
     pub object: String,
@@ -924,7 +924,7 @@ pub struct EvalRunOutputItemList {
 }
 
 /// An object representing an error response from the Eval API.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct EvalApiError {
     /// The error code.
     pub code: String,

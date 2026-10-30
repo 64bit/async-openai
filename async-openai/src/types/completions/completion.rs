@@ -126,7 +126,7 @@ pub struct CreateCompletionRequest {
     pub seed: Option<i64>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::CreateCompletionResponse))]
 pub struct CreateCompletionResponse {

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// The user that owns a project API key.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectApiKeyOwnerUser {
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,
@@ -16,7 +16,7 @@ pub struct ProjectApiKeyOwnerUser {
 }
 
 /// The service account that owns a project API key.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectApiKeyOwnerServiceAccount {
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,
@@ -81,7 +81,7 @@ pub struct ProjectApiKeyOwner {
 }
 
 /// Represents the response object for listing project API keys.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectApiKeyListResponse {
     /// The object type, which is always `list`.
     pub object: String,
@@ -96,7 +96,7 @@ pub struct ProjectApiKeyListResponse {
 }
 
 /// Represents the response object for deleting a project API key.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectApiKeyDeleteResponse {
     /// The object type, which is always `organization.project.api_key.deleted`.
     pub object: String,

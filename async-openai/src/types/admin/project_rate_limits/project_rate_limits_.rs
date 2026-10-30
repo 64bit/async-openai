@@ -3,7 +3,7 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 /// Represents a project rate limit config.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ProjectRateLimit {
     /// The object type, which is always `project.rate_limit`
     pub object: String,
@@ -30,7 +30,7 @@ pub struct ProjectRateLimit {
 }
 
 /// Represents the response object for listing project rate limits.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ProjectRateLimitListResponse {
     /// The object type, which is always `list`.
     pub object: String,

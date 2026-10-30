@@ -5,7 +5,7 @@ use crate::types::{
     realtime::{ErrorCodeMessage, ErrorMessage},
 };
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct SystemMessageContent {
     /// The text content.
     pub text: String,
@@ -13,7 +13,7 @@ pub struct SystemMessageContent {
     pub r#type: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeConversationItemMessageSystem {
     /// The content of the message.
     pub content: Vec<SystemMessageContent>,
@@ -29,13 +29,13 @@ pub struct RealtimeConversationItemMessageSystem {
     pub status: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct UserMessageContentInputText {
     /// The text content (for `input_text`).
     pub text: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct UserMessageContentInputAudio {
     /// Base64-encoded audio bytes (for `input_audio`), these will be parsed as the
     /// format specified in the session input audio type configuration.
@@ -55,7 +55,7 @@ pub enum ImageDetail {
     High,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct UserMessageContentInputImage {
     /// Base64-encoded image bytes (for `input_image`) as a data URI.
     /// For example `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...`.
@@ -74,7 +74,7 @@ pub enum UserMessageContent {
     InputImage(UserMessageContentInputImage),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeConversationItemMessageUser {
     /// The content of the message.
     pub content: Vec<UserMessageContent>,
@@ -93,13 +93,13 @@ pub struct RealtimeConversationItemMessageUser {
     pub status: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct AssistantMessageContentOutputText {
     /// The text content
     pub text: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct AssistantMessageContentOutputAudio {
     /// Base64-encoded audio bytes, these will be parsed as the format specified
     /// in the session output audio type configuration. This defaults to PCM 16-bit
@@ -118,7 +118,7 @@ pub enum AssistantMessageContent {
     OutputAudio(AssistantMessageContentOutputAudio),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeConversationItemMessageAssistant {
     /// The content of the message.
     pub content: Vec<AssistantMessageContent>,
@@ -146,7 +146,7 @@ pub enum RealtimeConversationItemMessage {
     Assistant(RealtimeConversationItemMessageAssistant),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeConversationItemFunctionCall {
     /// The arguments of the function call. This is a JSON-encoded string representing
     /// the arguments passed to the function, for example {"arg1": "value1", "arg2": 42}.
@@ -171,7 +171,7 @@ pub struct RealtimeConversationItemFunctionCall {
     pub status: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeConversationItemFunctionCallOutput {
     /// The ID of the function call this output is for.
     pub call_id: String,
@@ -193,7 +193,7 @@ pub struct RealtimeConversationItemFunctionCallOutput {
     pub status: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeMCPApprovalResponse {
     /// The ID of the approval request being answered.
     pub approval_request_id: String,
@@ -208,7 +208,7 @@ pub struct RealtimeMCPApprovalResponse {
     pub reason: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeMCPListTools {
     /// The label of the MCP server.
     pub server_label: String,
@@ -220,7 +220,7 @@ pub struct RealtimeMCPListTools {
     pub id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeMCPApprovalRequest {
     /// A JSON string of arguments for the tool.
     pub arguments: String,
@@ -235,7 +235,7 @@ pub struct RealtimeMCPApprovalRequest {
     pub server_label: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeMCPProtocolError {}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -246,7 +246,7 @@ pub enum RealtimeMCPToolCallError {
     HttpError(ErrorCodeMessage),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeMCPToolCall {
     /// A JSON string of the arguments passed to the tool.
     pub arguments: String,

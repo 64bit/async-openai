@@ -5,7 +5,7 @@ use crate::types::realtime::{NoiseReductionType, RealtimeServerEventError};
 /// Optional source-language transcription configuration for a translation session.
 /// When configured, the server emits `session.input_transcript.delta` events.
 /// Translation itself still runs from the input audio stream.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationInputTranscription {
     /// The transcription model used for source transcript deltas.
     pub model: String,
@@ -47,7 +47,7 @@ pub struct RealtimeTranslationAudio {
 
 /// A Realtime translation session. Translation sessions continuously translate input
 /// audio into the configured output language.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationSession {
     /// Unique identifier for the session that looks like `sess_1234567890abcdef`.
     pub id: String,
@@ -63,7 +63,7 @@ pub struct RealtimeTranslationSession {
 
 /// Realtime translation session configuration. Translation sessions stream
 /// source audio in and translated audio plus transcript deltas out continuously.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationSessionCreateRequest {
     /// The Realtime translation model used for this session.
     pub model: String,
@@ -106,7 +106,7 @@ pub struct RealtimeTranslationClientSecretExpiresAfter {
 }
 
 /// Create a translation session and client secret for the Realtime API.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationClientSecretCreateRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after: Option<RealtimeTranslationClientSecretExpiresAfter>,
@@ -114,7 +114,7 @@ pub struct RealtimeTranslationClientSecretCreateRequest {
 }
 
 /// Response from creating a translation session and client secret for the Realtime API.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationClientSecretCreateResponse {
     /// The generated client secret value.
     pub value: String,
@@ -127,7 +127,7 @@ pub struct RealtimeTranslationClientSecretCreateResponse {
 /// Send this event to update the translation session configuration.
 /// Translation sessions support updates to `audio.output.language`,
 /// `audio.input.transcription`, and `audio.input.noise_reduction`.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationClientEventSessionUpdate {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -152,7 +152,7 @@ pub struct RealtimeTranslationClientEventSessionUpdate {
 /// Keep appending silence while the session is active. If a client stops
 /// sending audio and later resumes, model time treats the resumed audio as
 /// contiguous with the previous audio rather than as a real-world pause.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationClientEventInputAudioBufferAppend {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -163,7 +163,7 @@ pub struct RealtimeTranslationClientEventInputAudioBufferAppend {
 
 /// Gracefully close the realtime translation session. The server flushes pending
 /// input audio and emits any remaining translated output before closing the session.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationClientEventSessionClose {
     /// Optional client-generated ID used to identify this event.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -192,7 +192,7 @@ pub enum RealtimeTranslationAudioFormat {
 /// Returned when a translation session is created. Emitted automatically when a
 /// new connection is established as the first server event. This event contains
 /// the default translation session configuration.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationServerEventSessionCreated {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -202,7 +202,7 @@ pub struct RealtimeTranslationServerEventSessionCreated {
 
 /// Returned when a translation session is updated with a `session.update` event,
 /// unless there is an error.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationServerEventSessionUpdated {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -211,7 +211,7 @@ pub struct RealtimeTranslationServerEventSessionUpdated {
 }
 
 /// Returned when a realtime translation session is closed.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationServerEventSessionClosed {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -222,7 +222,7 @@ pub struct RealtimeTranslationServerEventSessionClosed {
 ///
 /// Transcript deltas are append-only text fragments. Clients should not insert
 /// unconditional spaces between deltas.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationServerEventSessionInputTranscriptDelta {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -240,7 +240,7 @@ pub struct RealtimeTranslationServerEventSessionInputTranscriptDelta {
 ///
 /// Transcript deltas are append-only text fragments. Clients should not insert
 /// unconditional spaces between deltas.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationServerEventSessionOutputTranscriptDelta {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -256,7 +256,7 @@ pub struct RealtimeTranslationServerEventSessionOutputTranscriptDelta {
 
 /// Returned when translated output audio is available. Output audio deltas are
 /// 200 ms frames of PCM16 audio.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RealtimeTranslationServerEventSessionOutputAudioDelta {
     /// The unique ID of the server event.
     pub event_id: String,

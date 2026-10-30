@@ -3,7 +3,7 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 /// Represents an individual Admin API key in an org.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AdminApiKey {
     /// The object type, which is always `organization.admin_api_key`.
     pub object: String,
@@ -24,7 +24,7 @@ pub struct AdminApiKey {
 }
 
 /// The newly created admin API key. The `value` field is only returned once, when the key is created.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AdminApiKeyCreateResponse {
     /// The object type, which is always `organization.admin_api_key`.
     pub object: String,
@@ -47,7 +47,7 @@ pub struct AdminApiKeyCreateResponse {
 }
 
 /// Represents the owner of an admin API key.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AdminApiKeyOwner {
     pub r#type: String,
 
@@ -63,7 +63,7 @@ pub struct AdminApiKeyOwner {
 }
 
 /// Represents the response object for listing admin API keys.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ApiKeyList {
     /// The object type, which is always `list`.
     pub object: String,
@@ -78,7 +78,7 @@ pub struct ApiKeyList {
 }
 
 /// Represents the request object for creating an admin API key.
-#[derive(Debug, Serialize, Deserialize, Builder, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Builder, Clone, PartialEq, Default)]
 #[builder(name = "CreateAdminApiKeyRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option))]
@@ -93,7 +93,7 @@ pub struct CreateAdminApiKeyRequest {
 }
 
 /// Represents the response object for deleting an admin API key.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AdminApiKeyDeleteResponse {
     /// The object type, which is always `organization.admin_api_key.deleted`.
     pub object: String,

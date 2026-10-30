@@ -19,7 +19,7 @@ use crate::{
 use crate::types::Metadata;
 
 /// Represents a conversation object.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ConversationResource {
     /// The unique ID of the conversation.
     pub id: String,
@@ -62,7 +62,7 @@ pub struct UpdateConversationRequest {
 }
 
 /// Represents a deleted conversation.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct DeleteConversationResponse {
     /// The unique ID of the deleted conversation.
     pub id: String,
@@ -85,7 +85,7 @@ pub struct CreateConversationItemsRequest {
 }
 
 /// A list of Conversation items.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ConversationItemList {
     /// The type of object returned, must be `list`.
     pub object: String,
@@ -120,18 +120,18 @@ pub enum MessageRole {
     Tool,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct TextContent {
     pub text: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct SummaryTextContent {
     /// A summary of the reasoning output from the model so far.
     pub text: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ComputerScreenContent {
     /// The URL of the screenshot image.
     pub image_url: Option<String>,

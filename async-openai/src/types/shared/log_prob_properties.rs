@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 /// Log probability information for a transcribed token.
 pub struct LogProbProperties {
     /// The bytes that were used to generate the log probability.
