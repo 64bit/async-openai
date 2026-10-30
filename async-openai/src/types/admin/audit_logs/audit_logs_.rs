@@ -315,7 +315,7 @@ pub struct ListAuditLogsResponse {
 }
 
 /// The project that the action was scoped to. Absent for actions not scoped to projects.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogProject {
     /// The project ID.
     pub id: String,
@@ -324,7 +324,7 @@ pub struct AuditLogProject {
 }
 
 /// The actor who performed the audit logged action.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogActor {
     /// The type of actor. Is either `session` or `api_key`.
     pub r#type: String,
@@ -335,7 +335,7 @@ pub struct AuditLogActor {
 }
 
 /// The session in which the audit logged action was performed.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogActorSession {
     /// The user who performed the audit logged action.
     pub user: AuditLogActorUser,
@@ -364,7 +364,7 @@ pub enum AuditLogActorApiKeyType {
 }
 
 /// The user who performed the audit logged action.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogActorUser {
     /// The user id.
     pub id: String,
@@ -373,7 +373,7 @@ pub struct AuditLogActorUser {
 }
 
 /// The service account that performed the audit logged action.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogActorServiceAccount {
     /// The service account id.
     pub id: String,
@@ -491,7 +491,7 @@ pub struct AuditLog {
 }
 
 /// The details for events with the type `api_key.created`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogApiKeyCreated {
     /// The tracking ID of the API key.
     pub id: String,
@@ -500,14 +500,14 @@ pub struct AuditLogApiKeyCreated {
 }
 
 /// The payload used to create the API key.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogApiKeyCreatedData {
     /// A list of scopes allowed for the API key, e.g. `["api.model.request"]`.
     pub scopes: Option<Vec<String>>,
 }
 
 /// The details for events with the type `api_key.updated`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogApiKeyUpdated {
     /// The tracking ID of the API key.
     pub id: String,
@@ -516,21 +516,21 @@ pub struct AuditLogApiKeyUpdated {
 }
 
 /// The payload used to update the API key.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogApiKeyUpdatedChangesRequested {
     /// A list of scopes allowed for the API key, e.g. `["api.model.request"]`.
     pub scopes: Option<Vec<String>>,
 }
 
 /// The details for events with the type `api_key.deleted`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogApiKeyDeleted {
     /// The tracking ID of the API key.
     pub id: String,
 }
 
 /// The details for events with the type `invite.sent`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogInviteSent {
     /// The ID of the invite.
     pub id: String,
@@ -539,7 +539,7 @@ pub struct AuditLogInviteSent {
 }
 
 /// The payload used to create the invite.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogInviteSentData {
     /// The email invited to the organization.
     pub email: String,
@@ -548,21 +548,21 @@ pub struct AuditLogInviteSentData {
 }
 
 /// The details for events with the type `invite.accepted`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogInviteAccepted {
     /// The ID of the invite.
     pub id: String,
 }
 
 /// The details for events with the type `invite.deleted`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogInviteDeleted {
     /// The ID of the invite.
     pub id: String,
 }
 
 /// The details for events with the type `login.failed`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogLoginFailed {
     /// The error code of the failure.
     pub error_code: String,
@@ -571,7 +571,7 @@ pub struct AuditLogLoginFailed {
 }
 
 /// The details for events with the type `logout.failed`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogLogoutFailed {
     /// The error code of the failure.
     pub error_code: String,
@@ -580,7 +580,7 @@ pub struct AuditLogLogoutFailed {
 }
 
 /// The details for events with the type `organization.updated`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogOrganizationUpdated {
     /// The organization ID.
     pub id: String,
@@ -589,7 +589,7 @@ pub struct AuditLogOrganizationUpdated {
 }
 
 /// The payload used to update the organization settings.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogOrganizationUpdatedChangesRequested {
     /// The organization title.
     pub title: Option<String>,
@@ -602,7 +602,7 @@ pub struct AuditLogOrganizationUpdatedChangesRequested {
 }
 
 /// The organization settings.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogOrganizationUpdatedChangesRequestedSettings {
     /// Visibility of the threads page which shows messages created with the Assistants API and Playground. One of `ANY_ROLE`, `OWNERS`, or `NONE`.
     pub threads_ui_visibility: Option<String>,
@@ -611,7 +611,7 @@ pub struct AuditLogOrganizationUpdatedChangesRequestedSettings {
 }
 
 /// The details for events with the type `project.created`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogProjectCreated {
     /// The project ID.
     pub id: String,
@@ -620,7 +620,7 @@ pub struct AuditLogProjectCreated {
 }
 
 /// The payload used to create the project.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogProjectCreatedData {
     /// The project name.
     pub name: String,
@@ -629,7 +629,7 @@ pub struct AuditLogProjectCreatedData {
 }
 
 /// The details for events with the type `project.updated`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogProjectUpdated {
     /// The project ID.
     pub id: String,
@@ -638,21 +638,21 @@ pub struct AuditLogProjectUpdated {
 }
 
 /// The payload used to update the project.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogProjectUpdatedChangesRequested {
     /// The title of the project as seen on the dashboard.
     pub title: Option<String>,
 }
 
 /// The details for events with the type `project.archived`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogProjectArchived {
     /// The project ID.
     pub id: String,
 }
 
 /// The details for events with the type `service_account.created`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogServiceAccountCreated {
     /// The service account ID.
     pub id: String,
@@ -661,14 +661,14 @@ pub struct AuditLogServiceAccountCreated {
 }
 
 /// The payload used to create the service account.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogServiceAccountCreatedData {
     /// The role of the service account. Is either `owner` or `member`.
     pub role: String,
 }
 
 /// The details for events with the type `service_account.updated`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogServiceAccountUpdated {
     /// The service account ID.
     pub id: String,
@@ -677,21 +677,21 @@ pub struct AuditLogServiceAccountUpdated {
 }
 
 /// The payload used to updated the service account.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogServiceAccountUpdatedChangesRequested {
     /// The role of the service account. Is either `owner` or `member`.
     pub role: String,
 }
 
 /// The details for events with the type `service_account.deleted`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogServiceAccountDeleted {
     /// The service account ID.
     pub id: String,
 }
 
 /// The details for events with the type `user.added`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogUserAdded {
     /// The user ID.
     pub id: String,
@@ -700,14 +700,14 @@ pub struct AuditLogUserAdded {
 }
 
 /// The payload used to add the user to the project.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogUserAddedData {
     /// The role of the user. Is either `owner` or `member`.
     pub role: String,
 }
 
 /// The details for events with the type `user.updated`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogUserUpdated {
     /// The project ID.
     pub id: String,
@@ -716,21 +716,21 @@ pub struct AuditLogUserUpdated {
 }
 
 /// The payload used to update the user.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogUserUpdatedChangesRequested {
     /// The role of the user. Is either `owner` or `member`.
     pub role: String,
 }
 
 /// The details for events with the type `user.deleted`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuditLogUserDeleted {
     /// The user ID.
     pub id: String,
 }
 
 /// The details for events with this `type`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct AuditLogRoleBoundToResource {
     /// The ID of the resource the role was bound to. ChatGPT workspace connector resources use
     /// `<workspace_id>__<connector_id>`.
@@ -782,7 +782,7 @@ pub enum AuditLogRoleBoundToResourceSource {
 }
 
 /// The details for events with this `type`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct AuditLogRoleUnboundFromResource {
     /// The ID of the resource the role was unbound from. ChatGPT workspace connector resources use
     /// `<workspace_id>__<connector_id>`.
@@ -834,7 +834,7 @@ pub enum AuditLogRoleUnboundFromResourceSource {
 }
 
 /// The details for events with this `type`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct AuditLogWorkloadIdentityProviderCreated {
     /// The workload identity provider ID.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -845,7 +845,7 @@ pub struct AuditLogWorkloadIdentityProviderCreated {
 }
 
 /// The details for events with this `type`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct AuditLogWorkloadIdentityProviderDeleted {
     /// The workload identity provider ID.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -856,7 +856,7 @@ pub struct AuditLogWorkloadIdentityProviderDeleted {
 }
 
 /// The details for events with this `type`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct AuditLogWorkloadIdentityProviderMappingCreated {
     /// The workload identity provider mapping ID.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -870,7 +870,7 @@ pub struct AuditLogWorkloadIdentityProviderMappingCreated {
 }
 
 /// The details for events with this `type`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct AuditLogWorkloadIdentityProviderMappingDeleted {
     /// The workload identity provider mapping ID.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -887,7 +887,7 @@ pub struct AuditLogWorkloadIdentityProviderMappingDeleted {
 }
 
 /// The details for events with this `type`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct AuditLogWorkloadIdentityProviderMappingUpdated {
     /// The workload identity provider mapping ID.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -901,7 +901,7 @@ pub struct AuditLogWorkloadIdentityProviderMappingUpdated {
 }
 
 /// The details for events with this `type`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct AuditLogWorkloadIdentityProviderUpdated {
     /// The workload identity provider ID.
     #[serde(skip_serializing_if = "Option::is_none")]

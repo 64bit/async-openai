@@ -7,7 +7,7 @@ use super::{
     response::RealtimeResponse, session::Session,
 };
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventError {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -51,7 +51,7 @@ pub struct RealtimeServerEventConversationItemDone {
     pub previous_item_id: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventInputAudioBufferCommitted {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -61,7 +61,7 @@ pub struct RealtimeServerEventInputAudioBufferCommitted {
     pub item_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventInputAudioBufferCleared {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -71,7 +71,7 @@ pub struct RealtimeServerEventInputAudioBufferCleared {
 /// represents a telephone keypad press (0–9, *, #, A–D). The `event` property
 /// is the keypad that the user pressed. The `received_at` is the UTC Unix Timestamp
 /// that the server received the event.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventInputAudioBufferDtmfEventReceived {
     /// The telephone keypad that was pressed by the user.
     pub event: String,
@@ -79,7 +79,7 @@ pub struct RealtimeServerEventInputAudioBufferDtmfEventReceived {
     pub received_at: u64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventInputAudioBufferSpeechStarted {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -91,7 +91,7 @@ pub struct RealtimeServerEventInputAudioBufferSpeechStarted {
     pub item_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventInputAudioBufferSpeechStopped {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -102,7 +102,7 @@ pub struct RealtimeServerEventInputAudioBufferSpeechStopped {
     pub item_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventInputAudioBufferTimeoutTriggered {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -114,7 +114,7 @@ pub struct RealtimeServerEventInputAudioBufferTimeoutTriggered {
     pub item_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventOutputAudioBufferStarted {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -122,7 +122,7 @@ pub struct RealtimeServerEventOutputAudioBufferStarted {
     pub response_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventOutputAudioBufferStopped {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -130,7 +130,7 @@ pub struct RealtimeServerEventOutputAudioBufferStopped {
     pub response_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventOutputAudioBufferCleared {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -159,7 +159,7 @@ pub struct RealtimeServerEventConversationItemInputAudioTranscriptionCompleted {
     pub languages: Option<Vec<crate::types::realtime::TranscriptionLanguage>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventConversationItemInputAudioTranscriptionDelta {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -177,7 +177,7 @@ pub struct RealtimeServerEventConversationItemInputAudioTranscriptionDelta {
     pub logprobs: Option<Vec<LogProbProperties>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventConversationItemInputAudioTranscriptionFailed {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -189,7 +189,7 @@ pub struct RealtimeServerEventConversationItemInputAudioTranscriptionFailed {
     pub error: RealtimeAPIError,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventConversationItemTruncated {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -201,7 +201,7 @@ pub struct RealtimeServerEventConversationItemTruncated {
     pub audio_end_ms: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventConversationItemDeleted {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -217,7 +217,7 @@ pub struct RealtimeServerEventConversationItemRetrieved {
     pub item: RealtimeConversationItem,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventConversationItemInputAudioTranscriptionSegment {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -326,7 +326,7 @@ pub struct RealtimeServerEventResponseContentPartDone {
     pub part: ContentPart,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseTextDelta {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -342,7 +342,7 @@ pub struct RealtimeServerEventResponseTextDelta {
     pub delta: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseTextDone {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -358,7 +358,7 @@ pub struct RealtimeServerEventResponseTextDone {
     pub text: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseAudioTranscriptDelta {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -374,7 +374,7 @@ pub struct RealtimeServerEventResponseAudioTranscriptDelta {
     pub delta: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseAudioTranscriptDone {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -390,7 +390,7 @@ pub struct RealtimeServerEventResponseAudioTranscriptDone {
     pub transcript: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseAudioDelta {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -406,7 +406,7 @@ pub struct RealtimeServerEventResponseAudioDelta {
     pub delta: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseAudioDone {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -420,7 +420,7 @@ pub struct RealtimeServerEventResponseAudioDone {
     pub content_index: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseFunctionCallArgumentsDelta {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -436,7 +436,7 @@ pub struct RealtimeServerEventResponseFunctionCallArgumentsDelta {
     pub delta: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseFunctionCallArgumentsDone {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -473,14 +473,14 @@ pub struct RealtimeRateLimit {
     pub reset_seconds: f32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventRateLimitsUpdated {
     /// The unique ID of the server event.
     pub event_id: String,
     pub rate_limits: Vec<RealtimeRateLimit>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventMCPListToolsInProgress {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -488,7 +488,7 @@ pub struct RealtimeServerEventMCPListToolsInProgress {
     pub item_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventMCPListToolsCompleted {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -496,7 +496,7 @@ pub struct RealtimeServerEventMCPListToolsCompleted {
     pub item_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventMCPListToolsFailed {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -504,7 +504,7 @@ pub struct RealtimeServerEventMCPListToolsFailed {
     pub item_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseMCPCallArgumentsDelta {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -521,7 +521,7 @@ pub struct RealtimeServerEventResponseMCPCallArgumentsDelta {
     pub obfuscation: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseMCPCallArgumentsDone {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -535,7 +535,7 @@ pub struct RealtimeServerEventResponseMCPCallArgumentsDone {
     pub arguments: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseMCPCallInProgress {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -545,7 +545,7 @@ pub struct RealtimeServerEventResponseMCPCallInProgress {
     pub item_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseMCPCallCompleted {
     /// The unique ID of the server event.
     pub event_id: String,
@@ -555,7 +555,7 @@ pub struct RealtimeServerEventResponseMCPCallCompleted {
     pub item_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeServerEventResponseMCPCallFailed {
     /// The unique ID of the server event.
     pub event_id: String,

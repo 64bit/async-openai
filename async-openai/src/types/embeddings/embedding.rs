@@ -57,7 +57,7 @@ pub struct CreateEmbeddingRequest {
 }
 
 /// Represents an embedding vector returned by embedding endpoint.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct Embedding {
     /// The index of the embedding in the list of embeddings.
     pub index: u32,
@@ -68,11 +68,11 @@ pub struct Embedding {
     pub embedding: Vec<f32>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct Base64EmbeddingVector(pub String);
 
 /// Represents an base64-encoded embedding vector returned by embedding endpoint.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct Base64Embedding {
     /// The index of the embedding in the list of embeddings.
     pub index: u32,

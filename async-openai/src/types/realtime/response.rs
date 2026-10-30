@@ -10,7 +10,7 @@ use crate::types::{
     responses::Prompt,
 };
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeResponseUsage {
     /// Details about the input tokens used in the Response. Cached tokens are tokens from previous
     /// turns in the conversation that are included as context for the current response. Cached tokens
@@ -32,7 +32,7 @@ pub struct RealtimeResponseUsage {
     pub total_tokens: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct InputTokenDetails {
     /// The number of audio tokens used as input for the Response.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -53,7 +53,7 @@ pub struct InputTokenDetails {
     pub text_tokens: Option<u32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct CachedTokenDetails {
     /// The number of cached audio tokens used as input for the Response.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -68,7 +68,7 @@ pub struct CachedTokenDetails {
     pub text_tokens: Option<u32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct OutputTokenDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_tokens: Option<u32>,
@@ -86,7 +86,7 @@ pub enum RealtimeResponseStatus {
     Incomplete,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Error {
     pub code: String,
     pub r#type: String,

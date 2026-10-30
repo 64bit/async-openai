@@ -20,7 +20,7 @@ pub enum ProjectMembership {
 }
 
 /// Project membership entry attached to invites.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct InviteProjectMembership {
     /// Project's public ID
     pub id: String,

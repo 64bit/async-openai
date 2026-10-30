@@ -61,7 +61,7 @@ pub enum GraderTextSimilarityEvaluationMetric {
 }
 
 /// Python grader.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct GraderPython {
     /// The name of the grader.
     pub name: String,
@@ -72,7 +72,7 @@ pub struct GraderPython {
 }
 
 /// Score model grader.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct GraderScoreModel {
     /// The name of the grader.
     pub name: String,
@@ -89,7 +89,7 @@ pub struct GraderScoreModel {
     pub range: Option<Vec<f64>>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct GraderScoreModelSamplingParams {
     /// A seed value to initialize the randomness, during sampling.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -108,7 +108,7 @@ pub struct GraderScoreModelSamplingParams {
     pub reasoning_effort: Option<ReasoningEffort>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct GraderLabelModel {
     /// The name of the grader.
     pub name: String,

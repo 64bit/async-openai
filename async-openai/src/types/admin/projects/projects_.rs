@@ -3,7 +3,7 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 /// Represents an individual project.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct Project {
     /// The identifier, which can be referenced in API endpoints
     pub id: String,
@@ -36,7 +36,7 @@ pub struct ProjectListResponse {
 }
 
 /// The project create request payload.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder, Default)]
 #[builder(name = "ProjectCreateRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option))]
@@ -86,7 +86,7 @@ pub struct ProjectUpdateRequest {
 }
 
 /// Details about a group's membership in a project.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ProjectGroup {
     /// The object type, which is always `project.group`.
     pub object: String,
@@ -103,7 +103,7 @@ pub struct ProjectGroup {
 }
 
 /// Paginated list of groups that have access to a project.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ProjectGroupListResource {
     /// The object type, which is always `list`.
     pub object: String,
@@ -116,7 +116,7 @@ pub struct ProjectGroupListResource {
 }
 
 /// Confirmation payload returned after removing a group from a project.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ProjectGroupDeletedResource {
     /// The object type, which is always `project.group.deleted`.
     pub object: String,
@@ -125,7 +125,7 @@ pub struct ProjectGroupDeletedResource {
 }
 
 /// Request payload for granting a group access to a project.
-#[derive(Debug, Serialize, Deserialize, Builder, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Builder, Clone, PartialEq, Default)]
 #[builder(name = "InviteProjectGroupRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option))]
@@ -139,13 +139,13 @@ pub struct InviteProjectGroupBody {
 }
 
 /// Permission state for a single hosted tool on a project.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct HostedToolPermission {
     /// Whether the hosted tool is enabled for the project.
     pub enabled: bool,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct HostedToolPermissionUpdate {
     /// Whether to enable the hosted tool for the project.
     pub enabled: bool,
@@ -178,7 +178,7 @@ pub enum ProjectDataRetentionType {
 }
 
 /// Represents hosted tool permissions for a project.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ProjectHostedToolPermissions {
     pub file_search: HostedToolPermission,
     pub web_search: HostedToolPermission,
@@ -187,7 +187,7 @@ pub struct ProjectHostedToolPermissions {
     pub code_interpreter: HostedToolPermission,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ProjectHostedToolPermissionsUpdateRequest {
     /// The file search permission update.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -267,7 +267,7 @@ pub enum ProjectSpendAlertCurrency {
 }
 
 /// Confirmation payload returned after deleting a project spend alert.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ProjectSpendAlertDeletedResource {
     /// The deleted spend alert ID.
     pub id: String,
@@ -285,7 +285,7 @@ pub enum ProjectSpendAlertInterval {
 }
 
 /// Paginated list of project spend alerts.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ProjectSpendAlertListResource {
     /// Always `list`.
     pub object: String,
@@ -302,7 +302,7 @@ pub struct ProjectSpendAlertListResource {
 }
 
 /// Confirmation payload returned after deleting a project hard spend limit.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ProjectSpendLimitDeletedResource {
     /// The object type, which is always `project.spend_limit.deleted`.
     pub object: String,

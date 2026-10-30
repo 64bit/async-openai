@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// The user that owns a project API key.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectApiKeyOwnerUser {
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,
@@ -16,7 +16,7 @@ pub struct ProjectApiKeyOwnerUser {
 }
 
 /// The service account that owns a project API key.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectApiKeyOwnerServiceAccount {
     /// The identifier, which can be referenced in API endpoints.
     pub id: String,

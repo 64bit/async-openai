@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Default)]
 pub struct MisalignmentErrorDetailsResource {
     /// An optional classification; clients must accept additional values.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -22,7 +22,7 @@ pub enum MisalignmentErrorType {
     String(String),
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Default)]
 pub struct MisalignmentSteer {
     /// The public continuation instruction.
     pub message: String,

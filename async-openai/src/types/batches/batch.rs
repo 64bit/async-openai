@@ -125,14 +125,14 @@ pub struct Batch {
     pub metadata: Option<Metadata>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct BatchErrors {
     /// The object type, which is always `list`.
     pub object: String,
     pub data: Vec<BatchError>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct BatchError {
     /// An error code identifying the error type.
     pub code: String,
@@ -157,7 +157,7 @@ pub enum BatchStatus {
     Cancelled,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct BatchRequestCounts {
     /// Total number of requests in the batch.
     pub total: u32,
@@ -205,7 +205,7 @@ pub struct BatchRequestOutputResponse {
     pub body: serde_json::Value,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct BatchRequestOutputError {
     /// A machine-readable error code.
     pub code: String,
@@ -214,7 +214,7 @@ pub struct BatchRequestOutputError {
 }
 
 /// The per-line object of the batch output and error files
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct BatchRequestOutput {
     pub id: String,
     /// A developer-provided per-request id that will be used to match outputs to inputs.

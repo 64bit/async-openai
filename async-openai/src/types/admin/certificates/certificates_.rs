@@ -3,7 +3,7 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 /// Represents an individual certificate uploaded to the organization.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct Certificate {
     /// The object type. Can be `certificate`, `organization.certificate`, or `organization.project.certificate`.
     pub object: String,
@@ -22,7 +22,7 @@ pub struct Certificate {
 }
 
 /// Represents an individual certificate configured at the organization level.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct OrganizationCertificate {
     /// The object type, which is always `organization.certificate`.
     pub object: String,
@@ -55,7 +55,7 @@ pub struct OrganizationCertificateDeactivationResponse {
 }
 
 /// Represents an individual certificate configured at the project level.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct OrganizationProjectCertificate {
     /// The object type, which is always `organization.project.certificate`.
     pub object: String,
@@ -103,7 +103,7 @@ pub struct ListProjectCertificatesResponse {
 }
 
 /// Details about a certificate.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CertificateDetails {
     /// The Unix timestamp (in seconds) of when the certificate becomes valid.
     pub valid_at: u64,
@@ -131,7 +131,7 @@ pub struct ListCertificatesResponse {
 }
 
 /// Request for uploading a certificate.
-#[derive(Debug, Serialize, Deserialize, Builder, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Builder, Clone, PartialEq, Default)]
 #[builder(name = "UploadCertificateRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option))]
@@ -159,7 +159,7 @@ pub struct ModifyCertificateRequest {
 }
 
 /// Request for toggling (activating/deactivating) certificates.
-#[derive(Debug, Serialize, Deserialize, Builder, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Builder, Clone, PartialEq, Default)]
 #[builder(name = "ToggleCertificatesRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option))]

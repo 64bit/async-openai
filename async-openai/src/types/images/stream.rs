@@ -5,7 +5,7 @@ use crate::types::images::{
 };
 
 /// Emitted when a partial image is available during image generation streaming.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ImageGenPartialImageEvent {
     /// Base64-encoded partial image data, suitable for rendering as an image.
     pub b64_json: String,
@@ -24,7 +24,7 @@ pub struct ImageGenPartialImageEvent {
 }
 
 /// Emitted when image generation has completed and the final image is available.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ImageGenCompletedEvent {
     /// Base64-encoded image data, suitable for rendering as an image.
     pub b64_json: String,
@@ -54,7 +54,7 @@ pub enum ImageGenStreamEvent {
 }
 
 /// Emitted when a partial image is available during image editing streaming.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ImageEditPartialImageEvent {
     /// Base64-encoded partial image data, suitable for rendering as an image.
     pub b64_json: String,
@@ -73,7 +73,7 @@ pub struct ImageEditPartialImageEvent {
 }
 
 /// Emitted when image editing has completed and the final image is available.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ImageEditCompletedEvent {
     /// Base64-encoded final image data, suitable for rendering as an image.
     pub b64_json: String,

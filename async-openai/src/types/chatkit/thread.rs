@@ -211,7 +211,7 @@ pub struct AssistantMessageItem {
 }
 
 /// Assistant response text accompanied by optional annotations.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ResponseOutputText {
     /// Type discriminator that is always `output_text`.
     #[serde(default = "default_output_text_type")]
@@ -240,7 +240,7 @@ pub enum Annotation {
 }
 
 /// Annotation that references an uploaded file.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct FileAnnotation {
     /// Type discriminator that is always `file` for this annotation.
     #[serde(default = "default_file_annotation_type")]
@@ -254,7 +254,7 @@ fn default_file_annotation_type() -> String {
 }
 
 /// Attachment source referenced by an annotation.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct FileAnnotationSource {
     /// Type discriminator that is always `file`.
     #[serde(default = "default_file_source_type")]
@@ -268,7 +268,7 @@ fn default_file_source_type() -> String {
 }
 
 /// Annotation that references a URL.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct UrlAnnotation {
     /// Type discriminator that is always `url` for this annotation.
     #[serde(default = "default_url_annotation_type")]
@@ -282,7 +282,7 @@ fn default_url_annotation_type() -> String {
 }
 
 /// URL backing an annotation entry.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct UrlAnnotationSource {
     /// Type discriminator that is always `url`.
     #[serde(default = "default_url_source_type")]
@@ -296,7 +296,7 @@ fn default_url_source_type() -> String {
 }
 
 /// Thread item that renders a widget payload.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct WidgetMessageItem {
     /// Identifier of the thread item.
     pub id: String,
@@ -372,7 +372,7 @@ pub enum TaskType {
 }
 
 /// Collection of workflow tasks grouped together in the thread.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct TaskGroupItem {
     /// Identifier of the thread item.
     pub id: String,

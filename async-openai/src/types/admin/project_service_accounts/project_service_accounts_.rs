@@ -39,7 +39,7 @@ pub struct ProjectServiceAccountListResponse {
 }
 
 /// Represents the request object for creating a project service account.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectServiceAccountCreateRequest {
     /// The name of the service account being created.
     pub name: String,
@@ -70,7 +70,7 @@ pub struct ProjectServiceAccountCreateResponse {
 }
 
 /// Represents the API key associated with a project service account.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ProjectServiceAccountApiKey {
     /// The object type, which is always `organization.project.service_account.api_key`.
     pub object: String,
@@ -99,7 +99,7 @@ pub struct ProjectServiceAccountDeleteResponse {
 }
 
 /// The service account API key create request payload.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct CreateProjectServiceAccountApiKeyBody {
     /// API key name.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -112,7 +112,7 @@ pub struct CreateProjectServiceAccountApiKeyBody {
     pub expires_in_seconds: Option<u32>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ServiceAccountApiKeyBody {
     /// The object type, which is always `organization.project.service_account.api_key`
     pub object: String,
@@ -129,7 +129,7 @@ pub struct ServiceAccountApiKeyBody {
 }
 
 /// Parameters for updating a project service account.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct UpdateProjectServiceAccountBody {
     /// The updated service account name.
     #[serde(skip_serializing_if = "Option::is_none")]

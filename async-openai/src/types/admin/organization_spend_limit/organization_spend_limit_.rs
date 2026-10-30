@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use super::{SpendLimitCurrency, SpendLimitEnforcement, SpendLimitInterval};
 
 /// Confirmation payload returned after deleting an organization hard spend limit.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct OrganizationSpendLimitDeletedResource {
     /// The object type, which is always `organization.spend_limit.deleted`.
     pub object: String,

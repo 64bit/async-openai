@@ -93,7 +93,7 @@ pub enum MCPToolAllowedTools {
     Filter(MCPToolFilter),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MCPToolFilter {
     /// Indicates whether or not a tool modifies data or is read-only.
     /// If an MCP server is annotated with [readOnlyHint](https://modelcontextprotocol.io/specification/2025-06-18/schema#toolannotations-readonlyhint),
@@ -126,7 +126,7 @@ pub enum MCPToolApprovalSetting {
     Never,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MCPToolApprovalFilter {
     /// A list of tools that always require approval.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -136,7 +136,7 @@ pub struct MCPToolApprovalFilter {
     pub never: Option<MCPToolFilter>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MCPListToolsTool {
     /// The JSON schema describing the tool's input.
     pub input_schema: serde_json::Value,

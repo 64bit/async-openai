@@ -98,7 +98,7 @@ pub enum VectorStoreStatus {
     Completed,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct VectorStoreFileCounts {
     /// The number of files that are currently being processed.
     pub in_progress: u32,
@@ -278,7 +278,7 @@ pub enum VectorStoreFileBatchStatus {
     Failed,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct VectorStoreFileBatchCounts {
     /// The number of files that are currently being processed.
     pub in_progress: u32,
@@ -325,7 +325,7 @@ pub struct VectorStoreFileContentResponse {
 }
 
 /// Represents the parsed content of a vector store file.
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct VectorStoreFileContentObject {
     /// The content type (currently only `"text"`)
     pub r#type: String,
@@ -448,7 +448,7 @@ pub enum Ranker {
     Default20241115,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct VectorStoreSearchResultsPage {
     /// The object type, which is always `vector_store.search_results.page`.
     pub object: String,
@@ -466,7 +466,7 @@ pub struct VectorStoreSearchResultsPage {
     pub next_page: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct VectorStoreSearchResultItem {
     /// The ID of the vector store file.
     pub file_id: String,
@@ -484,7 +484,7 @@ pub struct VectorStoreSearchResultItem {
     pub content: Vec<VectorStoreSearchResultContentObject>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Serialize, Default)]
 pub struct VectorStoreSearchResultContentObject {
     /// The type of content
     pub r#type: String,

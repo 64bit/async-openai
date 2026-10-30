@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct RealtimeAPIError {
     /// The type of error (e.g., "invalid_request_error", "server_error").
     pub r#type: String,
@@ -18,13 +18,13 @@ pub struct RealtimeAPIError {
     pub event_id: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct ErrorCodeMessage {
     pub code: String,
     pub message: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct ErrorMessage {
     pub message: String,
 }

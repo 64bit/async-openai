@@ -14,7 +14,7 @@ pub struct UsageResponse {
 }
 
 /// A time bucket containing usage results.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct UsageTimeBucket {
     /// The object type, which is always `bucket`.
     pub object: String,
@@ -61,7 +61,7 @@ pub enum UsageResult {
 }
 
 /// The aggregated audio speeches usage details of the specific time bucket.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct UsageAudioSpeechesResult {
     /// The number of characters processed.
     pub characters: u64,
@@ -78,7 +78,7 @@ pub struct UsageAudioSpeechesResult {
 }
 
 /// The aggregated audio transcriptions usage details of the specific time bucket.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct UsageAudioTranscriptionsResult {
     /// The number of seconds processed.
     pub seconds: u64,
@@ -95,7 +95,7 @@ pub struct UsageAudioTranscriptionsResult {
 }
 
 /// The aggregated code interpreter sessions usage details of the specific time bucket.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct UsageCodeInterpreterSessionsResult {
     /// The number of code interpreter sessions.
     pub num_sessions: u64,
@@ -106,7 +106,7 @@ pub struct UsageCodeInterpreterSessionsResult {
 }
 
 /// The aggregated completions usage details of the specific time bucket.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct UsageCompletionsResult {
     /// The aggregated number of input tokens used, including cached and cache-write tokens. This includes
     /// text, audio, and image tokens. For customers subscribed to Scale Tier, this includes Scale Tier
@@ -169,7 +169,7 @@ pub struct UsageCompletionsResult {
 }
 
 /// The aggregated embeddings usage details of the specific time bucket.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct UsageEmbeddingsResult {
     /// The aggregated number of input tokens used.
     pub input_tokens: u64,
@@ -186,7 +186,7 @@ pub struct UsageEmbeddingsResult {
 }
 
 /// The aggregated images usage details of the specific time bucket.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct UsageImagesResult {
     /// The number of images processed.
     pub images: u64,
@@ -207,7 +207,7 @@ pub struct UsageImagesResult {
 }
 
 /// The aggregated moderations usage details of the specific time bucket.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct UsageModerationsResult {
     /// The aggregated number of input tokens used.
     pub input_tokens: u64,
@@ -224,7 +224,7 @@ pub struct UsageModerationsResult {
 }
 
 /// The aggregated vector stores usage details of the specific time bucket.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct UsageVectorStoresResult {
     /// The vector stores usage in bytes.
     pub usage_bytes: u64,
@@ -233,7 +233,7 @@ pub struct UsageVectorStoresResult {
 }
 
 /// The aggregated costs details of the specific time bucket.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct CostsResult {
     /// The monetary value in its associated currency.
     pub amount: CostsAmount,
@@ -252,7 +252,7 @@ pub struct CostsResult {
 }
 
 /// The monetary value in its associated currency.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct CostsAmount {
     /// The numeric value of the cost.
     pub value: f64,
@@ -261,7 +261,7 @@ pub struct CostsAmount {
 }
 
 /// The aggregated file search calls usage details of the specific time bucket.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct UsageFileSearchCallsResult {
     /// The count of file search calls.
     pub num_requests: i64,
@@ -276,7 +276,7 @@ pub struct UsageFileSearchCallsResult {
 }
 
 /// The aggregated web search calls usage details of the specific time bucket.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct UsageWebSearchCallsResult {
     /// The count of model requests.
     pub num_model_requests: i64,

@@ -15,7 +15,7 @@ pub enum PromptCacheModeEnum {
 /// block lookback limit. Set `mode` to `explicit` to disable the implicit breakpoint. The `ttl`
 /// defaults to `30m`, which is currently the only supported value. See the [prompt caching
 /// guide](/docs/guides/prompt-caching) for current details.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::PromptCacheOptionsParam))]
 pub struct PromptCacheOptionsParam {

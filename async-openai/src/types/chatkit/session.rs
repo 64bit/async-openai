@@ -36,7 +36,7 @@ fn default_session_object() -> String {
 }
 
 /// Workflow metadata and state returned for the session.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ChatkitWorkflow {
     /// Identifier of the workflow backing the session.
     pub id: String,
@@ -51,14 +51,14 @@ pub struct ChatkitWorkflow {
 }
 
 /// Controls diagnostic tracing during the session.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ChatkitWorkflowTracing {
     /// Indicates whether tracing is enabled.
     pub enabled: bool,
 }
 
 /// Active per-minute request limit for the session.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ChatSessionRateLimits {
     /// Maximum allowed requests per one-minute window.
     pub max_requests_per_1_minute: u32,
@@ -74,7 +74,7 @@ pub enum ChatSessionStatus {
 }
 
 /// ChatKit configuration for the session.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ChatSessionChatkitConfiguration {
     /// Automatic thread titling preferences.
     pub automatic_thread_titling: ChatSessionAutomaticThreadTitling,
@@ -85,14 +85,14 @@ pub struct ChatSessionChatkitConfiguration {
 }
 
 /// Automatic thread title preferences for the session.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ChatSessionAutomaticThreadTitling {
     /// Whether automatic thread titling is enabled.
     pub enabled: bool,
 }
 
 /// Upload permissions and limits applied to the session.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ChatSessionFileUpload {
     /// Indicates if uploads are enabled for the session.
     pub enabled: bool,
@@ -105,7 +105,7 @@ pub struct ChatSessionFileUpload {
 }
 
 /// History retention preferences returned for the session.
-#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq, Default)]
 pub struct ChatSessionHistory {
     /// Indicates if chat history is persisted for the session.
     pub enabled: bool,

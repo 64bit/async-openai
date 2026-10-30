@@ -27,7 +27,7 @@ pub enum ModerationMode {
 }
 
 /// Configuration for running moderation on the input and output of this response.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ModerationParam))]
 pub struct ModerationParam {
@@ -38,7 +38,7 @@ pub struct ModerationParam {
 }
 
 /// The policy to apply to moderated response input and output.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ModerationPolicyParam))]
 pub struct ModerationPolicyParam {
@@ -49,7 +49,7 @@ pub struct ModerationPolicyParam {
 }
 
 /// A moderation result produced for the response input or output.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ModerationResultBody))]
 pub struct ModerationResultBody {

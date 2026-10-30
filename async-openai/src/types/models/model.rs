@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Describes an OpenAI model offering that can be used with the API.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 pub struct Model {
     /// The model identifier, which can be referenced in the API endpoints.
     pub id: String,

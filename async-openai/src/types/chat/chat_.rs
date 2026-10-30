@@ -34,7 +34,7 @@ pub enum StopConfiguration {
     StringArray(Vec<String>), // minItems: 1; maxItems: 4
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::Logprobs))]
 pub struct Logprobs {
@@ -54,7 +54,7 @@ pub enum CompletionFinishReason {
     ContentFilter,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::Choice))]
 pub struct Choice {
@@ -1151,7 +1151,7 @@ pub struct CreateChatCompletionRequest {
 }
 
 /// Options for streaming response. Only set this when you set `stream: true`.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ChatCompletionStreamOptions))]
 pub struct ChatCompletionStreamOptions {
@@ -1189,7 +1189,7 @@ pub enum FinishReason {
     FunctionCall,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::TopLogprobs))]
 pub struct TopLogprobs {
@@ -1201,7 +1201,7 @@ pub struct TopLogprobs {
     pub bytes: Option<Vec<u8>>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ChatCompletionTokenLogprob))]
 pub struct ChatCompletionTokenLogprob {
@@ -1215,7 +1215,7 @@ pub struct ChatCompletionTokenLogprob {
     pub top_logprobs: Vec<TopLogprobs>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ChatChoiceLogprobs))]
 pub struct ChatChoiceLogprobs {
@@ -1280,7 +1280,7 @@ pub struct CreateChatCompletionResponse {
 pub type ChatCompletionResponseStream =
     crate::types::stream::StreamResponse<CreateChatCompletionStreamResponse>;
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::FunctionCallStream))]
 pub struct FunctionCallStream {
@@ -1295,7 +1295,7 @@ pub struct FunctionCallStream {
     pub arguments: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ChatCompletionMessageToolCallChunk))]
 pub struct ChatCompletionMessageToolCallChunk {
@@ -1397,7 +1397,7 @@ pub struct CreateChatCompletionStreamResponse {
 }
 
 /// An object representing a list of Chat Completions.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ChatCompletionList))]
 pub struct ChatCompletionList {
@@ -1414,7 +1414,7 @@ pub struct ChatCompletionList {
 }
 
 /// Response when deleting a chat completion.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ChatCompletionDeleted))]
 pub struct ChatCompletionDeleted {
@@ -1437,7 +1437,7 @@ pub enum ContentPart {
 }
 
 /// A chat completion message with additional fields for listing.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ChatCompletionMessageListItem))]
 pub struct ChatCompletionMessageListItem {
@@ -1452,7 +1452,7 @@ pub struct ChatCompletionMessageListItem {
 }
 
 /// An object representing a list of chat completion messages.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ChatCompletionMessageList))]
 pub struct ChatCompletionMessageList {
@@ -1494,7 +1494,7 @@ pub struct ChatCompletionModeration {
 }
 
 /// An error produced while attempting moderation.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ChatCompletionModerationError))]
 pub struct ChatCompletionModerationError {
@@ -1529,7 +1529,7 @@ pub enum ChatCompletionModerationOutput {
 }
 
 /// Successful moderation results for the request input or generated output.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ChatCompletionModerationResults))]
 pub struct ChatCompletionModerationResults {
