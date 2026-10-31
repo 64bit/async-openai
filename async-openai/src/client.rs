@@ -316,6 +316,12 @@ impl<C: Config> Client<C> {
         Realtime::new(self)
     }
 
+    /// Classify or score inputs with the Decisions API.
+    #[cfg(feature = "decisions")]
+    pub fn decisions(&self) -> crate::Decisions<'_, C> {
+        crate::Decisions::new(self)
+    }
+
     /// To call [Safety] group related APIs.
     #[cfg(feature = "safety")]
     pub fn safety(&self) -> crate::Safety<'_, C> {
