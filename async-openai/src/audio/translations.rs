@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 use bytes::Bytes;
 
 use crate::{
@@ -10,6 +11,9 @@ use crate::{
     Client, RequestOptions,
 };
 
+#[deprecated(
+    note = "Audio translations and whisper-1 shut down on February 26, 2027. Migrate to `/v1/realtime/translations`"
+)]
 pub struct Translations<'c, C: Config> {
     client: &'c Client<C>,
     pub(crate) request_options: RequestOptions,

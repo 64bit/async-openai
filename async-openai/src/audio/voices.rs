@@ -1,7 +1,7 @@
 use crate::{
     config::Config,
     error::OpenAIError,
-    types::audio::{CreateVoiceRequest, VoiceResource},
+    types::audio::{CreateVoiceRequest, VoiceDeletedResource, VoiceResource},
     Client, RequestOptions,
 };
 
@@ -28,6 +28,14 @@ impl<'c, C: Config> Voices<'c, C> {
     pub async fn create(&self, request: CreateVoiceRequest) -> Result<VoiceResource, OpenAIError> {
         self.client
             .post_form("/audio/voices", request, &self.request_options)
+            .await
+    }
+
+    /// Delete a custom voice.
+    #[crate::byot(T0 = std::fmt::Display, R = serde::de::DeserializeOwned)]
+    pub async fn delete(&self, voice_id: &str) -> Result<VoiceDeletedResource, OpenAIError> {
+        self.client
+            .delete(&format!("/audio/voices/{voice_id}"), &self.request_options)
             .await
     }
 }

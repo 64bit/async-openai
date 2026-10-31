@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 use crate::{config::Config, Client, RequestOptions};
 
 use super::{Speech, Transcriptions, Translations, VoiceConsents, Voices};
