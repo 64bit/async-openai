@@ -64,4 +64,23 @@ impl<'c, C: Config> ProjectAPIKeys<'c, C> {
             )
             .await
     }
+
+    /// Update an API key's scope restrictions or expiration.
+    #[crate::byot(T0 = std::fmt::Display, T1 = serde::Serialize, R = serde::de::DeserializeOwned)]
+    pub async fn update(
+        &self,
+        api_key_id: &str,
+        request: crate::types::admin::project_api_keys::UpdateProjectApiKeyBody,
+    ) -> Result<ProjectApiKey, OpenAIError> {
+        self.client
+            .post(
+                &format!(
+                    "/organization/projects/{}/api_keys/{api_key_id}",
+                    self.project_id
+                ),
+                request,
+                &self.request_options,
+            )
+            .await
+    }
 }
