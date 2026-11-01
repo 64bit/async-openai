@@ -9,6 +9,8 @@ use crate::types::responses::{
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type")]
 pub enum ResponseStreamEvent {
+    #[serde(rename = "response.compaction.compacting")]
+    CompactionCompacting(ResponseCompactionCompactingEvent),
     /// Emitted when there is a partial audio response.
     #[serde(rename = "response.audio.delta")]
     ResponseAudioDelta(ResponseAudioDeltaEvent),
@@ -704,6 +706,13 @@ pub struct ShellCallOutputDelta {
     pub stderr: Option<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct ResponseCompactionCompactingEvent {
+    pub sequence_number: u64,
+    pub output_index: u64,
+    pub item_id: String,
+}
+
 /// Stream of response events
 #[cfg(feature = "_api")]
 pub type ResponseStream = crate::types::stream::StreamResponse<ResponseStreamEvent>;
@@ -725,6 +734,7 @@ macro_rules! impl_event_type {
 // Apply macro for each event struct type in this file.
 #[cfg(feature = "_api")]
 impl_event_type! {
+    ResponseCompactionCompactingEvent => "response.compaction.compacting",
     ResponseAudioDeltaEvent => "response.audio.delta",
     ResponseAudioDoneEvent => "response.audio.done",
     ResponseAudioTranscriptDeltaEvent => "response.audio.transcript.delta",
@@ -789,6 +799,7 @@ impl_event_type! {
 impl crate::traits::EventType for ResponseStreamEvent {
     fn event_type(&self) -> &'static str {
         match self {
+            Self::CompactionCompacting(event) => event.event_type(),
             Self::ResponseAudioDelta(event) => event.event_type(),
             Self::ResponseAudioDone(event) => event.event_type(),
             Self::ResponseAudioTranscriptDelta(event) => event.event_type(),

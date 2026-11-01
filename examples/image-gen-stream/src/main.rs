@@ -62,7 +62,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let request = CreateImageRequestArgs::default()
-        .model(ImageModel::GptImage1)
+        .model(ImageModel::GptImage2)
         .prompt("humans dancing a victory dance")
         .size(ImageSize::S1024x1024)
         .partial_images(2)

@@ -1,3 +1,6 @@
+// This example intentionally demonstrates the deprecated audio translations endpoint.
+#![allow(deprecated)]
+
 use async_openai::{
     types::audio::{CreateTranslationRequestArgs, TranslationResponseFormat},
     Client,

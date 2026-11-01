@@ -1,3 +1,6 @@
+// This example demonstrates the Speech API with a model scheduled for retirement.
+#![allow(deprecated)]
+
 use async_openai::{
     types::audio::{CreateSpeechRequestArgs, SpeechModel, Voice},
     Client,

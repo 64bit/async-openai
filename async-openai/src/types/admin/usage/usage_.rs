@@ -58,6 +58,8 @@ pub enum UsageResult {
     FileSearchCalls(UsageFileSearchCallsResult),
     #[serde(rename = "organization.usage.web_searches.result")]
     WebSearchCalls(UsageWebSearchCallsResult),
+    #[serde(rename = "organization.usage.decisions.result")]
+    Decisions(DecisionsUsageResult),
 }
 
 /// The aggregated audio speeches usage details of the specific time bucket.
@@ -163,9 +165,21 @@ pub struct UsageCompletionsResult {
     pub batch: Option<bool>,
     /// When `group_by=service_tier`, this field provides the service tier of the grouped usage result.
     pub service_tier: Option<String>,
-    /// The aggregated number of input tokens written to the cache.
+    /// The aggregated number of input tokens written to the cache across 30-minute and 12-hour retention
+    /// periods.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub input_cache_write_tokens: Option<i64>,
+    pub input_cache_write_tokens: Option<u32>,
+    /// When grouped by `api_source`, `agents_api` identifies attributed Agents API activity and `unlabeled`
+    /// includes all records without published source attribution, including historical and unknown origins.
+    /// Unlabeled does not imply direct API usage. Without source grouping, this field is null.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub api_source: Option<UsageApiSource>,
+    /// Input tokens written to cache with a 30 minute TTL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_cache_write_30m_tokens: Option<u64>,
+    /// The aggregated number of input tokens written to the cache with a 12-hour retention period.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_cache_write_12h_tokens: Option<u64>,
 }
 
 /// The aggregated embeddings usage details of the specific time bucket.
@@ -249,6 +263,14 @@ pub struct CostsResult {
     /// `null`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity_unit: Option<String>,
+    /// When grouped by `api_source`, `agents_api` identifies attributed Agents API activity and `unlabeled`
+    /// includes all records without published source attribution, including historical and unknown origins.
+    /// Unlabeled does not imply direct API usage. Without source grouping, this field is null.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub api_source: Option<UsageApiSource>,
+    /// User ID when costs are grouped by user_id.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user_id: Option<String>,
 }
 
 /// The monetary value in its associated currency.
@@ -292,4 +314,70 @@ pub struct UsageWebSearchCallsResult {
     pub model: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub context_level: Option<String>,
+    /// When grouped by `api_source`, `agents_api` identifies attributed Agents API activity and `unlabeled`
+    /// includes all records without published source attribution, including historical and unknown origins.
+    /// Unlabeled does not imply direct API usage. Without source grouping, this field is null.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub api_source: Option<UsageApiSource>,
+}
+
+/// The aggregated Decisions API usage details of the specific time bucket.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct DecisionsUsageResult {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub api_source: Option<UsageApiSource>,
+    /// The aggregated number of input tokens used, including cached and cache-write tokens. This includes text, audio, and image tokens. For customers subscribed to Scale Tier, this includes Scale Tier tokens.
+    pub input_tokens: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_cached_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_cache_write_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_cache_write_30m_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_cache_write_12h_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_uncached_tokens: Option<u32>,
+    /// The aggregated number of output tokens used across text, audio, and image outputs. For customers subscribed to Scale Tier, this includes Scale Tier tokens.
+    pub output_tokens: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_text_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_text_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_cached_text_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_audio_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_cached_audio_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_audio_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_image_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_cached_image_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_image_tokens: Option<u32>,
+    /// The count of requests made to the model.
+    pub num_model_requests: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub api_key_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub batch: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub service_tier: Option<String>,
+}
+
+/// API source attributed to usage or costs when grouped by api_source.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum UsageApiSource {
+    AgentsApi,
+    Unlabeled,
 }

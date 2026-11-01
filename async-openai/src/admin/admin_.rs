@@ -11,6 +11,14 @@ pub struct Admin<'c, C: Config> {
 }
 
 impl<'c, C: Config> Admin<'c, C> {
+    /// Manage organization external encryption and decryption keys.
+    pub fn external_keys(&self) -> super::ExternalKeys<'_, C> {
+        super::ExternalKeys::new(self.client)
+    }
+    /// Manage customer-managed external storage.
+    pub fn external_storage(&self) -> super::ExternalStorage<'_, C> {
+        super::ExternalStorage::new(self.client)
+    }
     pub(crate) fn new(client: &'c Client<C>) -> Self {
         Self { client }
     }

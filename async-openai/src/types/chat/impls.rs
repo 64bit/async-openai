@@ -331,6 +331,7 @@ impl Display for Role {
             f,
             "{}",
             match self {
+                Role::Developer => "developer",
                 Role::User => "user",
                 Role::System => "system",
                 Role::Assistant => "assistant",

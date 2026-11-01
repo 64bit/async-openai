@@ -90,6 +90,9 @@ pub enum RealtimeResponseStatus {
 pub struct Error {
     pub code: String,
     pub r#type: String,
+    /// A human-readable error message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -166,7 +169,7 @@ pub struct RealtimeResponseCreateParams {
     /// for this Response instead of using the default conversation. An empty array `[]` will clear
     /// the context for this Response. Note that this can include references to items that
     /// previously appeared in the session using their id.
-    pub input: Vec<RealtimeConversationItem>,
+    pub input: Vec<crate::types::realtime::RealtimeResponseInputItem>,
 
     /// The default system instructions (i.e. system message) prepended to model calls.
     /// This field allows the client to guide the model on desired responses.

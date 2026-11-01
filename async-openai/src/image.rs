@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 use crate::{
     config::Config,
     error::OpenAIError,
@@ -115,6 +116,7 @@ impl<'c, C: Config> Images<'c, C> {
         R = serde::de::DeserializeOwned,
         where_clause =  "reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>, T0: crate::traits::MaybeSend + 'static",
     )]
+    #[deprecated]
     pub async fn create_variation(
         &self,
         request: CreateImageVariationRequest,

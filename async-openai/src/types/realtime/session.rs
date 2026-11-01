@@ -71,6 +71,9 @@ pub struct AudioTranscriptionResponse {
     /// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub languages: Option<Vec<String>>,
+    /// Words or phrases configured to guide transcription of the input audio.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub keywords: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -244,7 +247,7 @@ pub struct AudioInput {
     /// and the model. Filtering the audio can improve VAD and turn detection accuracy
     /// (reducing false positives) and model performance by improving perception of the
     /// input audio.
-    pub noise_reduction: Option<NoiseReductionType>,
+    pub noise_reduction: Option<RealtimeNoiseReduction>,
     /// Configuration for input audio transcription, defaults to off and can be set to `null` to turn off once on.
     /// Input audio transcription is not native to the model, since the model consumes audio directly.
     /// Transcription runs asynchronously through [the /audio/transcriptions endpoint](https://platform.openai.com/docs/api-reference/audio/createTranscription)
@@ -526,4 +529,17 @@ pub struct RealtimeTranscriptionSession {
     /// `item.input_audio_transcription.logprobs`: Include logprobs for input audio transcription.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub include: Option<Vec<String>>,
+}
+
+/// Input noise suppression strength. Higher values apply more suppression.
+/// Defaults to 1 when noise reduction is first enabled. Omitting strength
+/// from a session update preserves the current strength.
+pub type RealtimeNoiseReductionStrength = f64;
+
+/// Input noise suppression settings.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RealtimeNoiseReduction {
+    pub r#type: NoiseReductionType,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub strength: Option<RealtimeNoiseReductionStrength>,
 }

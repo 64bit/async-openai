@@ -162,18 +162,13 @@ pub struct ProjectDataRetention {
 
 /// The configured project data retention type.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum ProjectDataRetentionType {
-    #[serde(rename = "organization_default")]
     OrganizationDefault,
-    #[serde(rename = "none")]
     None,
-    #[serde(rename = "zero_data_retention")]
     ZeroDataRetention,
-    #[serde(rename = "modified_abuse_monitoring")]
     ModifiedAbuseMonitoring,
-    #[serde(rename = "enhanced_zero_data_retention")]
     EnhancedZeroDataRetention,
-    #[serde(rename = "enhanced_modified_abuse_monitoring")]
     EnhancedModifiedAbuseMonitoring,
 }
 
@@ -228,10 +223,9 @@ pub struct ProjectModelPermissionsDeleteResponse {
 
 /// Whether the project uses an allowlist or a denylist.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum ProjectModelPermissionsMode {
-    #[serde(rename = "allow_list")]
     AllowList,
-    #[serde(rename = "deny_list")]
     DenyList,
 }
 
@@ -279,8 +273,8 @@ pub struct ProjectSpendAlertDeletedResource {
 
 /// The time interval for evaluating spend against the threshold.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
 pub enum ProjectSpendAlertInterval {
-    #[serde(rename = "month")]
     Month,
 }
 
@@ -351,6 +345,12 @@ pub enum PublicProjectResidency {
     AESTORAGE,
     #[serde(rename = "AE_STORAGE_PROCESSING")]
     AESTORAGEPROCESSING,
+    #[serde(rename = "JP_STORAGE_PROCESSING")]
+    JPSTORAGEPROCESSING,
+    #[serde(rename = "IN_STORAGE_PROCESSING")]
+    INSTORAGEPROCESSING,
+    #[serde(rename = "AU_STORAGE_PROCESSING")]
+    AUSTORAGEPROCESSING,
 }
 
 /// Parameters for updating project data retention controls.
@@ -380,7 +380,7 @@ pub enum UpdateProjectSpendLimitBodyCurrency {
 
 /// The time interval for evaluating spend against the threshold. Currently, only `month` is supported.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
 pub enum UpdateProjectSpendLimitBodyInterval {
-    #[serde(rename = "month")]
     Month,
 }

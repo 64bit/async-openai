@@ -15,6 +15,10 @@ pub struct RealtimeTranslationInputTranscription {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RealtimeTranslationNoiseReduction {
     pub r#type: NoiseReductionType,
+
+    /// Noise suppression strength.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub strength: Option<crate::types::realtime::RealtimeNoiseReductionStrength>,
 }
 
 /// Configuration for translation input audio.

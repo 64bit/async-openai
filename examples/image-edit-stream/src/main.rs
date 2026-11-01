@@ -67,7 +67,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .partial_images(2)
         .n(1)
         .size(ImageSize::S1024x1024)
-        .model(ImageModel::GptImage1)
+        .model(ImageModel::GptImage2)
         .stream(true)
         .user("async-openai")
         .build()?;

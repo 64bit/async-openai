@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 mod audio_;
 mod speech;
 mod transcriptions;

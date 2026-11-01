@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 use crate::{
     error::OpenAIError,
     traits::AsyncTryFrom,
@@ -24,6 +25,12 @@ impl AsyncTryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
             }
         }
 
+        if let Some(markup) = request.markup {
+            form = form.part("markup", create_file_part(markup.source).await?);
+        }
+        if let Some(value) = request.safety_identifier {
+            form = form.text("safety_identifier", value);
+        }
         if let Some(mask) = request.mask {
             let mask_part = create_file_part(mask.source).await?;
             form = form.part("mask", mask_part);
@@ -33,9 +40,7 @@ impl AsyncTryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
             form = form.text("background", background.to_string())
         }
 
-        if let Some(model) = request.model {
-            form = form.text("model", model.to_string())
-        }
+        form = form.text("model", request.model.to_string());
 
         if let Some(n) = request.n {
             form = form.text("n", n.to_string())

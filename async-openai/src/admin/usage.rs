@@ -116,4 +116,12 @@ impl<'c, C: Config> Usage<'c, C> {
             )
             .await
     }
+
+    /// Get Decisions API usage details for the organization.
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn decisions(&self) -> Result<UsageResponse, OpenAIError> {
+        self.client
+            .get("/organization/usage/decisions", &self.request_options)
+            .await
+    }
 }

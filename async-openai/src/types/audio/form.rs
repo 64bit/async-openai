@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 use crate::{
     error::OpenAIError,
     traits::AsyncTryFrom,
@@ -129,15 +130,29 @@ impl AsyncTryFrom<CreateVoiceConsentRequest> for reqwest::multipart::Form {
 
 impl AsyncTryFrom<CreateVoiceRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
-
     async fn try_from(request: CreateVoiceRequest) -> Result<Self, Self::Error> {
-        let audio_sample_part = create_file_part(request.audio_sample.source).await?;
-
-        let form = reqwest::multipart::Form::new()
-            .part("audio_sample", audio_sample_part)
-            .text("name", request.name)
-            .text("consent", request.consent);
-
-        Ok(form)
+        match request {
+            CreateVoiceRequest::AudioSample(request) => {
+                let part = create_file_part(request.audio_sample.source).await?;
+                Ok(Self::new()
+                    .text("type", "audio_sample")
+                    .text("name", request.name)
+                    .text("consent", request.consent)
+                    .part("audio_sample", part))
+            }
+            CreateVoiceRequest::Prompt(request) => {
+                let mut form = Self::new()
+                    .text("type", "prompt")
+                    .text("name", request.name)
+                    .text("prompt", request.prompt);
+                if let Some(value) = request.script_hint {
+                    form = form.text("script_hint", value);
+                }
+                if let Some(value) = request.model {
+                    form = form.text("model", value);
+                }
+                Ok(form)
+            }
+        }
     }
 }

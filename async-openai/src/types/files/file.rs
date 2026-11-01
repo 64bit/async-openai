@@ -22,9 +22,9 @@ pub enum FilePurpose {
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum FileExpirationAfterAnchor {
     #[default]
-    #[serde(rename = "created_at")]
     CreatedAt,
 }
 
@@ -103,11 +103,13 @@ pub struct OpenAIFile {
     pub id: String,
     /// The object type, which is always "file".
     pub object: String,
-    /// The size of the file in bytes.
-    pub bytes: u32,
+    /// The size of the file, in bytes. In a completed file upload response, this can
+    /// be null when the file size is not yet available.
+    pub bytes: Option<u32>,
     /// The Unix timestamp (in seconds) for when the file was created.
     pub created_at: u64,
-    /// The Unix timestamp (in seconds) for when the file will expire.
+    /// The Unix timestamp (in seconds) for when the file will expire. In a
+    /// completed file upload response, this can be null when no expiry is set.
     pub expires_at: Option<u64>,
     /// The name of the file.
     pub filename: String,
@@ -116,7 +118,8 @@ pub struct OpenAIFile {
     /// Deprecated. The current status of the file, which can be either `uploaded`, `processed`, or `error`.
     #[deprecated]
     pub status: Option<String>,
-    /// Deprecated. For details on why a fine-tuning training file failed validation, see the `error` field on `fine_tuning.job`.
+    /// Deprecated. For details on why a fine-tuning training file failed validation, see the `error` field
+    /// on `fine_tuning.job`. Completed file upload responses can return null when these details are unset.
     #[deprecated]
     pub status_details: Option<String>, // nullable: true
 }

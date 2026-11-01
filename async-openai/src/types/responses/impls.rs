@@ -8,7 +8,7 @@ use crate::types::responses::{
     ApplyPatchToolCallOutput, ApplyPatchToolCallOutputItemParam, ApplyPatchUpdateFileOperation,
     ApplyPatchUpdateFileOperationParam, CodeInterpreterContainerAuto, CodeInterpreterTool,
     CodeInterpreterToolCall, CodeInterpreterToolContainer, CompactionBody,
-    CompactionSummaryItemParam, ComputerCallOutputItemParam, ComputerTool, ComputerToolCall,
+    CompactionSummaryItemParam, ComputerCallOutputItemParam, ComputerToolCall,
     ComputerToolCallOutputResource, ComputerUsePreviewTool, ContainerReferenceParam,
     ContainerReferenceResource, ConversationParam, CustomToolCall, CustomToolCallOutput,
     CustomToolCallOutputResource, CustomToolParam, EasyInputContent, EasyInputMessage,
@@ -32,7 +32,8 @@ use crate::types::responses::{
     ResponseTextParam, Role, TextResponseFormatConfiguration, Tool, ToolChoiceCustom,
     ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions, ToolChoiceParam, ToolChoiceTypes,
     ToolSearchCall, ToolSearchCallItemParam, ToolSearchOutput, ToolSearchOutputItemParam,
-    ToolSearchToolParam, WebSearchTool, WebSearchToolCall,
+    ToolSearchOutputNamespaceToolParam, ToolSearchOutputTool, ToolSearchToolParam, WebSearchTool,
+    WebSearchToolCall,
 };
 
 impl<S: Into<String>> From<S> for EasyInputMessage {
@@ -620,12 +621,6 @@ impl From<CustomToolParam> for Tool {
     }
 }
 
-impl From<ComputerTool> for Tool {
-    fn from(tool: ComputerTool) -> Self {
-        Tool::Computer(tool)
-    }
-}
-
 impl From<NamespaceToolParam> for Tool {
     fn from(tool: NamespaceToolParam) -> Self {
         Tool::Namespace(tool)
@@ -1059,7 +1054,7 @@ impl From<ToolSearchOutput> for ToolSearchOutputItemParam {
             id: Some(o.id),
             call_id: o.call_id,
             execution: Some(o.execution),
-            tools: o.tools,
+            tools: o.tools.into_iter().map(Into::into).collect(),
             status: Some(o.status.into()),
         }
     }
@@ -1128,6 +1123,35 @@ impl From<OutputItem> for InputItem {
             OutputItem::CustomToolCallOutput(o) => Item::CustomToolCallOutput(o.into()).into(),
             OutputItem::ToolSearchCall(c) => Item::ToolSearchCall(c.into()).into(),
             OutputItem::ToolSearchOutput(o) => Item::ToolSearchOutput(o.into()).into(),
+        }
+    }
+}
+
+impl From<Tool> for ToolSearchOutputTool {
+    fn from(tool: Tool) -> Self {
+        match tool {
+            Tool::ProgrammaticToolCalling => Self::ProgrammaticToolCalling,
+            Tool::LocalShell => Self::LocalShell,
+            Tool::Function(value) => Self::Function(value),
+            Tool::FileSearch(value) => Self::FileSearch(value),
+            Tool::ComputerUsePreview(value) => Self::ComputerUsePreview(value),
+            Tool::WebSearch(value) => Self::WebSearch(value),
+            Tool::WebSearch20250826(value) => Self::WebSearch20250826(value),
+            Tool::Mcp(value) => Self::Mcp(value),
+            Tool::CodeInterpreter(value) => Self::CodeInterpreter(value),
+            Tool::ImageGeneration(value) => Self::ImageGeneration(value),
+            Tool::Shell(value) => Self::Shell(value),
+            Tool::Custom(value) => Self::Custom(value),
+            Tool::Computer => Self::Computer,
+            Tool::Namespace(value) => Self::Namespace(ToolSearchOutputNamespaceToolParam {
+                name: value.name,
+                description: value.description,
+                tools: value.tools,
+            }),
+            Tool::ToolSearch(value) => Self::ToolSearch(value),
+            Tool::WebSearchPreview(value) => Self::WebSearchPreview(value),
+            Tool::WebSearchPreview20250311(value) => Self::WebSearchPreview20250311(value),
+            Tool::ApplyPatch(value) => Self::ApplyPatch(value),
         }
     }
 }

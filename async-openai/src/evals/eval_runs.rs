@@ -64,7 +64,7 @@ impl<'c, C: Config> EvalRuns<'c, C> {
     pub async fn cancel(&self, run_id: &str) -> Result<EvalRun, OpenAIError> {
         self.client
             .post(
-                &format!("/evals/{}/runs/{}", self.eval_id, run_id),
+                &format!("/evals/{}/runs/{}/cancel", self.eval_id, run_id),
                 serde_json::json!({}),
                 &self.request_options,
             )

@@ -1,16 +1,15 @@
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum SafetyAlertErrorType {
-    #[serde(rename = "potentially_unintended_data_transfer")]
     PotentiallyUnintendedDataTransfer,
-    #[serde(rename = "potentially_unintended_data_access")]
     PotentiallyUnintendedDataAccess,
-    #[serde(rename = "potentially_unintended_destructive_activity")]
     PotentiallyUnintendedDestructiveActivity,
-    #[serde(rename = "other")]
     Other,
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct SafetyAlertResource {
     pub id: String,
     pub object: String,
@@ -24,4 +23,30 @@ pub struct SafetyAlertResource {
     pub error_type: SafetyAlertErrorType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reason: Option<String>,
+    /// Public explanation of the safety alert.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub detailed_explanation: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct SafetyCaseResource {
+    pub id: String,
+    pub object: String,
+    pub created_at: u64,
+    pub entity_identifier: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reason: Option<String>,
+    pub notice: SafetyCaseNotice,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct SafetyCaseNotice {
+    pub r#type: SafetyCaseNoticeType,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum SafetyCaseNoticeType {
+    Warning,
+    Deactivation,
 }

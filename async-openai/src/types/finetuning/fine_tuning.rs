@@ -290,6 +290,8 @@ pub enum FineTuningJobStatus {
     Succeeded,
     Failed,
     Cancelled,
+    Pausing,
+    Paused,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
@@ -317,7 +319,7 @@ pub struct FineTuningJob {
 
     /// The hyperparameters used for the fine-tuning job. This value will only be returned when running
     /// `supervised` jobs.
-    pub hyperparameters: Hyperparameters,
+    pub hyperparameters: Option<Hyperparameters>,
 
     ///  The base model that is being fine-tuned.
     pub model: String,
@@ -331,8 +333,8 @@ pub struct FineTuningJob {
     /// You can retrieve the results with the [Files API](https://platform.openai.com/docs/api-reference/files/retrieve-contents).
     pub result_files: Vec<String>,
 
-    /// The current status of the fine-tuning job, which can be either
-    /// `validating_files`, `queued`, `running`, `succeeded`, `failed`, or `cancelled`.
+    /// The current status of the fine-tuning job, which can be `validating_files`, `queued`, `running`,
+    /// `pausing`, `paused`, `succeeded`, `failed`, or `cancelled`.
     pub status: FineTuningJobStatus,
 
     /// The total number of billable tokens processed by this fine-tuning job. The value will be null if the fine-tuning job is still running.
@@ -348,7 +350,7 @@ pub struct FineTuningJob {
     pub integrations: Option<Vec<FineTuningIntegration>>, // maxItems: 5
 
     /// The seed used for the fine-tuning job.
-    pub seed: u32,
+    pub seed: Option<u32>,
 
     /// The Unix timestamp (in seconds) for when the fine-tuning job is estimated to finish. The value will be null if the fine-tuning job is not running.
     pub estimated_finish: Option<u32>,

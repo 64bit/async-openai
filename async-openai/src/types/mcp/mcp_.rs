@@ -40,7 +40,12 @@ pub struct MCPTool {
 
     /// Identifier for service connectors, like those available in ChatGPT. One of
     /// `server_url`, `connector_id`, or `tunnel_id` must be provided. Learn more
-    /// about service connectors [here](https://platform.openai.com/docs/guides/tools-remote-mcp#connectors).
+    /// about service connectors
+    /// [here](https://developers.openai.com/api/docs/guides/tools-connectors-mcp#connectors).
+    ///
+    /// This field is deprecated for models released after September 1, 2026.
+    /// Use `server_url` to connect to a remote MCP server, or `tunnel_id` to
+    /// connect through a Secure MCP Tunnel.
     ///
     /// Currently supported `connector_id` values are:
     ///
@@ -53,6 +58,7 @@ pub struct MCPTool {
     /// - Outlook Email: `connector_outlookemail`
     /// - SharePoint: `connector_sharepoint`
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[deprecated(note = "Connectors are deprecated. Use a remote MCP server URL instead.")]
     pub connector_id: Option<McpToolConnectorId>,
 
     /// Optional HTTP headers to send to the MCP server. Use for authentication or other purposes.

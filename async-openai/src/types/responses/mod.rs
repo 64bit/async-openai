@@ -36,3 +36,7 @@ pub use crate::types::shared::{
 };
 
 pub mod websocket;
+
+pub use crate::types::shared::MessagePhase;
+pub use crate::types::shared::PromptCacheBreakpointTTLEnum;
+pub use crate::types::shared::{ImageGenInputUsageDetails, ImageGenOutputTokensDetails};

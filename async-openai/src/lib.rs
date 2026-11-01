@@ -355,14 +355,15 @@ pub mod webhooks;
 // admin::* would be good - however its expanded here so that docs.rs shows the feature flags
 #[cfg(feature = "administration")]
 pub use admin::{
-    Admin, AdminAPIKeys, AuditLogs, Certificates, GroupRoles, GroupUsers, Groups, Invites,
-    OrganizationDataRetentions, OrganizationSpendAlerts, OrganizationSpendLimit, ProjectAPIKeys,
-    ProjectCertificates, ProjectDataRetentions, ProjectGroupRoles, ProjectGroups,
-    ProjectHostedToolPermission, ProjectModelPermission, ProjectRateLimits, ProjectRoles,
-    ProjectServiceAccounts, ProjectSpendAlerts, ProjectSpendLimit, ProjectUserRoles, ProjectUsers,
-    Projects, Roles, Usage, UserRoles, Users,
+    Admin, AdminAPIKeys, AuditLogs, Certificates, ExternalKeys, ExternalStorage, GroupRoles,
+    GroupUsers, Groups, Invites, OrganizationDataRetentions, OrganizationSpendAlerts,
+    OrganizationSpendLimit, ProjectAPIKeys, ProjectCertificates, ProjectDataRetentions,
+    ProjectGroupRoles, ProjectGroups, ProjectHostedToolPermission, ProjectModelPermission,
+    ProjectRateLimits, ProjectRoles, ProjectServiceAccounts, ProjectSpendAlerts, ProjectSpendLimit,
+    ProjectUserRoles, ProjectUsers, Projects, Roles, Usage, UserRoles, Users,
 };
 #[cfg(feature = "audio")]
+#[allow(deprecated)]
 pub use audio::{Audio, Speech, Transcriptions, Translations};
 #[cfg(feature = "batch")]
 pub use batches::Batches;
@@ -415,3 +416,8 @@ pub use safety::*;
 mod content_provenance_checks;
 #[cfg(feature = "content-provenance-checks")]
 pub use content_provenance_checks::ContentProvenanceChecks;
+
+#[cfg(feature = "decisions")]
+mod decisions;
+#[cfg(feature = "decisions")]
+pub use decisions::Decisions;

@@ -1,3 +1,6 @@
+// This example intentionally demonstrates the deprecated image variations endpoint.
+#![allow(deprecated)]
+
 use async_openai::{
     types::images::{CreateImageVariationRequestArgs, DallE2ImageSize, ImageResponseFormat},
     Client,
