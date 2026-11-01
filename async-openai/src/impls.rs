@@ -33,6 +33,7 @@ use crate::{
     admin::UserRoles, admin::Users,
 };
 #[cfg(feature = "audio")]
+#[allow(deprecated)]
 use crate::{audio::Audio, audio::Speech, audio::Transcriptions, audio::Translations};
 #[cfg(feature = "container")]
 use crate::{containers::ContainerFiles, containers::Containers};
@@ -228,3 +229,23 @@ impl_request_options_builder!(SafetyAlerts);
 use crate::ContentProvenanceChecks;
 #[cfg(feature = "content-provenance-checks")]
 impl_request_options_builder!(ContentProvenanceChecks);
+
+#[cfg(feature = "decisions")]
+use crate::Decisions;
+#[cfg(feature = "decisions")]
+impl_request_options_builder!(Decisions);
+
+#[cfg(feature = "safety")]
+use crate::SafetyCases;
+#[cfg(feature = "safety")]
+impl_request_options_builder!(SafetyCases);
+
+#[cfg(feature = "administration")]
+use crate::ExternalKeys;
+#[cfg(feature = "administration")]
+impl_request_options_builder!(ExternalKeys);
+
+#[cfg(feature = "administration")]
+use crate::ExternalStorage;
+#[cfg(feature = "administration")]
+impl_request_options_builder!(ExternalStorage);
