@@ -27,3 +27,5 @@ pub use crate::types::shared::{
     ModerationPolicyParam, ModerationResultBody, PromptCacheModeEnum, PromptCacheOptionsParam,
     PromptCacheTTLEnum,
 };
+
+pub use crate::types::shared::PromptCacheBreakpointTTLEnum;
