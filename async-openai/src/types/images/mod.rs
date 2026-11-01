@@ -11,3 +11,4 @@ pub use stream::*;
 
 // Re-export shared types that are used in images
 pub use crate::types::shared::ImageInput;
+pub use crate::types::shared::{ImageGenInputUsageDetails, ImageGenOutputTokensDetails};

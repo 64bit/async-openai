@@ -40,6 +40,12 @@ pub struct ImageGenCompletedEvent {
     pub output_format: ImageOutputFormat,
     /// Token usage information for the image generation.
     pub usage: ImageGenUsage,
+
+    /// The effective safety identifier used for safety monitoring and abuse detection. This is the
+    /// non-empty `safety_identifier` from the request, or the deprecated `user` value when
+    /// `safety_identifier` is omitted, null, or empty.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub safety_identifier: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -89,6 +95,12 @@ pub struct ImageEditCompletedEvent {
     pub output_format: ImageOutputFormat,
     /// Token usage information for the image edit.
     pub usage: ImageGenUsage,
+
+    /// The effective safety identifier used for safety monitoring and abuse detection. This is the
+    /// non-empty `safety_identifier` from the request, or the deprecated `user` value when
+    /// `safety_identifier` is omitted, null, or empty.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub safety_identifier: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

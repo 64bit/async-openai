@@ -1,8 +1,9 @@
+#![allow(deprecated)]
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
-use crate::types::images::ImageInput;
+use crate::types::images::{ImageGenInputUsageDetails, ImageGenOutputTokensDetails, ImageInput};
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum ImageSize {
@@ -73,6 +74,7 @@ pub enum ImageResponseFormat {
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq)]
 pub enum ImageModel {
+    #[default]
     #[serde(rename = "gpt-image-2")]
     GptImage2,
     #[serde(rename = "gpt-image-2-2026-04-21")]
@@ -85,19 +87,12 @@ pub enum ImageModel {
     GptImage2_5Flare,
     #[serde(rename = "gpt-image-2.5-flare-2026-09-08")]
     GptImage2_5Flare2026_09_08,
-    #[serde(rename = "gpt-image-1")]
-    GptImage1,
     #[serde(rename = "gpt-image-1.5")]
     GptImage1dot5,
     #[serde(rename = "gpt-image-1-mini")]
     GptImage1Mini,
     #[serde(rename = "chatgpt-image-latest")]
     ChatGptImageLatest,
-    #[default]
-    #[serde(rename = "dall-e-2")]
-    DallE2,
-    #[serde(rename = "dall-e-3")]
-    DallE3,
     #[serde(untagged)]
     Other(String),
 }
@@ -157,33 +152,39 @@ pub enum ImageBackground {
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
 pub struct CreateImageRequest {
-    /// A text description of the desired image(s). The maximum length is 32000 characters for
-    /// the GPT image models, 1000 characters for `dall-e-2` and 4000 characters for `dall-e-3`.
+    /// A text description of the desired image(s). The maximum length is 32000 characters.
     pub prompt: String,
 
-    /// The model to use for image generation. Supported models include `dall-e-2`,
-    /// `dall-e-3`, and the GPT image model family. Defaults to `dall-e-2` unless
-    /// a parameter specific to the GPT image models is used.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub model: Option<ImageModel>,
+    /// The GPT image model to use for image generation. Specify a model explicitly.
+    /// Supported models include `gpt-image-1-mini`, `gpt-image-1.5`, `gpt-image-2`,
+    /// `gpt-image-2-2026-04-21`, `gpt-image-2.5-sunburst`,
+    /// `gpt-image-2.5-sunburst-2026-09-08`, `gpt-image-2.5-flare`,
+    /// `gpt-image-2.5-flare-2026-09-08`, and `chatgpt-image-latest`.
+    ///
+    /// `gpt-image-1` was shut down on October 23, 2026. Use
+    /// `gpt-image-2.5-sunburst` or `gpt-image-2.5-flare` instead.
+    pub model: ImageModel,
 
-    /// The number of images to generate. Must be between 1 and 10. For `dall-e-3`, only `n=1` is supported.
+    /// The number of images to generate. Must be between 1 and 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub n: Option<u8>, // min:1 max:10 default:1
 
     /// The quality of the image that will be generated.
     ///
-    /// - `auto` (default value) will automatically select the best quality for the given model.
-    /// - `max`, `xhigh`, `high`, `medium`, and `low` are supported for compatible GPT image models.
-    /// - `hd` and `standard` are supported for `dall-e-3`.
-    /// - `standard` is the only option for `dall-e-2`.
+    /// - `auto` (default value) will automatically select the best quality for the given
+    ///   model.
+    /// - `high`, `medium` and `low` are supported for the GPT image models.
+    /// - `gpt-image-2.5-sunburst` and `gpt-image-2.5-flare`, including their `2026-09-08`
+    ///   snapshots, also support `xhigh` and `max`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quality: Option<ImageQuality>,
 
-    /// The format in which generated images with `dall-e-2` and `dall-e-3` are returned. Must be one of
-    /// `url` or `b64_json`. URLs are only valid for 60 minutes after the image has been generated. This
-    /// parameter isn't supported for the GPT image models which will always return base64-encoded images.
+    /// Legacy response format parameter for retired image models. Unsupported for GPT image models, which
+    /// always return base64-encoded images.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[deprecated(
+        note = "Legacy response format parameter for retired image models. Unsupported for GPT image models, which always return base64-encoded images."
+    )]
     pub response_format: Option<ImageResponseFormat>,
 
     /// The format in which the generated images are returned. This parameter is only supported for
@@ -210,18 +211,14 @@ pub struct CreateImageRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub partial_images: Option<u8>,
 
-    /// The size of the generated images. For `gpt-image-2` and
-    /// `gpt-image-2-2026-04-21`, arbitrary resolutions are supported as
-    /// `WIDTHxHEIGHT` strings, for example `1536x864`. Width and height
-    /// must both be divisible by 16 and the requested aspect ratio must be
-    /// between 1:3 and 3:1. Resolutions above `2560x1440` are experimental,
-    /// and the maximum supported resolution is `3840x2160`. The requested
-    /// size must also satisfy the model's current pixel and edge limits.
-    /// The standard sizes `1024x1024`, `1536x1024`, and `1024x1536` are
-    /// supported by the GPT image models; `auto` is supported for models
-    /// that allow automatic sizing. For `dall-e-2`, use one of `256x256`,
-    /// `512x512`, or `1024x1024`. For `dall-e-3`, use one of `1024x1024`,
-    /// `1792x1024`, or `1024x1792`.
+    /// The size of the generated images. For `gpt-image-2`, `gpt-image-2-2026-04-21`,
+    /// `gpt-image-2.5-sunburst`, `gpt-image-2.5-sunburst-2026-09-08`, `gpt-image-2.5-flare`, and
+    /// `gpt-image-2.5-flare-2026-09-08`, arbitrary resolutions are supported as `WIDTHxHEIGHT` strings, for
+    /// example `1536x864`. Width and height must both be divisible by 16 and the requested aspect ratio
+    /// must be between 1:3 and 3:1. Resolutions above `2560x1440` are experimental, and the maximum
+    /// supported resolution is `3840x2160`. The requested size must also satisfy the model's current pixel
+    /// and edge limits. The standard sizes `1024x1024`, `1536x1024`, and `1024x1536` are supported by the
+    /// GPT image models; `auto` is supported for models that allow automatic sizing.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub size: Option<ImageSize>,
 
@@ -241,16 +238,28 @@ pub struct CreateImageRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub background: Option<ImageBackground>,
 
-    /// The style of the generated images. This parameter is only supported for `dall-e-3`. Must be one of
-    ///`vivid` or `natural`. Vivid causes the model to lean towards generating hyper-real and dramatic
-    /// images. Natural causes the model to produce more natural, less hyper-real looking images.
+    /// Legacy style parameter for retired image models. Unsupported for GPT image models; describe the
+    /// desired style in the prompt instead.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[deprecated(
+        note = "Legacy style parameter for retired image models. Unsupported for GPT image models; describe the desired style in the prompt instead."
+    )]
     pub style: Option<ImageStyle>,
 
-    /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
-    ///[Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
+    /// Deprecated: use `safety_identifier` instead. This parameter remains accepted for backward
+    /// compatibility and is used when `safety_identifier` is omitted, null, or empty. [Learn
+    /// more](https://developers.openai.com/api/docs/guides/safety-best-practices#implement-safety-identifiers).
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[deprecated(note = " Deprecated: use `safety_identifier` instead.")]
     pub user: Option<String>,
+
+    /// A stable identifier for an end user in your organization, used for safety monitoring and abuse
+    /// detection. Hash a username or email address to avoid sending identifying information. A non-empty
+    /// value takes precedence over the deprecated `user` parameter. If omitted, null, or empty, the API
+    /// uses `user` when available. [Learn
+    /// more](https://developers.openai.com/api/docs/guides/safety-best-practices#implement-safety-identifiers).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub safety_identifier: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
@@ -273,22 +282,6 @@ pub enum Image {
 pub enum ImageResponseBackground {
     Transparent,
     Opaque,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
-pub struct ImageGenInputUsageDetails {
-    /// The number of text tokens in the input prompt.
-    pub text_tokens: u32,
-    /// The number of image tokens in the input prompt.
-    pub image_tokens: u32,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
-pub struct ImageGenOutputTokensDetails {
-    /// The number of text output tokens generated by the model.
-    pub text_tokens: u32,
-    /// The number of image output tokens generated by the model.
-    pub image_tokens: u32,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
@@ -321,6 +314,11 @@ pub struct ImagesResponse {
     pub quality: Option<ImageQuality>,
     /// For the GPT image models only, the token usage information for the image generation.
     pub usage: Option<ImageGenUsage>,
+    /// The effective safety identifier used for safety monitoring and abuse detection. This is the
+    /// non-empty `safety_identifier` from the request, or the deprecated `user` value when
+    /// `safety_identifier` is omitted, null, or empty.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub safety_identifier: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
@@ -346,16 +344,16 @@ pub enum ImageEditInput {
 pub struct CreateImageEditRequest {
     /// The image(s) to edit. Must be a supported image file or an array of images.
     ///
-    /// For the GPT image models, each image should be a `png`, `webp`, or `jpg`
-    /// file less than 50MB. You can provide up to 16 images.
-    /// `chatgpt-image-latest` follows the same input constraints as GPT image models.
-    ///
-    /// For `dall-e-2`, you can only provide one image, and it should be a square
-    /// `png` file less than 4MB.
+    /// For the GPT image models (`gpt-image-1-mini`, `gpt-image-1.5`,
+    /// `gpt-image-2`, `gpt-image-2-2026-04-21`, `gpt-image-2.5-sunburst`,
+    /// `gpt-image-2.5-sunburst-2026-09-08`, `gpt-image-2.5-flare`, and
+    /// `gpt-image-2.5-flare-2026-09-08`), each image should be a `png`, `webp`, or `jpg`
+    /// file less than 50MB. You can provide up to 16 images. `chatgpt-image-latest`
+    /// follows the same input constraints as GPT image models.
     pub image: ImageEditInput,
 
-    /// A text description of the desired image(s). The maximum length is 1000 characters
-    /// for `dall-e-2`, and 32000 characters for the GPT image models.
+    /// A text description of the desired image(s). The maximum length is 32000 characters for the GPT image
+    /// models.
     pub prompt: String,
 
     /// An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where
@@ -373,30 +371,34 @@ pub struct CreateImageEditRequest {
     /// using `transparent`, set the output format to `png` or `webp`.
     pub background: Option<ImageBackground>,
 
-    /// The model to use for image generation. Supports `dall-e-2`, the GPT image
-    /// model family, and `chatgpt-image-latest`. Defaults to `gpt-image-1.5`.
-    pub model: Option<ImageModel>,
+    /// The GPT image model to use for image editing
+    /// (`gpt-image-1-mini`, `gpt-image-1.5`, `gpt-image-2`,
+    /// `gpt-image-2-2026-04-21`, `gpt-image-2.5-sunburst`,
+    /// `gpt-image-2.5-sunburst-2026-09-08`, `gpt-image-2.5-flare`,
+    /// `gpt-image-2.5-flare-2026-09-08`, or `chatgpt-image-latest`).
+    ///
+    /// `gpt-image-1` was shut down on October 23, 2026. Use
+    /// `gpt-image-2.5-sunburst` or `gpt-image-2.5-flare` instead.
+    pub model: ImageModel,
 
     /// The number of images to generate. Must be between 1 and 10.
     pub n: Option<u8>, // min:1 max:10 default:1
 
-    /// The size of the generated images. For `gpt-image-2` and
-    /// `gpt-image-2-2026-04-21`, arbitrary resolutions are supported as
-    /// `WIDTHxHEIGHT` strings, for example `1536x864`. Width and height
-    /// must both be divisible by 16 and the requested aspect ratio must be
-    /// between 1:3 and 3:1. Resolutions above `2560x1440` are experimental,
-    /// and the maximum supported resolution is `3840x2160`. The requested
-    /// size must also satisfy the model's current pixel and edge limits.
-    /// The standard sizes `1024x1024`, `1536x1024`, and `1024x1536` are
-    /// supported by the GPT image models; `auto` is supported for models
-    /// that allow automatic sizing. For `dall-e-2`, use one of `256x256`,
-    /// `512x512`, or `1024x1024`. For `dall-e-3`, use one of `1024x1024`,
-    /// `1792x1024`, or `1024x1792`.
+    /// The size of the generated images. Defaults to `auto`. For `gpt-image-2`, `gpt-image-2-2026-04-21`,
+    /// `gpt-image-2.5-sunburst`, `gpt-image-2.5-sunburst-2026-09-08`, `gpt-image-2.5-flare`, and
+    /// `gpt-image-2.5-flare-2026-09-08`, arbitrary resolutions are supported as `WIDTHxHEIGHT` strings, for
+    /// example `1536x864`. Width and height must both be divisible by 16 and the requested aspect ratio
+    /// must be between 1:3 and 3:1. Resolutions above `2560x1440` are experimental, and the maximum
+    /// supported resolution is `3840x2160`. The requested size must also satisfy the model's current pixel
+    /// and edge limits. The standard sizes `1024x1024`, `1536x1024`, and `1024x1536` are supported by the
+    /// GPT image models; `auto` is supported for models that allow automatic sizing.
     pub size: Option<ImageSize>,
 
-    /// The format in which the generated images are returned. Must be one of `url` or `b64_json`. URLs
-    /// are only valid for 60 minutes after the image has been generated. This parameter is only supported
-    /// for `dall-e-2`, as the GPT image models will always return base64-encoded images.
+    /// Legacy response format parameter for retired image models. Unsupported for GPT image models, which
+    /// always return base64-encoded images.
+    #[deprecated(
+        note = "Legacy response format parameter for retired image models. Unsupported for GPT image models, which always return base64-encoded images."
+    )]
     pub response_format: Option<ImageResponseFormat>,
 
     /// The format in which the generated images are returned. This parameter is
@@ -409,8 +411,10 @@ pub struct CreateImageEditRequest {
     /// formats, and defaults to 100.
     pub output_compression: Option<u8>,
 
-    /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
-    /// [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
+    /// Deprecated: use `safety_identifier` instead. This parameter remains accepted for backward
+    /// compatibility and is used when `safety_identifier` is omitted, null, or empty. [Learn
+    /// more](https://developers.openai.com/api/docs/guides/safety-best-practices#implement-safety-identifiers).
+    #[deprecated(note = "Deprecated: use `safety_identifier` instead.")]
     pub user: Option<String>,
 
     /// Control how much effort the model will exert to match the style and features, especially facial
@@ -434,6 +438,18 @@ pub struct CreateImageEditRequest {
     /// The quality of the image that will be generated. GPT image models support
     /// quality levels through `max`; `dall-e-2` supports `standard`. Defaults to `auto`.
     pub quality: Option<ImageQuality>,
+
+    /// A stable identifier for an end user in your organization, used for safety monitoring and abuse
+    /// detection. Hash a username or email address to avoid sending identifying information. A non-empty
+    /// value takes precedence over the deprecated `user` parameter. If omitted, null, or empty, the API
+    /// uses `user` when available. [Learn
+    /// more](https://developers.openai.com/api/docs/guides/safety-best-practices#implement-safety-identifiers).
+    pub safety_identifier: Option<String>,
+
+    /// A transparent PNG overlaid on the first image to guide the edit. Must match that image's dimensions
+    /// after orientation and contain transparent pixels. Supports GPT Image 2.5. Cannot be combined with
+    /// mask.
+    pub markup: Option<ImageInput>,
 }
 
 #[derive(Debug, Default, Clone, Builder, PartialEq)]
@@ -442,12 +458,14 @@ pub struct CreateImageEditRequest {
 #[builder(setter(into, strip_option), default)]
 #[builder(derive(Debug))]
 #[builder(build_fn(error = "OpenAIError"))]
+#[deprecated(note = "DALL-E 2 and image variations shut down on February 26, 2027.")]
 pub struct CreateImageVariationRequest {
     /// The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and
     /// square.
     pub image: ImageInput,
 
-    /// The model to use for image generation. Only `dall-e-2` is supported at this time.
+    /// The legacy model used by the retired image variations endpoint. This endpoint no longer accepts
+    /// requests.
     pub model: Option<ImageModel>,
 
     /// The number of images to generate. Must be between 1 and 10.
@@ -522,6 +540,7 @@ pub struct EditImageJsonRequest {
 
     /// A unique identifier representing your end-user.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[deprecated(note = "Use safety_identifier instead.")]
     pub user: Option<String>,
 
     /// The output format for the generated image.
@@ -547,4 +566,11 @@ pub struct EditImageJsonRequest {
     /// The number of partial images to generate during streaming.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub partial_images: Option<u8>,
+
+    /// Opaque end-user identifier, up to 128 characters.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub safety_identifier: Option<String>,
+    /// An optional markup image containing edit instructions.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub markup: Option<ImageRefParam>,
 }

@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 use std::fmt::Display;
 
 #[cfg(not(target_family = "wasm"))]
@@ -54,9 +55,6 @@ impl Display for ImageModel {
                 Self::GptImage2_5Sunburst2026_09_08 => "gpt-image-2.5-sunburst-2026-09-08",
                 Self::GptImage2_5Flare => "gpt-image-2.5-flare",
                 Self::GptImage2_5Flare2026_09_08 => "gpt-image-2.5-flare-2026-09-08",
-                Self::DallE2 => "dall-e-2",
-                Self::DallE3 => "dall-e-3",
-                Self::GptImage1 => "gpt-image-1",
                 Self::GptImage1dot5 => "gpt-image-1.5",
                 Self::GptImage1Mini => "gpt-image-1-mini",
                 Self::ChatGptImageLatest => "chatgpt-image-latest",
