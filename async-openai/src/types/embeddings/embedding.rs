@@ -63,8 +63,10 @@ pub struct Embedding {
     pub index: u32,
     /// The object type, which is always "embedding".
     pub object: String,
-    /// The embedding vector, which is a list of floats. The length of vector
-    /// depends on the model as listed in the [embedding guide](https://platform.openai.com/docs/guides/embeddings).
+    /// The embedding vector, returned as a list of floats when `encoding_format` is `float` (the default),
+    /// or as a base64-encoded string when `encoding_format` is `base64`. The length of the vector depends
+    /// on the model as listed in the [embedding
+    /// guide](https://developers.openai.com/api/docs/guides/embeddings).
     pub embedding: Vec<f32>,
 }
 
