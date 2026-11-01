@@ -32,6 +32,7 @@ responses = ["response-types", "_api"]
 webhook = ["webhook-types", "dep:base64", "dep:thiserror", "dep:hmac", "dep:sha2", "dep:hex"]
 # start - Platform APIs
 audio = ["audio-types", "_api"]
+decisions = ["decision-types", "_api"]
 safety = ["safety-types", "_api"]
 content-provenance-checks = ["content-provenance-checks-types", "_api"]
 video = ["video-types", "_api"]
@@ -60,6 +61,7 @@ middleware = ["dep:tower", "_api"]
 response-types = ["dep:derive_builder"]
 webhook-types = ["dep:derive_builder"]
 audio-types = ["dep:derive_builder", "dep:bytes"]
+decision-types = ["dep:derive_builder"]
 safety-types = []
 content-provenance-checks-types = ["dep:bytes"]
 video-types = ["dep:derive_builder", "dep:bytes"]
@@ -84,6 +86,7 @@ completion-types = ["dep:derive_builder", "chat-completion-types" ]
 
 # Enable all types
 types = [
+    "decision-types",
     "safety-types",
     "content-provenance-checks-types",
     "response-types",
@@ -112,6 +115,7 @@ types = [
 
 # Enable all features
 full = [
+    "decisions",
     "safety",
     "content-provenance-checks",
     "responses",
