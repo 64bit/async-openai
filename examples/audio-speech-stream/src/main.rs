@@ -1,3 +1,6 @@
+// Demonstrates the Speech API with a model scheduled for retirement.
+#![allow(deprecated)]
+
 use async_openai::traits::EventType;
 use async_openai::{
     types::audio::{

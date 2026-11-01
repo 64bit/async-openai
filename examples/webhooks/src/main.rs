@@ -233,6 +233,7 @@ async fn handle_webhook(
 }
 
 /// Process webhook events
+#[allow(deprecated)] // Continue recognizing the legacy live.call.incoming webhook.
 fn process_webhook_event(event: WebhookEvent) {
     info!("");
     info!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -243,7 +244,17 @@ fn process_webhook_event(event: WebhookEvent) {
     info!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
     match event {
+        WebhookEvent::WebhookSafetyWarningIssued(e) => {
+            info!("Safety warning issued; case ID: {}", e.data.id);
+        }
+        WebhookEvent::WebhookSafetyDeactivationIssued(e) => {
+            info!("Safety deactivation issued; case ID: {}", e.data.id);
+        }
         WebhookEvent::WebhookLiveCallIncoming(e) => println!("Live call incoming: {e:?}"),
+        WebhookEvent::WebhookLiveTransportIncoming(e) => {
+            info!("Live transport incoming: {}", e.data.session_id);
+            info!("   Transport type: {}", e.data.r#type);
+        }
         WebhookEvent::WebhookSafetyAlertCreated(e) => println!("Safety alert created: {e:?}"),
         WebhookEvent::WebhookSafetyOrgAlertCreated(e) => {
             println!("Organization safety alert created: {e:?}")
