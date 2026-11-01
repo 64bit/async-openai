@@ -77,4 +77,6 @@ pub enum UsageGroupBy {
     ServiceTier,
     VectorStoreId,
     ContextLevel,
+    ApiSource,
+    LineItem,
 }
