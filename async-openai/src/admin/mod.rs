@@ -59,3 +59,9 @@ pub use roles::*;
 pub use usage::*;
 pub use user_roles::*;
 pub use users::*;
+
+mod external_keys;
+pub use external_keys::*;
+
+mod external_storage;
+pub use external_storage::*;
