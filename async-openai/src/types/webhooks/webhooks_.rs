@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 use serde::{Deserialize, Serialize};
 
 /// Sent when a batch API request has been cancelled.
@@ -220,6 +221,10 @@ pub struct WebhookRealtimeCallData {
     /// Retained names, values, repeated entries, and order are preserved.
     /// Treat these values as untrusted call metadata.
     pub sip_headers: Vec<SipHeader>,
+
+    /// Media security for the SIP call (rtp or srtp; additional values may be added).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sip_media_security: Option<String>,
 }
 
 /// A header from the SIP Invite.
@@ -311,6 +316,43 @@ pub struct WebhookResponseData {
 /// same pending session can also emit `realtime.call.incoming`; the first
 /// successful Realtime or Live accept endpoint selects the runtime surface.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct WebhookLiveTransportIncoming {
+    /// The Unix timestamp (in seconds) of when the event was created.
+    pub created_at: u64,
+    /// The unique ID of the event.
+    pub id: String,
+    /// Event data payload.
+    pub data: WebhookLiveTransportIncomingData,
+    /// The object of the event. Always `event`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub object: Option<String>,
+}
+
+/// Data payload for an incoming Live transport.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct WebhookLiveTransportIncomingData {
+    /// The incoming transport type. Always `sip`.
+    pub r#type: String,
+    /// The `live_...` ID of the pending SIP session. Forward this value
+    /// unchanged when accepting or rejecting the call through the Live API.
+    pub session_id: String,
+    /// Headers from the SIP INVITE, excluding SIP authorization headers.
+    /// Retained names, values, repeated entries, and order are preserved.
+    /// Treat these values as untrusted call metadata.
+    pub sip_headers: Vec<SipHeader>,
+    /// Media protection selected on the SIP leg during SDP negotiation. `srtp`
+    /// indicates SRTP; `rtp` indicates unencrypted RTP. Omitted when unknown.
+    /// This does not describe SIP signaling security or confirm that media has
+    /// flowed. Clients should handle unrecognized values as unknown.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sip_media_security: Option<String>,
+}
+
+/// Sent when an incoming API SIP session is available for Live acceptance. The
+/// same pending session can also emit `realtime.call.incoming`; the first
+/// successful Realtime or Live accept endpoint selects the runtime surface.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+#[deprecated(note = "Use live.transport.incoming instead.")]
 pub struct WebhookLiveCallIncoming {
     /// The Unix timestamp (in seconds) of when the event was created.
     pub created_at: u64,
@@ -333,6 +375,9 @@ pub struct WebhookLiveCallIncomingData {
     /// Retained names, values, repeated entries, and order are preserved.
     /// Treat these values as untrusted call metadata.
     pub sip_headers: Vec<WebhookLiveCallIncomingDataSipHeadersItem>,
+    /// Media security for the SIP call (rtp or srtp; additional values may be added).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sip_media_security: Option<String>,
 }
 
 /// A header from the SIP Invite.
@@ -387,6 +432,44 @@ pub struct WebhookSafetyOrgAlertCreatedData {
     pub id: String,
 }
 
+/// Sent when a warning is issued for a safety identifier in your organization.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WebhookSafetyWarningIssued {
+    /// The unique ID of the webhook event.
+    pub id: String,
+    /// The object of the event. Always `event`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub object: Option<String>,
+    /// The Unix timestamp in seconds when the event was created.
+    pub created_at: u64,
+    pub data: WebhookSafetyWarningIssuedData,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct WebhookSafetyWarningIssuedData {
+    /// The safety case ID to pass to `GET /v1/safety/cases/{id}`.
+    pub id: String,
+}
+
+/// Sent when a deactivation is issued for a safety identifier in your organization.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WebhookSafetyDeactivationIssued {
+    /// The unique ID of the webhook event.
+    pub id: String,
+    /// The object of the event. Always `event`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub object: Option<String>,
+    /// The Unix timestamp in seconds when the event was created.
+    pub created_at: u64,
+    pub data: WebhookSafetyDeactivationIssuedData,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct WebhookSafetyDeactivationIssuedData {
+    /// The safety case ID to pass to `GET /v1/safety/cases/{id}`.
+    pub id: String,
+}
+
 // EventType and EventId implementations for response events
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -438,13 +521,23 @@ pub enum WebhookEvent {
     ResponseIncomplete(WebhookResponseIncomplete),
 
     #[serde(rename = "live.call.incoming")]
+    #[deprecated(note = "Use live.transport.incoming instead.")]
     WebhookLiveCallIncoming(WebhookLiveCallIncoming),
+
+    #[serde(rename = "live.transport.incoming")]
+    WebhookLiveTransportIncoming(WebhookLiveTransportIncoming),
 
     #[serde(rename = "safety.alert.created")]
     WebhookSafetyAlertCreated(WebhookSafetyAlertCreated),
 
     #[serde(rename = "safety.org_alert.created")]
     WebhookSafetyOrgAlertCreated(WebhookSafetyOrgAlertCreated),
+
+    #[serde(rename = "safety.warning_issued")]
+    WebhookSafetyWarningIssued(WebhookSafetyWarningIssued),
+
+    #[serde(rename = "safety.deactivation_issued")]
+    WebhookSafetyDeactivationIssued(WebhookSafetyDeactivationIssued),
 }
 
 // Implement EventType trait for all event types in this file
@@ -476,7 +569,10 @@ macro_rules! impl_event_id {
 // Use the macro to implement EventType for all webhook event structs
 #[cfg(feature = "_api")]
 impl_event_type! {
+    WebhookSafetyDeactivationIssued => "safety.deactivation_issued",
+    WebhookSafetyWarningIssued => "safety.warning_issued",
     WebhookLiveCallIncoming => "live.call.incoming",
+    WebhookLiveTransportIncoming => "live.transport.incoming",
     WebhookSafetyAlertCreated => "safety.alert.created",
     WebhookSafetyOrgAlertCreated => "safety.org_alert.created",
     WebhookBatchCancelled => "batch.cancelled",
@@ -499,7 +595,10 @@ impl_event_type! {
 // Use the macro to implement EventId for all webhook event structs
 #[cfg(feature = "_api")]
 impl_event_id! {
+    WebhookSafetyDeactivationIssued,
+    WebhookSafetyWarningIssued,
     WebhookLiveCallIncoming,
+    WebhookLiveTransportIncoming,
     WebhookSafetyAlertCreated,
     WebhookSafetyOrgAlertCreated,
     WebhookBatchCancelled,
@@ -524,7 +623,10 @@ impl_event_id! {
 impl crate::traits::EventType for WebhookEvent {
     fn event_type(&self) -> &'static str {
         match self {
+            Self::WebhookSafetyWarningIssued(e) => e.event_type(),
+            Self::WebhookSafetyDeactivationIssued(e) => e.event_type(),
             Self::WebhookLiveCallIncoming(e) => e.event_type(),
+            Self::WebhookLiveTransportIncoming(e) => e.event_type(),
             Self::WebhookSafetyAlertCreated(e) => e.event_type(),
             Self::WebhookSafetyOrgAlertCreated(e) => e.event_type(),
             Self::BatchCancelled(e) => e.event_type(),
@@ -550,7 +652,10 @@ impl crate::traits::EventType for WebhookEvent {
 impl crate::traits::EventId for WebhookEvent {
     fn event_id(&self) -> &str {
         match self {
+            Self::WebhookSafetyWarningIssued(e) => e.event_id(),
+            Self::WebhookSafetyDeactivationIssued(e) => e.event_id(),
             Self::WebhookLiveCallIncoming(e) => e.event_id(),
+            Self::WebhookLiveTransportIncoming(e) => e.event_id(),
             Self::WebhookSafetyAlertCreated(e) => e.event_id(),
             Self::WebhookSafetyOrgAlertCreated(e) => e.event_id(),
             Self::BatchCancelled(e) => e.event_id(),
@@ -576,7 +681,10 @@ impl WebhookEvent {
     /// Get the timestamp when the event was created
     pub fn created_at(&self) -> u64 {
         match self {
+            Self::WebhookSafetyWarningIssued(e) => e.created_at,
+            Self::WebhookSafetyDeactivationIssued(e) => e.created_at,
             Self::WebhookLiveCallIncoming(e) => e.created_at,
+            Self::WebhookLiveTransportIncoming(e) => e.created_at,
             Self::WebhookSafetyAlertCreated(e) => e.created_at,
             Self::WebhookSafetyOrgAlertCreated(e) => e.created_at,
             Self::BatchCancelled(w) => w.created_at,
