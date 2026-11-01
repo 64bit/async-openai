@@ -17,7 +17,11 @@ mod function_call;
 mod function_name;
 #[cfg(feature = "chat-completion-types")]
 mod function_object;
-#[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
+#[cfg(any(
+    feature = "chat-completion-types",
+    feature = "response-types",
+    feature = "decision-types"
+))]
 mod image_detail;
 #[cfg(any(feature = "image-types", feature = "video-types"))]
 mod image_input;
@@ -35,7 +39,11 @@ mod prompt_tokens_details;
 mod reasoning_effort;
 #[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
 mod response_format;
-#[cfg(any(feature = "response-types", feature = "batch-types"))]
+#[cfg(any(
+    feature = "response-types",
+    feature = "batch-types",
+    feature = "decision-types"
+))]
 mod response_usage;
 #[cfg(feature = "vectorstore-types")]
 mod static_chunking_strategy;
@@ -54,7 +62,11 @@ pub use function_call::*;
 pub use function_name::*;
 #[cfg(feature = "chat-completion-types")]
 pub use function_object::*;
-#[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
+#[cfg(any(
+    feature = "chat-completion-types",
+    feature = "response-types",
+    feature = "decision-types"
+))]
 pub use image_detail::*;
 #[cfg(any(feature = "image-types", feature = "video-types"))]
 pub use image_input::*;
@@ -72,7 +84,11 @@ pub use prompt_tokens_details::*;
 pub use reasoning_effort::*;
 #[cfg(any(feature = "chat-completion-types", feature = "response-types"))]
 pub use response_format::*;
-#[cfg(any(feature = "response-types", feature = "batch-types"))]
+#[cfg(any(
+    feature = "response-types",
+    feature = "batch-types",
+    feature = "decision-types"
+))]
 pub use response_usage::*;
 #[cfg(feature = "vectorstore-types")]
 pub use static_chunking_strategy::*;
@@ -106,3 +122,18 @@ pub use spend_limit::*;
 mod transcription_language;
 #[cfg(any(feature = "audio-types", feature = "realtime-types"))]
 pub use transcription_language::*;
+
+#[cfg(feature = "administration-types")]
+mod external_storage;
+#[cfg(feature = "administration-types")]
+pub use external_storage::*;
+
+#[cfg(any(feature = "image-types", feature = "response-types"))]
+mod image_usage;
+#[cfg(any(feature = "image-types", feature = "response-types"))]
+pub use image_usage::*;
+
+#[cfg(any(feature = "response-types", feature = "decision-types"))]
+mod message_phase;
+#[cfg(any(feature = "response-types", feature = "decision-types"))]
+pub use message_phase::*;
