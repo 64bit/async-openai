@@ -44,7 +44,6 @@ pub enum EvalDataSourceConfig {
     /// Logs data source config.
     Logs(EvalLogsDataSourceConfig),
     /// Stored completions data source config (deprecated).
-    #[serde(rename = "stored_completions")]
     StoredCompletions(EvalStoredCompletionsDataSourceConfig),
 }
 
@@ -439,9 +438,9 @@ pub struct EvalRun {
     /// The status of the evaluation run.
     pub status: EvalRunStatus,
     /// The model that is evaluated, if applicable.
-    pub model: String,
+    pub model: Option<String>,
     /// The name of the evaluation run.
-    pub name: String,
+    pub name: Option<String>,
     /// Unix timestamp (in seconds) when the evaluation run was created.
     pub created_at: u64,
     /// The URL to the rendered evaluation run report on the UI dashboard.
