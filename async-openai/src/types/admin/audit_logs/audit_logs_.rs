@@ -297,6 +297,10 @@ pub enum AuditLogEventType {
     TenantMembershipDeclined,
     #[serde(rename = "tenant.workspace_invite_email_settings.updated")]
     TenantWorkspaceInviteEmailSettingsUpdated,
+    #[serde(rename = "external_storage.registered")]
+    ExternalStorageRegistered,
+    #[serde(rename = "external_storage.removed")]
+    ExternalStorageRemoved,
 }
 
 /// Represents a list of audit logs.
@@ -488,6 +492,11 @@ pub struct AuditLog {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub workload_identity_provider_mapping_deleted:
         Option<AuditLogWorkloadIdentityProviderMappingDeleted>,
+
+    #[serde(rename = "external_storage.registered")]
+    pub external_storage_registered: Option<AuditLogExternalStorageRegistered>,
+    #[serde(rename = "external_storage.removed")]
+    pub external_storage_removed: Option<AuditLogExternalStorageRemoved>,
 }
 
 /// The details for events with the type `api_key.created`.
@@ -768,16 +777,12 @@ pub struct AuditLogRoleBoundToResource {
 
 /// The connector role mutation path that produced the event.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum AuditLogRoleBoundToResourceSource {
-    #[serde(rename = "role_toggle")]
     RoleToggle,
-    #[serde(rename = "role_connector_update")]
     RoleConnectorUpdate,
-    #[serde(rename = "role_delete")]
     RoleDelete,
-    #[serde(rename = "workspace_permissions")]
     WorkspacePermissions,
-    #[serde(rename = "connector_publish")]
     ConnectorPublish,
 }
 
@@ -820,16 +825,12 @@ pub struct AuditLogRoleUnboundFromResource {
 
 /// The connector role mutation path that produced the event.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum AuditLogRoleUnboundFromResourceSource {
-    #[serde(rename = "role_toggle")]
     RoleToggle,
-    #[serde(rename = "role_connector_update")]
     RoleConnectorUpdate,
-    #[serde(rename = "role_delete")]
     RoleDelete,
-    #[serde(rename = "workspace_permissions")]
     WorkspacePermissions,
-    #[serde(rename = "connector_publish")]
     ConnectorPublish,
 }
 
@@ -909,4 +910,24 @@ pub struct AuditLogWorkloadIdentityProviderUpdated {
     /// The payload used to update the workload identity provider.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub changes_requested: Option<std::collections::HashMap<String, serde_json::Value>>,
+}
+
+pub use crate::types::shared::{
+    AwsExternalStorageProviderResponse, AzureExternalStorageProviderResponse,
+    ExternalStorageResponseProvider, GcpExternalStorageProviderResponse,
+    OciExternalStorageProviderResponse,
+};
+#[derive(Debug, Serialize, Deserialize, Default)]
+pub struct AuditLogExternalStorageRegistered {
+    pub id: Option<String>,
+    pub data: Option<AuditLogExternalStorageRegisteredData>,
+}
+#[derive(Debug, Serialize, Deserialize, Default)]
+pub struct AuditLogExternalStorageRegisteredData {
+    pub provider: Option<ExternalStorageResponseProvider>,
+    pub geography: Option<String>,
+}
+#[derive(Debug, Serialize, Deserialize, Default)]
+pub struct AuditLogExternalStorageRemoved {
+    pub id: Option<String>,
 }
