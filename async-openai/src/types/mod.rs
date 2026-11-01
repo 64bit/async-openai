@@ -122,6 +122,7 @@ mod impls;
 
 #[cfg(any(
     feature = "response-types",
+    feature = "decision-types",
     feature = "audio-types",
     feature = "file-types",
     feature = "image-types",
@@ -142,3 +143,6 @@ pub mod safety;
 
 #[cfg(feature = "content-provenance-checks-types")]
 pub mod content_provenance_checks;
+
+#[cfg(feature = "decision-types")]
+pub mod decisions;
