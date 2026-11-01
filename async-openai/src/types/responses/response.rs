@@ -1,24 +1,15 @@
 use crate::error::OpenAIError;
 use crate::types::mcp::{MCPListToolsTool, MCPTool};
 use crate::types::responses::{
-    CustomGrammarFormatParam, Filter, ImageDetail, MessageRole, MisalignmentErrorDetailsResource,
-    ModerationParam, ModerationResultBody, PromptCacheModeEnum, PromptCacheOptionsParam,
-    PromptCacheTTLEnum, ReasoningEffort, ResponseFormatJsonSchema, ResponseUsage,
-    SummaryTextContent,
+    CustomGrammarFormatParam, Filter, ImageDetail, ImageGenInputUsageDetails,
+    ImageGenOutputTokensDetails, MessagePhase, MessageRole, MisalignmentErrorDetailsResource,
+    ModerationParam, ModerationResultBody, PromptCacheBreakpointTTLEnum, PromptCacheModeEnum,
+    PromptCacheOptionsParam, PromptCacheTTLEnum, ReasoningEffort, ResponseFormatJsonSchema,
+    ResponseUsage, SummaryTextContent,
 };
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
-/// Labels an `assistant` message as intermediate commentary or the final answer.
-/// For models like `gpt-5.3-codex` and beyond, when sending follow-up requests, preserve and resend
-/// phase on all assistant messages — dropping it can degrade performance.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(rename_all = "snake_case")]
-pub enum MessagePhase {
-    Commentary,
-    FinalAnswer,
-}
 
 /// Whether tool search was executed by the server or by the client.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
@@ -53,11 +44,6 @@ pub enum FunctionCallOutputStatusEnum {
     Completed,
     Incomplete,
 }
-
-/// A tool that controls a virtual computer. Learn more about the
-/// [computer tool](https://platform.openai.com/docs/guides/tools-computer-use).
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
-pub struct ComputerTool {}
 
 /// Groups function/custom tools under a shared namespace.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Builder, Default)]
@@ -211,7 +197,7 @@ pub struct ToolSearchOutputItemParam {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub execution: Option<ToolSearchExecutionType>,
     /// The loaded tool definitions returned by the tool search output.
-    pub tools: Vec<Tool>,
+    pub tools: Vec<ToolSearchOutputTool>,
     /// The status of the tool search output.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<OutputStatus>,
@@ -526,7 +512,7 @@ pub struct ComputerToolCallOutputResource {
     /// The safety checks reported by the API that have been acknowledged by the developer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acknowledged_safety_checks: Option<Vec<ComputerCallSafetyCheckParam>>,
-    /// The unique ID of the computer tool call output.
+    /// The ID of the computer tool call output.
     pub id: String,
     /// The status of the item returned by the API.
     pub status: ComputerCallOutputStatus,
@@ -1085,6 +1071,10 @@ pub struct CreateResponse {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub moderation: Option<ModerationParam>,
+
+    /// Domain-specific access programs to use for this request.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub access_programs: Option<AccessProgramsParam>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -1290,7 +1280,7 @@ pub enum Tool {
     Custom(CustomToolParam),
     /// A tool that controls a virtual computer. Learn more about the
     /// [computer tool](https://platform.openai.com/docs/guides/tools-computer-use).
-    Computer(ComputerTool),
+    Computer,
     /// Groups function/custom tools under a shared namespace.
     Namespace(NamespaceToolParam),
     /// Hosted or BYOT tool search configuration for deferred tools.
@@ -1411,7 +1401,9 @@ pub struct WebSearchTool {
     /// Filters for the search.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub filters: Option<WebSearchToolFilters>,
-    /// The approximate location of the user.
+    /// The approximate location of the user. If omitted or null, defaults to the
+    /// United States. To avoid this fallback, pass `{"type": "approximate"}` without
+    /// location fields. To localize results, provide the relevant location fields.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_location: Option<WebSearchApproximateLocation>,
     /// High level guidance for the amount of context window space to use for the search. One of `low`,
@@ -1656,18 +1648,14 @@ pub struct ImageGenTool {
     /// `xhigh`, `max`, or `auto`. Default: `auto`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quality: Option<ImageGenToolQuality>,
-    /// The size of the generated images. Compatible GPT image models support
-    /// arbitrary resolutions as
-    /// `WIDTHxHEIGHT` strings, for example `1536x864`. Width and height
-    /// must both be divisible by 16 and the requested aspect ratio must be
-    /// between 1:3 and 3:1. Resolutions above `2560x1440` are experimental,
-    /// and the maximum supported resolution is `3840x2160`. The requested
-    /// size must also satisfy the model's current pixel and edge limits.
-    /// The standard sizes `1024x1024`, `1536x1024`, and `1024x1536` are
-    /// supported by the GPT image models; `auto` is supported for models
-    /// that allow automatic sizing. For `dall-e-2`, use one of `256x256`,
-    /// `512x512`, or `1024x1024`. For `dall-e-3`, use one of `1024x1024`,
-    /// `1792x1024`, or `1024x1792`.
+    /// The size of the generated images. For `gpt-image-2`, `gpt-image-2-2026-04-21`,
+    /// `gpt-image-2.5-sunburst`, `gpt-image-2.5-sunburst-2026-09-08`, `gpt-image-2.5-flare`, and
+    /// `gpt-image-2.5-flare-2026-09-08`, arbitrary resolutions are supported as `WIDTHxHEIGHT` strings, for
+    /// example `1536x864`. Width and height must both be divisible by 16 and the requested aspect ratio
+    /// must be between 1:3 and 3:1. Resolutions above `2560x1440` are experimental, and the maximum
+    /// supported resolution is `3840x2160`. The requested size must also satisfy the model's current pixel
+    /// and edge limits. The standard sizes `1024x1024`, `1536x1024`, and `1024x1536` are supported by the
+    /// GPT image models; `auto` is supported for models that allow automatic sizing.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub size: Option<ImageGenToolSize>,
     /// Whether to generate a new image or edit an existing image. Default: `auto`.
@@ -1870,6 +1858,12 @@ pub struct ResponseError {
     pub message: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub misalignment: Option<MisalignmentErrorDetailsResource>,
+    /// The related request parameter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub param: Option<String>,
+    /// The error type.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
 }
 
 /// Details about an incomplete response.
@@ -2139,9 +2133,8 @@ pub struct ComputerCallSafetyCheckParam {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum WebSearchCallStatus {
-    #[serde(rename = "in_progress")]
     InProgress,
     Searching,
     Completed,
@@ -2178,8 +2171,8 @@ pub struct WebSearchActionOpenPage {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct WebSearchActionFind {
-    /// The URL of the page searched for the pattern.
-    pub url: String,
+    /// The URL of the page searched for the pattern, when available.
+    pub url: Option<String>,
     /// The pattern or text to search for within the page.
     pub pattern: String,
 }
@@ -2463,6 +2456,21 @@ pub struct ImageGenToolCall {
     /// The quality of the image generated by the image generation tool call.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quality: Option<ImageGenToolQuality>,
+    /// The background used for the generated image.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub background: Option<ImageGenToolBackground>,
+    /// The output format.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_format: Option<ImageGenToolOutputFormat>,
+    /// The action performed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub action: Option<ImageGenActionEnum>,
+    /// The revised prompt.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub revised_prompt: Option<String>,
+    /// Details of a moderation failure, when available.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<ImageGenToolCallError>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -3208,6 +3216,25 @@ pub struct Response {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub moderation: Option<Moderation>,
+
+    /// Domain-specific access programs applied to this response.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub access_programs: Option<AccessProgramsBody>,
+
+    /// Usage reported by hosted tools, separate from base model `usage`. The field
+    /// can be omitted when tool usage is unavailable. When present, tool families
+    /// with no recorded usage have zero counts.
+    ///
+    /// `image_gen` sums available token counts across image generation calls.
+    /// Calls with missing or incomplete usage records may be skipped. Output
+    /// token details and cached input counts can be omitted. An omitted cache
+    /// count means cache usage is unknown.
+    ///
+    /// `web_search.num_requests` counts billable searches. Discounted searches
+    /// and actions such as opening a page are excluded. Use billing records to
+    /// reconcile final charges.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tool_usage: Option<ResponseToolUsage>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -3808,18 +3835,22 @@ pub enum CacheMissReasonTypeEnum {
     ServiceTierChanged,
 }
 
-/// Marks the exact end of a reusable prompt prefix. The breakpoint inherits its TTL from the request's
-/// `prompt_cache_options.ttl`; the boundary is not rounded to a token block.
+/// Marks the exact end of a reusable prompt prefix. When ttl is omitted, the breakpoint inherits
+/// the request TTL. The boundary is not rounded to a token block.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PromptCacheBreakpointConfig {
     /// The breakpoint mode. Always `explicit`.
     pub mode: PromptCacheBreakpointConfigMode,
+
+    /// The minimum lifetime of this cache breakpoint. Defaults to the request TTL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ttl: Option<PromptCacheBreakpointTTLEnum>,
 }
 
 /// The breakpoint mode. Always `explicit`.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
 pub enum PromptCacheBreakpointConfigMode {
-    #[serde(rename = "explicit")]
     Explicit,
 }
 
@@ -3879,8 +3910,8 @@ pub struct AdditionalToolsItemParam {
 
 /// The role that provided the additional tools. Only `developer` is supported.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
 pub enum AdditionalToolsItemParamRole {
-    #[serde(rename = "developer")]
     Developer,
 }
 
@@ -4045,6 +4076,10 @@ pub struct ResponseConfigurationUpdate {
     /// The reasoning configuration applied by this update.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reasoning: Option<ResponseConfigurationUpdateReasoning>,
+
+    /// The text output configuration for subsequent responses.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<ResponseConfigurationUpdateText>,
 }
 
 /// An update to the conversation's response configuration. The configuration
@@ -4057,6 +4092,10 @@ pub struct ResponseConfigurationUpdateItemParam {
     /// Updates to reasoning configuration. Only effort is supported.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reasoning: Option<ResponseConfigurationUpdateReasoning>,
+
+    /// The text output configuration for subsequent responses.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<ResponseConfigurationUpdateText>,
 }
 
 /// The reasoning configuration applied by this update.
@@ -4091,6 +4130,11 @@ pub struct ResponsePromptCacheOptionsParam {
     pub mode: Option<PromptCacheModeEnum>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comparison_response_id: Option<String>,
+
+    /// Prepares the prompt cache without generating output. Defaults to `false`. When set to `true`,
+    /// overrides the `generate` field to `false`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prewarm: Option<bool>,
 }
 
 /// Specifies the processing type used for serving the request.
@@ -4145,3 +4189,173 @@ pub struct UrlCitationParam {
     /// The title of the cited resource.
     pub title: String,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ResponseConfigurationUpdateText {
+    pub format: ResponseConfigurationUpdateTextFormat,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ResponseConfigurationUpdateTextFormat {
+    Text,
+    JsonSchema(ResponseFormatJsonSchema),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AccessProgramsBody {
+    /// The effective Cyber access program used for this response.
+    pub cyber: CyberAccessProgramEnum,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum CyberAccessProgramEnum {
+    Standard,
+    DaybreakBlue,
+    DaybreakRed,
+}
+
+/// Domain-specific access programs to use for this request.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct AccessProgramsParam {
+    /// The Cyber access program to use for this request. Supported values are `standard`, `daybreak_blue`, and `daybreak_red`. If omitted, the API resolves the program from the model's Cyber tier and your organization and project access, subject to model-specific eligibility restrictions. By default, models without a Cyber tier use Standard. Blue-tier models use Daybreak Blue when authorized; otherwise they fall back to Standard unless the model requires Daybreak access. Red-tier models use Daybreak Red and require authorization. Requests that require unavailable Daybreak access return 403. An implicit Standard fallback is represented by null in the response's access_programs field, rather than an explicit Standard selection.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cyber: Option<CyberAccessProgramEnum>,
+}
+
+/// Aggregated usage details for billable tools that ran while generating the response.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct ResponseToolUsage {
+    /// Aggregated usage statistics for image generation tool calls.
+    pub image_gen: ImageGenToolUsage,
+    /// Aggregated billable usage statistics for web search tool calls.
+    pub web_search: WebSearchUsage,
+}
+
+/// Usage details for web search requests that ran while generating the response.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct WebSearchUsage {
+    /// The number of billable web search requests issued.
+    pub num_requests: u32,
+}
+
+/// Token usage for image generation tool calls in a response.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct ImageGenToolUsage {
+    /// The number of tokens (images and text) in the input prompt.
+    pub input_tokens: u32,
+    /// The total number of tokens (images and text) used for the image generation.
+    pub total_tokens: u32,
+    /// The number of output tokens generated by the model.
+    pub output_tokens: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_tokens_details: Option<ImageGenOutputTokensDetails>,
+    pub input_tokens_details: ImageGenInputUsageDetails,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cached_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cached_tokens_details: Option<CachedUsageDetails>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct CachedUsageDetails {
+    pub cached_text_tokens: u32,
+    pub cached_image_tokens: u32,
+}
+
+/// An error returned by the image generation tool.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct ImageGenToolCallError {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code: Option<String>,
+    /// The error type.
+    pub r#type: String,
+    /// A description of the error.
+    pub message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub param: Option<String>,
+    /// Public details for a `moderation_blocked` error, when available.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub moderation_details: Option<ImageGenToolCallModerationDetails>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ImageGenToolCallModerationDetails {
+    /// The stage where moderation blocked the image generation call.
+    pub moderation_stage: ImageGenToolCallModerationDetailsModerationStage,
+    /// Public moderation categories. New category values may be added over time.
+    pub categories: Vec<String>,
+}
+
+/// The stage where moderation blocked the image generation call.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum ImageGenToolCallModerationDetailsModerationStage {
+    Input,
+    Output,
+    Unknown,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ToolSearchOutputTool {
+    /// Defines a function in your own code the model can choose to call. Learn more about [function
+    /// calling](https://platform.openai.com/docs/guides/tools).
+    Function(FunctionTool),
+    /// A tool that searches for relevant content from uploaded files. Learn more about the [file search
+    /// tool](https://platform.openai.com/docs/guides/tools-file-search).
+    FileSearch(FileSearchTool),
+    /// A tool that controls a virtual computer. Learn more about the
+    /// [computer tool](https://platform.openai.com/docs/guides/tools-computer-use).
+    Computer,
+    /// A tool that controls a virtual computer. Learn more about the [computer
+    /// use tool](https://platform.openai.com/docs/guides/tools-computer-use).
+    ComputerUsePreview(ComputerUsePreviewTool),
+    /// Search the Internet for sources related to the prompt. Learn more about the
+    /// [web search tool](https://platform.openai.com/docs/guides/tools-web-search).
+    WebSearch(WebSearchTool),
+    /// type: web_search_2025_08_26
+    #[serde(rename = "web_search_2025_08_26")]
+    WebSearch20250826(WebSearchTool),
+    /// Give the model access to additional tools via remote Model Context Protocol
+    /// (MCP) servers. [Learn more about MCP](https://platform.openai.com/docs/guides/tools-remote-mcp).
+    Mcp(MCPTool),
+    /// A tool that runs Python code to help generate a response to a prompt.
+    CodeInterpreter(CodeInterpreterTool),
+
+    ProgrammaticToolCalling,
+    /// A tool that generates images using a model like `gpt-image-1`.
+    ImageGeneration(ImageGenTool),
+    /// A tool that allows the model to execute shell commands in a local environment.
+    LocalShell,
+    /// A tool that allows the model to execute shell commands.
+    Shell(FunctionShellToolParam),
+    /// A custom tool that processes input using a specified format. Learn more about   [custom
+    /// tools](https://platform.openai.com/docs/guides/function-calling#custom-tools)
+    Custom(CustomToolParam),
+
+    /// Groups function/custom tools under a shared namespace.
+    Namespace(ToolSearchOutputNamespaceToolParam),
+    /// Hosted or BYOT tool search configuration for deferred tools.
+    ToolSearch(ToolSearchToolParam),
+    /// This tool searches the web for relevant results to use in a response. Learn more about the [web search
+    ///tool](https://platform.openai.com/docs/guides/tools-web-search).
+    WebSearchPreview(WebSearchTool),
+    /// type: web_search_preview_2025_03_11
+    #[serde(rename = "web_search_preview_2025_03_11")]
+    WebSearchPreview20250311(WebSearchTool),
+    /// Allows the assistant to create, delete, or update files using unified diffs.
+    ApplyPatch(ApplyPatchToolParam),
+}
+
+/// A namespace containing loaded function and custom tool definitions.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct ToolSearchOutputNamespaceToolParam {
+    pub name: String,
+    pub description: String,
+    pub tools: Vec<NamespaceToolParamTool>,
+}
+
+/// Loaded function tool parameters have the same shape as function tool parameters.
+pub type ToolSearchOutputFunctionToolParam = FunctionToolParam;

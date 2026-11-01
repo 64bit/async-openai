@@ -58,12 +58,19 @@ pub struct ResponsesClientEventResponseCreate {
     pub stream_id: Option<String>,
     #[serde(flatten)]
     pub response: CreateResponse,
+    /// Whether to generate output for this response. Defaults to true when omitted.
+    /// Set to false to prepare request state without model output; the response
+    /// ID can be used as previous_response_id on a later turn.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub generate: Option<bool>,
 }
 
 /// Server events received on a Responses WebSocket connection.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type")]
 pub enum ResponsesServerEvent {
+    #[serde(rename = "response.compaction.compacting")]
+    CompactionCompacting(ResponseCompactionWsCompacting),
     /// Emitted when there is a partial audio response.
     #[serde(rename = "response.audio.delta")]
     ResponseAudioDelta(ResponseAudioWsDelta),
@@ -886,7 +893,8 @@ pub struct ResponseCustomToolCallInputWsDone {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct ErrorPayload {
     /// The error type that was emitted.
-    pub r#type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
     /// The human-readable error message that was emitted.
@@ -1011,8 +1019,8 @@ pub struct ResponseSteerFailedEventError {
 
 /// The error type. Always `invalid_request_error`.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum ResponseSteerFailedEventErrorType {
-    #[serde(rename = "invalid_request_error")]
     InvalidRequestError,
 }
 
@@ -1120,35 +1128,28 @@ pub enum ResponseSteerPendingReason {
 /// rerunning the tool. The server does not supply results, approval decisions,
 /// or safety acknowledgements in these stubs.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum ResponseSteerRequiredInput {
     /// Supply `output` using the function tool call output input schema.
-    #[serde(rename = "function_call_output")]
     FunctionCallOutput(ResponseSteerRequiredInputFunctionCallOutput),
     /// Supply `output` using the custom tool call output input schema. The
     /// original custom tool call supplies the tool's name.
-    #[serde(rename = "custom_tool_call_output")]
     CustomToolCallOutput(ResponseSteerRequiredInputCustomToolCallOutput),
     /// Supply `output` using the computer tool call output input schema,
     /// including any required `acknowledged_safety_checks`.
-    #[serde(rename = "computer_call_output")]
     ComputerCallOutput(ResponseSteerRequiredInputComputerCallOutput),
     /// Supply `output` using the shell tool call output input schema. Each
     /// output entry includes `stdout`, `stderr`, and `outcome`.
-    #[serde(rename = "shell_call_output")]
     ShellCallOutput(ResponseSteerRequiredInputShellCallOutput),
     /// Supply `status` and optional `output` using the apply patch tool call
     /// output input schema.
-    #[serde(rename = "apply_patch_call_output")]
     ApplyPatchCallOutput(ResponseSteerRequiredInputApplyPatchCallOutput),
     /// Supply `tools` using the tool search output input schema, retaining
     /// `execution: "client"`.
-    #[serde(rename = "tool_search_output")]
     ToolSearchOutput(ResponseSteerRequiredInputToolSearchOutput),
     /// Supply `approve` using the MCP approval response input schema. An
     /// optional `reason` can be supplied when denying the request. The original
     /// approval request identifies the tool and server.
-    #[serde(rename = "mcp_approval_response")]
     McpApprovalResponse(ResponseSteerRequiredInputMcpApprovalResponse),
 }
 
@@ -1196,8 +1197,8 @@ pub struct ResponseSteerRequiredInputToolSearchOutput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
 pub enum ResponseSteerRequiredInputToolSearchOutputExecution {
-    #[serde(rename = "client")]
     Client,
 }
 
@@ -1252,4 +1253,13 @@ pub struct UserMessageItemParam {
 #[serde(rename_all = "lowercase")]
 pub enum UserMessageItemParamRole {
     User,
+}
+
+/// Compaction progress on a Responses WebSocket lane.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct ResponseCompactionWsCompacting {
+    #[serde(flatten)]
+    pub event: crate::types::responses::ResponseCompactionCompactingEvent,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stream_id: Option<String>,
 }
