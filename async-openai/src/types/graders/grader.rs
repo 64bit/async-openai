@@ -84,7 +84,7 @@ pub struct GraderScoreModel {
     /// Optional sampling parameters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sampling_params: Option<GraderScoreModelSamplingParams>,
-    /// The range of the score. Defaults to [0, 1].
+    /// The service requires two numbers for the score range. Defaults to `[0, 1]`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub range: Option<Vec<f64>>,
 }
@@ -136,7 +136,7 @@ pub enum Graders {
 pub struct GraderMulti {
     /// The name of the grader.
     pub name: String,
-    pub graders: Graders,
+    pub graders: std::collections::HashMap<String, Graders>,
     /// A formula to calculate the output based on grader results.
     pub calculate_output: String,
 }
