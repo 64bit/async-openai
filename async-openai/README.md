@@ -224,12 +224,17 @@ These granular types are enabled when the corresponding API feature is enabled -
 
 The crate exposes the underlying `reqwest` TLS options as Cargo features. Pick exactly one; disable default features when choosing anything other than `rustls`.
 
+<details>
+<summary>TLS Feature Flags</summary>
+
 | Feature | TLS implementation | Crypto provider | Notes |
 | --- | --- | --- | --- |
 | `rustls` (default) | `rustls` + `rustls-platform-verifier` roots | `aws-lc-rs` bundled | Works out of the box. |
 | `rustls-no-provider` | `rustls` + `rustls-platform-verifier` roots | **None** — install your own | Use this to pick `ring` (or share a provider across your tree). Call e.g. `rustls::crypto::ring::default_provider().install_default().unwrap();` at the start of `main`. |
 | `native-tls` | System TLS | n/a | OpenSSL on Linux, Secure Transport on macOS, SChannel on Windows. |
 | `native-tls-vendored` | System TLS, vendored OpenSSL | n/a | Statically links a bundled OpenSSL build. |
+
+</details>
 
 ## Webhooks
 
