@@ -79,7 +79,7 @@ pub struct Upload {
     /// The object type, which is always "upload"
     pub object: String,
 
-    /// The ready File object after the Upload is completed
+    /// The ready File object after the Upload is completed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub file: Option<OpenAIFile>,
 }
