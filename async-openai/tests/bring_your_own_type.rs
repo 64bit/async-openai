@@ -1,3 +1,4 @@
+#![allow(deprecated)] // Exercise BYOT support for APIs retained until their scheduled retirement.
 #![allow(dead_code)]
 //! The purpose of this test to make sure that all _byot methods compiles with custom types.
 use std::pin::Pin;
