@@ -19,6 +19,8 @@ jobs:
           [
             byot,
             responses,
+            decisions,
+            decision-types,
             safety,
             safety-types,
             content-provenance-checks,
