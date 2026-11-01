@@ -1,10 +1,11 @@
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::PromptCacheModeEnum))]
+#[serde(rename_all = "lowercase")]
 pub enum PromptCacheModeEnum {
-    #[serde(rename = "implicit")]
     Implicit,
-    #[serde(rename = "explicit")]
     Explicit,
 }
 
@@ -15,7 +16,7 @@ pub enum PromptCacheModeEnum {
 /// block lookback limit. Set `mode` to `explicit` to disable the implicit breakpoint. The `ttl`
 /// defaults to `30m`, which is currently the only supported value. See the [prompt caching
 /// guide](/docs/guides/prompt-caching) for current details.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::PromptCacheOptionsParam))]
 pub struct PromptCacheOptionsParam {
@@ -33,10 +34,21 @@ pub struct PromptCacheOptionsParam {
     pub mode: Option<PromptCacheModeEnum>,
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::PromptCacheTTLEnum))]
 pub enum PromptCacheTTLEnum {
     #[serde(rename = "30m")]
     Value30m,
+}
+
+/// Minimum cache lifetime for an individual explicit breakpoint.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "openapi", schema(as = async_openai::PromptCacheBreakpointTTLEnum))]
+pub enum PromptCacheBreakpointTTLEnum {
+    #[serde(rename = "30m")]
+    Value30m,
+    #[serde(rename = "12h")]
+    Value12h,
 }
