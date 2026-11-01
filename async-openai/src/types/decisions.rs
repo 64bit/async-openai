@@ -76,11 +76,12 @@ pub struct AnswerResourcePredicate {
     pub probability: f64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Builder)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default, Builder)]
 #[builder(
     name = "DecisionRequestArgs",
     pattern = "mutable",
-    setter(into, strip_option)
+    setter(into, strip_option),
+    default
 )]
 #[builder(build_fn(error = "OpenAIError"))]
 // Required input has no schema default; optional builder fields store Option directly.
@@ -460,5 +461,11 @@ impl From<String> for DecisionInput {
 impl From<&str> for DecisionInput {
     fn from(value: &str) -> Self {
         Self::Text(value.into())
+    }
+}
+
+impl Default for DecisionInput {
+    fn default() -> Self {
+        Self::Text(Default::default())
     }
 }
