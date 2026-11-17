@@ -667,11 +667,11 @@ pub enum ChatCompletionToolChoiceOption {
     Mode(ToolChoiceOptions),
 }
 
-#[derive(Clone, Serialize, Default, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[cfg_attr(feature = "openapi", schema(as = async_openai::ChatCompletionAllowedToolsChoice))]
 pub struct ChatCompletionAllowedToolsChoice {
-    pub allowed_tools: Vec<ChatCompletionAllowedTools>,
+    pub allowed_tools: ChatCompletionAllowedTools,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

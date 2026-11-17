@@ -157,7 +157,10 @@ fn mixed_tool_choices_are_strings_or_direct_objects() {
         json!("required"),
         json!({"type":"function","function":{"name":"lookup"}}),
         json!({"type":"custom","custom":{"name":"lookup"}}),
-        json!({"type":"allowed_tools","allowed_tools":[]}),
+        json!({
+            "type":"allowed_tools",
+            "allowed_tools":{"mode":"auto","tools":[{"type":"function","function":{"name":"lookup"}}]}
+        }),
     ]);
     let schema = validator::<ChatCompletionToolChoiceOption>();
     for value in [
